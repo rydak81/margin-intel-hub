@@ -1,0 +1,1695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MarginIntel Hub — ThreeColts LinkedIn Post Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-primary: #0c0f14;
+  --bg-secondary: #13171f;
+  --bg-card: #181d27;
+  --bg-card-hover: #1e2433;
+  --bg-input: #1a1f2b;
+  --border: #252d3d;
+  --border-focus: #3b82f6;
+  --text-primary: #e8ecf4;
+  --text-secondary: #8892a6;
+  --text-muted: #5c6478;
+  --accent: #3b82f6;
+  --accent-glow: rgba(59, 130, 246, 0.15);
+  --green: #22c55e;
+  --green-bg: rgba(34, 197, 94, 0.1);
+  --amber: #f59e0b;
+  --amber-bg: rgba(245, 158, 11, 0.1);
+  --red: #ef4444;
+  --red-bg: rgba(239, 68, 68, 0.1);
+  --purple: #a855f7;
+  --purple-bg: rgba(168, 85, 247, 0.1);
+  --teal: #14b8a6;
+  --teal-bg: rgba(20, 184, 166, 0.1);
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shadow: 0 2px 8px rgba(0,0,0,0.3);
+  --transition: 0.2s ease;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-secondary); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* Layout */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(12, 15, 20, 0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+}
+
+.header-inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 17px;
+  letter-spacing: -0.3px;
+}
+
+.logo-icon {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, var(--accent), var(--teal));
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: white;
+}
+
+.logo-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  background: var(--accent-glow);
+  color: var(--accent);
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.main-content {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* Tab Navigation */
+.tab-nav {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 24px;
+  background: var(--bg-secondary);
+  padding: 4px;
+  border-radius: var(--radius);
+  width: fit-content;
+}
+
+.tab-btn {
+  padding: 8px 20px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.tab-btn:hover { color: var(--text-primary); background: var(--bg-card); }
+.tab-btn.active { color: white; background: var(--accent); }
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* Stats Row */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.stat-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.stat-icon.blue { background: var(--accent-glow); }
+.stat-icon.green { background: var(--green-bg); }
+.stat-icon.amber { background: var(--amber-bg); }
+.stat-icon.purple { background: var(--purple-bg); }
+
+.stat-label { font-size: 12px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-value { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
+
+/* Buttons */
+.btn {
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.btn:hover { background: var(--bg-card-hover); border-color: var(--text-muted); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+.btn-primary:hover { background: #2563eb; }
+
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+
+.btn-danger { color: var(--red); }
+.btn-danger:hover { background: var(--red-bg); border-color: var(--red); }
+
+/* Toolbar */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.toolbar-spacer { flex: 1; }
+
+.search-input {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 13px;
+  padding: 8px 12px 8px 34px;
+  border-radius: var(--radius-sm);
+  width: 240px;
+  transition: var(--transition);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%235c6478' viewBox='0 0 24 24'%3E%3Cpath d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z' stroke='%235c6478' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 10px center;
+}
+
+.search-input:focus { outline: none; border-color: var(--accent); }
+.search-input::placeholder { color: var(--text-muted); }
+
+select.filter-select {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 13px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%235c6478' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 30px;
+}
+
+select.filter-select:focus { outline: none; border-color: var(--accent); }
+
+/* Articles Table */
+.table-wrapper {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.articles-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.articles-table thead th {
+  padding: 12px 16px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: left;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+}
+
+.articles-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.articles-table tbody tr:last-child { border-bottom: none; }
+.articles-table tbody tr:hover { background: var(--bg-card-hover); }
+
+.articles-table td {
+  padding: 12px 16px;
+  font-size: 13px;
+  vertical-align: middle;
+}
+
+.article-title-cell {
+  font-weight: 600;
+  color: var(--text-primary);
+  max-width: 320px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.article-source {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Badges */
+.badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.badge-new { background: var(--accent-glow); color: var(--accent); }
+.badge-drafted { background: var(--amber-bg); color: var(--amber); }
+.badge-posted { background: var(--green-bg); color: var(--green); }
+.badge-archived { background: rgba(92, 100, 120, 0.15); color: var(--text-muted); }
+
+.product-tag {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.product-tag.marginpro { background: var(--red-bg); color: var(--red); }
+.product-tag.multichannel { background: var(--teal-bg); color: var(--teal); }
+.product-tag.seller365 { background: var(--purple-bg); color: var(--purple); }
+
+/* Modal Overlay */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 24px;
+  overflow-y: auto;
+}
+
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 720px;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+  animation: modalIn 0.25s ease;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-header h2 { font-size: 17px; font-weight: 700; }
+
+.modal-close {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+.modal-close:hover { background: var(--border); color: var(--text-primary); }
+
+.modal-body { padding: 24px; }
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* Forms */
+.form-group { margin-bottom: 16px; }
+
+.form-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-input, .form-textarea, .form-select {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 14px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+}
+
+.form-input:focus, .form-textarea:focus, .form-select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.form-textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+.form-select { cursor: pointer; -webkit-appearance: none; appearance: none; }
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* Generated Post Area */
+.generated-post {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-top: 16px;
+  min-height: 120px;
+  white-space: pre-wrap;
+  font-size: 14px;
+  line-height: 1.7;
+  position: relative;
+}
+
+.generated-post.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.generated-post .spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-right: 10px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.post-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+/* Settings Panel */
+.settings-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 16px;
+}
+
+.settings-section h3 {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.api-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.api-status.connected { background: var(--green-bg); color: var(--green); }
+.api-status.disconnected { background: var(--red-bg); color: var(--red); }
+
+.api-key-input-wrapper {
+  display: flex;
+  gap: 8px;
+}
+
+.api-key-input-wrapper input { flex: 1; }
+
+/* Article Detail View */
+.article-detail {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.article-detail-info {
+  background: var(--bg-secondary);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.article-detail-info h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.article-meta-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.meta-item {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.article-summary {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-top: 12px;
+}
+
+.key-points {
+  margin-top: 16px;
+}
+
+.key-points h4 {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.key-point {
+  padding: 6px 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  display: flex;
+  gap: 8px;
+}
+
+.key-point::before {
+  content: "→";
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+/* Toast */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toast {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: toastIn 0.3s ease;
+  min-width: 280px;
+}
+
+.toast.success { border-left: 3px solid var(--green); }
+.toast.error { border-left: 3px solid var(--red); }
+.toast.info { border-left: 3px solid var(--accent); }
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-muted);
+}
+
+.empty-state-icon { font-size: 40px; margin-bottom: 12px; }
+.empty-state h3 { font-size: 16px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
+.empty-state p { font-size: 13px; }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .article-detail { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .stats-row { grid-template-columns: 1fr; }
+  .toolbar { flex-direction: column; align-items: stretch; }
+  .search-input { width: 100%; }
+  .header-inner { padding: 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="app-header">
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">M</div>
+      <span>MarginIntel Hub</span>
+      <span class="logo-badge">ThreeColts</span>
+    </div>
+    <div class="header-actions">
+      <span id="apiStatusBadge" class="api-status disconnected">● No API Key</span>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<div class="main-content">
+
+  <!-- Tab Navigation -->
+  <div class="tab-nav">
+    <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+    <button class="tab-btn" data-tab="generator">Generate Post</button>
+    <button class="tab-btn" data-tab="settings">Settings</button>
+  </div>
+
+  <!-- ===== DASHBOARD TAB ===== -->
+  <div id="tab-dashboard" class="tab-panel active">
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon blue">📰</div>
+        <div>
+          <div class="stat-label">Total Articles</div>
+          <div class="stat-value" id="statTotal">0</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">✅</div>
+        <div>
+          <div class="stat-label">Posts Generated</div>
+          <div class="stat-value" id="statDrafted">0</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon amber">📤</div>
+        <div>
+          <div class="stat-label">Posted</div>
+          <div class="stat-value" id="statPosted">0</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon purple">🏷️</div>
+        <div>
+          <div class="stat-label">Products Mapped</div>
+          <div class="stat-value" id="statProducts">3</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <input type="text" class="search-input" id="searchInput" placeholder="Search articles...">
+      <select class="filter-select" id="filterStatus">
+        <option value="">All Status</option>
+        <option value="new">New</option>
+        <option value="drafted">Drafted</option>
+        <option value="posted">Posted</option>
+        <option value="archived">Archived</option>
+      </select>
+      <select class="filter-select" id="filterProduct">
+        <option value="">All Products</option>
+        <option value="MarginPro">MarginPro</option>
+        <option value="Multichannel Pro">Multichannel Pro</option>
+        <option value="Seller365">Seller365</option>
+      </select>
+      <div class="toolbar-spacer"></div>
+      <button class="btn" onclick="openAddArticleModal()">+ Add Article</button>
+      <button class="btn btn-primary" onclick="loadSampleArticles()">Load Samples</button>
+    </div>
+
+    <!-- Articles Table -->
+    <div class="table-wrapper">
+      <table class="articles-table">
+        <thead>
+          <tr>
+            <th>Article</th>
+            <th>Product</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="articlesTableBody">
+        </tbody>
+      </table>
+      <div id="emptyState" class="empty-state" style="display:none;">
+        <div class="empty-state-icon">📋</div>
+        <h3>No articles yet</h3>
+        <p>Add articles manually or click "Load Samples" to get started.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== GENERATOR TAB ===== -->
+  <div id="tab-generator" class="tab-panel">
+    <div class="article-detail" id="generatorContent">
+      <!-- Left: Article Info -->
+      <div class="article-detail-info" id="generatorArticleInfo">
+        <div class="empty-state">
+          <div class="empty-state-icon">🖊️</div>
+          <h3>Select an article to generate a post</h3>
+          <p>Go to the Dashboard, click an article, then click "Generate Post".</p>
+        </div>
+      </div>
+
+      <!-- Right: Post Generation -->
+      <div>
+        <div class="form-group">
+          <label>Post Template</label>
+          <select class="form-select" id="templateSelect">
+            <option value="news-action">📢 News → Action — Break news, link to product</option>
+            <option value="myth-reality">💡 Myth → Reality — Challenge assumptions</option>
+            <option value="framework">🧩 Framework — Structured insight (3 pillars, etc.)</option>
+            <option value="pain-story">🔥 Pain → Story — Lead with operator pain point</option>
+            <option value="operator-take">🎯 Operator Take — Bold opinion from the trenches</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Tone</label>
+          <select class="form-select" id="toneSelect">
+            <option value="confident-expert">Confident Expert</option>
+            <option value="thought-leader">Thought Leader</option>
+            <option value="conversational">Conversational</option>
+            <option value="provocative">Provocative / Contrarian</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Additional Context (optional)</label>
+          <textarea class="form-textarea" id="additionalContext" rows="3" placeholder="Any specific angle, CTA, or audience notes..."></textarea>
+        </div>
+        <button class="btn btn-primary" id="generateBtn" onclick="generatePost()" disabled>
+          ✨ Generate LinkedIn Post
+        </button>
+
+        <div id="generatedPostArea" style="display:none;">
+          <div class="generated-post" id="generatedPostContent"></div>
+          <div class="post-actions">
+            <button class="btn btn-sm" onclick="copyPost()">📋 Copy</button>
+            <button class="btn btn-sm" onclick="regeneratePost()">🔄 Regenerate</button>
+            <button class="btn btn-sm btn-primary" onclick="markDrafted()">✅ Mark as Drafted</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SETTINGS TAB ===== -->
+  <div id="tab-settings" class="tab-panel">
+    <div class="settings-section">
+      <h3>🔑 Anthropic API Key</h3>
+      <p style="font-size:13px; color:var(--text-secondary); margin-bottom:16px;">
+        Your API key is stored locally in your browser and sent securely through the Vercel server proxy. It is never exposed client-side.
+        If the Vercel project has <code>ANTHROPIC_API_KEY</code> set as an environment variable, you don't need to enter one here.
+      </p>
+      <div class="api-key-input-wrapper">
+        <input type="password" class="form-input" id="apiKeyInput" placeholder="sk-ant-api03-..." value="">
+        <button class="btn btn-primary" onclick="saveApiKey()">Save Key</button>
+        <button class="btn btn-danger" onclick="clearApiKey()">Clear</button>
+      </div>
+      <div style="margin-top:12px;">
+        <button class="btn btn-sm" onclick="testApiKey()">Test Connection</button>
+        <span id="testResult" style="margin-left:8px; font-size:12px;"></span>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <h3>📦 Product Mapping Reference</h3>
+      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:8px;">
+        <div style="background:var(--bg-primary); border-radius:8px; padding:14px;">
+          <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;">
+            <span class="product-tag marginpro">MarginPro</span>
+          </div>
+          <p style="font-size:12px; color:var(--text-secondary);">Profit defense, fee changes, reimbursements, chargebacks, margin protection</p>
+        </div>
+        <div style="background:var(--bg-primary); border-radius:8px; padding:14px;">
+          <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;">
+            <span class="product-tag multichannel">Multichannel Pro</span>
+          </div>
+          <p style="font-size:12px; color:var(--text-secondary);">Channel expansion, Walmart / eBay / Shopify, operations, multi-marketplace</p>
+        </div>
+        <div style="background:var(--bg-primary); border-radius:8px; padding:14px;">
+          <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;">
+            <span class="product-tag seller365">Seller365</span>
+          </div>
+          <p style="font-size:12px; color:var(--text-secondary);">Execution systems, workflows, automation, daily operations, team efficiency</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <h3>💾 Data Management</h3>
+      <p style="font-size:13px; color:var(--text-secondary); margin-bottom:12px;">Articles and generated posts are stored in your browser's localStorage.</p>
+      <button class="btn" onclick="exportData()">📥 Export All Data (JSON)</button>
+      <button class="btn btn-danger" onclick="clearAllData()" style="margin-left:8px;">🗑️ Clear All Data</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Add Article Modal -->
+<div class="modal-overlay" id="addArticleModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Add New Article</h2>
+      <button class="modal-close" onclick="closeModal('addArticleModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Article Title *</label>
+        <input type="text" class="form-input" id="newTitle" placeholder="e.g. Amazon Announces New FBA Fee Structure for 2025">
+      </div>
+      <div class="form-group">
+        <label>Source</label>
+        <input type="text" class="form-input" id="newSource" placeholder="e.g. Marketplace Pulse, Amazon Seller Central">
+      </div>
+      <div class="form-group">
+        <label>URL (optional)</label>
+        <input type="text" class="form-input" id="newUrl" placeholder="https://...">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>ThreeColts Product</label>
+          <select class="form-select" id="newProduct">
+            <option value="MarginPro">MarginPro</option>
+            <option value="Multichannel Pro">Multichannel Pro</option>
+            <option value="Seller365">Seller365</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" class="form-input" id="newDate">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Summary / Key Points *</label>
+        <textarea class="form-textarea" id="newSummary" rows="4" placeholder="Summarize the article and key takeaways..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('addArticleModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="addArticle()">Add Article</button>
+    </div>
+  </div>
+</div>
+
+<!-- Article Detail Modal -->
+<div class="modal-overlay" id="articleDetailModal">
+  <div class="modal" style="max-width:860px;">
+    <div class="modal-header">
+      <h2 id="detailModalTitle">Article Detail</h2>
+      <button class="modal-close" onclick="closeModal('articleDetailModal')">×</button>
+    </div>
+    <div class="modal-body" id="detailModalBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-danger btn-sm" id="detailDeleteBtn">🗑️ Delete</button>
+      <div style="flex:1;"></div>
+      <button class="btn" onclick="closeModal('articleDetailModal')">Close</button>
+      <button class="btn btn-primary" id="detailGenerateBtn">✨ Generate Post</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ============================================================
+// STATE & DATA
+// ============================================================
+let articles = [];
+let selectedArticleId = null;
+let currentGeneratedPost = '';
+
+const STORAGE_KEYS = {
+  articles: 'mih_articles',
+  apiKey: 'mih_api_key',
+  seeded: 'mih_seeded'
+};
+
+// 8 Sample Articles
+const SAMPLE_ARTICLES = [
+  {
+    id: crypto.randomUUID(),
+    title: "Amazon Increases FBA Fulfillment Fees by 4.2% Across Standard-Size Tiers",
+    source: "Amazon Seller Central",
+    url: "",
+    product: "MarginPro",
+    date: "2025-01-15",
+    summary: "Amazon announced a 4.2% average increase in FBA fulfillment fees effective February 2025, affecting all standard-size tiers. Small standard items see the largest percentage increase. This follows last year's fuel and inflation surcharge removal, but net costs still rise for most sellers.",
+    keyPoints: [
+      "4.2% average increase across standard-size FBA tiers",
+      "Small standard items hit hardest with fees rising $0.18-$0.32 per unit",
+      "Fuel surcharge removed but net effect is still a cost increase",
+      "Low-inventory-level fees restructured alongside this change"
+    ],
+    status: "new",
+    generatedPost: ""
+  },
+  {
+    id: crypto.randomUUID(),
+    title: "Walmart Marketplace Surpasses 200,000 Active Sellers, Growing 38% YoY",
+    source: "Marketplace Pulse",
+    url: "",
+    product: "Multichannel Pro",
+    date: "2025-01-22",
+    summary: "Walmart's third-party marketplace crossed 200K active sellers, up 38% year-over-year. The platform is aggressively recruiting Amazon sellers with fee incentives and WFS (Walmart Fulfillment Services) expansion. Enterprise brands are increasingly treating Walmart as a primary channel rather than secondary.",
+    keyPoints: [
+      "200K+ active sellers on Walmart Marketplace",
+      "38% year-over-year seller growth rate",
+      "WFS expanding to 30+ fulfillment centers by mid-2025",
+      "Enterprise brands shifting from test-and-learn to full commitment"
+    ],
+    status: "new",
+    generatedPost: ""
+  },
+  {
+    id: crypto.randomUUID(),
+    title: "Amazon Reimbursement Policy Update: New 60-Day Claim Window Takes Effect",
+    source: "GETIDA Blog",
+    url: "",
+    product: "MarginPro",
+    date: "2025-02-01",
+    summary: "Amazon's updated reimbursement policy now limits claim windows to 60 days for lost/damaged FBA inventory, down from the previous 18-month lookback. Sellers who aren't monitoring inventory discrepancies in near-real-time will lose significant recovery dollars.",
+    keyPoints: [
+      "Claim window reduced from 18 months to 60 days",
+      "Estimated 30-45% of reimbursement dollars at risk for slow-moving sellers",
+      "Automated monitoring now essential, manual reconciliation no longer viable",
+      "Policy applies retroactively to claims filed after February 1"
+    ],
+    status: "new",
+    generatedPost: ""
+  },
+  {
+    id: crypto.randomUUID(),
+    title: "Multi-Channel Sellers Report 23% Higher Margins Than Single-Channel Operators",
+    source: "Digital Commerce 360",
+    url: "",
+    product: "Multichannel Pro",
+    date: "2025-01-28",
+    summary: "New research from Digital Commerce 360 shows that sellers operating on 3+ channels report 23% higher net margins than single-channel Amazon-only sellers. The diversification benefit comes from reduced platform dependency, better inventory leverage, and access to different customer demographics.",
+    keyPoints: [
+      "3+ channel sellers see 23% higher net margins on average",
+      "Platform fee diversification reduces overall cost basis",
+      "Cross-channel inventory utilization improves sell-through rates",
+      "Customer acquisition costs 18% lower with multi-channel presence"
+    ],
+    status: "new",
+    generatedPost: ""
+  },
+  {
+    id: crypto.randomUUID(),
+    title: "Supply Chain Disruptions in Red Sea Corridor Impact Amazon Seller Lead Times",
+    source: "Reuters / Supply Chain Dive",
+    url: "",
+    product: "Seller365",
+    date: "2025-02-05",
+    summary: "Ongoing disruptions in the Red Sea shipping corridor are adding 12-18 days to delivery times for goods routed from Asia through the Suez Canal. Amazon sellers sourcing from China face compressed reorder windows and potential stockout risk heading into Q2.",
+    keyPoints: [
+      "12-18 day delays on Red Sea shipping routes",
+      "Container rates up 140% on affected lanes",
+      "Amazon sellers face Q2 stockout risk if not adjusting reorder timelines",
+      "FBA receiving capacity constraints compound the delay problem"
+    ],
+    status: "new",
+    generatedPost: ""
+  },
+  {
+    id: crypto.randomUUID(),
+    title: "Amazon Introduces AI-Powered Listing Quality Scoring in Seller Central",
+    source: "Amazon Seller Central",
+    url: "",
+    product: "Seller365",
+    date: "2025-02-08",
+    summary: "Amazon rolled out AI-powered listing quality scores visible in Seller Central, rating listings on content completeness, keyword relevance, image quality, and A+ Content usage. Listings scoring below 70/100 may see reduced organic visibility.",
+    keyPoints: [
+      "New AI-based listing quality score (0-100) in Seller Central",
+      "Factors: content, keywords, images, A+ Content, backend terms",
+      "Sub-70 scores correlated with reduced organic search placement",
+      "Agencies managing large catalogs need systematic audit workflows"
+    ],
+    status: "new",
+    generatedPost: ""
+  },
+  {
+    id: crypto.randomUUID(),
+    title: "Amazon Chargeback Rates Spike 27% in Q4 2024 for 3P Sellers",
+    source: "Feedvisor Industry Report",
+    url: "",
+    product: "MarginPro",
+    date: "2025-01-30",
+    summary: "Feedvisor's latest report reveals a 27% spike in chargeback rates for third-party sellers in Q4 2024, driven by holiday season return abuse and unauthorized transaction claims. Sellers without proactive chargeback defense lost an average of $4,200 per month in Q4.",
+    keyPoints: [
+      "27% increase in 3P seller chargeback rates in Q4 2024",
+      "Return abuse and friendly fraud are primary drivers",
+      "Average undefended seller lost $4,200/month in Q4",
+      "Proactive representment recovers 40-60% of disputed charges"
+    ],
+    status: "new",
+    generatedPost: ""
+  },
+  {
+    id: crypto.randomUUID(),
+    title: "eBay Launches Simplified Listing Tool Targeting Amazon Multi-Channel Sellers",
+    source: "eBay for Business Blog",
+    url: "",
+    product: "Multichannel Pro",
+    date: "2025-02-10",
+    summary: "eBay launched a new streamlined listing tool specifically designed for Amazon sellers expanding to eBay. The tool supports bulk import from Amazon catalogs, automated category mapping, and simplified pricing rules. Part of eBay's strategy to capture sellers looking to diversify.",
+    keyPoints: [
+      "Bulk import directly from Amazon catalog data",
+      "Automated category and item specifics mapping",
+      "Built-in pricing rules engine for cross-channel margin management",
+      "eBay waiving insertion fees for first 90 days for new multi-channel sellers"
+    ],
+    status: "new",
+    generatedPost: ""
+  }
+];
+
+// ============================================================
+// INITIALIZATION
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  loadArticles();
+  updateApiStatus();
+  setupTabs();
+  setupFilters();
+  setNewDateDefault();
+
+  // Auto-seed samples on first use
+  if (!localStorage.getItem(STORAGE_KEYS.seeded)) {
+    loadSampleArticles();
+    localStorage.setItem(STORAGE_KEYS.seeded, 'true');
+  }
+});
+
+function setNewDateDefault() {
+  document.getElementById('newDate').value = new Date().toISOString().split('T')[0];
+}
+
+// ============================================================
+// TABS
+// ============================================================
+function setupTabs() {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
+    });
+  });
+}
+
+function switchToTab(tabName) {
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === tabName);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => {
+    p.classList.toggle('active', p.id === `tab-${tabName}`);
+  });
+}
+
+// ============================================================
+// ARTICLES CRUD
+// ============================================================
+function loadArticles() {
+  const stored = localStorage.getItem(STORAGE_KEYS.articles);
+  articles = stored ? JSON.parse(stored) : [];
+  renderTable();
+  updateStats();
+}
+
+function saveArticles() {
+  localStorage.setItem(STORAGE_KEYS.articles, JSON.stringify(articles));
+  updateStats();
+}
+
+function loadSampleArticles() {
+  // Avoid duplicating samples
+  const existingTitles = new Set(articles.map(a => a.title));
+  let added = 0;
+  SAMPLE_ARTICLES.forEach(sample => {
+    if (!existingTitles.has(sample.title)) {
+      articles.push({ ...sample, id: crypto.randomUUID() });
+      added++;
+    }
+  });
+  saveArticles();
+  renderTable();
+  if (added > 0) {
+    showToast(`Loaded ${added} sample articles`, 'success');
+  } else {
+    showToast('Samples already loaded', 'info');
+  }
+}
+
+function addArticle() {
+  const title = document.getElementById('newTitle').value.trim();
+  const summary = document.getElementById('newSummary').value.trim();
+  if (!title || !summary) {
+    showToast('Title and summary are required', 'error');
+    return;
+  }
+
+  const article = {
+    id: crypto.randomUUID(),
+    title,
+    source: document.getElementById('newSource').value.trim() || 'Manual Entry',
+    url: document.getElementById('newUrl').value.trim(),
+    product: document.getElementById('newProduct').value,
+    date: document.getElementById('newDate').value || new Date().toISOString().split('T')[0],
+    summary,
+    keyPoints: summary.split('\n').filter(l => l.trim()),
+    status: 'new',
+    generatedPost: ''
+  };
+
+  articles.unshift(article);
+  saveArticles();
+  renderTable();
+  closeModal('addArticleModal');
+  showToast('Article added', 'success');
+
+  // Reset form
+  ['newTitle', 'newSource', 'newUrl', 'newSummary'].forEach(id => document.getElementById(id).value = '');
+  setNewDateDefault();
+}
+
+function deleteArticle(id) {
+  if (!confirm('Delete this article?')) return;
+  articles = articles.filter(a => a.id !== id);
+  saveArticles();
+  renderTable();
+  closeModal('articleDetailModal');
+  showToast('Article deleted', 'info');
+}
+
+// ============================================================
+// TABLE RENDERING & FILTERING
+// ============================================================
+function renderTable() {
+  const tbody = document.getElementById('articlesTableBody');
+  const empty = document.getElementById('emptyState');
+  const filtered = getFilteredArticles();
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+
+  empty.style.display = 'none';
+
+  tbody.innerHTML = filtered.map(a => {
+    const productClass = a.product === 'MarginPro' ? 'marginpro' :
+                         a.product === 'Multichannel Pro' ? 'multichannel' : 'seller365';
+    const statusClass = `badge-${a.status}`;
+    return `
+      <tr onclick="openArticleDetail('${a.id}')">
+        <td>
+          <div class="article-title-cell">${escHtml(a.title)}</div>
+          <div class="article-source">${escHtml(a.source)}</div>
+        </td>
+        <td><span class="product-tag ${productClass}">${escHtml(a.product)}</span></td>
+        <td><span class="badge ${statusClass}">${a.status}</span></td>
+        <td style="font-size:12px; color:var(--text-muted);">${formatDate(a.date)}</td>
+        <td>
+          <button class="btn btn-sm" onclick="event.stopPropagation(); openGeneratorForArticle('${a.id}')">✨ Generate</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function getFilteredArticles() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const status = document.getElementById('filterStatus').value;
+  const product = document.getElementById('filterProduct').value;
+
+  return articles.filter(a => {
+    if (search && !a.title.toLowerCase().includes(search) && !a.summary.toLowerCase().includes(search)) return false;
+    if (status && a.status !== status) return false;
+    if (product && a.product !== product) return false;
+    return true;
+  });
+}
+
+function setupFilters() {
+  ['searchInput', 'filterStatus', 'filterProduct'].forEach(id => {
+    document.getElementById(id).addEventListener('input', renderTable);
+    document.getElementById(id).addEventListener('change', renderTable);
+  });
+}
+
+// ============================================================
+// ARTICLE DETAIL MODAL
+// ============================================================
+function openArticleDetail(id) {
+  const article = articles.find(a => a.id === id);
+  if (!article) return;
+
+  document.getElementById('detailModalTitle').textContent = 'Article Detail';
+
+  const productClass = article.product === 'MarginPro' ? 'marginpro' :
+                       article.product === 'Multichannel Pro' ? 'multichannel' : 'seller365';
+
+  const keyPointsHtml = article.keyPoints && article.keyPoints.length > 0
+    ? `<div class="key-points">
+         <h4>Key Points</h4>
+         ${article.keyPoints.map(kp => `<div class="key-point">${escHtml(kp)}</div>`).join('')}
+       </div>`
+    : '';
+
+  const postHtml = article.generatedPost
+    ? `<div style="margin-top:20px;">
+         <h4 style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); margin-bottom:8px;">Generated Post</h4>
+         <div class="generated-post">${escHtml(article.generatedPost)}</div>
+         <button class="btn btn-sm" style="margin-top:8px;" onclick="navigator.clipboard.writeText(articles.find(a=>a.id==='${article.id}').generatedPost); showToast('Copied!','success');">📋 Copy Post</button>
+       </div>`
+    : '';
+
+  document.getElementById('detailModalBody').innerHTML = `
+    <div style="margin-bottom:16px;">
+      <h3 style="font-size:18px; font-weight:700; line-height:1.4; margin-bottom:12px;">${escHtml(article.title)}</h3>
+      <div class="article-meta-row">
+        <div class="meta-item">📰 ${escHtml(article.source)}</div>
+        <div class="meta-item">📅 ${formatDate(article.date)}</div>
+        <span class="product-tag ${productClass}">${escHtml(article.product)}</span>
+        <span class="badge badge-${article.status}">${article.status}</span>
+      </div>
+      ${article.url ? `<a href="${escHtml(article.url)}" target="_blank" style="font-size:12px; color:var(--accent);">🔗 Source Link</a>` : ''}
+    </div>
+    <div class="article-summary">${escHtml(article.summary)}</div>
+    ${keyPointsHtml}
+    ${postHtml}
+    <div style="margin-top:20px; display:flex; gap:8px;">
+      <button class="btn btn-sm" onclick="updateArticleStatus('${article.id}','new')">Set New</button>
+      <button class="btn btn-sm" onclick="updateArticleStatus('${article.id}','drafted')">Set Drafted</button>
+      <button class="btn btn-sm" onclick="updateArticleStatus('${article.id}','posted')">Set Posted</button>
+      <button class="btn btn-sm" onclick="updateArticleStatus('${article.id}','archived')">Set Archived</button>
+    </div>
+  `;
+
+  document.getElementById('detailDeleteBtn').onclick = () => deleteArticle(article.id);
+  document.getElementById('detailGenerateBtn').onclick = () => {
+    closeModal('articleDetailModal');
+    openGeneratorForArticle(article.id);
+  };
+
+  openModal('addArticleModal', false);
+  openModal('articleDetailModal');
+}
+
+function updateArticleStatus(id, status) {
+  const article = articles.find(a => a.id === id);
+  if (article) {
+    article.status = status;
+    saveArticles();
+    renderTable();
+    closeModal('articleDetailModal');
+    showToast(`Status updated to ${status}`, 'success');
+  }
+}
+
+// ============================================================
+// POST GENERATOR
+// ============================================================
+function openGeneratorForArticle(id) {
+  const article = articles.find(a => a.id === id);
+  if (!article) return;
+
+  selectedArticleId = id;
+  switchToTab('generator');
+
+  const productClass = article.product === 'MarginPro' ? 'marginpro' :
+                       article.product === 'Multichannel Pro' ? 'multichannel' : 'seller365';
+
+  const keyPointsHtml = article.keyPoints && article.keyPoints.length > 0
+    ? `<div class="key-points">
+         <h4>Key Points</h4>
+         ${article.keyPoints.map(kp => `<div class="key-point">${escHtml(kp)}</div>`).join('')}
+       </div>`
+    : '';
+
+  document.getElementById('generatorArticleInfo').innerHTML = `
+    <h3>${escHtml(article.title)}</h3>
+    <div class="article-meta-row" style="margin-top:8px;">
+      <div class="meta-item">📰 ${escHtml(article.source)}</div>
+      <span class="product-tag ${productClass}">${escHtml(article.product)}</span>
+    </div>
+    <div class="article-summary" style="margin-top:12px;">${escHtml(article.summary)}</div>
+    ${keyPointsHtml}
+  `;
+
+  document.getElementById('generateBtn').disabled = false;
+  document.getElementById('generatedPostArea').style.display = 'none';
+}
+
+async function generatePost() {
+  const article = articles.find(a => a.id === selectedArticleId);
+  if (!article) {
+    showToast('No article selected', 'error');
+    return;
+  }
+
+  const template = document.getElementById('templateSelect').value;
+  const tone = document.getElementById('toneSelect').value;
+  const extraContext = document.getElementById('additionalContext').value.trim();
+  const apiKey = localStorage.getItem(STORAGE_KEYS.apiKey) || '';
+
+  // Show loading state
+  const btn = document.getElementById('generateBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner" style="width:14px;height:14px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:6px;"></span> Generating...';
+
+  document.getElementById('generatedPostArea').style.display = 'block';
+  document.getElementById('generatedPostContent').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;padding:40px;color:var(--text-muted);"><div class="spinner"></div> Generating your LinkedIn post...</div>';
+
+  const systemPrompt = buildSystemPrompt();
+  const userPrompt = buildUserPrompt(article, template, tone, extraContext);
+
+  try {
+    const payload = {
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userPrompt }],
+      max_tokens: 2048
+    };
+
+    // Include API key in body if user has provided one locally
+    if (apiKey) {
+      payload.apiKey = apiKey;
+    }
+
+    const res = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `Server error: ${res.status}`);
+    }
+
+    const data = await res.json();
+    const postText = data.content?.[0]?.text || 'No content returned';
+
+    currentGeneratedPost = postText;
+    document.getElementById('generatedPostContent').textContent = postText;
+
+  } catch (error) {
+    console.error('Generation error:', error);
+    document.getElementById('generatedPostContent').innerHTML = `
+      <div style="color:var(--red); padding:20px;">
+        <strong>Generation Failed</strong><br><br>
+        ${escHtml(error.message)}<br><br>
+        <span style="color:var(--text-muted); font-size:12px;">
+          Make sure your API key is set (Settings tab) or ANTHROPIC_API_KEY is configured in Vercel environment variables.
+        </span>
+      </div>
+    `;
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '✨ Generate LinkedIn Post';
+}
+
+function regeneratePost() {
+  generatePost();
+}
+
+function copyPost() {
+  if (currentGeneratedPost) {
+    navigator.clipboard.writeText(currentGeneratedPost);
+    showToast('Post copied to clipboard', 'success');
+  }
+}
+
+function markDrafted() {
+  const article = articles.find(a => a.id === selectedArticleId);
+  if (article && currentGeneratedPost) {
+    article.generatedPost = currentGeneratedPost;
+    article.status = 'drafted';
+    saveArticles();
+    renderTable();
+    showToast('Post saved and marked as drafted', 'success');
+  }
+}
+
+// ============================================================
+// PROMPT BUILDING
+// ============================================================
+function buildSystemPrompt() {
+  return `You are an expert LinkedIn content strategist for ThreeColts, a leading e-commerce software company that provides enterprise-level solutions for Amazon and Walmart agencies. You write LinkedIn posts for a partnership-focused audience: agency owners, e-commerce operators, brand managers, and marketplace consultants.
+
+PRODUCT KNOWLEDGE:
+- MarginPro: Profit defense platform. Handles fee monitoring, reimbursement recovery, chargeback defense, and margin protection. Position when article relates to Amazon fees, cost increases, reimbursements, chargebacks, or profit erosion.
+- Multichannel Pro: Channel expansion platform. Handles multi-marketplace operations across Amazon, Walmart, eBay, Shopify. Position when article relates to marketplace diversification, Walmart growth, new channels, or cross-channel operations.
+- Seller365: Execution & workflow platform. Handles daily operations, listing management, inventory workflows, team coordination. Position when article relates to operational efficiency, listing optimization, supply chain, or workflow automation.
+
+WRITING RULES:
+1. Write for LinkedIn — professional but not corporate. Sound like a smart operator, not a marketer.
+2. Open with a hook that stops the scroll (first 2 lines are everything).
+3. Use line breaks generously. Short paragraphs. No walls of text.
+4. Include ONE subtle product mention — never hard sell. Frame as "this is why tools like [Product] exist" or "this is what [Product] solves."
+5. End with a question or call-to-engage that sparks discussion.
+6. Keep posts 150-250 words.
+7. No hashtags in the body. Add 3-5 relevant hashtags at the very end, separated by a blank line.
+8. Use data/numbers from the article when available.
+9. Write from a "we're all in this together" perspective — you understand the operator's world.`;
+}
+
+function buildUserPrompt(article, template, tone, extraContext) {
+  const templateInstructions = {
+    'news-action': `TEMPLATE: News → Action
+Structure: Lead with the breaking news/change → explain the impact on operators → pivot to how smart operators are responding → subtle product tie-in → engagement question.
+Hook style: Start with the news headline rewritten as an attention-grabbing statement.`,
+
+    'myth-reality': `TEMPLATE: Myth → Reality
+Structure: State a common belief/myth in the industry → break it down with evidence from the article → reveal the reality → show what top operators do differently → subtle product tie-in → engagement question.
+Hook style: Start with "Most sellers think..." or "The common wisdom says..." then flip it.`,
+
+    'framework': `TEMPLATE: Framework
+Structure: Present a 3-part framework or mental model based on the article's insights → each pillar gets 1-2 lines → tie one pillar to the relevant product → engagement question.
+Hook style: Start with "The [X] Framework for [outcome]:" or "3 things separating [winners] from [losers]:".`,
+
+    'pain-story': `TEMPLATE: Pain → Story
+Structure: Open with a vivid pain point that operators feel → paint the "before" scenario → introduce the shift/insight from the article → show the "after" → subtle product tie-in → engagement question.
+Hook style: Start with a visceral operator frustration — "You just lost $4,200 this month and you don't even know it."`,
+
+    'operator-take': `TEMPLATE: Operator Take
+Structure: Lead with a bold, slightly contrarian opinion about the article's topic → back it up with reasoning → acknowledge the counterargument → land on your position → subtle product tie-in → engagement question.
+Hook style: Start with a provocative one-liner opinion — "Unpopular opinion:" or "Hot take:" or just a bold declarative statement.`
+  };
+
+  const toneInstructions = {
+    'confident-expert': 'Tone: Confident, authoritative, data-driven. You know your stuff and share insights generously.',
+    'thought-leader': 'Tone: Forward-thinking, strategic, big-picture. You connect dots others miss.',
+    'conversational': 'Tone: Friendly, approachable, peer-to-peer. Like talking shop over coffee.',
+    'provocative': 'Tone: Bold, contrarian, challenges conventional thinking. Respectfully pushes buttons.'
+  };
+
+  return `Generate a LinkedIn post based on this article:
+
+ARTICLE TITLE: ${article.title}
+SOURCE: ${article.source}
+THREECOLTS PRODUCT: ${article.product}
+DATE: ${article.date}
+
+ARTICLE SUMMARY:
+${article.summary}
+
+KEY POINTS:
+${(article.keyPoints || []).map(kp => `• ${kp}`).join('\n')}
+
+${templateInstructions[template] || ''}
+
+${toneInstructions[tone] || ''}
+
+${extraContext ? `ADDITIONAL CONTEXT FROM USER:\n${extraContext}` : ''}
+
+Write the LinkedIn post now. Output ONLY the post text, no meta-commentary.`;
+}
+
+// ============================================================
+// API KEY MANAGEMENT
+// ============================================================
+function saveApiKey() {
+  const key = document.getElementById('apiKeyInput').value.trim();
+  if (!key) {
+    showToast('Enter an API key', 'error');
+    return;
+  }
+  localStorage.setItem(STORAGE_KEYS.apiKey, key);
+  updateApiStatus();
+  showToast('API key saved', 'success');
+}
+
+function clearApiKey() {
+  localStorage.removeItem(STORAGE_KEYS.apiKey);
+  document.getElementById('apiKeyInput').value = '';
+  updateApiStatus();
+  showToast('API key cleared', 'info');
+}
+
+function updateApiStatus() {
+  const badge = document.getElementById('apiStatusBadge');
+  const key = localStorage.getItem(STORAGE_KEYS.apiKey);
+  if (key) {
+    badge.className = 'api-status connected';
+    badge.textContent = '● API Key Set';
+    document.getElementById('apiKeyInput').value = key.slice(0, 12) + '...';
+  } else {
+    badge.className = 'api-status disconnected';
+    badge.textContent = '● No API Key';
+  }
+}
+
+async function testApiKey() {
+  const resultEl = document.getElementById('testResult');
+  resultEl.textContent = 'Testing...';
+  resultEl.style.color = 'var(--text-muted)';
+
+  const apiKey = localStorage.getItem(STORAGE_KEYS.apiKey) || '';
+  const payload = {
+    messages: [{ role: 'user', content: 'Say "connected" and nothing else.' }],
+    max_tokens: 32
+  };
+  if (apiKey) payload.apiKey = apiKey;
+
+  try {
+    const res = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (res.ok) {
+      resultEl.textContent = '✅ Connection successful!';
+      resultEl.style.color = 'var(--green)';
+    } else {
+      const err = await res.json().catch(() => ({}));
+      resultEl.textContent = `❌ ${err.error || 'Connection failed'}`;
+      resultEl.style.color = 'var(--red)';
+    }
+  } catch (e) {
+    resultEl.textContent = `❌ ${e.message}`;
+    resultEl.style.color = 'var(--red)';
+  }
+}
+
+// ============================================================
+// DATA MANAGEMENT
+// ============================================================
+function exportData() {
+  const data = { articles, exportedAt: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `marginintelhub-export-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Data exported', 'success');
+}
+
+function clearAllData() {
+  if (!confirm('This will delete ALL articles and generated posts. Are you sure?')) return;
+  articles = [];
+  saveArticles();
+  localStorage.removeItem(STORAGE_KEYS.seeded);
+  renderTable();
+  showToast('All data cleared', 'info');
+}
+
+// ============================================================
+// STATS
+// ============================================================
+function updateStats() {
+  document.getElementById('statTotal').textContent = articles.length;
+  document.getElementById('statDrafted').textContent = articles.filter(a => a.status === 'drafted' || a.generatedPost).length;
+  document.getElementById('statPosted').textContent = articles.filter(a => a.status === 'posted').length;
+}
+
+// ============================================================
+// UTILITIES
+// ============================================================
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+function openAddArticleModal() {
+  closeModal('articleDetailModal');
+  openModal('addArticleModal');
+}
+
+function showToast(message, type = 'info') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+  toast.innerHTML = `${icons[type] || ''} ${escHtml(message)}`;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(20px)';
+    toast.style.transition = '0.3s ease';
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
+function escHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+  }
+});
+</script>
+
+</body>
+</html>
