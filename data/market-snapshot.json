@@ -1,0 +1,47 @@
+{
+  "lastUpdated": "2026-03-01",
+  "updateFrequency": "Monthly",
+  "sources": ["Marketplace Pulse", "eMarketer", "Company Earnings Reports"],
+  "metrics": [
+    {
+      "id": "amazon-3p-gmv",
+      "label": "Amazon 3P GMV",
+      "value": "$420B",
+      "change": "+12%",
+      "changeType": "positive",
+      "period": "2025 Annual"
+    },
+    {
+      "id": "tiktok-shop-gmv",
+      "label": "TikTok Shop GMV",
+      "value": "$10.5B",
+      "change": "+185%",
+      "changeType": "positive",
+      "period": "2025 US"
+    },
+    {
+      "id": "walmart-marketplace",
+      "label": "Walmart Marketplace",
+      "value": "$75B",
+      "change": "+28%",
+      "changeType": "positive",
+      "period": "2025 Annual"
+    },
+    {
+      "id": "avg-amazon-cpc",
+      "label": "Avg Amazon CPC",
+      "value": "$1.24",
+      "change": "+8%",
+      "changeType": "negative",
+      "period": "Q4 2025"
+    },
+    {
+      "id": "fba-storage-utilization",
+      "label": "FBA Storage Utilization",
+      "value": "87%",
+      "change": "+5%",
+      "changeType": "neutral",
+      "period": "Current"
+    }
+  ]
+}
