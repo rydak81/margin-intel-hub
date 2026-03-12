@@ -520,7 +520,7 @@ export default function HomePage() {
                     {/* Main Hero - Full Width */}
                     <Link href={`/news/${featuredArticles[0].id}`}>
                       <Card className="overflow-hidden group cursor-pointer hover:shadow-xl transition-all border-0">
-                        <div className="aspect-[16/9] md:aspect-[21/9] lg:aspect-[3/1] min-h-[300px] md:min-h-[400px] relative overflow-hidden">
+                        <div className="aspect-[16/9] md:aspect-[21/9] lg:aspect-[2.5/1] min-h-[400px] md:min-h-[450px] lg:min-h-[500px] relative overflow-hidden">
                           {featuredArticles[0]?.imageUrl ? (
                             <Image
                               src={featuredArticles[0].imageUrl}
@@ -533,33 +533,35 @@ export default function HomePage() {
                           ) : (
                             <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5" />
                           )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-                          <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 text-white">
-                            <div className="max-w-3xl">
-                              <div className="flex items-center gap-3 mb-4">
-                                <Badge className="bg-category-breaking text-white border-0 px-3 py-1">
+                          {/* Strong gradient overlay for text readability on any image */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/20" />
+                          <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent" />
+                          <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 lg:p-12">
+                            <div className="max-w-4xl">
+                              <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-4">
+                                <Badge className="bg-category-breaking text-white border-0 px-3 py-1 shadow-lg">
                                   Featured
                                 </Badge>
-                                <Badge className={`${getCategoryConfig(featuredArticles[0].category).color} text-white border-0`}>
+                                <Badge className={`${getCategoryConfig(featuredArticles[0].category).color} text-white border-0 shadow-lg`}>
                                   {featuredArticles[0].category}
                                 </Badge>
-                                <span className="text-sm text-white/80">
+                                <span className="text-sm text-white/90 drop-shadow-md">
                                   {formatTimeAgo(featuredArticles[0].publishedAt)}
                                 </span>
                               </div>
-                              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-balance leading-tight">
+                              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-white text-balance leading-tight drop-shadow-lg [text-shadow:_0_2px_12px_rgb(0_0_0_/_60%)]">
                                 {featuredArticles[0].title}
                               </h2>
-                              <p className="text-lg text-white/90 line-clamp-2 md:line-clamp-3 max-w-2xl mb-4">
+                              <p className="text-base md:text-lg text-white/95 line-clamp-2 md:line-clamp-3 max-w-2xl mb-4 drop-shadow-md [text-shadow:_0_1px_6px_rgb(0_0_0_/_50%)]">
                                 {featuredArticles[0].excerpt}
                               </p>
-                              <div className="flex items-center gap-4 text-sm text-white/70">
+                              <div className="flex flex-wrap items-center gap-3 md:gap-4 text-sm text-white/90 drop-shadow-md">
                                 <span className="flex items-center gap-1">
                                   <Globe className="h-4 w-4" />
                                   {featuredArticles[0].source}
                                 </span>
                                 <span>{featuredArticles[0].readTime} min read</span>
-                                <span className="ml-auto inline-flex items-center gap-2 bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-colors">
+                                <span className="ml-auto inline-flex items-center gap-2 bg-white/25 hover:bg-white/35 backdrop-blur-sm px-4 py-2 rounded-lg transition-colors shadow-lg">
                                   Read Full Story
                                   <ArrowRight className="h-4 w-4" />
                                 </span>
