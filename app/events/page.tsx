@@ -26,7 +26,17 @@ import {
   Video,
   Filter,
   Mail,
+  ShoppingBag,
+  Truck,
+  Sparkles,
+  Store,
+  Megaphone,
+  TrendingUp,
+  Package,
+  Presentation,
+  Building2,
 } from "lucide-react"
+import Image from "next/image"
 
 interface Event {
   id: string
@@ -40,6 +50,97 @@ interface Event {
   registrationUrl: string
   featured: boolean
   price?: string
+  imageUrl?: string
+  brandColor?: string
+  brandIcon?: string
+}
+
+// Event brand colors and visual configuration
+const EVENT_VISUALS: Record<string, { color: string, gradient: string, icon: string, imageUrl: string }> = {
+  "shoptalk-2026": {
+    color: "#FF6B35",
+    gradient: "from-orange-500 to-red-500",
+    icon: "sparkles",
+    imageUrl: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&h=400&fit=crop&q=80"
+  },
+  "amazon-accelerate-2026": {
+    color: "#FF9900",
+    gradient: "from-amber-500 to-orange-600",
+    icon: "package",
+    imageUrl: "https://images.unsplash.com/photo-1523474253046-8cd2748b5fd2?w=600&h=400&fit=crop&q=80"
+  },
+  "prosper-show-2026": {
+    color: "#00A8E1",
+    gradient: "from-cyan-500 to-blue-600",
+    icon: "trending-up",
+    imageUrl: "https://images.unsplash.com/photo-1591115765373-5207764f72e7?w=600&h=400&fit=crop&q=80"
+  },
+  "etail-west-2026": {
+    color: "#6366F1",
+    gradient: "from-indigo-500 to-purple-600",
+    icon: "store",
+    imageUrl: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=600&h=400&fit=crop&q=80"
+  },
+  "walmart-open-call-2026": {
+    color: "#0071CE",
+    gradient: "from-blue-500 to-blue-700",
+    icon: "megaphone",
+    imageUrl: "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?w=600&h=400&fit=crop&q=80"
+  },
+  "irce-2026": {
+    color: "#059669",
+    gradient: "from-emerald-500 to-teal-600",
+    icon: "globe",
+    imageUrl: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=600&h=400&fit=crop&q=80"
+  },
+  "seller-summit-2026": {
+    color: "#8B5CF6",
+    gradient: "from-violet-500 to-purple-600",
+    icon: "users",
+    imageUrl: "https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=600&h=400&fit=crop&q=80"
+  },
+  "white-label-world-expo-2026": {
+    color: "#EC4899",
+    gradient: "from-pink-500 to-rose-600",
+    icon: "building",
+    imageUrl: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=400&fit=crop&q=80"
+  },
+  "tiktok-shop-summit-2026": {
+    color: "#000000",
+    gradient: "from-gray-900 to-black",
+    icon: "video",
+    imageUrl: "https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=600&h=400&fit=crop&q=80"
+  },
+}
+
+// Get visual config for an event
+const getEventVisuals = (eventId: string) => {
+  return EVENT_VISUALS[eventId] || {
+    color: "#6366F1",
+    gradient: "from-primary to-primary/80",
+    icon: "calendar",
+    imageUrl: "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=600&h=400&fit=crop&q=80"
+  }
+}
+
+// Get icon component based on event
+const getEventIcon = (iconName: string) => {
+  const icons: Record<string, typeof Calendar> = {
+    sparkles: Sparkles,
+    package: Package,
+    "trending-up": TrendingUp,
+    store: Store,
+    megaphone: Megaphone,
+    globe: Globe,
+    users: Users,
+    building: Building2,
+    video: Video,
+    calendar: Calendar,
+    presentation: Presentation,
+    truck: Truck,
+    "shopping-bag": ShoppingBag,
+  }
+  return icons[iconName] || Calendar
 }
 
 // Helper function to calculate days until event
@@ -332,26 +433,44 @@ export default function EventsPage() {
             <h2 className="text-xl font-semibold mb-6">Featured Events</h2>
             <div className="grid md:grid-cols-3 gap-6">
               {featuredEvents.map(event => {
-                const TypeIcon = getTypeIcon(event.type)
+                const visuals = getEventVisuals(event.id)
+                const EventIcon = getEventIcon(visuals.icon)
                 const countdown = getCountdownBadge(event.startDate)
                 return (
-                  <Card key={event.id} className="overflow-hidden border-0 shadow-md hover:shadow-lg transition-all group">
-                    <div className={`h-2 ${getTypeColor(event.type)}`} />
-                    <CardContent className="p-6">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className={`h-12 w-12 rounded-lg ${getTypeColor(event.type)} bg-opacity-10 flex items-center justify-center`}>
-                          <TypeIcon className={`h-6 w-6 text-current`} style={{ color: 'var(--primary)' }} />
-                        </div>
-                        <div className="flex flex-col items-end gap-1">
-                          {countdown && (
-                            <Badge className={countdown.urgent ? 'bg-red-500 text-white' : 'bg-amber-500 text-white'}>
-                              {countdown.text}
-                            </Badge>
-                          )}
-                          <Badge variant="secondary">{event.type}</Badge>
-                        </div>
+                  <Card key={event.id} className="overflow-hidden border-0 shadow-md hover:shadow-xl transition-all group">
+                    {/* Event Image */}
+                    <div className="relative h-40 overflow-hidden">
+                      <Image
+                        src={visuals.imageUrl}
+                        alt={event.name}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                      />
+                      <div className={`absolute inset-0 bg-gradient-to-t ${visuals.gradient} opacity-60`} />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                      {/* Event Icon Badge */}
+                      <div 
+                        className="absolute top-3 left-3 h-10 w-10 rounded-lg flex items-center justify-center shadow-lg"
+                        style={{ backgroundColor: visuals.color }}
+                      >
+                        <EventIcon className="h-5 w-5 text-white" />
                       </div>
-                      <h3 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors">
+                      {/* Countdown Badge */}
+                      {countdown && (
+                        <Badge 
+                          className={`absolute top-3 right-3 ${countdown.urgent ? 'bg-red-500 text-white' : 'bg-amber-500 text-white'} shadow-lg`}
+                        >
+                          {countdown.text}
+                        </Badge>
+                      )}
+                      {/* Event Type */}
+                      <Badge variant="secondary" className="absolute bottom-3 left-3 bg-white/90 text-foreground shadow">
+                        {event.type}
+                      </Badge>
+                    </div>
+                    <CardContent className="p-5">
+                      <h3 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors line-clamp-1">
                         {event.name}
                       </h3>
                       <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
@@ -368,7 +487,7 @@ export default function EventsPage() {
                         </div>
                       </div>
                       <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1 flex-wrap">
                           {event.platforms.map(platform => (
                             <Badge key={platform} variant="outline" className="text-xs">
                               {platform}
@@ -376,10 +495,14 @@ export default function EventsPage() {
                           ))}
                         </div>
                         {event.price && (
-                          <span className="text-sm font-medium text-muted-foreground">{event.price}</span>
+                          <span className="text-sm font-semibold" style={{ color: visuals.color }}>{event.price}</span>
                         )}
                       </div>
-                      <Button className="w-full" asChild>
+                      <Button 
+                        className="w-full text-white" 
+                        style={{ backgroundColor: visuals.color }}
+                        asChild
+                      >
                         <a href={event.registrationUrl} target="_blank" rel="noopener noreferrer">
                           Register Now
                           <ExternalLink className="h-4 w-4 ml-2" />
@@ -403,46 +526,78 @@ export default function EventsPage() {
           </h2>
           <div className="space-y-4">
             {otherEvents.map(event => {
-              const TypeIcon = getTypeIcon(event.type)
+              const visuals = getEventVisuals(event.id)
+              const EventIcon = getEventIcon(visuals.icon)
+              const countdown = getCountdownBadge(event.startDate)
               return (
-                <Card key={event.id} className="border-0 shadow-sm hover:shadow-md transition-all">
-                  <CardContent className="p-6">
-                    <div className="flex flex-col md:flex-row md:items-center gap-4">
-                      <div className={`h-12 w-12 rounded-lg flex-shrink-0 flex items-center justify-center bg-muted`}>
-                        <TypeIcon className="h-6 w-6 text-muted-foreground" />
+                <Card key={event.id} className="border-0 shadow-sm hover:shadow-md transition-all overflow-hidden">
+                  <CardContent className="p-0">
+                    <div className="flex flex-col sm:flex-row">
+                      {/* Left side - Image/Icon section */}
+                      <div 
+                        className={`relative w-full sm:w-24 h-24 sm:h-auto flex-shrink-0 bg-gradient-to-br ${visuals.gradient} flex items-center justify-center`}
+                      >
+                        <EventIcon className="h-8 w-8 text-white" />
+                        {countdown && (
+                          <Badge 
+                            className={`absolute top-2 right-2 sm:hidden ${countdown.urgent ? 'bg-red-500' : 'bg-amber-500'} text-white text-xs`}
+                          >
+                            {countdown.text}
+                          </Badge>
+                        )}
                       </div>
-                      <div className="flex-1">
-                        <div className="flex items-start justify-between mb-1">
-                          <h3 className="font-semibold">{event.name}</h3>
-                          <Badge variant="outline" className="hidden sm:flex">{event.type}</Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground mb-2 line-clamp-1">
-                          {event.description}
-                        </p>
-                        <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3" />
-                            {event.dates}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <MapPin className="h-3 w-3" />
-                            {event.location}
-                          </span>
-                          <div className="flex items-center gap-1">
-                            {event.platforms.map(platform => (
-                              <Badge key={platform} variant="secondary" className="text-xs">
-                                {platform}
-                              </Badge>
-                            ))}
+                      {/* Right side - Content */}
+                      <div className="flex-1 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2 mb-1">
+                            <h3 className="font-semibold truncate">{event.name}</h3>
+                            <div className="hidden sm:flex items-center gap-2 flex-shrink-0">
+                              {countdown && (
+                                <Badge 
+                                  className={`${countdown.urgent ? 'bg-red-500' : 'bg-amber-500'} text-white text-xs`}
+                                >
+                                  {countdown.text}
+                                </Badge>
+                              )}
+                              <Badge variant="outline">{event.type}</Badge>
+                            </div>
+                          </div>
+                          <p className="text-sm text-muted-foreground mb-2 line-clamp-1">
+                            {event.description}
+                          </p>
+                          <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                            <span className="flex items-center gap-1">
+                              <Calendar className="h-3.5 w-3.5" />
+                              {event.dates}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <MapPin className="h-3.5 w-3.5" />
+                              {event.location}
+                            </span>
+                            <div className="flex items-center gap-1">
+                              {event.platforms.map(platform => (
+                                <Badge key={platform} variant="secondary" className="text-xs">
+                                  {platform}
+                                </Badge>
+                              ))}
+                            </div>
+                            {event.price && (
+                              <span className="font-medium" style={{ color: visuals.color }}>{event.price}</span>
+                            )}
                           </div>
                         </div>
+                        <Button 
+                          variant="outline" 
+                          asChild 
+                          className="flex-shrink-0 border-2 hover:text-white transition-colors"
+                          style={{ borderColor: visuals.color, color: visuals.color }}
+                        >
+                          <a href={event.registrationUrl} target="_blank" rel="noopener noreferrer">
+                            Register
+                            <ExternalLink className="h-4 w-4 ml-2" />
+                          </a>
+                        </Button>
                       </div>
-                      <Button variant="outline" asChild className="flex-shrink-0">
-                        <a href={event.registrationUrl} target="_blank" rel="noopener noreferrer">
-                          Register
-                          <ExternalLink className="h-4 w-4 ml-2" />
-                        </a>
-                      </Button>
                     </div>
                   </CardContent>
                 </Card>
