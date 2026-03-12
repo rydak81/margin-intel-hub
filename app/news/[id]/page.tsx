@@ -125,22 +125,47 @@ export default function ArticlePage() {
   useEffect(() => {
     const fetchArticle = async () => {
       setLoading(true)
+      
       try {
-        // Fetch articles and find the one matching the ID
-        const response = await fetch('/api/news')
-        const data = await response.json()
+        let foundArticle = null
+        let allArticles: Article[] = []
         
-        if (data.success && data.articles) {
-          const foundArticle = data.articles.find((a: Article) => a.id === params.id)
-          if (foundArticle) {
-            setArticle(foundArticle)
-            
-            // Get related articles from same category
-            const related = data.articles
-              .filter((a: Article) => a.id !== params.id && a.category === foundArticle.category)
-              .slice(0, 4)
-            setRelatedArticles(related)
+        // Try RSS-based articles API first (same as homepage)
+        try {
+          const articlesResponse = await fetch('/api/articles?limit=100')
+          const articlesData = await articlesResponse.json()
+          
+          if (articlesData.success && articlesData.articles) {
+            allArticles = articlesData.articles
+            foundArticle = articlesData.articles.find((a: Article) => a.id === params.id)
           }
+        } catch (e) {
+          console.error("Failed to fetch from /api/articles:", e)
+        }
+        
+        // If not found, try the news API
+        if (!foundArticle) {
+          try {
+            const newsResponse = await fetch('/api/news')
+            const newsData = await newsResponse.json()
+            
+            if (newsData.success && newsData.articles) {
+              allArticles = [...allArticles, ...newsData.articles]
+              foundArticle = newsData.articles.find((a: Article) => a.id === params.id)
+            }
+          } catch (e) {
+            console.error("Failed to fetch from /api/news:", e)
+          }
+        }
+        
+        if (foundArticle) {
+          setArticle(foundArticle)
+          
+          // Get related articles from same category
+          const related = allArticles
+            .filter((a: Article) => a.id !== params.id && a.category === foundArticle.category)
+            .slice(0, 4)
+          setRelatedArticles(related)
         }
       } catch (error) {
         console.error("Failed to fetch article:", error)
