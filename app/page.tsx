@@ -518,7 +518,13 @@ export default function HomePage() {
                 {featuredArticles.length > 0 && selectedCategory === "all" && (
                   <div className="space-y-6">
                     {/* Main Hero - Full Width */}
-                    <Link href={`/news/${featuredArticles[0].id}`}>
+                    <div 
+                      onClick={() => {
+                        setSelectedArticle(featuredArticles[0])
+                        setArticleModalOpen(true)
+                      }}
+                      className="cursor-pointer"
+                    >
                       <Card className="overflow-hidden group cursor-pointer hover:shadow-xl transition-all border-0">
                         <div className="aspect-[16/9] md:aspect-[21/9] lg:aspect-[2.5/1] min-h-[400px] md:min-h-[450px] lg:min-h-[500px] relative overflow-hidden">
                           {featuredArticles[0]?.imageUrl ? (
@@ -570,7 +576,7 @@ export default function HomePage() {
                           </div>
                         </div>
                       </Card>
-                    </Link>
+                    </div>
 
                     
                   </div>
