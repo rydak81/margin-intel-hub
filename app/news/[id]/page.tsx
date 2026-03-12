@@ -125,21 +125,32 @@ export default function ArticlePage() {
   useEffect(() => {
     const fetchArticle = async () => {
       setLoading(true)
+      console.log("[v0] Fetching article with ID:", params.id)
+      
       try {
         let foundArticle = null
         let allArticles: Article[] = []
         
         // Try RSS-based articles API first (same as homepage)
         try {
-          const articlesResponse = await fetch('/api/articles?limit=50')
+          const articlesResponse = await fetch('/api/articles?limit=100')
           const articlesData = await articlesResponse.json()
+          
+          console.log("[v0] Articles API response:", articlesData.success, "count:", articlesData.articles?.length)
           
           if (articlesData.success && articlesData.articles) {
             allArticles = articlesData.articles
             foundArticle = articlesData.articles.find((a: Article) => a.id === params.id)
+            console.log("[v0] Found in articles API:", !!foundArticle)
+            
+            // Log first few IDs for debugging
+            if (!foundArticle) {
+              console.log("[v0] Looking for ID:", params.id)
+              console.log("[v0] Available IDs (first 5):", articlesData.articles.slice(0, 5).map((a: Article) => a.id))
+            }
           }
         } catch (e) {
-          console.error("Failed to fetch from /api/articles:", e)
+          console.error("[v0] Failed to fetch from /api/articles:", e)
         }
         
         // If not found, try the news API
@@ -148,16 +159,20 @@ export default function ArticlePage() {
             const newsResponse = await fetch('/api/news')
             const newsData = await newsResponse.json()
             
+            console.log("[v0] News API response:", newsData.success, "count:", newsData.articles?.length)
+            
             if (newsData.success && newsData.articles) {
               allArticles = [...allArticles, ...newsData.articles]
               foundArticle = newsData.articles.find((a: Article) => a.id === params.id)
+              console.log("[v0] Found in news API:", !!foundArticle)
             }
           } catch (e) {
-            console.error("Failed to fetch from /api/news:", e)
+            console.error("[v0] Failed to fetch from /api/news:", e)
           }
         }
         
         if (foundArticle) {
+          console.log("[v0] Setting article:", foundArticle.title)
           setArticle(foundArticle)
           
           // Get related articles from same category
@@ -165,9 +180,11 @@ export default function ArticlePage() {
             .filter((a: Article) => a.id !== params.id && a.category === foundArticle.category)
             .slice(0, 4)
           setRelatedArticles(related)
+        } else {
+          console.log("[v0] Article not found for ID:", params.id)
         }
       } catch (error) {
-        console.error("Failed to fetch article:", error)
+        console.error("[v0] Failed to fetch article:", error)
       } finally {
         setLoading(false)
       }
