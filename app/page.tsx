@@ -52,6 +52,7 @@ import {
   FileText,
   Linkedin,
   Twitter,
+  Sparkles,
 } from "lucide-react"
 
 // Types
@@ -72,6 +73,13 @@ interface NewsArticle {
   platforms?: string[]
   tier?: number
   sourceType?: 'industry' | 'google'
+  // AI Enrichment fields
+  audience?: string[]
+  impactLevel?: 'high' | 'medium' | 'low'
+  impactDetail?: string
+  actionItem?: string
+  keyStat?: string | null
+  aiSummary?: string
   }
 
 interface BreakingNews {
@@ -135,6 +143,8 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [selectedPlatform, setSelectedPlatform] = useState("All")
+  const [selectedAudience, setSelectedAudience] = useState("all")
+  const [selectedImpact, setSelectedImpact] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
   const [sortBy, setSortBy] = useState<"latest" | "popular" | "shared">("latest")
   const [isDark, setIsDark] = useState(false)
@@ -194,6 +204,7 @@ export default function HomePage() {
           id: string
           title: string
           summary: string
+          aiSummary: string
           category: string
           sourceName: string
           sourceUrl: string
@@ -202,14 +213,18 @@ export default function HomePage() {
           tags: string[]
           platforms: string[]
           tier: number
-          sourceType: 'industry' | 'google' | 'reddit'
-          aiAnalysis?: {
-            sentiment: 'positive' | 'negative' | 'neutral'
-          }
+          sourceType: 'industry' | 'google'
+          isBreaking: boolean
+          audience: string[]
+          impactLevel: 'high' | 'medium' | 'low'
+          impactDetail: string
+          actionItem: string
+          keyStat: string | null
+          imageUrl?: string
         }) => ({
           id: a.id,
           title: a.title,
-          excerpt: a.summary,
+          excerpt: a.aiSummary || a.summary,
           category: mapAICategory(a.category),
           source: a.sourceName,
           sourceUrl: a.sourceUrl,
@@ -218,10 +233,18 @@ export default function HomePage() {
           readTime: Math.ceil((a.summary?.length || 200) / 200),
           tags: a.tags || [],
           featured: a.relevanceScore >= 80,
-          breaking: a.relevanceScore >= 90 && a.tier === 1,
+          breaking: a.isBreaking || (a.relevanceScore >= 90 && a.tier === 1),
           platforms: a.platforms || [],
           tier: a.tier,
           sourceType: a.sourceType,
+          imageUrl: a.imageUrl,
+          // AI enrichment fields
+          audience: a.audience || [],
+          impactLevel: a.impactLevel || 'medium',
+          impactDetail: a.impactDetail || '',
+          actionItem: a.actionItem || '',
+          keyStat: a.keyStat || null,
+          aiSummary: a.aiSummary || a.summary,
         }))
         
         setArticles(transformedArticles)
@@ -291,6 +314,10 @@ export default function HomePage() {
       }
     }
     if (selectedPlatform !== "All" && !article.platforms?.includes(selectedPlatform)) return false
+    // Audience filter
+    if (selectedAudience !== "all" && !article.audience?.includes(selectedAudience)) return false
+    // Impact filter
+    if (selectedImpact !== "all" && article.impactLevel !== selectedImpact) return false
     // Enhanced search - searches across title, excerpt, source, category, and platforms
     if (searchQuery) {
       const query = searchQuery.toLowerCase()
@@ -706,6 +733,61 @@ export default function HomePage() {
                 ))}
               </div>
             </div>
+            
+            {/* AI Filters: Audience & Impact */}
+            <div className="flex flex-wrap items-center gap-4 pt-2 border-t border-border/50">
+              {/* Audience Filter */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground font-medium">For:</span>
+                <div className="flex items-center gap-1">
+                  {[
+                    { id: 'all', label: 'All' },
+                    { id: 'sellers', label: 'Sellers' },
+                    { id: 'agencies', label: 'Agencies' },
+                    { id: 'saas', label: 'SaaS/Tech' },
+                    { id: 'investors', label: 'Investors' },
+                  ].map((aud) => (
+                    <Button
+                      key={aud.id}
+                      variant={selectedAudience === aud.id ? "secondary" : "ghost"}
+                      size="sm"
+                      onClick={() => setSelectedAudience(aud.id)}
+                      className="text-xs h-7 px-2"
+                    >
+                      {aud.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Impact Filter */}
+              <div className="flex items-center gap-2 ml-auto">
+                <span className="text-xs text-muted-foreground font-medium">Impact:</span>
+                <div className="flex items-center gap-1">
+                  {[
+                    { id: 'all', label: 'All', color: '' },
+                    { id: 'high', label: 'High', color: 'text-red-500' },
+                    { id: 'medium', label: 'Medium', color: 'text-amber-500' },
+                    { id: 'low', label: 'Low', color: 'text-green-500' },
+                  ].map((impact) => (
+                    <Button
+                      key={impact.id}
+                      variant={selectedImpact === impact.id ? "secondary" : "ghost"}
+                      size="sm"
+                      onClick={() => setSelectedImpact(impact.id)}
+                      className={`text-xs h-7 px-2 ${selectedImpact === impact.id ? '' : impact.color}`}
+                    >
+                      {impact.id !== 'all' && (
+                        <span className={`mr-1 ${impact.color}`}>
+                          {impact.id === 'high' ? '●' : impact.id === 'medium' ? '●' : '●'}
+                        </span>
+                      )}
+                      {impact.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </div>
 
             {/* Inline Newsletter CTA */}
             {!loading && filteredArticles.length > 3 && (
@@ -776,6 +858,16 @@ export default function HomePage() {
                         Show All Platforms
                       </Button>
                     )}
+                    {selectedAudience !== 'all' && (
+                      <Button variant="outline" onClick={() => setSelectedAudience('all')}>
+                        Show All Audiences
+                      </Button>
+                    )}
+                    {selectedImpact !== 'all' && (
+                      <Button variant="outline" onClick={() => setSelectedImpact('all')}>
+                        Show All Impact Levels
+                      </Button>
+                    )}
                   </div>
                   {/* Suggested Categories */}
                   <div className="mt-8 pt-6 border-t">
@@ -825,17 +917,58 @@ export default function HomePage() {
                                 {p}
                               </Badge>
                             ))}
+                            {/* AI Impact Badge */}
+                            {article.impactLevel && (
+                              <Badge 
+                                variant="outline" 
+                                className={`text-xs ${
+                                  article.impactLevel === 'high' 
+                                    ? 'border-red-500/50 text-red-600 bg-red-500/10' 
+                                    : article.impactLevel === 'medium' 
+                                    ? 'border-amber-500/50 text-amber-600 bg-amber-500/10' 
+                                    : 'border-green-500/50 text-green-600 bg-green-500/10'
+                                }`}
+                              >
+                                <span className={`mr-1 ${
+                                  article.impactLevel === 'high' ? 'text-red-500' 
+                                  : article.impactLevel === 'medium' ? 'text-amber-500' 
+                                  : 'text-green-500'
+                                }`}>●</span>
+                                {article.impactLevel.charAt(0).toUpperCase() + article.impactLevel.slice(1)} Impact
+                              </Badge>
+                            )}
                             <span className="text-xs text-muted-foreground flex items-center gap-1 ml-auto">
                               <Clock className="h-3 w-3" />
                               {formatTimeAgo(article.publishedAt)}
                             </span>
                           </div>
+                          {/* AI Enhanced indicator */}
+                          {article.aiSummary && (
+                            <div className="flex items-center gap-1 mb-2">
+                              <Sparkles className="h-3 w-3 text-primary" />
+                              <span className="text-[10px] text-primary font-medium">AI Enhanced</span>
+                            </div>
+                          )}
                           <h3 className="font-semibold mb-2 group-hover:text-primary transition-colors line-clamp-2 text-balance">
                             {article.title}
                           </h3>
-                          <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
-                            {article.excerpt}
+                          <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                            {article.aiSummary || article.excerpt}
                           </p>
+                          {/* Audience pills */}
+                          {article.audience && article.audience.length > 0 && (
+                            <div className="flex items-center gap-1 mb-3">
+                              <span className="text-[10px] text-muted-foreground">For:</span>
+                              {article.audience.slice(0, 3).map((aud) => (
+                                <span 
+                                  key={aud} 
+                                  className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground capitalize"
+                                >
+                                  {aud}
+                                </span>
+                              ))}
+                            </div>
+                          )}
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
                               {article.tier === 1 ? (
