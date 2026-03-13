@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect, useCallback, useRef, Fragment } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -735,7 +735,7 @@ export default function HomePage() {
                   ) : (
                   <div className="grid md:grid-cols-2 gap-6">
                     {regularArticles.map((article, index) => (
-                      <React.Fragment key={article.id}>
+                      <Fragment key={article.id}>
                         <div onClick={(e) => handleArticleClick(article, e)}>
                           <Card className="overflow-hidden group cursor-pointer hover:shadow-md transition-all border-0 h-full">
                             {article.imageUrl && (
@@ -818,7 +818,7 @@ export default function HomePage() {
                             </Card>
                           </div>
                         )}
-                      </React.Fragment>
+                      </Fragment>
                     ))}
                   </div>
                   )}
