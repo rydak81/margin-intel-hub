@@ -371,6 +371,9 @@ export default function HomePage() {
               <Link href="/tools" className="text-sm font-semibold hover:text-primary transition-colors">
                 Tools
               </Link>
+              <Link href="/solutions" className="text-sm font-semibold hover:text-primary transition-colors">
+                Solutions
+              </Link>
               <Link href="/community" className="text-sm font-semibold hover:text-primary transition-colors flex items-center gap-1.5">
                 Community
                 <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">BETA</span>
@@ -454,6 +457,7 @@ export default function HomePage() {
               <nav className="flex flex-col gap-2">
                 <Link href="/" className="px-4 py-2 rounded-md hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>Home</Link>
                 <Link href="/tools" className="px-4 py-2 rounded-md hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>Tools</Link>
+                <Link href="/solutions" className="px-4 py-2 rounded-md hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>Solutions</Link>
                 <Link href="/community" className="px-4 py-2 rounded-md flex items-center gap-2 hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>
                   Community
                   <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">BETA</span>
@@ -1014,6 +1018,27 @@ export default function HomePage() {
                     </Link>
                   </Button>
                 ))}
+              </CardContent>
+            </Card>
+
+            {/* Solutions CTA */}
+            <Card className="border-0 shadow-sm bg-gradient-to-br from-primary/10 via-background to-background">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Lightbulb className="h-4 w-4 text-primary" />
+                  Find Your Solution
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  Connect with vetted agencies, discover tools, and get matched with the right partners for your business.
+                </p>
+                <Button asChild size="sm" className="w-full">
+                  <Link href="/solutions">
+                    Explore Solutions
+                    <ArrowRight className="ml-2 h-3 w-3" />
+                  </Link>
+                </Button>
               </CardContent>
             </Card>
           </aside>
