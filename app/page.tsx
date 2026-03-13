@@ -799,7 +799,6 @@ export default function HomePage() {
                     ))}
                   </div>
                   )}
-                </div>
 
                 {/* Load More */}
                 {regularArticles.length > 8 && (
