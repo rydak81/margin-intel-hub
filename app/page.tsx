@@ -852,6 +852,33 @@ export default function HomePage() {
                         </Card>
                       </div>
                     )}
+                    
+                    {/* MarginPro CTA - shows in Seller Profitability category after every 8th article */}
+                    {selectedCategory === "profitability" && (index + 1) % 8 === 0 && index < regularArticles.length - 1 && (
+                      <div key={`marginpro-cta-${index}`} className="md:col-span-2">
+                        <Card className="border-0 bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-transparent overflow-hidden">
+                          <CardContent className="p-6">
+                            <div className="flex flex-col sm:flex-row items-center gap-4">
+                              <div className="flex items-center gap-3 flex-1">
+                                <div className="h-10 w-10 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                                  <DollarSign className="h-5 w-5 text-emerald-600" />
+                                </div>
+                                <div>
+                                  <p className="font-semibold text-sm">Losing margin to Amazon billing errors?</p>
+                                  <p className="text-xs text-muted-foreground">MarginPro recovers an average of 1-3% of revenue from overcharges, shortages, and billing mistakes.</p>
+                                </div>
+                              </div>
+                              <Link href="/solutions">
+                                <Button variant="outline" size="sm" className="border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10 whitespace-nowrap">
+                                  Get a Free Audit
+                                  <ArrowRight className="h-3 w-3 ml-1" />
+                                </Button>
+                              </Link>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    )}
                   </Fragment>
                 ))}
               </div>
@@ -1007,9 +1034,9 @@ export default function HomePage() {
               <CardContent className="grid grid-cols-2 gap-2">
                 {[
                   { name: "Profit Calculator", icon: Calculator, href: "/tools#profit" },
+                  { name: "Profit Recovery", icon: DollarSign, href: "/solutions" },
                   { name: "Listing Optimizer", icon: Target, href: "/tools#listing" },
                   { name: "Keyword Research", icon: LineChart, href: "/tools#keywords" },
-                  { name: "Hot Products", icon: Package, href: "/tools#products" },
                 ].map((tool) => (
                   <Button key={tool.name} variant="outline" size="sm" className="h-auto py-3 flex-col gap-1" asChild>
                     <Link href={tool.href}>

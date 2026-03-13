@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -26,88 +27,34 @@ import {
   BarChart3,
   Menu,
   X,
-  ShoppingBag,
-  Building2,
-  Code2,
-  TrendingUp,
+  DollarSign,
+  Globe,
+  Layers,
+  Users,
   ArrowRight,
   CheckCircle2,
-  Users,
-  Target,
-  Zap,
+  Star,
+  TrendingUp,
   Shield,
-  BarChart2,
-  PieChart,
-  Briefcase,
+  Zap,
   Store,
   Loader2,
-  ChevronRight,
+  Mail,
+  Building2,
+  ChevronDown,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 
-// Solution categories for different audiences
-const SOLUTIONS = [
-  {
-    id: "brand-sellers",
-    title: "For Brand Sellers",
-    subtitle: "Scale profitably across marketplaces",
-    icon: ShoppingBag,
-    color: "bg-blue-500",
-    description: "Connect with vetted agencies, discover tools that actually work, and get data-driven insights to grow your business.",
-    benefits: [
-      "Curated agency introductions based on your specific needs",
-      "Tool recommendations from sellers at your revenue level",
-      "Exclusive market data and trend reports",
-      "Access to our Deal Flow Network for funding/exit opportunities"
-    ],
-    cta: "Get Matched with Solutions",
-    popular: true,
-  },
-  {
-    id: "agencies",
-    title: "For Agencies",
-    subtitle: "Find qualified brand clients",
-    icon: Building2,
-    color: "bg-emerald-500",
-    description: "Get in front of qualified brand sellers actively looking for agency partners. No more cold outreach.",
-    benefits: [
-      "Warm introductions to brands seeking your services",
-      "Showcase your expertise in our partner directory",
-      "Thought leadership via sponsored content",
-      "Attend exclusive industry events"
-    ],
-    cta: "Become a Partner",
-  },
-  {
-    id: "saas-tech",
-    title: "For SaaS & Tech",
-    subtitle: "Reach active e-commerce operators",
-    icon: Code2,
-    color: "bg-purple-500",
-    description: "Connect with sellers, aggregators, and agencies who are actively evaluating tools like yours.",
-    benefits: [
-      "Sponsored placements in our Tools section",
-      "Product reviews and case studies",
-      "Newsletter sponsorship opportunities",
-      "Lead generation through our audience"
-    ],
-    cta: "Explore Partnerships",
-  },
-  {
-    id: "investors",
-    title: "For Investors & Acquirers",
-    subtitle: "Source quality deal flow",
-    icon: TrendingUp,
-    color: "bg-amber-500",
-    description: "Access our network of brands considering exits, funding, or strategic partnerships.",
-    benefits: [
-      "Deal flow alerts matching your investment criteria",
-      "Confidential introductions to brand owners",
-      "Market intelligence and sector reports",
-      "Due diligence support and introductions"
-    ],
-    cta: "Join Deal Network",
-  },
+// Marketplace platform logos (using text placeholders for now)
+const MARKETPLACE_LOGOS = [
+  { name: "Amazon", color: "bg-orange-500" },
+  { name: "Walmart", color: "bg-blue-600" },
+  { name: "eBay", color: "bg-red-500" },
+  { name: "TikTok Shop", color: "bg-black" },
+  { name: "Google Shopping", color: "bg-green-500" },
+  { name: "Meta Shops", color: "bg-blue-500" },
+  { name: "Target+", color: "bg-red-600" },
+  { name: "Wish", color: "bg-cyan-500" },
 ]
 
 // Form options
@@ -138,99 +85,152 @@ const REFERRAL_OPTIONS = [
 ]
 
 const HELP_OPTIONS = [
-  { id: "agency", label: "Agency Services (PPC, Creative, etc.)" },
-  { id: "tools", label: "Software & Tools" },
-  { id: "funding", label: "Funding / Capital" },
-  { id: "exit", label: "Exit / Acquisition" },
-  { id: "strategy", label: "Strategy Consulting" },
-  { id: "logistics", label: "Logistics / 3PL" },
+  { id: "profit_recovery", label: "Profit Recovery" },
+  { id: "multichannel", label: "Multichannel Expansion" },
+  { id: "account_management", label: "Account Management" },
+  { id: "ppc_advertising", label: "PPC/Advertising" },
+  { id: "other", label: "Other" },
 ]
 
-// Trust logos/stats
-const TRUST_STATS = [
-  { value: "5,000+", label: "Newsletter Subscribers" },
-  { value: "150+", label: "Partner Solutions" },
-  { value: "$2B+", label: "GMV Represented" },
-  { value: "98%", label: "Match Satisfaction" },
+const SERVICE_TYPES = [
+  { value: "ppc", label: "PPC Management" },
+  { value: "listing", label: "Listing Optimization" },
+  { value: "supply_chain", label: "Supply Chain" },
+  { value: "brand_protection", label: "Brand Protection" },
+  { value: "account_management", label: "Account Management" },
+  { value: "international", label: "International Expansion" },
+  { value: "creative", label: "Creative/Photography" },
 ]
 
 export default function SolutionsPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [selectedSolution, setSelectedSolution] = useState<string | null>(null)
-  const [formStep, setFormStep] = useState(1)
+  const [leadModalOpen, setLeadModalOpen] = useState(false)
+  const [leadModalStep, setLeadModalStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
+  const [submitSuccess, setSubmitSuccess] = useState(false)
+  const [currentSolution, setCurrentSolution] = useState<string>("")
+  
+  // Partner directory modals
+  const [listingModalOpen, setListingModalOpen] = useState(false)
+  const [partnerModalOpen, setPartnerModalOpen] = useState(false)
   
   // Form state
   const [formData, setFormData] = useState({
-    name: "",
     email: "",
+    name: "",
     companyName: "",
     annualRevenue: "",
     primaryMarketplace: "",
     helpNeeded: [] as string[],
     referralSource: "",
+    serviceTypeNeeded: "",
   })
 
-  const handleSolutionClick = (solutionId: string) => {
-    setSelectedSolution(solutionId)
-    setFormStep(1)
-    setSubmitted(false)
-    setDialogOpen(true)
+  const supabase = createClient()
+
+  const openLeadModal = (solutionId: string) => {
+    setCurrentSolution(solutionId)
+    setLeadModalStep(1)
+    setSubmitSuccess(false)
+    setLeadModalOpen(true)
   }
 
-  const handleCheckboxChange = (id: string, checked: boolean) => {
-    if (checked) {
-      setFormData(prev => ({ ...prev, helpNeeded: [...prev.helpNeeded, id] }))
-    } else {
-      setFormData(prev => ({ ...prev, helpNeeded: prev.helpNeeded.filter(item => item !== id) }))
-    }
+  const handleHelpToggle = (helpId: string) => {
+    setFormData(prev => ({
+      ...prev,
+      helpNeeded: prev.helpNeeded.includes(helpId)
+        ? prev.helpNeeded.filter(h => h !== helpId)
+        : [...prev.helpNeeded, helpId]
+    }))
   }
 
-  const handleSubmit = async () => {
+  const handleSubmitLead = async () => {
+    if (!formData.email || !formData.name || !formData.companyName) return
+
     setIsSubmitting(true)
-    
     try {
-      const supabase = createClient()
-      
-      // Determine if high priority (revenue > $1M)
-      const highPriorityRevenues = ['1m_5m', '5m_10m', '10m_25m', '25m_plus']
-      const isHighPriority = highPriorityRevenues.includes(formData.annualRevenue)
-      
-      const { error } = await supabase.from('leads').insert({
+      // Determine if high priority (Profit Recovery selected OR $5M+ revenue)
+      const isHighPriority = formData.helpNeeded.includes("profit_recovery") || 
+        ["5m_10m", "10m_25m", "25m_plus"].includes(formData.annualRevenue)
+
+      const { error } = await supabase.from("leads").insert({
         email: formData.email,
         name: formData.name,
         company_name: formData.companyName,
-        annual_revenue: formData.annualRevenue,
-        primary_marketplace: formData.primaryMarketplace,
+        annual_revenue: formData.annualRevenue || "under_500k",
+        primary_marketplace: formData.primaryMarketplace || "other",
         help_needed: formData.helpNeeded,
-        referral_source: formData.referralSource,
-        lead_source: 'solutions_page',
-        solution_interest: selectedSolution,
+        referral_source: formData.referralSource || "other",
+        lead_source: "solutions_page",
+        solution_interest: currentSolution,
         is_high_priority: isHighPriority,
       })
-      
+
       if (error) throw error
-      
-      setSubmitted(true)
+
+      setSubmitSuccess(true)
+      // Reset form
+      setFormData({
+        email: "",
+        name: "",
+        companyName: "",
+        annualRevenue: "",
+        primaryMarketplace: "",
+        helpNeeded: [],
+        referralSource: "",
+        serviceTypeNeeded: "",
+      })
     } catch (error) {
-      console.error('Error submitting lead:', error)
-      // Still show success for demo purposes
-      setSubmitted(true)
+      console.error("Error submitting lead:", error)
     } finally {
       setIsSubmitting(false)
     }
   }
 
-  const selectedSolutionData = SOLUTIONS.find(s => s.id === selectedSolution)
+  const handlePartnerDirectorySubmit = async (type: "listing" | "recommendation") => {
+    if (!formData.email) return
+
+    setIsSubmitting(true)
+    try {
+      const { error } = await supabase.from("leads").insert({
+        email: formData.email,
+        name: formData.name || "Not provided",
+        company_name: formData.companyName || "Not provided",
+        annual_revenue: formData.annualRevenue || "under_500k",
+        primary_marketplace: formData.primaryMarketplace || "other",
+        help_needed: formData.serviceTypeNeeded ? [formData.serviceTypeNeeded] : [],
+        referral_source: "other",
+        lead_source: type === "listing" ? "partner_directory_listing" : "partner_recommendation",
+        solution_interest: type,
+        is_high_priority: false,
+      })
+
+      if (error) throw error
+
+      setSubmitSuccess(true)
+      setFormData({
+        email: "",
+        name: "",
+        companyName: "",
+        annualRevenue: "",
+        primaryMarketplace: "",
+        helpNeeded: [],
+        referralSource: "",
+        serviceTypeNeeded: "",
+      })
+    } catch (error) {
+      console.error("Error submitting:", error)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur-sm">
+      {/* Navigation */}
+      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex h-14 items-center justify-between">
+          <div className="flex items-center justify-between h-14">
             <Link href="/" className="flex items-center gap-2">
               <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
                 <BarChart3 className="h-4 w-4 text-primary-foreground" />
@@ -238,41 +238,33 @@ export default function SolutionsPage() {
               <span className="font-bold text-lg hidden sm:block">Ecom Intel Hub</span>
             </Link>
 
-            {/* Desktop Nav */}
             <nav className="hidden lg:flex items-center gap-6">
-              <Link href="/" className="text-sm font-semibold hover:text-primary transition-colors">
-                Home
-              </Link>
-              <Link href="/tools" className="text-sm font-semibold hover:text-primary transition-colors">
-                Tools
-              </Link>
-              <Link href="/solutions" className="text-sm font-semibold text-primary transition-colors">
-                Solutions
-              </Link>
+              <Link href="/" className="text-sm font-semibold hover:text-primary transition-colors">Home</Link>
+              <Link href="/tools" className="text-sm font-semibold hover:text-primary transition-colors">Tools</Link>
+              <Link href="/solutions" className="text-sm font-semibold text-primary transition-colors">Solutions</Link>
               <Link href="/community" className="text-sm font-semibold hover:text-primary transition-colors flex items-center gap-1.5">
                 Community
                 <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">BETA</span>
               </Link>
-              <Link href="/events" className="text-sm font-semibold hover:text-primary transition-colors">
-                Events
-              </Link>
-              <Link href="/newsletter" className="text-sm font-semibold hover:text-primary transition-colors">
-                Newsletter
-              </Link>
+              <Link href="/events" className="text-sm font-semibold hover:text-primary transition-colors">Events</Link>
+              <Link href="/newsletter" className="text-sm font-semibold hover:text-primary transition-colors">Newsletter</Link>
             </nav>
 
-            {/* Mobile Menu Button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="lg:hidden"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button asChild size="sm" className="hidden sm:flex">
+                <Link href="/newsletter">Subscribe</Link>
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              >
+                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </Button>
+            </div>
           </div>
 
-          {/* Mobile Menu */}
           {mobileMenuOpen && (
             <div className="lg:hidden py-4 border-t">
               <nav className="flex flex-col gap-2">
@@ -289,246 +281,274 @@ export default function SolutionsPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative py-20 px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-background" />
-        <div className="max-w-7xl mx-auto relative">
-          <div className="max-w-3xl">
-            <Badge variant="outline" className="mb-4">
-              <Zap className="h-3 w-3 mr-1" />
-              Trusted by 5,000+ E-commerce Professionals
-            </Badge>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 text-balance">
-              Find the Right Solution for Your E-commerce Business
-            </h1>
-            <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-              Whether you're a brand seller looking to scale, an agency seeking clients, or an investor sourcing deals - we connect you with the right partners.
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <Button size="lg" onClick={() => handleSolutionClick('brand-sellers')}>
-                Get Started
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-              <Button size="lg" variant="outline">
-                Learn More
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Trust Bar */}
-      <section className="border-y bg-muted/30 py-8">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {TRUST_STATS.map((stat, i) => (
-              <div key={i} className="text-center">
-                <div className="text-3xl font-bold text-primary">{stat.value}</div>
-                <div className="text-sm text-muted-foreground">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Solutions Grid */}
-      <section className="py-20 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Solutions for Every Role</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Our curated network spans the entire e-commerce ecosystem. Find the perfect match for your needs.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-6">
-            {SOLUTIONS.map((solution) => {
-              const Icon = solution.icon
-              return (
-                <Card 
-                  key={solution.id} 
-                  className={`relative overflow-hidden hover:shadow-lg transition-all cursor-pointer group ${
-                    solution.popular ? 'ring-2 ring-primary' : ''
-                  }`}
-                  onClick={() => handleSolutionClick(solution.id)}
-                >
-                  {solution.popular && (
-                    <div className="absolute top-4 right-4">
-                      <Badge className="bg-primary">Most Popular</Badge>
-                    </div>
-                  )}
-                  <CardHeader>
-                    <div className={`w-12 h-12 rounded-lg ${solution.color} flex items-center justify-center mb-4`}>
-                      <Icon className="h-6 w-6 text-white" />
-                    </div>
-                    <CardTitle className="text-xl">{solution.title}</CardTitle>
-                    <CardDescription className="text-base">{solution.subtitle}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground mb-4">{solution.description}</p>
-                    <ul className="space-y-2 mb-6">
-                      {solution.benefits.map((benefit, i) => (
-                        <li key={i} className="flex items-start gap-2 text-sm">
-                          <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                          <span>{benefit}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    <Button className="w-full group-hover:bg-primary/90">
-                      {solution.cta}
-                      <ChevronRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </CardContent>
-                </Card>
-              )
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works */}
-      <section className="py-20 px-4 bg-muted/30">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">How It Works</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Our matching process is simple, fast, and designed to respect your time.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-primary">1</span>
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Tell Us About You</h3>
-              <p className="text-muted-foreground">
-                Complete a brief questionnaire about your business, challenges, and goals.
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-primary">2</span>
-              </div>
-              <h3 className="text-xl font-semibold mb-2">We Find Matches</h3>
-              <p className="text-muted-foreground">
-                Our team identifies the best-fit partners from our vetted network.
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-primary">3</span>
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Get Connected</h3>
-              <p className="text-muted-foreground">
-                Receive warm introductions and start conversations with qualified partners.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Grid */}
-      <section className="py-20 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Why Choose Ecom Intel Hub</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              We're not just another directory. We're your strategic partner in e-commerce growth.
-            </p>
-          </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card>
-              <CardHeader>
-                <Shield className="h-8 w-8 text-primary mb-2" />
-                <CardTitle className="text-lg">Vetted Partners</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Every agency, tool, and partner in our network is vetted for quality and track record.
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <Target className="h-8 w-8 text-primary mb-2" />
-                <CardTitle className="text-lg">Personalized Matching</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  No generic lists. We match you based on your specific situation and needs.
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <Users className="h-8 w-8 text-primary mb-2" />
-                <CardTitle className="text-lg">Industry Network</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Access our community of successful sellers, operators, and investors.
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <BarChart2 className="h-8 w-8 text-primary mb-2" />
-                <CardTitle className="text-lg">Data-Driven Insights</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Get access to market intelligence and trend reports exclusive to our network.
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <Briefcase className="h-8 w-8 text-primary mb-2" />
-                <CardTitle className="text-lg">Deal Flow Access</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Connect with capital providers or explore exit opportunities discreetly.
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <Store className="h-8 w-8 text-primary mb-2" />
-                <CardTitle className="text-lg">Multi-Channel Focus</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Amazon, Walmart, TikTok Shop, Shopify - we cover the entire marketplace ecosystem.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 px-4 bg-primary text-primary-foreground">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Find Your Perfect Match?</h2>
-          <p className="text-lg opacity-90 mb-8">
-            Join thousands of e-commerce professionals who've found the right partners through our network.
+      <section className="py-16 md:py-24 bg-gradient-to-b from-muted/50 to-background">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6 text-balance">
+            Solutions for Marketplace Sellers
+          </h1>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto text-balance">
+            Curated tools and services to help you recover profits, expand to new channels, and scale your e-commerce business.
           </p>
-          <Button 
-            size="lg" 
-            variant="secondary"
-            onClick={() => handleSolutionClick('brand-sellers')}
-          >
-            Get Started Today
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
         </div>
       </section>
+
+      {/* Main Content */}
+      <main className="max-w-6xl mx-auto px-4 py-12 space-y-16">
+        
+        {/* Section 1: Profit Recovery & Financial Tools */}
+        <section>
+          <div className="flex items-center gap-2 mb-6">
+            <DollarSign className="h-6 w-6 text-primary" />
+            <h2 className="text-2xl font-bold">Profit Recovery & Financial Tools</h2>
+          </div>
+          
+          <Card className="overflow-hidden border-2 border-primary/20 shadow-lg">
+            <div className="md:flex">
+              <div className="flex-1 p-6 md:p-8">
+                <div className="flex items-center gap-2 mb-4">
+                  <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/20 hover:bg-amber-500/10">
+                    <Star className="h-3 w-3 mr-1 fill-amber-500 text-amber-500" />
+                    Featured Partner
+                  </Badge>
+                </div>
+                
+                <h3 className="text-2xl font-bold mb-2">MarginPro by ThreeColts</h3>
+                <p className="text-lg font-medium text-primary mb-4">Stop Leaving Money on the Table</p>
+                
+                <p className="text-muted-foreground mb-6">
+                  MarginPro audits your Amazon 1P/3P, Walmart, Target+, and shipping carrier accounts to recover lost profits from overcharges, billing errors, and shortages. Most brands recover 1-3% of revenue.
+                </p>
+
+                <div className="grid sm:grid-cols-2 gap-4 mb-6">
+                  <div className="bg-muted/50 rounded-lg p-4">
+                    <p className="text-sm text-muted-foreground mb-1">Average Recovery</p>
+                    <p className="text-2xl font-bold text-primary">1-3% of Revenue</p>
+                  </div>
+                  <div className="bg-muted/50 rounded-lg p-4">
+                    <p className="text-sm text-muted-foreground mb-1">Supported Platforms</p>
+                    <p className="text-sm font-medium">Amazon 1P, Amazon 3P, Walmart, Target+, Shipping Carriers</p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {["FBA Overcharges", "Billing Errors", "Inventory Shortages", "Carrier Disputes"].map((item) => (
+                    <Badge key={item} variant="secondary" className="text-xs">
+                      <CheckCircle2 className="h-3 w-3 mr-1" />
+                      {item}
+                    </Badge>
+                  ))}
+                </div>
+
+                <Button size="lg" onClick={() => openLeadModal("marginpro")} className="gap-2">
+                  Get a Free Audit
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </div>
+              
+              <div className="md:w-80 bg-gradient-to-br from-primary/5 to-primary/10 p-6 md:p-8 flex flex-col justify-center">
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <Shield className="h-5 w-5 text-primary mt-0.5" />
+                    <div>
+                      <p className="font-medium">No Risk</p>
+                      <p className="text-sm text-muted-foreground">Pay only on recovered funds</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Zap className="h-5 w-5 text-primary mt-0.5" />
+                    <div>
+                      <p className="font-medium">Fast Results</p>
+                      <p className="text-sm text-muted-foreground">See recoveries in 30-60 days</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <TrendingUp className="h-5 w-5 text-primary mt-0.5" />
+                    <div>
+                      <p className="font-medium">Ongoing Monitoring</p>
+                      <p className="text-sm text-muted-foreground">Continuous auditing & recovery</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </section>
+
+        {/* Section 2: Multichannel Expansion */}
+        <section>
+          <div className="flex items-center gap-2 mb-6">
+            <Globe className="h-6 w-6 text-primary" />
+            <h2 className="text-2xl font-bold">Multichannel Expansion</h2>
+          </div>
+          
+          <Card className="overflow-hidden border-2 border-primary/20 shadow-lg">
+            <div className="md:flex">
+              <div className="flex-1 p-6 md:p-8">
+                <div className="flex items-center gap-2 mb-4">
+                  <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/20 hover:bg-amber-500/10">
+                    <Star className="h-3 w-3 mr-1 fill-amber-500 text-amber-500" />
+                    Featured Partner
+                  </Badge>
+                </div>
+                
+                <h3 className="text-2xl font-bold mb-2">CedCommerce by ThreeColts</h3>
+                <p className="text-lg font-medium text-primary mb-4">Sell Everywhere Your Customers Shop</p>
+                
+                <p className="text-muted-foreground mb-6">
+                  CedCommerce connects your catalog to 100+ marketplaces worldwide. Manage listings, inventory, and orders from a single dashboard.
+                </p>
+
+                <div className="mb-6">
+                  <p className="text-sm text-muted-foreground mb-3">Supported Marketplaces</p>
+                  <div className="flex flex-wrap gap-2">
+                    {MARKETPLACE_LOGOS.map((platform) => (
+                      <div key={platform.name} className={`${platform.color} text-white text-xs font-medium px-3 py-1.5 rounded-full`}>
+                        {platform.name}
+                      </div>
+                    ))}
+                    <div className="bg-muted text-muted-foreground text-xs font-medium px-3 py-1.5 rounded-full">
+                      +90 more
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {["Centralized Inventory", "Bulk Listing", "Order Management", "Real-time Sync"].map((item) => (
+                    <Badge key={item} variant="secondary" className="text-xs">
+                      <CheckCircle2 className="h-3 w-3 mr-1" />
+                      {item}
+                    </Badge>
+                  ))}
+                </div>
+
+                <Button size="lg" onClick={() => openLeadModal("cedcommerce")} className="gap-2">
+                  Start Multichannel Selling
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </div>
+              
+              <div className="md:w-80 bg-gradient-to-br from-primary/5 to-primary/10 p-6 md:p-8 flex flex-col justify-center">
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <Store className="h-5 w-5 text-primary mt-0.5" />
+                    <div>
+                      <p className="font-medium">100+ Channels</p>
+                      <p className="text-sm text-muted-foreground">Global marketplace coverage</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Layers className="h-5 w-5 text-primary mt-0.5" />
+                    <div>
+                      <p className="font-medium">Single Dashboard</p>
+                      <p className="text-sm text-muted-foreground">Manage everything in one place</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Zap className="h-5 w-5 text-primary mt-0.5" />
+                    <div>
+                      <p className="font-medium">Quick Integration</p>
+                      <p className="text-sm text-muted-foreground">Go live in days, not weeks</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </section>
+
+        {/* Section 3: Seller Management Suite */}
+        <section>
+          <div className="flex items-center gap-2 mb-6">
+            <Layers className="h-6 w-6 text-primary" />
+            <h2 className="text-2xl font-bold">Seller Management Suite</h2>
+          </div>
+          
+          <Card className="p-6 md:p-8">
+            <div className="md:flex md:items-center md:justify-between gap-8">
+              <div className="flex-1 mb-6 md:mb-0">
+                <h3 className="text-2xl font-bold mb-2">Seller 365</h3>
+                <p className="text-lg font-medium text-primary mb-4">All-in-One Seller Management</p>
+                
+                <p className="text-muted-foreground mb-4">
+                  A comprehensive suite of tools for marketplace sellers including inventory management, analytics, repricing, and customer communication—all integrated into one powerful platform.
+                </p>
+
+                <div className="flex flex-wrap gap-2">
+                  {["Inventory Management", "Analytics Dashboard", "Repricing Tools", "Customer Support"].map((item) => (
+                    <Badge key={item} variant="secondary" className="text-xs">
+                      <CheckCircle2 className="h-3 w-3 mr-1" />
+                      {item}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="flex-shrink-0">
+                <Button size="lg" variant="outline" onClick={() => openLeadModal("seller365")} className="gap-2">
+                  Learn More
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </section>
+
+        {/* Section 4: Partner & Agency Directory */}
+        <section>
+          <div className="flex items-center gap-2 mb-6">
+            <Users className="h-6 w-6 text-primary" />
+            <h2 className="text-2xl font-bold">Partner & Agency Directory</h2>
+            <Badge variant="outline" className="ml-2">Coming Soon</Badge>
+          </div>
+          
+          <Card className="p-6 md:p-8 bg-muted/30">
+            <div className="text-center max-w-2xl mx-auto mb-8">
+              <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-xl font-bold mb-2">Find Trusted Partners for Your Business</h3>
+              <p className="text-muted-foreground">
+                We're building the most comprehensive directory of e-commerce service partners—agencies, consultants, and service providers vetted by the community.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Want to be listed */}
+              <Card className="p-6 border-dashed">
+                <h4 className="font-semibold mb-2">Want to be listed?</h4>
+                <p className="text-sm text-muted-foreground mb-4">
+                  If you're an agency or service provider, join our directory to connect with brands looking for your expertise.
+                </p>
+                <Button variant="outline" className="w-full" onClick={() => {
+                  setSubmitSuccess(false)
+                  setListingModalOpen(true)
+                }}>
+                  <Mail className="h-4 w-4 mr-2" />
+                  Get Notified When We Launch
+                </Button>
+              </Card>
+
+              {/* Looking for a partner */}
+              <Card className="p-6 border-dashed">
+                <h4 className="font-semibold mb-2">Looking for a partner recommendation?</h4>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Tell us what you need and we'll connect you with trusted partners from our network.
+                </p>
+                <Button variant="outline" className="w-full" onClick={() => {
+                  setSubmitSuccess(false)
+                  setPartnerModalOpen(true)
+                }}>
+                  <Users className="h-4 w-4 mr-2" />
+                  Request a Recommendation
+                </Button>
+              </Card>
+            </div>
+          </Card>
+        </section>
+
+      </main>
 
       {/* Footer */}
-      <footer className="border-t py-12 px-4">
-        <div className="max-w-7xl mx-auto">
+      <footer className="border-t py-12 mt-16">
+        <div className="max-w-6xl mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-2">
               <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
@@ -536,177 +556,156 @@ export default function SolutionsPage() {
               </div>
               <span className="font-bold">Ecom Intel Hub</span>
             </div>
-            <div className="flex gap-6 text-sm text-muted-foreground">
-              <Link href="/newsletter" className="hover:text-foreground transition-colors">Newsletter</Link>
-              <Link href="/tools" className="hover:text-foreground transition-colors">Tools</Link>
-              <Link href="/community" className="hover:text-foreground transition-colors">Community</Link>
-            </div>
             <p className="text-sm text-muted-foreground">
-              2026 Ecom Intel Hub. All rights reserved.
+              Your source for e-commerce industry intelligence
             </p>
           </div>
         </div>
       </footer>
 
-      {/* Lead Capture Dialog */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          {submitted ? (
+      {/* Lead Capture Modal */}
+      <Dialog open={leadModalOpen} onOpenChange={setLeadModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          {submitSuccess ? (
             <div className="text-center py-8">
-              <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+              <div className="h-16 w-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <CheckCircle2 className="h-8 w-8 text-green-600" />
               </div>
-              <DialogTitle className="text-2xl mb-2">You're All Set!</DialogTitle>
-              <DialogDescription className="text-base mb-6">
-                Thanks for your interest! Our team will review your information and reach out within 1-2 business days with personalized recommendations.
+              <DialogTitle className="text-xl mb-2">Thank You!</DialogTitle>
+              <DialogDescription>
+                We've received your information and will be in touch within 1-2 business days.
               </DialogDescription>
-              <Button onClick={() => setDialogOpen(false)}>
-                Back to Solutions
+              <Button className="mt-6" onClick={() => setLeadModalOpen(false)}>
+                Close
               </Button>
             </div>
           ) : (
             <>
               <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  {selectedSolutionData && (
-                    <div className={`w-8 h-8 rounded-lg ${selectedSolutionData.color} flex items-center justify-center`}>
-                      <selectedSolutionData.icon className="h-4 w-4 text-white" />
-                    </div>
-                  )}
-                  {selectedSolutionData?.title}
+                <DialogTitle>
+                  {leadModalStep === 1 ? "Get Started" : "Almost There!"}
                 </DialogTitle>
                 <DialogDescription>
-                  {formStep === 1 ? "Tell us about yourself" : "Tell us about your business"}
+                  {leadModalStep === 1 
+                    ? "Tell us about yourself so we can connect you with the right solution."
+                    : "Just a few more details to personalize your experience."
+                  }
                 </DialogDescription>
               </DialogHeader>
 
-              {/* Progress Indicator */}
-              <div className="flex gap-2 mb-4">
-                <div className={`h-1 flex-1 rounded-full ${formStep >= 1 ? 'bg-primary' : 'bg-muted'}`} />
-                <div className={`h-1 flex-1 rounded-full ${formStep >= 2 ? 'bg-primary' : 'bg-muted'}`} />
-              </div>
-
-              {formStep === 1 ? (
-                <div className="space-y-4">
+              {leadModalStep === 1 ? (
+                <div className="space-y-4 py-4">
                   <div className="space-y-2">
-                    <Label htmlFor="name">Full Name *</Label>
-                    <Input
-                      id="name"
-                      placeholder="John Smith"
-                      value={formData.name}
-                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Work Email *</Label>
+                    <Label htmlFor="email">Email *</Label>
                     <Input
                       id="email"
                       type="email"
-                      placeholder="john@company.com"
+                      placeholder="you@company.com"
                       value={formData.email}
                       onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="company">Company / Brand Name *</Label>
+                    <Label htmlFor="name">Name *</Label>
+                    <Input
+                      id="name"
+                      placeholder="Your full name"
+                      value={formData.name}
+                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="company">Company Name *</Label>
                     <Input
                       id="company"
-                      placeholder="Acme Inc."
+                      placeholder="Your company"
                       value={formData.companyName}
                       onChange={(e) => setFormData(prev => ({ ...prev, companyName: e.target.value }))}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label>How did you hear about us? *</Label>
-                    <Select
-                      value={formData.referralSource}
-                      onValueChange={(value) => setFormData(prev => ({ ...prev, referralSource: value }))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select one..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {REFERRAL_OPTIONS.map((opt) => (
-                          <SelectItem key={opt.value} value={opt.value}>
-                            {opt.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
                   <Button 
                     className="w-full" 
-                    onClick={() => setFormStep(2)}
-                    disabled={!formData.name || !formData.email || !formData.companyName || !formData.referralSource}
+                    onClick={() => setLeadModalStep(2)}
+                    disabled={!formData.email || !formData.name || !formData.companyName}
                   >
                     Continue
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-4 py-4">
                   <div className="space-y-2">
-                    <Label>Annual Revenue *</Label>
+                    <Label>Annual Marketplace Revenue</Label>
                     <Select
                       value={formData.annualRevenue}
                       onValueChange={(value) => setFormData(prev => ({ ...prev, annualRevenue: value }))}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select range..." />
+                        <SelectValue placeholder="Select range" />
                       </SelectTrigger>
                       <SelectContent>
                         {REVENUE_OPTIONS.map((opt) => (
-                          <SelectItem key={opt.value} value={opt.value}>
-                            {opt.label}
-                          </SelectItem>
+                          <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
+
                   <div className="space-y-2">
-                    <Label>Primary Marketplace *</Label>
+                    <Label>Primary Marketplace</Label>
                     <Select
                       value={formData.primaryMarketplace}
                       onValueChange={(value) => setFormData(prev => ({ ...prev, primaryMarketplace: value }))}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select marketplace..." />
+                        <SelectValue placeholder="Select marketplace" />
                       </SelectTrigger>
                       <SelectContent>
                         {MARKETPLACE_OPTIONS.map((opt) => (
-                          <SelectItem key={opt.value} value={opt.value}>
-                            {opt.label}
-                          </SelectItem>
+                          <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
+
                   <div className="space-y-2">
-                    <Label>What do you need help with? (Select all that apply)</Label>
-                    <div className="grid grid-cols-2 gap-2">
+                    <Label>What do you need help with?</Label>
+                    <div className="space-y-2">
                       {HELP_OPTIONS.map((opt) => (
                         <div key={opt.id} className="flex items-center space-x-2">
-                          <Checkbox
+                          <Checkbox 
                             id={opt.id}
                             checked={formData.helpNeeded.includes(opt.id)}
-                            onCheckedChange={(checked) => handleCheckboxChange(opt.id, checked as boolean)}
+                            onCheckedChange={() => handleHelpToggle(opt.id)}
                           />
-                          <Label htmlFor={opt.id} className="text-sm font-normal cursor-pointer">
-                            {opt.label}
-                          </Label>
+                          <label htmlFor={opt.id} className="text-sm cursor-pointer">{opt.label}</label>
                         </div>
                       ))}
                     </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Button variant="outline" onClick={() => setFormStep(1)} className="flex-1">
+
+                  <div className="space-y-2">
+                    <Label>How did you hear about us?</Label>
+                    <Select
+                      value={formData.referralSource}
+                      onValueChange={(value) => setFormData(prev => ({ ...prev, referralSource: value }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select source" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {REFERRAL_OPTIONS.map((opt) => (
+                          <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="flex gap-2 pt-2">
+                    <Button variant="outline" onClick={() => setLeadModalStep(1)} className="flex-1">
                       Back
                     </Button>
-                    <Button 
-                      className="flex-1" 
-                      onClick={handleSubmit}
-                      disabled={!formData.annualRevenue || !formData.primaryMarketplace || isSubmitting}
-                    >
+                    <Button onClick={handleSubmitLead} disabled={isSubmitting} className="flex-1">
                       {isSubmitting ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -719,6 +718,150 @@ export default function SolutionsPage() {
                   </div>
                 </div>
               )}
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Listing Request Modal */}
+      <Dialog open={listingModalOpen} onOpenChange={setListingModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          {submitSuccess ? (
+            <div className="text-center py-8">
+              <div className="h-16 w-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle2 className="h-8 w-8 text-green-600" />
+              </div>
+              <DialogTitle className="text-xl mb-2">You're on the List!</DialogTitle>
+              <DialogDescription>
+                We'll notify you as soon as the Partner Directory launches.
+              </DialogDescription>
+              <Button className="mt-6" onClick={() => setListingModalOpen(false)}>
+                Close
+              </Button>
+            </div>
+          ) : (
+            <>
+              <DialogHeader>
+                <DialogTitle>Join the Partner Directory</DialogTitle>
+                <DialogDescription>
+                  Enter your email to get notified when we launch the directory.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="listing-email">Email *</Label>
+                  <Input
+                    id="listing-email"
+                    type="email"
+                    placeholder="you@agency.com"
+                    value={formData.email}
+                    onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="listing-company">Company Name</Label>
+                  <Input
+                    id="listing-company"
+                    placeholder="Your agency or company"
+                    value={formData.companyName}
+                    onChange={(e) => setFormData(prev => ({ ...prev, companyName: e.target.value }))}
+                  />
+                </div>
+                <Button 
+                  className="w-full" 
+                  onClick={() => handlePartnerDirectorySubmit("listing")}
+                  disabled={!formData.email || isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Submitting...
+                    </>
+                  ) : (
+                    "Notify Me"
+                  )}
+                </Button>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Partner Recommendation Modal */}
+      <Dialog open={partnerModalOpen} onOpenChange={setPartnerModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          {submitSuccess ? (
+            <div className="text-center py-8">
+              <div className="h-16 w-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle2 className="h-8 w-8 text-green-600" />
+              </div>
+              <DialogTitle className="text-xl mb-2">Request Received!</DialogTitle>
+              <DialogDescription>
+                We'll review your needs and send you partner recommendations within 2-3 business days.
+              </DialogDescription>
+              <Button className="mt-6" onClick={() => setPartnerModalOpen(false)}>
+                Close
+              </Button>
+            </div>
+          ) : (
+            <>
+              <DialogHeader>
+                <DialogTitle>Request a Partner Recommendation</DialogTitle>
+                <DialogDescription>
+                  Tell us what you're looking for and we'll connect you with the right partners.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="partner-email">Email *</Label>
+                  <Input
+                    id="partner-email"
+                    type="email"
+                    placeholder="you@company.com"
+                    value={formData.email}
+                    onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="partner-company">Company Name</Label>
+                  <Input
+                    id="partner-company"
+                    placeholder="Your company"
+                    value={formData.companyName}
+                    onChange={(e) => setFormData(prev => ({ ...prev, companyName: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>What type of service do you need?</Label>
+                  <Select
+                    value={formData.serviceTypeNeeded}
+                    onValueChange={(value) => setFormData(prev => ({ ...prev, serviceTypeNeeded: value }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select service type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {SERVICE_TYPES.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button 
+                  className="w-full" 
+                  onClick={() => handlePartnerDirectorySubmit("recommendation")}
+                  disabled={!formData.email || isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Submitting...
+                    </>
+                  ) : (
+                    "Submit Request"
+                  )}
+                </Button>
+              </div>
             </>
           )}
         </DialogContent>
