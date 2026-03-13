@@ -379,6 +379,7 @@ export default function NewsletterPage() {
                           >
                             <Checkbox
                               checked={selectedRoles.includes(role.id)}
+                              onCheckedChange={() => {}}
                               className="pointer-events-none"
                             />
                             <role.icon className="h-4 w-4 text-muted-foreground" />

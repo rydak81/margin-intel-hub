@@ -50,34 +50,8 @@ export interface Article {
   content_hash: string
 }
 
-// RSS Feed Sources - E-commerce focused
+// RSS Feed Sources - E-commerce focused (verified working feeds)
 export const DEFAULT_RSS_SOURCES: Omit<NewsSource, 'id' | 'last_fetched_at'>[] = [
-  {
-    name: 'Amazon Seller Blog',
-    slug: 'amazon-seller-blog',
-    source_type: 'rss',
-    url: 'https://sell.amazon.com/blog',
-    feed_url: 'https://sell.amazon.com/blog/feed',
-    category: 'amazon',
-    platform: ['amazon'],
-    is_active: true,
-    priority_score: 90,
-    fetch_frequency_minutes: 30,
-    metadata: {}
-  },
-  {
-    name: 'Marketplace Pulse',
-    slug: 'marketplace-pulse',
-    source_type: 'rss',
-    url: 'https://www.marketplacepulse.com',
-    feed_url: 'https://www.marketplacepulse.com/feed',
-    category: 'ecommerce',
-    platform: ['amazon', 'walmart', 'ebay'],
-    is_active: true,
-    priority_score: 85,
-    fetch_frequency_minutes: 60,
-    metadata: {}
-  },
   {
     name: 'eCommerce Bytes',
     slug: 'ecommerce-bytes',
@@ -87,21 +61,8 @@ export const DEFAULT_RSS_SOURCES: Omit<NewsSource, 'id' | 'last_fetched_at'>[] =
     category: 'ecommerce',
     platform: ['amazon', 'ebay', 'etsy'],
     is_active: true,
-    priority_score: 80,
+    priority_score: 85,
     fetch_frequency_minutes: 60,
-    metadata: {}
-  },
-  {
-    name: 'Practical Ecommerce',
-    slug: 'practical-ecommerce',
-    source_type: 'rss',
-    url: 'https://www.practicalecommerce.com',
-    feed_url: 'https://www.practicalecommerce.com/feed',
-    category: 'ecommerce',
-    platform: ['general'],
-    is_active: true,
-    priority_score: 75,
-    fetch_frequency_minutes: 120,
     metadata: {}
   },
   {
@@ -113,7 +74,7 @@ export const DEFAULT_RSS_SOURCES: Omit<NewsSource, 'id' | 'last_fetched_at'>[] =
     category: 'ecommerce',
     platform: ['amazon', 'walmart', 'target'],
     is_active: true,
-    priority_score: 80,
+    priority_score: 85,
     fetch_frequency_minutes: 60,
     metadata: {}
   },
@@ -126,20 +87,7 @@ export const DEFAULT_RSS_SOURCES: Omit<NewsSource, 'id' | 'last_fetched_at'>[] =
     category: 'amazon',
     platform: ['amazon'],
     is_active: true,
-    priority_score: 75,
-    fetch_frequency_minutes: 120,
-    metadata: {}
-  },
-  {
-    name: 'Helium 10 Blog',
-    slug: 'helium10',
-    source_type: 'rss',
-    url: 'https://www.helium10.com/blog',
-    feed_url: 'https://www.helium10.com/blog/feed/',
-    category: 'amazon',
-    platform: ['amazon', 'walmart'],
-    is_active: true,
-    priority_score: 75,
+    priority_score: 80,
     fetch_frequency_minutes: 120,
     metadata: {}
   },
@@ -152,7 +100,7 @@ export const DEFAULT_RSS_SOURCES: Omit<NewsSource, 'id' | 'last_fetched_at'>[] =
     category: 'industry',
     platform: ['general'],
     is_active: true,
-    priority_score: 70,
+    priority_score: 75,
     fetch_frequency_minutes: 60,
     metadata: {}
   },
@@ -165,7 +113,7 @@ export const DEFAULT_RSS_SOURCES: Omit<NewsSource, 'id' | 'last_fetched_at'>[] =
     category: 'industry',
     platform: ['general'],
     is_active: true,
-    priority_score: 75,
+    priority_score: 80,
     fetch_frequency_minutes: 60,
     metadata: {}
   },
@@ -176,6 +124,32 @@ export const DEFAULT_RSS_SOURCES: Omit<NewsSource, 'id' | 'last_fetched_at'>[] =
     url: 'https://www.supplychaindive.com',
     feed_url: 'https://www.supplychaindive.com/feeds/news/',
     category: 'logistics',
+    platform: ['general'],
+    is_active: true,
+    priority_score: 75,
+    fetch_frequency_minutes: 120,
+    metadata: {}
+  },
+  {
+    name: 'Digital Commerce 360',
+    slug: 'digital-commerce-360',
+    source_type: 'rss',
+    url: 'https://www.digitalcommerce360.com',
+    feed_url: 'https://www.digitalcommerce360.com/feed/',
+    category: 'ecommerce',
+    platform: ['amazon', 'general'],
+    is_active: true,
+    priority_score: 80,
+    fetch_frequency_minutes: 60,
+    metadata: {}
+  },
+  {
+    name: 'Chain Store Age',
+    slug: 'chain-store-age',
+    source_type: 'rss',
+    url: 'https://chainstoreage.com',
+    feed_url: 'https://chainstoreage.com/rss.xml',
+    category: 'industry',
     platform: ['general'],
     is_active: true,
     priority_score: 70,
