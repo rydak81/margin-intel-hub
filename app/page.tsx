@@ -571,8 +571,7 @@ export default function HomePage() {
                         </span>
                         <span>{featuredArticles[0].readTime} min read</span>
                         <span className="ml-auto inline-flex items-center gap-2 bg-white/25 hover:bg-white/35 backdrop-blur-sm px-4 py-2 rounded-lg transition-colors shadow-lg">
-                          Read Full Story
-                          <ArrowRight className="h-4 w-4" />
+                          Read Full Story <ArrowRight className="h-4 w-4" />
                         </span>
                       </div>
                     </div>
