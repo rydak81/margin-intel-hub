@@ -309,9 +309,9 @@ export default function HomePage() {
     <div className="min-h-screen bg-background">
       {/* Breaking News Ticker */}
       {breakingNews.length > 0 && (
-        <div className="bg-amber-500 text-amber-950 py-2 overflow-hidden">
+        <div className="bg-primary text-primary-foreground py-2 overflow-hidden">
           <div className="flex items-center">
-            <div className="flex-shrink-0 px-4 flex items-center gap-2 font-semibold border-r border-amber-600">
+            <div className="flex-shrink-0 px-4 flex items-center gap-2 font-semibold border-r border-primary-foreground/20">
               <Zap className="h-4 w-4" />
               <span className="hidden sm:inline">BREAKING</span>
             </div>
@@ -320,10 +320,10 @@ export default function HomePage() {
                 {[...breakingNews, ...breakingNews].map((item, i) => (
                   <span key={`${item.id}-${i}`} className="mx-8 flex items-center gap-2 text-sm">
                     <span className="font-medium">{item.title}</span>
-                    <span className="text-amber-700">
+                    <span className="text-primary-foreground/70">
                       {formatTimeAgo(item.timestamp)}
                     </span>
-                    <span className="text-amber-600">|</span>
+                    <span className="text-primary-foreground/40">|</span>
                   </span>
                 ))}
               </div>
