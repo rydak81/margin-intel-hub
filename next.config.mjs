@@ -7,7 +7,7 @@ const nextConfig = {
     unoptimized: true,
   },
   turbopack: {
-    root: '.',
+    root: '/vercel/share/v0-project',
   },
 }
 
