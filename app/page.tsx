@@ -735,8 +735,8 @@ export default function HomePage() {
                   ) : (
                   <div className="grid md:grid-cols-2 gap-6">
                     {regularArticles.map((article, index) => (
-                      <>
-                        <div key={article.id} onClick={(e) => handleArticleClick(article, e)}>
+                      <React.Fragment key={article.id}>
+                        <div onClick={(e) => handleArticleClick(article, e)}>
                           <Card className="overflow-hidden group cursor-pointer hover:shadow-md transition-all border-0 h-full">
                             {article.imageUrl && (
                               <div className="aspect-video relative overflow-hidden">
@@ -818,7 +818,7 @@ export default function HomePage() {
                             </Card>
                           </div>
                         )}
-                      </>
+                      </React.Fragment>
                     ))}
                   </div>
                   )}
