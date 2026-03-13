@@ -1,20 +1,35 @@
 'use client'
 
 export default function GlobalError({
-  error,
   reset,
 }: {
   error: Error & { digest?: string }
   reset: () => void
 }) {
   return (
-    <html>
-      <body>
-        <div className="flex min-h-screen flex-col items-center justify-center p-4">
-          <h2 className="text-xl font-semibold mb-4">Something went wrong!</h2>
+    <html lang="en">
+      <body style={{ margin: 0, fontFamily: 'system-ui, sans-serif' }}>
+        <div style={{ 
+          display: 'flex', 
+          minHeight: '100vh', 
+          flexDirection: 'column', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          padding: '1rem'
+        }}>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '1rem' }}>
+            Something went wrong!
+          </h2>
           <button
             onClick={() => reset()}
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+            style={{
+              padding: '0.5rem 1rem',
+              backgroundColor: '#6366f1',
+              color: 'white',
+              border: 'none',
+              borderRadius: '0.375rem',
+              cursor: 'pointer'
+            }}
           >
             Try again
           </button>
