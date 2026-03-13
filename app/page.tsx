@@ -181,52 +181,44 @@ export default function HomePage() {
   const [isSubscribing, setIsSubscribing] = useState(false)
   const [subscribed, setSubscribed] = useState(false)
 
-  // Fetch news from database-backed aggregation API
+  // Fetch news from AI-powered articles API
   const fetchNews = useCallback(async () => {
     try {
-      // Fetch from our new database-backed articles API
-      const params = new URLSearchParams({
-        limit: '50',
-        sortBy: sortBy === 'popular' ? 'relevance' : sortBy === 'shared' ? 'trending' : 'recent'
-      })
-      
-      const response = await fetch(`/api/news/articles?${params}`)
+      // Fetch from AI-powered articles API
+      const response = await fetch(`/api/articles?limit=50`)
       const data = await response.json()
       
-      if (data.articles?.length > 0) {
-        // Transform database articles to match frontend interface
+      if (data.success && data.articles?.length > 0) {
+        // Transform AI-analyzed articles to match frontend interface
         const transformedArticles: NewsArticle[] = data.articles.map((a: {
           id: string
           title: string
-          excerpt: string | null
-          ai_summary: string | null
+          summary: string
           category: string
-          source_name: string
-          source_url: string
-          author: string | null
-          published_at: string
-          ai_relevance_score: number
+          sourceName: string
+          sourceUrl: string
+          publishedAt: string
+          relevanceScore: number
           tags: string[]
-          is_featured: boolean
-          is_breaking: boolean
-          image_url: string | null
           platforms: string[]
-          tier?: number
-          sourceType?: 'industry' | 'google' | 'reddit'
+          tier: number
+          sourceType: 'industry' | 'google' | 'reddit'
+          aiAnalysis?: {
+            sentiment: 'positive' | 'negative' | 'neutral'
+          }
         }) => ({
           id: a.id,
           title: a.title,
-          excerpt: a.excerpt || a.ai_summary || '',
-          category: mapDatabaseCategory(a.category),
-          source: a.source_name,
-          sourceUrl: a.source_url,
-          author: a.author || a.source_name,
-          publishedAt: a.published_at,
-          readTime: Math.ceil((a.excerpt?.length || 500) / 200),
+          excerpt: a.summary,
+          category: mapAICategory(a.category),
+          source: a.sourceName,
+          sourceUrl: a.sourceUrl,
+          author: a.sourceName,
+          publishedAt: a.publishedAt,
+          readTime: Math.ceil((a.summary?.length || 200) / 200),
           tags: a.tags || [],
-          featured: a.is_featured,
-          breaking: a.is_breaking,
-          imageUrl: a.image_url || undefined,
+          featured: a.relevanceScore >= 80,
+          breaking: a.relevanceScore >= 90 && a.tier === 1,
           platforms: a.platforms || [],
           tier: a.tier,
           sourceType: a.sourceType,
@@ -234,15 +226,15 @@ export default function HomePage() {
         
         setArticles(transformedArticles)
         
-        // Get breaking news
+        // Get breaking news from high-relevance articles
         const breaking = transformedArticles
-          .filter((a: NewsArticle) => a.breaking)
+          .filter((a: NewsArticle) => a.breaking || a.featured)
           .slice(0, 5)
           .map((a: NewsArticle) => ({
             id: a.id,
             title: a.title,
             timestamp: a.publishedAt,
-            urgent: true,
+            urgent: a.breaking,
           }))
         
         // Use fetched breaking news or fallback headlines
@@ -251,48 +243,28 @@ export default function HomePage() {
           { id: "2", title: "TikTok Shop US GMV surpasses $10B milestone in Q1", timestamp: new Date().toISOString(), urgent: true },
           { id: "3", title: "New tariff regulations impact cross-border sellers starting May 1", timestamp: new Date().toISOString(), urgent: false },
         ])
-      } else {
-        // Fallback to RSS-based articles API
-        const fallbackResponse = await fetch("/api/articles?limit=50")
-        const fallbackData = await fallbackResponse.json()
-        if (fallbackData.success && fallbackData.articles) {
-          setArticles(fallbackData.articles)
-        }
       }
     } catch (error) {
-      console.error("Failed to fetch news:", error)
-      // Try fallback API on error
-      try {
-        const fallbackResponse = await fetch("/api/articles?limit=50")
-        const fallbackData = await fallbackResponse.json()
-        if (fallbackData.success) {
-          setArticles(fallbackData.articles)
-        }
-      } catch (fallbackError) {
-        console.error("Fallback API also failed:", fallbackError)
-      }
+      console.error("Failed to fetch AI-powered news:", error)
     } finally {
       setLoading(false)
     }
-  }, [sortBy])
+  }, [])
   
-  // Map database categories to frontend category IDs
-  function mapDatabaseCategory(dbCategory: string): string {
+  // Map AI categories to frontend category IDs
+  function mapAICategory(aiCategory: string): string {
     const mapping: Record<string, string> = {
-      'announcements': 'breaking',
-      'amazon': 'platform',
-      'other-marketplaces': 'platform',
-      'profitability': 'profitability',
+      'platform-updates': 'platform',
+      'seller-operations': 'logistics',
       'advertising': 'advertising',
-      'logistics': 'logistics',
-      'tools': 'tools',
-      'general': 'market',
-      'reviews': 'tactics',
-      'deals': 'deals',
-      'wins': 'market',
-      'help': 'tactics',
+      'profitability': 'profitability',
+      'market-trends': 'market',
+      'tools-technology': 'tools',
+      'compliance-policy': 'platform',
+      'strategy-tactics': 'tactics',
+      'irrelevant': 'market',
     }
-    return mapping[dbCategory] || 'market'
+    return mapping[aiCategory] || 'market'
   }
 
   useEffect(() => {
