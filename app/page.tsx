@@ -965,7 +965,6 @@ export default function HomePage() {
           </aside>
         </div>
       </main>
-
       {/* Popular Tools Strip */}
       <section className="bg-muted/30 border-y py-12">
         <div className="max-w-7xl mx-auto px-4">
