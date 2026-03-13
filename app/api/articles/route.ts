@@ -2,7 +2,11 @@ import { NextResponse } from "next/server"
 import Parser from "rss-parser"
 
 export const dynamic = 'force-dynamic'
-export const revalidate = 300 // Revalidate every 5 minutes
+export const revalidate = 1800 // Revalidate every 30 minutes
+
+// ============================================================================
+// TYPES
+// ============================================================================
 
 interface NormalizedArticle {
   id: string
@@ -14,187 +18,169 @@ interface NormalizedArticle {
   category: string
   platforms: string[]
   imageUrl?: string
+  relevanceScore: number
 }
 
-// RSS feed sources - Industry publications first, then Google News for broader coverage
-const RSS_FEEDS = [
-  // Industry publications with working RSS feeds
-  { url: "https://www.digitalcommerce360.com/feed/", name: "Digital Commerce 360", priority: 1 },
-  { url: "https://www.modernretail.co/feed/", name: "Modern Retail", priority: 1 },
-  { url: "https://www.retaildive.com/feeds/news/", name: "Retail Dive", priority: 2 },
-  { url: "https://techcrunch.com/tag/e-commerce/feed/", name: "TechCrunch E-commerce", priority: 2 },
-  { url: "https://www.pymnts.com/feed/", name: "PYMNTS", priority: 2 },
-  
-  // Google News - Amazon specific searches
-  { url: "https://news.google.com/rss/search?q=Amazon+FBA+seller+fees&hl=en-US&gl=US&ceid=US:en&when=7d", name: "Google News", priority: 3 },
-  { url: "https://news.google.com/rss/search?q=Amazon+third+party+seller+marketplace&hl=en-US&gl=US&ceid=US:en&when=7d", name: "Google News", priority: 3 },
-  { url: "https://news.google.com/rss/search?q=Amazon+seller+central+announcement&hl=en-US&gl=US&ceid=US:en&when=7d", name: "Google News", priority: 3 },
-  
-  // Google News - E-commerce marketplace searches
-  { url: "https://news.google.com/rss/search?q=ecommerce+marketplace+news&hl=en-US&gl=US&ceid=US:en&when=7d", name: "Google News", priority: 3 },
-  { url: "https://news.google.com/rss/search?q=online+marketplace+seller&hl=en-US&gl=US&ceid=US:en&when=7d", name: "Google News", priority: 3 },
-  
-  // Google News - Walmart marketplace
-  { url: "https://news.google.com/rss/search?q=Walmart+marketplace+seller&hl=en-US&gl=US&ceid=US:en&when=7d", name: "Google News", priority: 3 },
-  { url: "https://news.google.com/rss/search?q=Walmart+fulfillment+services&hl=en-US&gl=US&ceid=US:en&when=7d", name: "Google News", priority: 3 },
-  
-  // Google News - TikTok Shop
-  { url: "https://news.google.com/rss/search?q=TikTok+Shop+seller+ecommerce&hl=en-US&gl=US&ceid=US:en&when=7d", name: "Google News", priority: 3 },
-  { url: "https://news.google.com/rss/search?q=TikTok+Shop+live+commerce&hl=en-US&gl=US&ceid=US:en&when=7d", name: "Google News", priority: 3 },
-  
-  // Google News - Shopify and eBay
-  { url: "https://news.google.com/rss/search?q=Shopify+merchant+ecommerce&hl=en-US&gl=US&ceid=US:en&when=7d", name: "Google News", priority: 3 },
-  { url: "https://news.google.com/rss/search?q=eBay+seller+marketplace&hl=en-US&gl=US&ceid=US:en&when=7d", name: "Google News", priority: 3 },
-  
-  // Google News - Industry trends
-  { url: "https://news.google.com/rss/search?q=ecommerce+fulfillment+logistics&hl=en-US&gl=US&ceid=US:en&when=7d", name: "Google News", priority: 3 },
-  { url: "https://news.google.com/rss/search?q=retail+arbitrage+reseller&hl=en-US&gl=US&ceid=US:en&when=7d", name: "Google News", priority: 3 },
-  { url: "https://news.google.com/rss/search?q=private+label+Amazon&hl=en-US&gl=US&ceid=US:en&when=7d", name: "Google News", priority: 3 },
-  { url: "https://news.google.com/rss/search?q=D2C+direct+consumer+brand&hl=en-US&gl=US&ceid=US:en&when=7d", name: "Google News", priority: 3 },
-]
-
-// Keywords to filter out irrelevant articles
-const EXCLUDE_KEYWORDS = [
-  'aws', 'alexa', 'prime video', 'kindle', 'blue origin', 'amazon web services',
-  'rainforest', 'ring doorbell', 'twitch', 'whole foods', 'warehouse workers union',
-  'amazon music', 'amazon prime video', 'fire tv', 'echo dot', 'amazon echo'
-]
-
-// Keywords for platform detection
-const PLATFORM_KEYWORDS: Record<string, string[]> = {
-  amazon: ['amazon', 'fba', 'fulfillment by amazon', 'amazon seller', 'amazon marketplace', 'amzn'],
-  walmart: ['walmart', 'walmart marketplace', 'walmart seller', 'walmart fulfillment'],
-  tiktok: ['tiktok', 'tiktok shop', 'tik tok'],
-  shopify: ['shopify', 'shopify seller', 'shopify store'],
-  ebay: ['ebay', 'ebay seller', 'ebay marketplace'],
+interface RSSFeed {
+  url: string
+  name: string
+  tier: number
 }
 
-// Category keywords for auto-assignment
+// ============================================================================
+// IN-MEMORY CACHE
+// ============================================================================
+
+let articlesCache: NormalizedArticle[] = []
+let lastCacheUpdate: number = 0
+const CACHE_DURATION = 30 * 60 * 1000 // 30 minutes
+
+// ============================================================================
+// SOURCE LAYER 1: Google News RSS Feeds
+// ============================================================================
+
+const GOOGLE_NEWS_FEEDS: RSSFeed[] = [
+  {
+    url: 'https://news.google.com/rss/search?q=%22Amazon+seller%22+OR+%22Amazon+FBA%22+OR+%22Seller+Central%22+OR+%22Amazon+marketplace%22&hl=en-US&gl=US&ceid=US:en',
+    name: 'Google News',
+    tier: 3
+  },
+  {
+    url: 'https://news.google.com/rss/search?q=%22Walmart+marketplace%22+OR+%22Walmart+seller%22+OR+%22TikTok+Shop%22+OR+%22Target+Plus%22&hl=en-US&gl=US&ceid=US:en',
+    name: 'Google News',
+    tier: 3
+  },
+  {
+    url: 'https://news.google.com/rss/search?q=%22ecommerce%22+AND+%28%22marketplace%22+OR+%22seller%22+OR+%22FBA%22+OR+%22fulfillment%22%29&hl=en-US&gl=US&ceid=US:en',
+    name: 'Google News',
+    tier: 3
+  },
+  {
+    url: 'https://news.google.com/rss/search?q=%22Amazon+aggregator%22+OR+%22ecommerce+acquisition%22+OR+%22FBA+acquisition%22+OR+%22ecommerce+M%26A%22&hl=en-US&gl=US&ceid=US:en',
+    name: 'Google News',
+    tier: 3
+  },
+  {
+    url: 'https://news.google.com/rss/search?q=%22retail+media+network%22+OR+%22Amazon+advertising%22+OR+%22Walmart+Connect%22+OR+%22ecommerce+advertising%22&hl=en-US&gl=US&ceid=US:en',
+    name: 'Google News',
+    tier: 3
+  },
+  {
+    url: 'https://news.google.com/rss/search?q=%22Amazon+FBA+fees%22+OR+%22ecommerce+logistics%22+OR+%22fulfillment+costs%22+OR+%22shipping+rates+ecommerce%22&hl=en-US&gl=US&ceid=US:en',
+    name: 'Google News',
+    tier: 3
+  },
+]
+
+// ============================================================================
+// SOURCE LAYER 2: Industry RSS Feeds
+// ============================================================================
+
+const INDUSTRY_RSS_FEEDS: RSSFeed[] = [
+  // Tier 1 — Core Industry Publications
+  { url: 'https://www.marketplacepulse.com/feed', name: 'Marketplace Pulse', tier: 1 },
+  { url: 'https://www.digitalcommerce360.com/feed/', name: 'Digital Commerce 360', tier: 1 },
+  { url: 'https://www.modernretail.co/feed/', name: 'Modern Retail', tier: 1 },
+  { url: 'https://www.retaildive.com/feeds/news/', name: 'Retail Dive', tier: 1 },
+  { url: 'https://www.supplychaindive.com/feeds/news/', name: 'Supply Chain Dive', tier: 1 },
+  { url: 'https://practicalcommerce.com/feed', name: 'Practical Ecommerce', tier: 1 },
+  { url: 'https://www.ecommercebytes.com/feed/', name: 'EcommerceByte', tier: 1 },
+  
+  // Tier 2 — Platform & Tool Blogs
+  { url: 'https://www.junglescout.com/blog/feed/', name: 'Jungle Scout', tier: 2 },
+  { url: 'https://www.helium10.com/blog/feed/', name: 'Helium 10', tier: 2 },
+  { url: 'https://carbon6.io/blog/feed/', name: 'Carbon6', tier: 2 },
+  { url: 'https://tinuiti.com/blog/feed/', name: 'Tinuiti', tier: 2 },
+  { url: 'https://www.shopify.com/blog/feed', name: 'Shopify Blog', tier: 2 },
+  { url: 'https://www.sellersnap.io/blog/feed/', name: 'Seller Snap', tier: 2 },
+  { url: 'https://www.pacvue.com/blog/rss.xml', name: 'Pacvue', tier: 2 },
+  
+  // Tier 3 — Business Press (E-Commerce Sections)
+  { url: 'https://techcrunch.com/category/commerce/feed/', name: 'TechCrunch Commerce', tier: 3 },
+  { url: 'https://www.pymnts.com/feed/', name: 'PYMNTS', tier: 3 },
+]
+
+// All feeds combined
+const ALL_RSS_FEEDS = [...INDUSTRY_RSS_FEEDS, ...GOOGLE_NEWS_FEEDS]
+
+// ============================================================================
+// RELEVANCE SCORING
+// ============================================================================
+
+const HIGH_VALUE_KEYWORDS = [
+  'amazon seller', 'seller central', 'vendor central', 'fba', 'fbm',
+  'amazon marketplace', 'walmart marketplace', 'walmart seller', 'tiktok shop',
+  'target plus', 'ebay seller', 'shopify merchant', 'buy with prime',
+  'sponsored products', 'amazon dsp', 'walmart connect', 'retail media',
+  'marketplace seller', 'third-party seller', 'private label', 'buy box',
+  'fba fees', 'referral fee', 'fulfillment fee', 'reimbursement',
+  'ecommerce', 'e-commerce', 'online marketplace', 'dtc brand',
+  'amazon aggregator', 'ecommerce acquisition', 'prosper show'
+]
+
+const EXCLUSION_KEYWORDS = [
+  'aws', 'amazon web services', 'cloud computing', 'prime video',
+  'kindle', 'fire tv', 'alexa skill', 'echo dot', 'ring doorbell',
+  'twitch', 'blue origin', 'amazon rainforest', 'whole foods',
+  'warehouse workers union', 'delivery driver strike', 'amazon music'
+]
+
+const TRUSTED_SOURCES = [
+  'marketplace pulse', 'digital commerce 360', 'modern retail',
+  'retail dive', 'jungle scout', 'helium 10', 'carbon6',
+  'practical ecommerce', 'ecommerce bytes', 'supply chain dive'
+]
+
+function calculateRelevanceScore(title: string, summary: string, sourceName: string): number {
+  const text = `${title} ${summary}`.toLowerCase()
+  const sourceNameLower = sourceName.toLowerCase()
+  let score = 0
+  
+  // High value keywords: +15 each
+  for (const keyword of HIGH_VALUE_KEYWORDS) {
+    if (text.includes(keyword)) {
+      score += 15
+    }
+  }
+  
+  // Exclusion keywords: -25 each
+  for (const keyword of EXCLUSION_KEYWORDS) {
+    if (text.includes(keyword)) {
+      score -= 25
+    }
+  }
+  
+  // Trusted source bonus: +20
+  for (const source of TRUSTED_SOURCES) {
+    if (sourceNameLower.includes(source)) {
+      score += 20
+      break
+    }
+  }
+  
+  return score
+}
+
+// ============================================================================
+// AUTO-CATEGORIZATION
+// ============================================================================
+
 const CATEGORY_KEYWORDS: Record<string, string[]> = {
-  'Breaking': ['breaking', 'urgent', 'just in', 'developing'],
-  'Market & Metrics': ['growth', 'sales', 'revenue', 'gmv', 'market share', 'q1', 'q2', 'q3', 'q4', 'earnings', 'report', 'statistics'],
-  'Platform Updates': ['update', 'changes', 'new feature', 'announcement', 'launches', 'introduces', 'rolls out'],
-  'Seller Profitability': ['fees', 'profit', 'margin', 'cost', 'pricing', 'profitability', 'revenue'],
-  'M&A & Deal Flow': ['acquisition', 'merger', 'acquires', 'buyout', 'deal', 'investment', 'funding', 'ipo'],
-  'Tools & Technology': ['tool', 'software', 'ai', 'automation', 'technology', 'app', 'integration'],
-  'Advertising': ['advertising', 'ppc', 'ads', 'sponsored', 'marketing', 'campaign'],
-  'Logistics': ['shipping', 'fulfillment', 'logistics', 'delivery', 'supply chain', 'warehouse', 'fba'],
-  'Tactics & Strategy': ['strategy', 'tips', 'guide', 'how to', 'best practices', 'optimization'],
-  'Policy': ['regulation', 'policy', 'ftc', 'law', 'compliance', 'rules', 'guidelines'],
-}
-
-// Fallback images based on category
-const CATEGORY_IMAGES: Record<string, string> = {
-  'Breaking': 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&h=450&fit=crop',
-  'Market & Metrics': 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=450&fit=crop',
-  'Platform Updates': 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=450&fit=crop',
-  'Seller Profitability': 'https://images.unsplash.com/photo-1579621970795-87facc2f976d?w=800&h=450&fit=crop',
-  'M&A & Deal Flow': 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=450&fit=crop',
-  'Tools & Technology': 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&h=450&fit=crop',
-  'Advertising': 'https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?w=800&h=450&fit=crop',
-  'Logistics': 'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=800&h=450&fit=crop',
-  'Tactics & Strategy': 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=450&fit=crop',
-  'Policy': 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800&h=450&fit=crop',
-  'Industry': 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=450&fit=crop',
-}
-
-// Large pool of unique fallback images - 50 different images for variety
-const FALLBACK_IMAGES = [
-  'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=450&fit=crop', // e-commerce shopping
-  'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&h=450&fit=crop', // packages
-  'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800&h=450&fit=crop', // digital payment
-  'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=450&fit=crop', // analytics
-  'https://images.unsplash.com/photo-1556742111-a301076d9d18?w=800&h=450&fit=crop', // warehouse
-  'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&h=450&fit=crop', // retail store
-  'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=450&fit=crop', // laptop work
-  'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=450&fit=crop', // business meeting
-  'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=450&fit=crop', // data dashboard
-  'https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=800&h=450&fit=crop', // shopping bags
-  'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=800&h=450&fit=crop', // money growth
-  'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=450&fit=crop', // team meeting
-  'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=800&h=450&fit=crop', // computer code
-  'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&h=450&fit=crop', // strategy board
-  'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800&h=450&fit=crop', // office work
-  'https://images.unsplash.com/photo-1578574577315-3fbeb0cecdc2?w=800&h=450&fit=crop', // delivery truck
-  'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=800&h=450&fit=crop', // shipping boxes
-  'https://images.unsplash.com/photo-1580674285054-bed31e145f59?w=800&h=450&fit=crop', // phone shopping
-  'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&h=450&fit=crop', // online shopping
-  'https://images.unsplash.com/photo-1556740758-90de374c12ad?w=800&h=450&fit=crop', // shopping cart
-  'https://images.unsplash.com/photo-1434626881859-194d67b2b86f?w=800&h=450&fit=crop', // world map
-  'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=800&h=450&fit=crop', // amazon box
-  'https://images.unsplash.com/photo-1523474253046-8cd2748b5fd2?w=800&h=450&fit=crop', // amazon logo
-  'https://images.unsplash.com/photo-1512756290469-ec264b7fbf87?w=800&h=450&fit=crop', // code on screen
-  'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=800&h=450&fit=crop', // data analysis
-  'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800&h=450&fit=crop', // business presentation
-  'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=800&h=450&fit=crop', // office team
-  'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800&h=450&fit=crop', // business suit
-  'https://images.unsplash.com/photo-1573164713988-8665fc963095?w=800&h=450&fit=crop', // woman working
-  'https://images.unsplash.com/photo-1531973576160-7125cd663d86?w=800&h=450&fit=crop', // global business
-  'https://images.unsplash.com/photo-1590650153855-d9e808231d41?w=800&h=450&fit=crop', // warehouse interior
-  'https://images.unsplash.com/photo-1587293852726-70cdb56c2866?w=800&h=450&fit=crop', // shipping container
-  'https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?w=800&h=450&fit=crop', // cargo port
-  'https://images.unsplash.com/photo-1553413077-190dd305871c?w=800&h=450&fit=crop', // warehouse shelves
-  'https://images.unsplash.com/photo-1565793298595-6a879b1d9492?w=800&h=450&fit=crop', // person with tablet
-  'https://images.unsplash.com/photo-1611095973763-414019e72400?w=800&h=450&fit=crop', // ecommerce
-  'https://images.unsplash.com/photo-1532619675605-1ede6c2ed2b0?w=800&h=450&fit=crop', // typing keyboard
-  'https://images.unsplash.com/photo-1520333789090-1afc82db536a?w=800&h=450&fit=crop', // happy customer
-  'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&h=450&fit=crop', // product photography
-  'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&h=450&fit=crop', // headphones product
-  'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&h=450&fit=crop', // sneaker product
-  'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=800&h=450&fit=crop', // camera product
-  'https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=800&h=450&fit=crop', // plants products
-  'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=800&h=450&fit=crop', // electronics
-  'https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=800&h=450&fit=crop', // shoes product
-  'https://images.unsplash.com/photo-1491637639811-60e2756cc1c7?w=800&h=450&fit=crop', // fashion product
-  'https://images.unsplash.com/photo-1592503254549-d83d24a4dfab?w=800&h=450&fit=crop', // perfume product
-  'https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?w=800&h=450&fit=crop', // t-shirt product
-  'https://images.unsplash.com/photo-1584735175315-9d5df23860e6?w=800&h=450&fit=crop', // business graphs
-  'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&h=450&fit=crop', // trading stocks
-]
-
-// Get a unique image index based on the article title hash
-function getUniqueImageIndex(title: string, fallbackIndex: number): number {
-  const hash = Math.abs(hashString(title))
-  // Combine hash with fallback index to ensure uniqueness even for similar titles
-  return (hash + fallbackIndex * 7) % FALLBACK_IMAGES.length
-}
-
-function isRelevantArticle(title: string, summary: string): boolean {
-  const text = `${title} ${summary}`.toLowerCase()
-  
-  // Check for exclusion keywords
-  for (const keyword of EXCLUDE_KEYWORDS) {
-    if (text.includes(keyword.toLowerCase())) {
-      return false
-    }
-  }
-  
-  // Must contain at least one e-commerce related term
-  const relevantTerms = ['seller', 'marketplace', 'ecommerce', 'e-commerce', 'retail', 'amazon', 'walmart', 'shopify', 'ebay', 'tiktok', 'fba', 'fulfillment', 'merchant', 'online selling']
-  return relevantTerms.some(term => text.includes(term))
-}
-
-function detectPlatforms(title: string, summary: string): string[] {
-  const text = `${title} ${summary}`.toLowerCase()
-  const platforms: string[] = []
-  
-  for (const [platform, keywords] of Object.entries(PLATFORM_KEYWORDS)) {
-    if (keywords.some(keyword => text.includes(keyword))) {
-      platforms.push(platform)
-    }
-  }
-  
-  if (platforms.length === 0) {
-    return ['multi-platform']
-  }
-  
-  return platforms
+  'Breaking': ['breaking', 'urgent', 'outage', 'effective immediately', 'just announced'],
+  'Market & Metrics': ['earnings', 'revenue', 'gmv', 'quarterly', 'benchmark', 'market share', 'growth rate', 'q1', 'q2', 'q3', 'q4'],
+  'Platform Updates': ['new feature', 'launched', 'rollout', 'policy change', 'update', 'announces', 'introduces'],
+  'Seller Profitability': ['fee change', 'fee increase', 'margin', 'reimbursement', 'profitability', 'cost', 'pricing'],
+  'M&A & Deal Flow': ['acquisition', 'merger', 'funding round', 'ipo', 'acquires', 'raises', 'investment'],
+  'Tools & Technology': ['saas', 'tool', 'software', 'api', 'integration', 'automation', 'ai'],
+  'Advertising': ['ppc', 'roas', 'acos', 'sponsored', 'retail media', 'advertising', 'campaign', 'dsp'],
+  'Logistics': ['fulfillment', 'shipping', '3pl', 'supply chain', 'tariff', 'warehouse', 'delivery'],
+  'Events': ['conference', 'summit', 'webinar', 'prosper show', 'shoptalk', 'event'],
+  'Tactics & Strategy': ['how to', 'strategy', 'best practice', 'case study', 'tips', 'guide', 'optimization'],
 }
 
 function assignCategory(title: string, summary: string): string {
   const text = `${title} ${summary}`.toLowerCase()
   
-  // Score each category based on keyword matches
   let bestCategory = 'Industry'
   let bestScore = 0
   
@@ -209,13 +195,34 @@ function assignCategory(title: string, summary: string): string {
   return bestCategory
 }
 
-function createStableId(url: string, title: string): string {
-  const slug = `${title}`
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .slice(0, 50)
-  return `article-${slug}-${Math.abs(hashString(url))}`
+// ============================================================================
+// PLATFORM DETECTION
+// ============================================================================
+
+const PLATFORM_KEYWORDS: Record<string, string[]> = {
+  amazon: ['amazon', 'fba', 'fulfillment by amazon', 'amazon seller', 'amazon marketplace', 'amzn', 'seller central'],
+  walmart: ['walmart', 'walmart marketplace', 'walmart seller', 'walmart fulfillment', 'walmart connect'],
+  tiktok: ['tiktok', 'tiktok shop', 'tik tok'],
+  shopify: ['shopify', 'shopify seller', 'shopify store', 'shopify merchant'],
+  ebay: ['ebay', 'ebay seller', 'ebay marketplace'],
 }
+
+function detectPlatforms(title: string, summary: string): string[] {
+  const text = `${title} ${summary}`.toLowerCase()
+  const platforms: string[] = []
+  
+  for (const [platform, keywords] of Object.entries(PLATFORM_KEYWORDS)) {
+    if (keywords.some(keyword => text.includes(keyword))) {
+      platforms.push(platform)
+    }
+  }
+  
+  return platforms.length > 0 ? platforms : ['multi-platform']
+}
+
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
 
 function hashString(str: string): number {
   let hash = 0
@@ -227,6 +234,14 @@ function hashString(str: string): number {
   return hash
 }
 
+function createStableId(url: string, title: string): string {
+  const slug = `${title}`
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .slice(0, 50)
+  return `article-${slug}-${Math.abs(hashString(url))}`
+}
+
 function truncateSummary(text: string, maxLength: number = 200): string {
   if (!text) return ''
   const cleaned = text.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
@@ -235,21 +250,211 @@ function truncateSummary(text: string, maxLength: number = 200): string {
 }
 
 function isSimilarTitle(title1: string, title2: string): boolean {
-  const normalize = (str: string) => str.toLowerCase().replace(/[^a-z0-9]/g, '')
-  const t1 = normalize(title1)
-  const t2 = normalize(title2)
-  
-  // Check if one contains most of the other
-  if (t1.length < 20 || t2.length < 20) return t1 === t2
-  
-  const shorter = t1.length < t2.length ? t1 : t2
-  const longer = t1.length < t2.length ? t2 : t1
-  
-  return longer.includes(shorter.slice(0, Math.floor(shorter.length * 0.7)))
+  const normalize = (str: string) => str.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 60)
+  return normalize(title1) === normalize(title2)
 }
 
-async function fetchRSSFeed(feedUrl: string, sourceName: string): Promise<NormalizedArticle[]> {
+// ============================================================================
+// DYNAMIC IMAGE SELECTION - Keyword-based matching for unique, relevant images
+// ============================================================================
+
+// Keyword-to-image mappings for content-aware image selection
+const KEYWORD_IMAGES: { keywords: string[], images: string[] }[] = [
+  // Amazon-specific
+  {
+    keywords: ['amazon', 'fba', 'seller central', 'buy box', 'a9', 'amazon prime'],
+    images: [
+      'https://images.unsplash.com/photo-1523474253046-8cd2748b5fd2?w=800&h=450&fit=crop', // Amazon boxes
+      'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=450&fit=crop', // E-commerce
+      'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&h=450&fit=crop', // Shopping bags
+      'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&h=450&fit=crop', // Warehouse
+    ]
+  },
+  // Walmart-specific
+  {
+    keywords: ['walmart', 'walmart marketplace', 'walmart connect', 'walmart fulfillment'],
+    images: [
+      'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&h=450&fit=crop', // Retail store
+      'https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=800&h=450&fit=crop', // Shopping mall
+      'https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=800&h=450&fit=crop', // Supermarket
+    ]
+  },
+  // TikTok Shop / Social Commerce
+  {
+    keywords: ['tiktok', 'tiktok shop', 'social commerce', 'influencer', 'creator economy'],
+    images: [
+      'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=800&h=450&fit=crop', // Social media
+      'https://images.unsplash.com/photo-1611162618071-b39a2ec055fb?w=800&h=450&fit=crop', // Phone content
+      'https://images.unsplash.com/photo-1598550476439-6847785fcea6?w=800&h=450&fit=crop', // Video creation
+    ]
+  },
+  // Advertising & Marketing
+  {
+    keywords: ['advertising', 'ppc', 'sponsored', 'ads', 'campaign', 'roas', 'acos', 'retail media'],
+    images: [
+      'https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?w=800&h=450&fit=crop', // Marketing
+      'https://images.unsplash.com/photo-1533750349088-cd871a92f312?w=800&h=450&fit=crop', // Analytics
+      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=450&fit=crop', // Dashboard
+      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=450&fit=crop', // Charts
+    ]
+  },
+  // Logistics & Fulfillment
+  {
+    keywords: ['logistics', 'fulfillment', 'shipping', 'warehouse', 'supply chain', '3pl', 'delivery'],
+    images: [
+      'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=800&h=450&fit=crop', // Warehouse
+      'https://images.unsplash.com/photo-1553413077-190dd305871c?w=800&h=450&fit=crop', // Shipping
+      'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&h=450&fit=crop', // Fulfillment
+      'https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=800&h=450&fit=crop', // Packages
+    ]
+  },
+  // M&A / Investment
+  {
+    keywords: ['acquisition', 'merger', 'investment', 'funding', 'valuation', 'aggregator', 'private equity'],
+    images: [
+      'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=450&fit=crop', // Business meeting
+      'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=800&h=450&fit=crop', // Money
+      'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=800&h=450&fit=crop', // Handshake
+      'https://images.unsplash.com/photo-1591696205602-2f950c417cb9?w=800&h=450&fit=crop', // Deal
+    ]
+  },
+  // Tools & Technology
+  {
+    keywords: ['software', 'tool', 'automation', 'ai', 'technology', 'saas', 'platform', 'api'],
+    images: [
+      'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&h=450&fit=crop', // Tech
+      'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=800&h=450&fit=crop', // Computer
+      'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=450&fit=crop', // Team tech
+      'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=450&fit=crop', // Innovation
+    ]
+  },
+  // Finance / Profitability
+  {
+    keywords: ['profit', 'margin', 'revenue', 'fee', 'cost', 'pricing', 'financial', 'earnings'],
+    images: [
+      'https://images.unsplash.com/photo-1579621970795-87facc2f976d?w=800&h=450&fit=crop', // Finance
+      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=450&fit=crop', // Charts
+      'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&h=450&fit=crop', // Calculator
+      'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=800&h=450&fit=crop', // Money
+    ]
+  },
+  // Data & Analytics
+  {
+    keywords: ['data', 'analytics', 'metrics', 'report', 'insight', 'trend', 'statistics'],
+    images: [
+      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=450&fit=crop', // Dashboard
+      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=450&fit=crop', // Analytics
+      'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=800&h=450&fit=crop', // Screens
+      'https://images.unsplash.com/photo-1533750349088-cd871a92f312?w=800&h=450&fit=crop', // Charts
+    ]
+  },
+  // Events & Conferences
+  {
+    keywords: ['conference', 'event', 'summit', 'webinar', 'prosper', 'unboxed', 'accelerate'],
+    images: [
+      'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&h=450&fit=crop', // Conference
+      'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=800&h=450&fit=crop', // Presentation
+      'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=800&h=450&fit=crop', // Stage
+    ]
+  },
+  // Strategy & Tactics
+  {
+    keywords: ['strategy', 'tactic', 'optimization', 'growth', 'scale', 'launch', 'listing'],
+    images: [
+      'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=450&fit=crop', // Team strategy
+      'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&h=450&fit=crop', // Meeting
+      'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800&h=450&fit=crop', // Planning
+      'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800&h=450&fit=crop', // Teamwork
+    ]
+  },
+  // News / Breaking
+  {
+    keywords: ['breaking', 'news', 'update', 'announce', 'change', 'policy', 'new'],
+    images: [
+      'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&h=450&fit=crop', // News
+      'https://images.unsplash.com/photo-1495020689067-958852a7765e?w=800&h=450&fit=crop', // Headlines
+      'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=800&h=450&fit=crop', // Breaking
+    ]
+  },
+  // Shopify / DTC
+  {
+    keywords: ['shopify', 'dtc', 'direct to consumer', 'ecommerce store', 'online store'],
+    images: [
+      'https://images.unsplash.com/photo-1556742111-a301076d9d18?w=800&h=450&fit=crop', // E-commerce
+      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=450&fit=crop', // Online
+      'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800&h=450&fit=crop', // Shopping
+    ]
+  },
+  // General E-commerce (fallback pool)
+  {
+    keywords: ['ecommerce', 'e-commerce', 'online', 'marketplace', 'seller', 'retail'],
+    images: [
+      'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=450&fit=crop',
+      'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800&h=450&fit=crop',
+      'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&h=450&fit=crop',
+      'https://images.unsplash.com/photo-1556740758-90de374c12ad?w=800&h=450&fit=crop',
+      'https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=800&h=450&fit=crop',
+      'https://images.unsplash.com/photo-1580674285054-bed31e145f59?w=800&h=450&fit=crop',
+      'https://images.unsplash.com/photo-1578574577315-3fbeb0cecdc2?w=800&h=450&fit=crop',
+      'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=800&h=450&fit=crop',
+      'https://images.unsplash.com/photo-1512756290469-ec264b7fbf87?w=800&h=450&fit=crop',
+    ]
+  },
+]
+
+// Global fallback images (used when no keyword matches)
+const GLOBAL_FALLBACK_IMAGES = [
+  'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=450&fit=crop',
+  'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800&h=450&fit=crop',
+  'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=450&fit=crop',
+  'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=450&fit=crop',
+  'https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=800&h=450&fit=crop',
+  'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=450&fit=crop',
+  'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=800&h=450&fit=crop',
+  'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&h=450&fit=crop',
+  'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&h=450&fit=crop',
+  'https://images.unsplash.com/photo-1556740758-90de374c12ad?w=800&h=450&fit=crop',
+  'https://images.unsplash.com/photo-1580674285054-bed31e145f59?w=800&h=450&fit=crop',
+  'https://images.unsplash.com/photo-1523474253046-8cd2748b5fd2?w=800&h=450&fit=crop',
+]
+
+function getImageForArticle(title: string, summary: string, index: number): string {
+  const text = `${title} ${summary}`.toLowerCase()
+  
+  // Find matching keyword groups and collect candidate images
+  const candidateImages: string[] = []
+  
+  for (const group of KEYWORD_IMAGES) {
+    for (const keyword of group.keywords) {
+      if (text.includes(keyword)) {
+        candidateImages.push(...group.images)
+        break // Only add each group's images once
+      }
+    }
+  }
+  
+  // If we found matching images, select one based on title hash for consistency
+  if (candidateImages.length > 0) {
+    // Use title hash to consistently select the same image for the same article
+    const hash = Math.abs(hashString(title))
+    // Add index offset to reduce duplicates when multiple articles have similar keywords
+    const imageIndex = (hash + index * 3) % candidateImages.length
+    return candidateImages[imageIndex]
+  }
+  
+  // Fallback: use global fallback images with title-based selection
+  const hash = Math.abs(hashString(title))
+  const imageIndex = (hash + index * 7) % GLOBAL_FALLBACK_IMAGES.length
+  return GLOBAL_FALLBACK_IMAGES[imageIndex]
+}
+
+// ============================================================================
+// RSS FETCHING
+// ============================================================================
+
+async function fetchRSSFeed(feed: RSSFeed): Promise<NormalizedArticle[]> {
   const parser = new Parser({
+    timeout: 10000,
     customFields: {
       item: [
         ['media:content', 'mediaContent', { keepArray: true }],
@@ -260,23 +465,33 @@ async function fetchRSSFeed(feedUrl: string, sourceName: string): Promise<Normal
   })
   
   try {
-    const feed = await parser.parseURL(feedUrl)
+    const feedData = await parser.parseURL(feed.url)
     const articles: NormalizedArticle[] = []
     
-    for (const item of feed.items || []) {
+    for (const item of feedData.items || []) {
       const title = item.title || ''
       const summary = truncateSummary(item.contentSnippet || item.content || item.description || '')
       
-      // Skip irrelevant articles
-      if (!isRelevantArticle(title, summary)) continue
+      // For Google News, extract actual source from title
+      let actualSourceName = feed.name
+      let cleanTitle = title
+      if (feed.name === 'Google News' && title.includes(' - ')) {
+        const parts = title.split(' - ')
+        actualSourceName = parts[parts.length - 1].trim()
+        cleanTitle = parts.slice(0, -1).join(' - ').trim()
+      }
       
-      const platforms = detectPlatforms(title, summary)
-      const category = assignCategory(title, summary)
+      // Calculate relevance score
+      const relevanceScore = calculateRelevanceScore(cleanTitle, summary, actualSourceName)
+      
+      // Filter out articles below threshold (15 points)
+      if (relevanceScore < 15) continue
+      
+      const platforms = detectPlatforms(cleanTitle, summary)
+      const category = assignCategory(cleanTitle, summary)
       
       // Try to extract image from feed
       let imageUrl: string | undefined
-      
-      // Check various image sources in RSS
       if (item.enclosure?.url && item.enclosure.type?.startsWith('image')) {
         imageUrl = item.enclosure.url
       } else if ((item as any).mediaThumbnail?.url) {
@@ -285,22 +500,13 @@ async function fetchRSSFeed(feedUrl: string, sourceName: string): Promise<Normal
         imageUrl = (item as any).mediaContent[0].$.url
       }
       
-      // Use unique fallback based on title hash if no image from feed
-      if (!imageUrl) {
-        const imageIndex = getUniqueImageIndex(title, articles.length)
-        imageUrl = FALLBACK_IMAGES[imageIndex]
-      }
-      
-      // For Google News, extract actual source from title
-      let actualSourceName = sourceName
-      if (sourceName === 'Google News' && title.includes(' - ')) {
-        const parts = title.split(' - ')
-        actualSourceName = parts[parts.length - 1].trim()
-      }
+if (!imageUrl) {
+    imageUrl = getImageForArticle(cleanTitle, summary, articles.length)
+  }
       
       articles.push({
-        id: createStableId(item.link || '', title),
-        title: title.replace(/ - [^-]+$/, '').trim(), // Remove source suffix from Google News titles
+        id: createStableId(item.link || '', cleanTitle),
+        title: cleanTitle,
         summary,
         sourceUrl: item.link || '',
         sourceName: actualSourceName,
@@ -308,19 +514,24 @@ async function fetchRSSFeed(feedUrl: string, sourceName: string): Promise<Normal
         category,
         platforms,
         imageUrl,
+        relevanceScore,
       })
     }
     
     return articles
   } catch (error) {
-    console.log(`[v0] Error fetching RSS feed ${feedUrl}:`, error)
+    console.log(`[v0] Error fetching RSS feed ${feed.name}:`, error)
     return []
   }
 }
 
+// ============================================================================
+// MAIN AGGREGATION
+// ============================================================================
+
 async function fetchAllArticles(): Promise<NormalizedArticle[]> {
   // Fetch all feeds in parallel
-  const feedPromises = RSS_FEEDS.map(feed => fetchRSSFeed(feed.url, feed.name))
+  const feedPromises = ALL_RSS_FEEDS.map(feed => fetchRSSFeed(feed))
   const feedResults = await Promise.allSettled(feedPromises)
   
   // Combine all articles
@@ -331,7 +542,7 @@ async function fetchAllArticles(): Promise<NormalizedArticle[]> {
     }
   }
   
-  // Deduplicate by title similarity
+  // Deduplicate by title similarity (first 60 chars)
   const uniqueArticles: NormalizedArticle[] = []
   for (const article of allArticles) {
     const isDuplicate = uniqueArticles.some(existing => 
@@ -342,13 +553,40 @@ async function fetchAllArticles(): Promise<NormalizedArticle[]> {
     }
   }
   
-  // Sort by publishedAt (newest first)
-  uniqueArticles.sort((a, b) => 
-    new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
-  )
+  // Sort by relevance score first, then by publishedAt
+  uniqueArticles.sort((a, b) => {
+    // Prioritize higher relevance scores
+    if (b.relevanceScore !== a.relevanceScore) {
+      return b.relevanceScore - a.relevanceScore
+    }
+    // Then sort by date (newest first)
+    return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+  })
   
   return uniqueArticles
 }
+
+async function getArticlesWithCache(): Promise<NormalizedArticle[]> {
+  const now = Date.now()
+  
+  // Return cached articles if still fresh
+  if (articlesCache.length > 0 && (now - lastCacheUpdate) < CACHE_DURATION) {
+    return articlesCache
+  }
+  
+  // Fetch fresh articles
+  const articles = await fetchAllArticles()
+  
+  // Update cache
+  articlesCache = articles
+  lastCacheUpdate = now
+  
+  return articles
+}
+
+// ============================================================================
+// API HANDLER
+// ============================================================================
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -357,7 +595,7 @@ export async function GET(request: Request) {
   const limit = parseInt(searchParams.get('limit') || '50')
   
   try {
-    let articles = await fetchAllArticles()
+    let articles = await getArticlesWithCache()
     
     // Filter by category if specified
     if (category && category !== 'all' && category !== 'All') {
@@ -405,6 +643,7 @@ export async function GET(request: Request) {
       articles: formattedArticles,
       totalCount: articles.length,
       lastUpdated: new Date().toISOString(),
+      cacheAge: Date.now() - lastCacheUpdate,
     })
   } catch (error) {
     console.log('[v0] Error in articles API:', error)
