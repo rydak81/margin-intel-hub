@@ -354,8 +354,9 @@ export default function HomePage() {
               <Link href="/tools" className="text-base font-semibold hover:text-primary transition-colors">
                 Tools
               </Link>
-              <Link href="/community" className="text-base font-semibold hover:text-primary transition-colors">
+              <Link href="/community" className="text-base font-semibold hover:text-primary transition-colors flex items-center gap-1.5">
                 Community
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">BETA</span>
               </Link>
               <Link href="/events" className="text-base font-semibold hover:text-primary transition-colors">
                 Events
@@ -407,7 +408,10 @@ export default function HomePage() {
               <nav className="flex flex-col gap-2">
                 <Link href="/" className="px-4 py-2 hover:bg-muted rounded-md" onClick={() => setMobileMenuOpen(false)}>Home</Link>
                 <Link href="/tools" className="px-4 py-2 hover:bg-muted rounded-md" onClick={() => setMobileMenuOpen(false)}>Tools</Link>
-                <Link href="/community" className="px-4 py-2 hover:bg-muted rounded-md" onClick={() => setMobileMenuOpen(false)}>Community</Link>
+                <Link href="/community" className="px-4 py-2 hover:bg-muted rounded-md flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
+                  Community
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">BETA</span>
+                </Link>
                 <Link href="/events" className="px-4 py-2 hover:bg-muted rounded-md" onClick={() => setMobileMenuOpen(false)}>Events</Link>
                 <Link href="/newsletter" className="px-4 py-2 hover:bg-muted rounded-md" onClick={() => setMobileMenuOpen(false)}>Newsletter</Link>
                 <div className="px-4 py-2">
