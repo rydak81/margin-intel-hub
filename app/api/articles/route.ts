@@ -255,61 +255,197 @@ function isSimilarTitle(title1: string, title2: string): boolean {
 }
 
 // ============================================================================
-// FALLBACK IMAGES
+// DYNAMIC IMAGE SELECTION - Keyword-based matching for unique, relevant images
 // ============================================================================
 
-const CATEGORY_IMAGES: Record<string, string> = {
-  'Breaking': 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&h=450&fit=crop',
-  'Market & Metrics': 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=450&fit=crop',
-  'Platform Updates': 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=450&fit=crop',
-  'Seller Profitability': 'https://images.unsplash.com/photo-1579621970795-87facc2f976d?w=800&h=450&fit=crop',
-  'M&A & Deal Flow': 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=450&fit=crop',
-  'Tools & Technology': 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&h=450&fit=crop',
-  'Advertising': 'https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?w=800&h=450&fit=crop',
-  'Logistics': 'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=800&h=450&fit=crop',
-  'Events': 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&h=450&fit=crop',
-  'Tactics & Strategy': 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=450&fit=crop',
-  'Industry': 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=450&fit=crop',
-}
+// Keyword-to-image mappings for content-aware image selection
+const KEYWORD_IMAGES: { keywords: string[], images: string[] }[] = [
+  // Amazon-specific
+  {
+    keywords: ['amazon', 'fba', 'seller central', 'buy box', 'a9', 'amazon prime'],
+    images: [
+      'https://images.unsplash.com/photo-1523474253046-8cd2748b5fd2?w=800&h=450&fit=crop', // Amazon boxes
+      'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=450&fit=crop', // E-commerce
+      'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&h=450&fit=crop', // Shopping bags
+      'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&h=450&fit=crop', // Warehouse
+    ]
+  },
+  // Walmart-specific
+  {
+    keywords: ['walmart', 'walmart marketplace', 'walmart connect', 'walmart fulfillment'],
+    images: [
+      'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&h=450&fit=crop', // Retail store
+      'https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=800&h=450&fit=crop', // Shopping mall
+      'https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=800&h=450&fit=crop', // Supermarket
+    ]
+  },
+  // TikTok Shop / Social Commerce
+  {
+    keywords: ['tiktok', 'tiktok shop', 'social commerce', 'influencer', 'creator economy'],
+    images: [
+      'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=800&h=450&fit=crop', // Social media
+      'https://images.unsplash.com/photo-1611162618071-b39a2ec055fb?w=800&h=450&fit=crop', // Phone content
+      'https://images.unsplash.com/photo-1598550476439-6847785fcea6?w=800&h=450&fit=crop', // Video creation
+    ]
+  },
+  // Advertising & Marketing
+  {
+    keywords: ['advertising', 'ppc', 'sponsored', 'ads', 'campaign', 'roas', 'acos', 'retail media'],
+    images: [
+      'https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?w=800&h=450&fit=crop', // Marketing
+      'https://images.unsplash.com/photo-1533750349088-cd871a92f312?w=800&h=450&fit=crop', // Analytics
+      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=450&fit=crop', // Dashboard
+      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=450&fit=crop', // Charts
+    ]
+  },
+  // Logistics & Fulfillment
+  {
+    keywords: ['logistics', 'fulfillment', 'shipping', 'warehouse', 'supply chain', '3pl', 'delivery'],
+    images: [
+      'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=800&h=450&fit=crop', // Warehouse
+      'https://images.unsplash.com/photo-1553413077-190dd305871c?w=800&h=450&fit=crop', // Shipping
+      'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&h=450&fit=crop', // Fulfillment
+      'https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=800&h=450&fit=crop', // Packages
+    ]
+  },
+  // M&A / Investment
+  {
+    keywords: ['acquisition', 'merger', 'investment', 'funding', 'valuation', 'aggregator', 'private equity'],
+    images: [
+      'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=450&fit=crop', // Business meeting
+      'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=800&h=450&fit=crop', // Money
+      'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=800&h=450&fit=crop', // Handshake
+      'https://images.unsplash.com/photo-1591696205602-2f950c417cb9?w=800&h=450&fit=crop', // Deal
+    ]
+  },
+  // Tools & Technology
+  {
+    keywords: ['software', 'tool', 'automation', 'ai', 'technology', 'saas', 'platform', 'api'],
+    images: [
+      'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&h=450&fit=crop', // Tech
+      'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=800&h=450&fit=crop', // Computer
+      'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=450&fit=crop', // Team tech
+      'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=450&fit=crop', // Innovation
+    ]
+  },
+  // Finance / Profitability
+  {
+    keywords: ['profit', 'margin', 'revenue', 'fee', 'cost', 'pricing', 'financial', 'earnings'],
+    images: [
+      'https://images.unsplash.com/photo-1579621970795-87facc2f976d?w=800&h=450&fit=crop', // Finance
+      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=450&fit=crop', // Charts
+      'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&h=450&fit=crop', // Calculator
+      'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=800&h=450&fit=crop', // Money
+    ]
+  },
+  // Data & Analytics
+  {
+    keywords: ['data', 'analytics', 'metrics', 'report', 'insight', 'trend', 'statistics'],
+    images: [
+      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=450&fit=crop', // Dashboard
+      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=450&fit=crop', // Analytics
+      'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=800&h=450&fit=crop', // Screens
+      'https://images.unsplash.com/photo-1533750349088-cd871a92f312?w=800&h=450&fit=crop', // Charts
+    ]
+  },
+  // Events & Conferences
+  {
+    keywords: ['conference', 'event', 'summit', 'webinar', 'prosper', 'unboxed', 'accelerate'],
+    images: [
+      'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&h=450&fit=crop', // Conference
+      'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=800&h=450&fit=crop', // Presentation
+      'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=800&h=450&fit=crop', // Stage
+    ]
+  },
+  // Strategy & Tactics
+  {
+    keywords: ['strategy', 'tactic', 'optimization', 'growth', 'scale', 'launch', 'listing'],
+    images: [
+      'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=450&fit=crop', // Team strategy
+      'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&h=450&fit=crop', // Meeting
+      'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800&h=450&fit=crop', // Planning
+      'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800&h=450&fit=crop', // Teamwork
+    ]
+  },
+  // News / Breaking
+  {
+    keywords: ['breaking', 'news', 'update', 'announce', 'change', 'policy', 'new'],
+    images: [
+      'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&h=450&fit=crop', // News
+      'https://images.unsplash.com/photo-1495020689067-958852a7765e?w=800&h=450&fit=crop', // Headlines
+      'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=800&h=450&fit=crop', // Breaking
+    ]
+  },
+  // Shopify / DTC
+  {
+    keywords: ['shopify', 'dtc', 'direct to consumer', 'ecommerce store', 'online store'],
+    images: [
+      'https://images.unsplash.com/photo-1556742111-a301076d9d18?w=800&h=450&fit=crop', // E-commerce
+      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=450&fit=crop', // Online
+      'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800&h=450&fit=crop', // Shopping
+    ]
+  },
+  // General E-commerce (fallback pool)
+  {
+    keywords: ['ecommerce', 'e-commerce', 'online', 'marketplace', 'seller', 'retail'],
+    images: [
+      'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=450&fit=crop',
+      'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800&h=450&fit=crop',
+      'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&h=450&fit=crop',
+      'https://images.unsplash.com/photo-1556740758-90de374c12ad?w=800&h=450&fit=crop',
+      'https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=800&h=450&fit=crop',
+      'https://images.unsplash.com/photo-1580674285054-bed31e145f59?w=800&h=450&fit=crop',
+      'https://images.unsplash.com/photo-1578574577315-3fbeb0cecdc2?w=800&h=450&fit=crop',
+      'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=800&h=450&fit=crop',
+      'https://images.unsplash.com/photo-1512756290469-ec264b7fbf87?w=800&h=450&fit=crop',
+    ]
+  },
+]
 
-const FALLBACK_IMAGES = [
+// Global fallback images (used when no keyword matches)
+const GLOBAL_FALLBACK_IMAGES = [
   'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=450&fit=crop',
-  'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&h=450&fit=crop',
   'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800&h=450&fit=crop',
   'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=450&fit=crop',
-  'https://images.unsplash.com/photo-1556742111-a301076d9d18?w=800&h=450&fit=crop',
-  'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&h=450&fit=crop',
-  'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=450&fit=crop',
-  'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=450&fit=crop',
   'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=450&fit=crop',
   'https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=800&h=450&fit=crop',
-  'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=800&h=450&fit=crop',
   'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=450&fit=crop',
   'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=800&h=450&fit=crop',
   'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&h=450&fit=crop',
-  'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800&h=450&fit=crop',
-  'https://images.unsplash.com/photo-1578574577315-3fbeb0cecdc2?w=800&h=450&fit=crop',
-  'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=800&h=450&fit=crop',
-  'https://images.unsplash.com/photo-1580674285054-bed31e145f59?w=800&h=450&fit=crop',
   'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&h=450&fit=crop',
   'https://images.unsplash.com/photo-1556740758-90de374c12ad?w=800&h=450&fit=crop',
-  'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=800&h=450&fit=crop',
+  'https://images.unsplash.com/photo-1580674285054-bed31e145f59?w=800&h=450&fit=crop',
   'https://images.unsplash.com/photo-1523474253046-8cd2748b5fd2?w=800&h=450&fit=crop',
-  'https://images.unsplash.com/photo-1512756290469-ec264b7fbf87?w=800&h=450&fit=crop',
-  'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=800&h=450&fit=crop',
-  'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800&h=450&fit=crop',
 ]
 
-function getImageForArticle(title: string, category: string, index: number): string {
-  // First try category-specific image
-  if (CATEGORY_IMAGES[category]) {
-    return CATEGORY_IMAGES[category]
+function getImageForArticle(title: string, summary: string, index: number): string {
+  const text = `${title} ${summary}`.toLowerCase()
+  
+  // Find matching keyword groups and collect candidate images
+  const candidateImages: string[] = []
+  
+  for (const group of KEYWORD_IMAGES) {
+    for (const keyword of group.keywords) {
+      if (text.includes(keyword)) {
+        candidateImages.push(...group.images)
+        break // Only add each group's images once
+      }
+    }
   }
   
-  // Fallback to unique image based on title hash
+  // If we found matching images, select one based on title hash for consistency
+  if (candidateImages.length > 0) {
+    // Use title hash to consistently select the same image for the same article
+    const hash = Math.abs(hashString(title))
+    // Add index offset to reduce duplicates when multiple articles have similar keywords
+    const imageIndex = (hash + index * 3) % candidateImages.length
+    return candidateImages[imageIndex]
+  }
+  
+  // Fallback: use global fallback images with title-based selection
   const hash = Math.abs(hashString(title))
-  const imageIndex = (hash + index * 7) % FALLBACK_IMAGES.length
-  return FALLBACK_IMAGES[imageIndex]
+  const imageIndex = (hash + index * 7) % GLOBAL_FALLBACK_IMAGES.length
+  return GLOBAL_FALLBACK_IMAGES[imageIndex]
 }
 
 // ============================================================================
@@ -364,9 +500,9 @@ async function fetchRSSFeed(feed: RSSFeed): Promise<NormalizedArticle[]> {
         imageUrl = (item as any).mediaContent[0].$.url
       }
       
-      if (!imageUrl) {
-        imageUrl = getImageForArticle(cleanTitle, category, articles.length)
-      }
+if (!imageUrl) {
+    imageUrl = getImageForArticle(cleanTitle, summary, articles.length)
+  }
       
       articles.push({
         id: createStableId(item.link || '', cleanTitle),
