@@ -307,7 +307,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Breaking News Ticker */}
+      {/* Breaking News Ticker - Live updates */}
       {breakingNews.length > 0 && (
         <div className="bg-primary text-primary-foreground py-2 overflow-hidden">
           <div className="flex items-center">
