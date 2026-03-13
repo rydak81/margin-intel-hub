@@ -354,6 +354,9 @@ export default function HomePage() {
               <Link href="/tools" className="text-base font-semibold hover:text-primary transition-colors">
                 Tools
               </Link>
+              <Link href="/community" className="text-base font-semibold hover:text-primary transition-colors">
+                Community
+              </Link>
               <Link href="/events" className="text-base font-semibold hover:text-primary transition-colors">
                 Events
               </Link>
@@ -404,6 +407,7 @@ export default function HomePage() {
               <nav className="flex flex-col gap-2">
                 <Link href="/" className="px-4 py-2 hover:bg-muted rounded-md" onClick={() => setMobileMenuOpen(false)}>Home</Link>
                 <Link href="/tools" className="px-4 py-2 hover:bg-muted rounded-md" onClick={() => setMobileMenuOpen(false)}>Tools</Link>
+                <Link href="/community" className="px-4 py-2 hover:bg-muted rounded-md" onClick={() => setMobileMenuOpen(false)}>Community</Link>
                 <Link href="/events" className="px-4 py-2 hover:bg-muted rounded-md" onClick={() => setMobileMenuOpen(false)}>Events</Link>
                 <Link href="/newsletter" className="px-4 py-2 hover:bg-muted rounded-md" onClick={() => setMobileMenuOpen(false)}>Newsletter</Link>
                 <div className="px-4 py-2">
