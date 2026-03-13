@@ -96,19 +96,19 @@ const CATEGORIES = [
 
 const PLATFORMS = ["All", "Amazon", "Walmart", "TikTok Shop", "Shopify", "eBay"]
 
-// Map filter category IDs to actual article categories from API
+// Map filter category IDs to actual article categories from database
 const CATEGORY_MAPPINGS: Record<string, string[]> = {
   all: [], // Shows all
-  breaking: ["Amazon", "Industry", "Marketplaces"], // Breaking news from major sources
-  market: ["Industry", "Marketplaces", "Retail"], // Market & Metrics
-  platform: ["Amazon", "Tech", "Marketplaces"], // Platform Updates
-  profitability: ["Strategy", "Amazon", "D2C"], // Seller Profitability
-  deals: ["Industry", "Marketplaces"], // M&A & Deal Flow
-  tools: ["Tools", "Tech"], // Tools & Technology
-  advertising: ["Amazon", "Strategy", "D2C"], // Advertising
-  logistics: ["Logistics"], // Logistics
-  events: ["Industry", "Marketplaces"], // Events
-  tactics: ["Strategy", "D2C"], // Tactics & Strategy
+  breaking: ["breaking", "platform"], // Breaking news
+  market: ["market", "platform"], // Market & Metrics
+  platform: ["platform"], // Platform Updates
+  profitability: ["profitability"], // Seller Profitability
+  deals: ["deals", "market"], // M&A & Deal Flow
+  tools: ["tools"], // Tools & Technology
+  advertising: ["advertising"], // Advertising
+  logistics: ["logistics"], // Logistics
+  events: ["market", "platform"], // Events
+  tactics: ["tactics", "profitability"], // Tactics & Strategy
 }
 
 // Helper functions
@@ -179,34 +179,79 @@ export default function HomePage() {
   const [isSubscribing, setIsSubscribing] = useState(false)
   const [subscribed, setSubscribed] = useState(false)
 
-  // Fetch news from RSS-powered API (with fallback to old API)
+  // Fetch news from database-backed aggregation API
   const fetchNews = useCallback(async () => {
     try {
-      // Try the new RSS-based articles API first
-      let response = await fetch("/api/articles?limit=50")
-      let data = await response.json()
+      // Fetch from our new database-backed articles API
+      const params = new URLSearchParams({
+        limit: '50',
+        sortBy: sortBy === 'popular' ? 'relevance' : sortBy === 'shared' ? 'trending' : 'recent'
+      })
       
-      // If RSS API fails or returns no articles, fall back to news API
-      if (!data.success || !data.articles?.length) {
-        response = await fetch("/api/news")
-        data = await response.json()
-      }
+      const response = await fetch(`/api/news/articles?${params}`)
+      const data = await response.json()
       
-      if (data.success && data.articles?.length > 0) {
-        setArticles(data.articles)
-        const breaking = data.articles
+      if (data.articles?.length > 0) {
+        // Transform database articles to match frontend interface
+        const transformedArticles: NewsArticle[] = data.articles.map((a: {
+          id: string
+          title: string
+          excerpt: string | null
+          ai_summary: string | null
+          category: string
+          source_name: string
+          source_url: string
+          author: string | null
+          published_at: string
+          ai_relevance_score: number
+          tags: string[]
+          is_featured: boolean
+          is_breaking: boolean
+          image_url: string | null
+          platforms: string[]
+        }) => ({
+          id: a.id,
+          title: a.title,
+          excerpt: a.excerpt || a.ai_summary || '',
+          category: mapDatabaseCategory(a.category),
+          source: a.source_name,
+          sourceUrl: a.source_url,
+          author: a.author || a.source_name,
+          publishedAt: a.published_at,
+          readTime: Math.ceil((a.excerpt?.length || 500) / 200),
+          tags: a.tags || [],
+          featured: a.is_featured,
+          breaking: a.is_breaking,
+          imageUrl: a.image_url || undefined,
+          platforms: a.platforms || [],
+        }))
+        
+        setArticles(transformedArticles)
+        
+        // Get breaking news
+        const breaking = transformedArticles
           .filter((a: NewsArticle) => a.breaking)
+          .slice(0, 5)
           .map((a: NewsArticle) => ({
             id: a.id,
             title: a.title,
             timestamp: a.publishedAt,
             urgent: true,
           }))
+        
+        // Use fetched breaking news or fallback headlines
         setBreakingNews(breaking.length > 0 ? breaking : [
           { id: "1", title: "Amazon announces Q2 FBA fee structure changes effective April 2026", timestamp: new Date().toISOString(), urgent: true },
           { id: "2", title: "TikTok Shop US GMV surpasses $10B milestone in Q1", timestamp: new Date().toISOString(), urgent: true },
           { id: "3", title: "New tariff regulations impact cross-border sellers starting May 1", timestamp: new Date().toISOString(), urgent: false },
         ])
+      } else {
+        // Fallback to old API if no database articles
+        const fallbackResponse = await fetch("/api/news")
+        const fallbackData = await fallbackResponse.json()
+        if (fallbackData.success && fallbackData.articles) {
+          setArticles(fallbackData.articles)
+        }
       }
     } catch (error) {
       console.error("Failed to fetch news:", error)
@@ -223,7 +268,26 @@ export default function HomePage() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [sortBy])
+  
+  // Map database categories to frontend category IDs
+  function mapDatabaseCategory(dbCategory: string): string {
+    const mapping: Record<string, string> = {
+      'announcements': 'breaking',
+      'amazon': 'platform',
+      'other-marketplaces': 'platform',
+      'profitability': 'profitability',
+      'advertising': 'advertising',
+      'logistics': 'logistics',
+      'tools': 'tools',
+      'general': 'market',
+      'reviews': 'tactics',
+      'deals': 'deals',
+      'wins': 'market',
+      'help': 'tactics',
+    }
+    return mapping[dbCategory] || 'market'
+  }
 
   useEffect(() => {
     fetchNews()
@@ -371,13 +435,7 @@ export default function HomePage() {
               <Link href="/tools" className="text-sm font-semibold hover:text-primary transition-colors">
                 Tools
               </Link>
-              <Link href="/solutions" className="text-sm font-semibold hover:text-primary transition-colors">
-                Solutions
-              </Link>
-              <Link href="/community" className="text-sm font-semibold hover:text-primary transition-colors flex items-center gap-1.5">
-                Community
-                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">BETA</span>
-              </Link>
+              {/* Solutions and Community hidden - coming soon */}
               <Link href="/events" className="text-sm font-semibold hover:text-primary transition-colors">
                 Events
               </Link>
@@ -457,11 +515,7 @@ export default function HomePage() {
               <nav className="flex flex-col gap-2">
                 <Link href="/" className="px-4 py-2 rounded-md hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>Home</Link>
                 <Link href="/tools" className="px-4 py-2 rounded-md hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>Tools</Link>
-                <Link href="/solutions" className="px-4 py-2 rounded-md hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>Solutions</Link>
-                <Link href="/community" className="px-4 py-2 rounded-md flex items-center gap-2 hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>
-                  Community
-                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">BETA</span>
-                </Link>
+                {/* Solutions and Community hidden - coming soon */}
                 <Link href="/events" className="px-4 py-2 rounded-md hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>Events</Link>
                 <Link href="/newsletter" className="px-4 py-2 rounded-md hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>Newsletter</Link>
                 <div className="px-4 py-2">
@@ -1048,26 +1102,7 @@ export default function HomePage() {
               </CardContent>
             </Card>
 
-            {/* Solutions CTA */}
-            <Card className="border-0 shadow-sm bg-gradient-to-br from-primary/10 via-background to-background">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Lightbulb className="h-4 w-4 text-primary" />
-                  Find Your Solution
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <p className="text-sm text-muted-foreground">
-                  Connect with vetted agencies, discover tools, and get matched with the right partners for your business.
-                </p>
-                <Button asChild size="sm" className="w-full">
-                  <Link href="/solutions">
-                    Explore Solutions
-                    <ArrowRight className="ml-2 h-3 w-3" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
+            {/* Solutions CTA - Coming Soon */}
           </aside>
         </div>
       </main>

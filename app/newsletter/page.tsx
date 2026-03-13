@@ -377,10 +377,15 @@ export default function NewsletterPage() {
                                 : "border-border hover:border-primary/50"
                             }`}
                           >
-                            <Checkbox
-                              checked={selectedRoles.includes(role.id)}
-                              className="pointer-events-none"
-                            />
+                            <div className={`h-4 w-4 rounded border flex items-center justify-center ${
+                              selectedRoles.includes(role.id)
+                                ? "bg-primary border-primary"
+                                : "border-muted-foreground/30"
+                            }`}>
+                              {selectedRoles.includes(role.id) && (
+                                <Check className="h-3 w-3 text-primary-foreground" />
+                              )}
+                            </div>
                             <role.icon className="h-4 w-4 text-muted-foreground" />
                             <span className="text-sm">{role.label}</span>
                           </div>
