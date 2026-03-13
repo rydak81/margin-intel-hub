@@ -646,7 +646,6 @@ export default function HomePage() {
             )}
 
             {/* Regular Articles Grid */}
-                <div>
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-xl font-bold">
                       {searchQuery ? `Search Results` : 'Latest News'}
@@ -798,7 +797,7 @@ export default function HomePage() {
                       </Fragment>
                     ))}
                   </div>
-                  )}
+                )}
 
                 {/* Load More */}
                 {regularArticles.length > 8 && (
