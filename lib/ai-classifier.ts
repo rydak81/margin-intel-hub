@@ -1,4 +1,3 @@
-import { generateText, Output } from 'ai'
 import { z } from 'zod'
 
 // Classification result schema
@@ -32,8 +31,6 @@ const ArticleClassificationSchema = z.object({
   action_item: z.string(),
   key_stat: z.string().nullable()
 })
-
-const ClassificationResponseSchema = z.array(ArticleClassificationSchema)
 
 export type ArticleClassification = z.infer<typeof ArticleClassificationSchema>
 
@@ -104,10 +101,104 @@ export interface ClassifiedArticle extends RawArticle {
 // Track already-classified article IDs to avoid re-processing
 const classifiedArticleIds = new Set<string>()
 
-/**
- * Classify a batch of articles using Claude Haiku 4.5
- */
+// ============================================================================
+// KEYWORD-BASED FALLBACK (when AI is unavailable)
+// ============================================================================
+
+const RELEVANT_KEYWORDS = [
+  'amazon seller', 'fba', 'fbm', 'seller central', 'walmart marketplace',
+  'tiktok shop', 'shopify merchant', 'ebay seller', 'ecommerce',
+  'e-commerce', 'marketplace', 'fulfillment', 'retail media',
+  'sponsored products', 'amazon ads', 'buy box', 'private label',
+  'referral fee', 'fba fee', 'reimbursement', '3pl',
+]
+
+const EXCLUDE_KEYWORDS = [
+  'aws', 'amazon web services', 'prime video', 'kindle', 'alexa',
+  'ring doorbell', 'fire tv', 'blue origin', 'twitch', 'oled tv',
+  'smart tv', 'gaming console', 'recipe', 'movie', 'series',
+  'rainforest', 'whole foods', 'amazon pharmacy',
+]
+
+function detectPlatformsFromText(text: string): string[] {
+  const platforms: string[] = []
+  if (text.match(/amazon|fba|fbm|seller central|asin/i)) platforms.push('amazon')
+  if (text.match(/walmart|wfs|walmart connect/i)) platforms.push('walmart')
+  if (text.match(/tiktok shop|tiktok seller/i)) platforms.push('tiktok')
+  if (text.match(/shopify|shop pay|shopify fulfillment/i)) platforms.push('shopify')
+  if (text.match(/ebay|promoted listing/i)) platforms.push('ebay')
+  if (platforms.length === 0) platforms.push('multi_platform')
+  return platforms
+}
+
+function fallbackClassify(article: RawArticle): ArticleClassification {
+  const text = (article.title + ' ' + (article.summary || '')).toLowerCase()
+  
+  const hasRelevant = RELEVANT_KEYWORDS.some(kw => text.includes(kw))
+  const hasExclude = EXCLUDE_KEYWORDS.some(kw => text.includes(kw))
+  
+  if (hasExclude && !hasRelevant) {
+    return {
+      index: 0,
+      relevant: false,
+      relevance_score: 0,
+      category: 'platform_updates',
+      platforms: ['multi_platform'],
+      summary: '',
+      is_breaking: false,
+      audience: [],
+      rejection_reason: 'Excluded content',
+      ai_summary: '',
+      impact_level: 'low',
+      impact_detail: '',
+      action_item: '',
+      key_stat: null
+    }
+  }
+  
+  // Basic category detection
+  let category: ArticleClassification['category'] = 'platform_updates'
+  if (text.match(/fee|cost|margin|profit|reimburse/)) category = 'profitability'
+  if (text.match(/acqui|merger|funding|ipo|aggregator/)) category = 'mergers_acquisitions'
+  if (text.match(/ppc|acos|roas|sponsored|advertising|retail media/)) category = 'advertising'
+  if (text.match(/ship|freight|tariff|3pl|logistics|fulfillment|warehouse/)) category = 'logistics'
+  if (text.match(/tool|software|saas|api|integration|launch/)) category = 'tools_technology'
+  if (text.match(/conference|summit|webinar|prosper|shoptalk/)) category = 'events'
+  if (text.match(/how to|strategy|tip|guide|tutorial|best practice/)) category = 'tactics'
+  if (text.match(/revenue|gmv|earnings|quarterly|market share|billion/)) category = 'market_metrics'
+  if (text.match(/breaking|urgent|outage|suspended/)) category = 'breaking'
+  
+  return {
+    index: 0,
+    relevant: hasRelevant,
+    relevance_score: hasRelevant ? 60 : 30,
+    category,
+    platforms: detectPlatformsFromText(text) as ArticleClassification['platforms'],
+    summary: article.summary || '',
+    is_breaking: false,
+    audience: ['sellers'],
+    rejection_reason: null,
+    ai_summary: article.summary || '',
+    impact_level: 'medium',
+    impact_detail: '',
+    action_item: '',
+    key_stat: null
+  }
+}
+
+// ============================================================================
+// AI CLASSIFICATION (using direct Anthropic API)
+// ============================================================================
+
 async function classifyBatch(articles: RawArticle[]): Promise<ArticleClassification[]> {
+  const apiKey = process.env.ANTHROPIC_API_KEY
+  
+  // If no API key, use fallback
+  if (!apiKey) {
+    console.log('[v0] ANTHROPIC_API_KEY not set — using keyword fallback')
+    return articles.map((a, i) => ({ ...fallbackClassify(a), index: i }))
+  }
+  
   const articlesText = articles.map((a, i) => 
     `[${i}] TITLE: ${a.title}\nSOURCE: ${a.sourceName}\nSUMMARY: ${a.summary || 'No summary available'}`
   ).join('\n\n')
@@ -145,37 +236,50 @@ Rules:
 - ai_summary: write for a professional audience, be specific about what changed and why it matters
 - audience: tag which audience segments would care about this article
 - impact_level: high = affects many sellers significantly, medium = affects some sellers, low = minor/niche impact
-- action_item: specific next step the reader should take`
+- action_item: specific next step the reader should take
+
+Return ONLY the JSON array, no other text.`
 
   try {
-    const { output } = await generateText({
-      model: 'anthropic/claude-sonnet-4',
-      system: SYSTEM_PROMPT,
-      prompt: userPrompt,
-      output: Output.object({ schema: ClassificationResponseSchema }),
-      maxOutputTokens: 4000,
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 4000,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: 'user', content: userPrompt }]
+      })
     })
 
-    return output || []
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error(`[v0] Anthropic API error ${response.status}:`, errorText)
+      // Fallback to keyword classification
+      return articles.map((a, i) => ({ ...fallbackClassify(a), index: i }))
+    }
+
+    const data = await response.json()
+    const text = data.content?.[0]?.text || '[]'
+    
+    // Parse the JSON response
+    const jsonMatch = text.match(/\[[\s\S]*\]/)
+    if (!jsonMatch) {
+      console.error('[v0] Could not parse AI response as JSON')
+      return articles.map((a, i) => ({ ...fallbackClassify(a), index: i }))
+    }
+    
+    const parsed = JSON.parse(jsonMatch[0])
+    return parsed as ArticleClassification[]
+    
   } catch (error) {
     console.error('[v0] AI classification batch failed:', error)
-    // Fallback: mark all articles as needing manual review
-    return articles.map((_, i) => ({
-      index: i,
-      relevant: false,
-      relevance_score: 0,
-      category: 'platform_updates' as const,
-      platforms: ['multi_platform' as const],
-      summary: '',
-      is_breaking: false,
-      audience: [],
-      rejection_reason: 'AI classification failed',
-      ai_summary: '',
-      impact_level: 'low' as const,
-      impact_detail: '',
-      action_item: '',
-      key_stat: null
-    }))
+    // Fallback to keyword classification
+    return articles.map((a, i) => ({ ...fallbackClassify(a), index: i }))
   }
 }
 

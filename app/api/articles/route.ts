@@ -13,7 +13,7 @@ export const revalidate = 1800 // Revalidate every 30 minutes
 export const maxDuration = 120 // Allow up to 120 seconds for AI processing
 
 // ============================================================================
-// RSS FEED SOURCES - Expanded for maximum coverage
+// RSS FEED SOURCES - VERIFIED WORKING (March 2026)
 // ============================================================================
 
 interface RSSFeed {
@@ -21,61 +21,68 @@ interface RSSFeed {
   name: string
   tier: number
   label?: string
+  defaultCategory?: string
 }
 
 const INDUSTRY_RSS_FEEDS: RSSFeed[] = [
-  // Tier 1 — Core Industry Publications (most trusted for seller news)
-  { url: 'https://www.digitalcommerce360.com/feed/', name: 'Digital Commerce 360', tier: 1 },
-  { url: 'https://www.modernretail.co/feed/', name: 'Modern Retail', tier: 1 },
-  { url: 'https://www.retaildive.com/feeds/news/', name: 'Retail Dive', tier: 1 },
-  { url: 'https://www.ecommercebytes.com/feed/', name: 'EcommerceBytes', tier: 1 },
-  { url: 'https://channelx.world/feed/', name: 'ChannelX', tier: 1 },
-  { url: 'https://www.supplychaindive.com/feeds/news/', name: 'Supply Chain Dive', tier: 1 },
+  // TIER 1 — Major Industry Publications
+  { url: 'https://www.digitalcommerce360.com/feed/', name: 'Digital Commerce 360', tier: 1, defaultCategory: 'market_metrics' },
+  { url: 'https://www.modernretail.co/feed/', name: 'Modern Retail', tier: 1, defaultCategory: 'platform_updates' },
+  { url: 'https://www.retaildive.com/feeds/news/', name: 'Retail Dive', tier: 1, defaultCategory: 'market_metrics' },
+  { url: 'https://www.supplychaindive.com/feeds/news/', name: 'Supply Chain Dive', tier: 1, defaultCategory: 'logistics' },
+  { url: 'https://practicalcommerce.com/feed', name: 'Practical Ecommerce', tier: 1, defaultCategory: 'tactics' },
+  { url: 'https://www.ecommercebytes.com/feed/', name: 'EcommerceBytes', tier: 1, defaultCategory: 'platform_updates' },
   
-  // Tier 2 — Platform & Tool Blogs  
-  { url: 'https://www.junglescout.com/blog/feed/', name: 'Jungle Scout', tier: 2 },
-  { url: 'https://ecomcrew.com/feed/', name: 'EcomCrew', tier: 2 },
+  // TIER 2 — Amazon/Seller Tool Blogs  
+  { url: 'https://www.junglescout.com/blog/feed/', name: 'Jungle Scout', tier: 2, defaultCategory: 'tactics' },
+  { url: 'https://www.helium10.com/blog/feed/', name: 'Helium 10', tier: 2, defaultCategory: 'tactics' },
+  { url: 'https://ecomcrew.com/feed/', name: 'EcomCrew', tier: 2, defaultCategory: 'tactics' },
+  { url: 'https://carbon6.io/blog/feed/', name: 'Carbon6', tier: 2, defaultCategory: 'tools_technology' },
+  { url: 'https://tinuiti.com/blog/feed/', name: 'Tinuiti', tier: 2, defaultCategory: 'advertising' },
   
-  // Tier 3 — Business Press
-  { url: 'https://techcrunch.com/category/commerce/feed/', name: 'TechCrunch Commerce', tier: 3 },
-  { url: 'https://www.pymnts.com/category/news/ecommerce/feed/', name: 'PYMNTS E-commerce', tier: 3 },
+  // TIER 3 — Platform Official Blogs
+  { url: 'https://www.shopify.com/blog/feed', name: 'Shopify Blog', tier: 3, defaultCategory: 'platform_updates' },
+  { url: 'https://www.aboutamazon.com/news/feed', name: 'About Amazon', tier: 3, defaultCategory: 'platform_updates' },
+  
+  // TIER 4 — Business/Tech Press
+  { url: 'https://techcrunch.com/category/commerce/feed/', name: 'TechCrunch Commerce', tier: 4, defaultCategory: 'mergers_acquisitions' },
 ]
 
 const GOOGLE_NEWS_FEEDS: RSSFeed[] = [
-  // Amazon seller specific
   {
-    url: 'https://news.google.com/rss/search?q=%22Amazon+seller%22+OR+%22Amazon+FBA%22+OR+%22Seller+Central%22+OR+%22FBA+fees%22&hl=en-US&gl=US&ceid=US:en',
+    url: 'https://news.google.com/rss/search?q=%22Amazon+seller%22+OR+%22Amazon+FBA%22+OR+%22Seller+Central%22+OR+%22FBA+fees%22+OR+%22Buy+with+Prime%22&hl=en-US&gl=US&ceid=US:en',
     name: 'Google News',
     label: 'Amazon Seller News',
-    tier: 3
+    tier: 3,
+    defaultCategory: 'platform_updates'
   },
-  // Walmart marketplace
   {
-    url: 'https://news.google.com/rss/search?q=%22Walmart+marketplace%22+OR+%22Walmart+seller%22+OR+%22Walmart+Fulfillment+Services%22&hl=en-US&gl=US&ceid=US:en',
+    url: 'https://news.google.com/rss/search?q=%22Walmart+marketplace%22+OR+%22Walmart+seller%22+OR+%22TikTok+Shop%22+OR+%22Target+Plus%22&hl=en-US&gl=US&ceid=US:en',
     name: 'Google News',
-    label: 'Walmart Marketplace News',
-    tier: 3
+    label: 'Other Marketplaces',
+    tier: 3,
+    defaultCategory: 'platform_updates'
   },
-  // TikTok Shop
   {
-    url: 'https://news.google.com/rss/search?q=%22TikTok+Shop%22+seller+OR+merchant&hl=en-US&gl=US&ceid=US:en',
+    url: 'https://news.google.com/rss/search?q=%22ecommerce+seller%22+OR+%22marketplace+seller%22+OR+%22retail+media+network%22+OR+%22multichannel+selling%22&hl=en-US&gl=US&ceid=US:en',
     name: 'Google News',
-    label: 'TikTok Shop News',
-    tier: 3
+    label: 'E-Commerce Industry',
+    tier: 3,
+    defaultCategory: 'market_metrics'
   },
-  // E-commerce industry
   {
-    url: 'https://news.google.com/rss/search?q=%22e-commerce%22+OR+%22ecommerce%22+marketplace+seller+OR+merchant&hl=en-US&gl=US&ceid=US:en',
+    url: 'https://news.google.com/rss/search?q=%22Amazon+aggregator%22+OR+%22ecommerce+acquisition%22+OR+%22FBA+acquisition%22+OR+%22ecommerce+private+equity%22&hl=en-US&gl=US&ceid=US:en',
     name: 'Google News',
-    label: 'E-commerce Industry',
-    tier: 3
+    label: 'M&A Activity',
+    tier: 3,
+    defaultCategory: 'mergers_acquisitions'
   },
-  // Retail media / advertising
   {
-    url: 'https://news.google.com/rss/search?q=%22retail+media%22+OR+%22Amazon+Ads%22+OR+%22Walmart+Connect%22&hl=en-US&gl=US&ceid=US:en',
+    url: 'https://news.google.com/rss/search?q=%22Amazon+advertising%22+OR+%22Sponsored+Products%22+OR+%22retail+media%22+OR+%22Walmart+Connect%22&hl=en-US&gl=US&ceid=US:en',
     name: 'Google News',
-    label: 'Retail Media News',
-    tier: 3
+    label: 'Retail Media',
+    tier: 3,
+    defaultCategory: 'advertising'
   },
 ]
 
@@ -84,54 +91,63 @@ const GOOGLE_NEWS_FEEDS: RSSFeed[] = [
 // ============================================================================
 
 let articlesCache: ClassifiedArticle[] = []
-let rawArticlesCache: RawArticle[] = []
 let lastCacheUpdate: number = 0
 const CACHE_DURATION = 30 * 60 * 1000 // 30 minutes
 
 // ============================================================================
-// RSS FETCHING
+// RSS FETCHING WITH ERROR RESILIENCE
 // ============================================================================
 
 const parser = new Parser({
-  timeout: 15000,
+  timeout: 10000, // 10 seconds (faster failure)
   headers: {
-    'User-Agent': 'EcomIntelHub/2.0 (AI-Powered News Aggregator; contact@ecomintel.hub)',
-    'Accept': 'application/rss+xml, application/xml, text/xml, */*',
+    'User-Agent': 'EcomIntelHub/1.0 (News Aggregator)',
+    'Accept': 'application/rss+xml, application/xml, text/xml',
   },
   customFields: {
     item: [
-      ['media:content', 'mediaContent'],
-      ['media:thumbnail', 'mediaThumbnail'],
-      ['enclosure', 'enclosure'],
-    ],
-  },
+      ['media:content', 'mediaContent', { keepArray: false }],
+      ['media:thumbnail', 'mediaThumbnail', { keepArray: false }],
+      ['enclosure', 'enclosure', { keepArray: false }],
+    ]
+  }
 })
 
-function extractImageUrl(item: Record<string, unknown>): string | undefined {
+function extractImageFromItem(item: Record<string, unknown>): string | null {
   // Try media:content
-  if (item.mediaContent) {
-    const media = item.mediaContent as { $?: { url?: string } }
-    if (media.$?.url) return media.$.url
-  }
+  const mediaContent = item.mediaContent as { $?: { url?: string } } | undefined
+  if (mediaContent?.$?.url) return mediaContent.$.url
   
   // Try media:thumbnail
-  if (item.mediaThumbnail) {
-    const thumb = item.mediaThumbnail as { $?: { url?: string } }
-    if (thumb.$?.url) return thumb.$.url
-  }
+  const mediaThumbnail = item.mediaThumbnail as { $?: { url?: string } } | undefined
+  if (mediaThumbnail?.$?.url) return mediaThumbnail.$.url
   
   // Try enclosure
-  if (item.enclosure) {
-    const enc = item.enclosure as { url?: string; type?: string }
-    if (enc.url && enc.type?.startsWith('image/')) return enc.url
+  const enclosure = item.enclosure as { url?: string; type?: string } | undefined
+  if (enclosure?.url && enclosure?.type?.startsWith('image/')) {
+    return enclosure.url
   }
   
-  // Try to extract from content
-  const content = (item.content || item['content:encoded'] || '') as string
-  const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i)
-  if (imgMatch) return imgMatch[1]
+  // Try extracting first <img> from HTML content
+  const html = (item['content:encoded'] || item.content || '') as string
+  const imgMatch = html.match(/<img[^>]+src=["']([^"']+)["']/i)
+  if (imgMatch?.[1] && imgMatch[1].startsWith('http')) {
+    return imgMatch[1]
+  }
   
-  return undefined
+  return null
+}
+
+function getArticleImage(article: { imageUrl?: string | null; sourceUrl: string }): string | null {
+  if (article.imageUrl) return article.imageUrl
+  
+  // Fallback: source favicon as a small visual
+  try {
+    const domain = new URL(article.sourceUrl).hostname
+    return `https://www.google.com/s2/favicons?domain=${domain}&sz=128`
+  } catch {
+    return null
+  }
 }
 
 async function fetchRSSFeed(feed: RSSFeed, sourceType: 'industry' | 'google'): Promise<RawArticle[]> {
@@ -152,16 +168,16 @@ async function fetchRSSFeed(feed: RSSFeed, sourceType: 'industry' | 'google'): P
         if (daysSincePublished > 14) continue
       }
       
-      const imageUrl = extractImageUrl(item as Record<string, unknown>)
+      const imageUrl = extractImageFromItem(item as unknown as Record<string, unknown>)
       
       articles.push({
         id: generateArticleId(item.link),
         title: item.title.trim(),
-        summary: item.contentSnippet?.slice(0, 500) || item.content?.slice(0, 500) || '',
+        summary: (item.contentSnippet || item.content || '').substring(0, 250),
         sourceName: feed.label || feed.name,
         sourceUrl: item.link,
-        publishedAt: item.pubDate || new Date().toISOString(),
-        imageUrl,
+        publishedAt: item.pubDate ? new Date(item.pubDate).toISOString() : new Date().toISOString(),
+        imageUrl: imageUrl || undefined,
         tier: feed.tier,
         sourceType,
       })
@@ -169,8 +185,9 @@ async function fetchRSSFeed(feed: RSSFeed, sourceType: 'industry' | 'google'): P
     
     return articles
   } catch (error) {
-    console.error(`[v0] Failed to fetch ${feed.name}:`, error)
-    return []
+    const errMessage = error instanceof Error ? error.message : 'Unknown error'
+    console.warn(`[Feed Error] ${feed.name}: ${errMessage}`)
+    return [] // Return empty array, don't crash
   }
 }
 
@@ -213,20 +230,30 @@ function deduplicateByTitle(articles: RawArticle[]): RawArticle[] {
 // ============================================================================
 
 async function aggregateAndProcessArticles(): Promise<ClassifiedArticle[]> {
-  console.log('[v0] Starting AI-powered news aggregation (using Claude Haiku 4.5)...')
+  console.log('[v0] Starting AI-powered news aggregation (Claude Haiku 4.5)...')
   
-  // Fetch from all sources in parallel
-  const [industryResults, googleResults] = await Promise.all([
-    Promise.all(INDUSTRY_RSS_FEEDS.map(feed => fetchRSSFeed(feed, 'industry'))),
-    Promise.all(GOOGLE_NEWS_FEEDS.map(feed => fetchRSSFeed(feed, 'google'))),
-  ])
-  
-  const allRawArticles = [
-    ...industryResults.flat(),
-    ...googleResults.flat(),
+  // Combine all feeds
+  const allFeeds = [
+    ...INDUSTRY_RSS_FEEDS.map(f => ({ ...f, type: 'industry' as const })),
+    ...GOOGLE_NEWS_FEEDS.map(f => ({ ...f, type: 'google' as const })),
   ]
   
-  console.log(`[v0] Fetched ${allRawArticles.length} raw articles from all sources`)
+  // Fetch from all sources with error resilience
+  const results = await Promise.allSettled(
+    allFeeds.map(async (feed) => {
+      return fetchRSSFeed(feed, feed.type)
+    })
+  )
+  
+  // Flatten results, ignoring failed feeds
+  const allRawArticles = results
+    .filter((r): r is PromiseFulfilledResult<RawArticle[]> => r.status === 'fulfilled')
+    .flatMap(r => r.value)
+  
+  const successfulFeeds = results.filter(r => r.status === 'fulfilled' && (r as PromiseFulfilledResult<RawArticle[]>).value.length > 0).length
+  const failedFeeds = results.filter(r => r.status === 'rejected').length
+  
+  console.log(`[v0] Fetched ${allRawArticles.length} articles from ${successfulFeeds} feeds (${failedFeeds} feeds failed)`)
   
   // Quick deduplication before AI (saves API costs)
   const deduplicated = deduplicateByTitle(allRawArticles)
@@ -250,7 +277,7 @@ async function aggregateAndProcessArticles(): Promise<ClassifiedArticle[]> {
   if (articlesToClassify.length > 0) {
     console.log(`[v0] Sending ${articlesToClassify.length} articles to Claude Haiku for classification...`)
     
-    // AI-powered batch classification
+    // AI-powered batch classification (with fallback to keyword matching)
     const classifications = await classifyAllArticles(articlesToClassify)
     
     // Merge classifications back into articles
@@ -261,11 +288,17 @@ async function aggregateAndProcessArticles(): Promise<ClassifiedArticle[]> {
       a.relevant !== false && a.relevanceScore >= 50
     )
     
-    console.log(`[v0] AI approved ${relevant.length} of ${articlesToClassify.length} articles as relevant`)
+    // Add image fallbacks
+    const withImages = relevant.map(a => ({
+      ...a,
+      imageUrl: getArticleImage(a) || undefined
+    }))
+    
+    console.log(`[v0] AI approved ${withImages.length} of ${articlesToClassify.length} articles as relevant`)
     
     // Add to cache (merge with existing)
     const existingIds = new Set(articlesCache.map(a => a.id))
-    const newRelevant = relevant.filter(a => !existingIds.has(a.id))
+    const newRelevant = withImages.filter(a => !existingIds.has(a.id))
     articlesCache = [...newRelevant, ...articlesCache]
   }
   
@@ -355,7 +388,7 @@ export async function GET(request: Request) {
         cached: cacheValid,
         lastUpdate: new Date(lastCacheUpdate).toISOString(),
         aiPowered: true,
-        model: 'claude-haiku-4-5',
+        model: 'claude-haiku-4-5-20251001',
         stats,
       }
     })

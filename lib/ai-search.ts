@@ -1,16 +1,11 @@
-import { generateText, Output } from 'ai'
-import { z } from 'zod'
 import type { ClassifiedArticle } from './ai-classifier'
 
-// Search result schema
-const SearchResultSchema = z.object({
-  answer: z.string(),
-  relevant_article_indices: z.array(z.number()),
-  suggested_queries: z.array(z.string()),
-  confidence: z.enum(['high', 'medium', 'low'])
-})
-
-export type SearchResult = z.infer<typeof SearchResultSchema>
+export interface SearchResult {
+  answer: string
+  relevant_article_indices: number[]
+  suggested_queries: string[]
+  confidence: 'high' | 'medium' | 'low'
+}
 
 export interface AISearchResponse {
   answer: string
@@ -37,12 +32,37 @@ Be specific and actionable in your answers. If an article mentions specific numb
 fees, or dates, include those in your answer.`
 
 /**
- * Perform AI-powered search across classified articles
+ * Perform AI-powered search across classified articles using direct Anthropic API
  */
 export async function aiSearch(
   query: string, 
   articles: ClassifiedArticle[]
 ): Promise<AISearchResponse> {
+  const apiKey = process.env.ANTHROPIC_API_KEY
+  
+  // If no API key, return basic keyword search fallback
+  if (!apiKey) {
+    console.log('[v0] ANTHROPIC_API_KEY not set — using keyword search fallback')
+    const lowerQuery = query.toLowerCase()
+    const matchedArticles = articles
+      .filter(a => 
+        a.title.toLowerCase().includes(lowerQuery) || 
+        a.aiSummary?.toLowerCase().includes(lowerQuery) ||
+        a.summary?.toLowerCase().includes(lowerQuery)
+      )
+      .slice(0, 10)
+    
+    return {
+      answer: matchedArticles.length > 0 
+        ? `Found ${matchedArticles.length} articles matching "${query}".`
+        : `No articles found matching "${query}". Try a different search term.`,
+      articles: matchedArticles,
+      suggestedQueries: ['Amazon FBA fee changes', 'Marketplace seller news', 'E-commerce trends'],
+      confidence: matchedArticles.length > 0 ? 'medium' : 'low',
+      query
+    }
+  }
+  
   // Limit to top 100 articles to save tokens
   const searchableArticles = articles.slice(0, 100)
   
@@ -52,32 +72,52 @@ export async function aiSearch(
   ).join('\n')
 
   try {
-    const { output } = await generateText({
-      model: 'anthropic/claude-haiku-4-5-20251001',
-      system: SEARCH_SYSTEM_PROMPT,
-      prompt: `User search query: "${query}"
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 2000,
+        system: SEARCH_SYSTEM_PROMPT,
+        messages: [{
+          role: 'user',
+          content: `User search query: "${query}"
 
 Available articles:
 ${articleContext}
 
-Find the most relevant articles and synthesize an answer. Return JSON with:
-- answer: A 2-3 sentence synthesis answering the user's question based on the articles
-- relevant_article_indices: Array of article indices (numbers) that are genuinely relevant
-- suggested_queries: 2-3 related queries the user might find useful
-- confidence: "high" if strong matches found, "medium" if partial matches, "low" if no good matches`,
-      output: Output.object({ schema: SearchResultSchema }),
-      maxOutputTokens: 2000,
+Find the most relevant articles and synthesize an answer. Return ONLY valid JSON with:
+{
+  "answer": "A 2-3 sentence synthesis answering the user's question based on the articles",
+  "relevant_article_indices": [0, 1, 2],
+  "suggested_queries": ["query1", "query2", "query3"],
+  "confidence": "high" or "medium" or "low"
+}
+
+Return ONLY the JSON object, no other text.`
+        }]
+      })
     })
 
-    if (!output) {
-      return {
-        answer: "I couldn't process your search. Please try a different query.",
-        articles: [],
-        suggestedQueries: ['Amazon FBA fee changes', 'Marketplace seller news', 'E-commerce trends'],
-        confidence: 'low',
-        query
-      }
+    if (!response.ok) {
+      console.error(`[v0] Anthropic API error ${response.status}`)
+      throw new Error(`API error: ${response.status}`)
     }
+
+    const data = await response.json()
+    const text = data.content?.[0]?.text || '{}'
+    
+    // Parse the JSON response
+    const jsonMatch = text.match(/\{[\s\S]*\}/)
+    if (!jsonMatch) {
+      throw new Error('Could not parse AI response as JSON')
+    }
+    
+    const output = JSON.parse(jsonMatch[0]) as SearchResult
 
     // Map indices back to full article objects
     const relevantArticles = (output.relevant_article_indices || [])
