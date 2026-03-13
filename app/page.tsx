@@ -333,36 +333,30 @@ export default function HomePage() {
       )}
 
       {/* Navigation */}
-      <header className={`sticky top-0 z-50 transition-all duration-300 ${
+      <header className={`sticky top-0 z-50 transition-all duration-300 border-b ${
         isScrolled 
-          ? 'bg-background/80 backdrop-blur-md border-b shadow-sm' 
-          : 'bg-primary text-primary-foreground'
+          ? 'bg-background/80 backdrop-blur-md shadow-sm' 
+          : 'bg-background/95 backdrop-blur-sm'
       }`}>
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-14">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2">
-              <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${
-                isScrolled ? 'bg-primary' : 'bg-primary-foreground/20'
-              }`}>
-                <BarChart3 className={`h-4 w-4 ${isScrolled ? 'text-primary-foreground' : 'text-primary-foreground'}`} />
+              <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
+                <BarChart3 className="h-4 w-4 text-primary-foreground" />
               </div>
-              <span className={`font-bold text-lg hidden sm:block ${isScrolled ? 'text-foreground' : 'text-primary-foreground'}`}>
+              <span className="font-bold text-lg hidden sm:block">
                 Ecom Intel Hub
               </span>
             </Link>
 
             {/* Desktop Nav */}
             <nav className="hidden lg:flex items-center gap-6">
-              <Link href="/" className={`text-sm font-medium transition-colors ${
-                isScrolled ? 'hover:text-primary' : 'text-primary-foreground/90 hover:text-primary-foreground'
-              }`}>
+              <Link href="/" className="text-sm font-semibold hover:text-primary transition-colors">
                 Home
               </Link>
               <DropdownMenu>
-                <DropdownMenuTrigger className={`text-sm font-medium transition-colors flex items-center gap-1 ${
-                  isScrolled ? 'hover:text-primary' : 'text-primary-foreground/90 hover:text-primary-foreground'
-                }`}>
+                <DropdownMenuTrigger className="text-sm font-semibold hover:text-primary transition-colors flex items-center gap-1">
                   Categories <ChevronDown className="h-3 w-3" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-56">
@@ -374,29 +368,17 @@ export default function HomePage() {
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
-              <Link href="/tools" className={`text-sm font-medium transition-colors ${
-                isScrolled ? 'hover:text-primary' : 'text-primary-foreground/90 hover:text-primary-foreground'
-              }`}>
+              <Link href="/tools" className="text-sm font-semibold hover:text-primary transition-colors">
                 Tools
               </Link>
-              <Link href="/community" className={`text-sm font-medium transition-colors flex items-center gap-1.5 ${
-                isScrolled ? 'hover:text-primary' : 'text-primary-foreground/90 hover:text-primary-foreground'
-              }`}>
+              <Link href="/community" className="text-sm font-semibold hover:text-primary transition-colors flex items-center gap-1.5">
                 Community
-                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
-                  isScrolled 
-                    ? 'bg-primary/10 text-primary border border-primary/20' 
-                    : 'bg-primary-foreground/20 text-primary-foreground border border-primary-foreground/30'
-                }`}>BETA</span>
+                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">BETA</span>
               </Link>
-              <Link href="/events" className={`text-sm font-medium transition-colors ${
-                isScrolled ? 'hover:text-primary' : 'text-primary-foreground/90 hover:text-primary-foreground'
-              }`}>
+              <Link href="/events" className="text-sm font-semibold hover:text-primary transition-colors">
                 Events
               </Link>
-              <Link href="/newsletter" className={`text-sm font-medium transition-colors ${
-                isScrolled ? 'hover:text-primary' : 'text-primary-foreground/90 hover:text-primary-foreground'
-              }`}>
+              <Link href="/newsletter" className="text-sm font-semibold hover:text-primary transition-colors">
                 Newsletter
               </Link>
             </nav>
@@ -437,7 +419,7 @@ export default function HomePage() {
                       variant="ghost"
                       size="icon"
                       onClick={() => setSearchExpanded(true)}
-                      className={`h-9 w-9 ${isScrolled ? '' : 'text-primary-foreground hover:bg-primary-foreground/10'}`}
+                      className="h-9 w-9"
                     >
                       <Search className="h-4 w-4" />
                     </Button>
@@ -448,25 +430,17 @@ export default function HomePage() {
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsDark(!isDark)}
-                className={`h-9 w-9 ${isScrolled ? '' : 'text-primary-foreground hover:bg-primary-foreground/10'}`}
+                className="h-9 w-9"
               >
                 {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </Button>
-              <Button 
-                asChild 
-                size="sm"
-                className={`hidden sm:flex text-sm ${
-                  isScrolled 
-                    ? '' 
-                    : 'bg-primary-foreground text-primary hover:bg-primary-foreground/90'
-                }`}
-              >
+              <Button asChild size="sm" className="hidden sm:flex text-sm">
                 <Link href="/newsletter">Subscribe</Link>
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
-                className={`lg:hidden h-9 w-9 ${isScrolled ? '' : 'text-primary-foreground hover:bg-primary-foreground/10'}`}
+                className="lg:hidden h-9 w-9"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
                 {mobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
@@ -476,26 +450,21 @@ export default function HomePage() {
 
           {/* Mobile Menu */}
           {mobileMenuOpen && (
-            <div className={`lg:hidden py-4 border-t ${isScrolled ? 'border-border' : 'border-primary-foreground/20'}`}>
+            <div className="lg:hidden py-4 border-t">
               <nav className="flex flex-col gap-2">
-                <Link href="/" className={`px-4 py-2 rounded-md ${isScrolled ? 'hover:bg-muted' : 'hover:bg-primary-foreground/10'}`} onClick={() => setMobileMenuOpen(false)}>Home</Link>
-                <Link href="/tools" className={`px-4 py-2 rounded-md ${isScrolled ? 'hover:bg-muted' : 'hover:bg-primary-foreground/10'}`} onClick={() => setMobileMenuOpen(false)}>Tools</Link>
-                <Link href="/community" className={`px-4 py-2 rounded-md flex items-center gap-2 ${isScrolled ? 'hover:bg-muted' : 'hover:bg-primary-foreground/10'}`} onClick={() => setMobileMenuOpen(false)}>
+                <Link href="/" className="px-4 py-2 rounded-md hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>Home</Link>
+                <Link href="/tools" className="px-4 py-2 rounded-md hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>Tools</Link>
+                <Link href="/community" className="px-4 py-2 rounded-md flex items-center gap-2 hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>
                   Community
-                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
-                    isScrolled 
-                      ? 'bg-primary/10 text-primary border border-primary/20' 
-                      : 'bg-primary-foreground/20 text-primary-foreground border border-primary-foreground/30'
-                  }`}>BETA</span>
+                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">BETA</span>
                 </Link>
-                <Link href="/events" className={`px-4 py-2 rounded-md ${isScrolled ? 'hover:bg-muted' : 'hover:bg-primary-foreground/10'}`} onClick={() => setMobileMenuOpen(false)}>Events</Link>
-                <Link href="/newsletter" className={`px-4 py-2 rounded-md ${isScrolled ? 'hover:bg-muted' : 'hover:bg-primary-foreground/10'}`} onClick={() => setMobileMenuOpen(false)}>Newsletter</Link>
+                <Link href="/events" className="px-4 py-2 rounded-md hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>Events</Link>
+                <Link href="/newsletter" className="px-4 py-2 rounded-md hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>Newsletter</Link>
                 <div className="px-4 py-2">
                   <Input
                     placeholder="Search news..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className={isScrolled ? '' : 'bg-primary-foreground/10 border-primary-foreground/20 placeholder:text-primary-foreground/50'}
                   />
                 </div>
               </nav>
