@@ -70,7 +70,9 @@ interface NewsArticle {
   breaking: boolean
   imageUrl?: string
   platforms?: string[]
-}
+  tier?: number
+  sourceType?: 'industry' | 'google' | 'reddit'
+  }
 
 interface BreakingNews {
   id: string
@@ -209,6 +211,8 @@ export default function HomePage() {
           is_breaking: boolean
           image_url: string | null
           platforms: string[]
+          tier?: number
+          sourceType?: 'industry' | 'google' | 'reddit'
         }) => ({
           id: a.id,
           title: a.title,
@@ -224,6 +228,8 @@ export default function HomePage() {
           breaking: a.is_breaking,
           imageUrl: a.image_url || undefined,
           platforms: a.platforms || [],
+          tier: a.tier,
+          sourceType: a.sourceType,
         }))
         
         setArticles(transformedArticles)
@@ -246,8 +252,8 @@ export default function HomePage() {
           { id: "3", title: "New tariff regulations impact cross-border sellers starting May 1", timestamp: new Date().toISOString(), urgent: false },
         ])
       } else {
-        // Fallback to old API if no database articles
-        const fallbackResponse = await fetch("/api/news")
+        // Fallback to RSS-based articles API
+        const fallbackResponse = await fetch("/api/articles?limit=50")
         const fallbackData = await fallbackResponse.json()
         if (fallbackData.success && fallbackData.articles) {
           setArticles(fallbackData.articles)
@@ -257,7 +263,7 @@ export default function HomePage() {
       console.error("Failed to fetch news:", error)
       // Try fallback API on error
       try {
-        const fallbackResponse = await fetch("/api/news")
+        const fallbackResponse = await fetch("/api/articles?limit=50")
         const fallbackData = await fallbackResponse.json()
         if (fallbackData.success) {
           setArticles(fallbackData.articles)
@@ -860,8 +866,19 @@ export default function HomePage() {
                           </p>
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                              <Globe className="h-3 w-3" />
-                              <span>{article.source}</span>
+                              {article.sourceType === 'reddit' ? (
+                                <span className="text-orange-500 font-medium">Reddit</span>
+                              ) : article.tier === 1 ? (
+                                <span className="flex items-center gap-1">
+                                  <span className="text-amber-500">&#10022;</span>
+                                  <span className="font-medium text-foreground">{article.source}</span>
+                                </span>
+                              ) : (
+                                <>
+                                  <Globe className="h-3 w-3" />
+                                  <span>{article.source}</span>
+                                </>
+                              )}
                               <span className="mx-1">|</span>
                               <span>{article.readTime} min read</span>
                             </div>
