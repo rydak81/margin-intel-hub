@@ -77,27 +77,18 @@ const GOOGLE_NEWS_FEEDS: RSSFeed[] = [
 // ============================================================================
 
 const INDUSTRY_RSS_FEEDS: RSSFeed[] = [
-  // Tier 1 — Core Industry Publications
-  { url: 'https://www.marketplacepulse.com/feed', name: 'Marketplace Pulse', tier: 1 },
+  // Tier 1 — Core Industry Publications (verified working)
   { url: 'https://www.digitalcommerce360.com/feed/', name: 'Digital Commerce 360', tier: 1 },
   { url: 'https://www.modernretail.co/feed/', name: 'Modern Retail', tier: 1 },
   { url: 'https://www.retaildive.com/feeds/news/', name: 'Retail Dive', tier: 1 },
   { url: 'https://www.supplychaindive.com/feeds/news/', name: 'Supply Chain Dive', tier: 1 },
-  { url: 'https://practicalcommerce.com/feed', name: 'Practical Ecommerce', tier: 1 },
   { url: 'https://www.ecommercebytes.com/feed/', name: 'EcommerceByte', tier: 1 },
   
-  // Tier 2 — Platform & Tool Blogs
+  // Tier 2 — Platform & Tool Blogs (verified working)
   { url: 'https://www.junglescout.com/blog/feed/', name: 'Jungle Scout', tier: 2 },
-  { url: 'https://www.helium10.com/blog/feed/', name: 'Helium 10', tier: 2 },
-  { url: 'https://carbon6.io/blog/feed/', name: 'Carbon6', tier: 2 },
-  { url: 'https://tinuiti.com/blog/feed/', name: 'Tinuiti', tier: 2 },
-  { url: 'https://www.shopify.com/blog/feed', name: 'Shopify Blog', tier: 2 },
-  { url: 'https://www.sellersnap.io/blog/feed/', name: 'Seller Snap', tier: 2 },
-  { url: 'https://www.pacvue.com/blog/rss.xml', name: 'Pacvue', tier: 2 },
   
   // Tier 3 — Business Press (E-Commerce Sections)
   { url: 'https://techcrunch.com/category/commerce/feed/', name: 'TechCrunch Commerce', tier: 3 },
-  { url: 'https://www.pymnts.com/feed/', name: 'PYMNTS', tier: 3 },
 ]
 
 // All feeds combined
