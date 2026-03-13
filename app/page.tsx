@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect, useCallback, useRef, Fragment } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -422,8 +422,21 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-grid-pattern">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent" />
-        <div className="relative max-w-7xl mx-auto px-4 py-16 md:py-24">
+        <div className="relative max-w-7xl mx-auto px-4 py-12 md:py-20">
           <div className="max-w-3xl">
+            {/* Live Counter Badge */}
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 mb-6 rounded-full bg-primary/10 border border-primary/20 text-sm">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+              </span>
+              <span className="text-muted-foreground">
+                Tracking <span className="font-semibold text-foreground">6 platforms</span> 
+                {" "}from <span className="font-semibold text-foreground">25+ sources</span>
+                {" "}updated hourly
+              </span>
+            </div>
+            
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 text-balance">
               The Intelligence Hub for{" "}
               <span className="text-primary">Marketplace Commerce</span>
@@ -450,6 +463,37 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Quick Stats Bar */}
+      <div className="bg-muted/50 border-y">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+            <div className="text-center">
+              <div className="text-xl md:text-2xl font-bold text-primary">2.1M+</div>
+              <div className="text-xs text-muted-foreground">Amazon 3P Sellers</div>
+            </div>
+            <div className="text-center">
+              <div className="text-xl md:text-2xl font-bold text-emerald-600">22%</div>
+              <div className="text-xs text-muted-foreground">Avg FBA Margin</div>
+            </div>
+            <div className="text-center">
+              <div className="text-xl md:text-2xl font-bold text-orange-500">+180%</div>
+              <div className="text-xs text-muted-foreground">TikTok Shop YoY</div>
+            </div>
+            <div className="text-center">
+              <div className="text-xl md:text-2xl font-bold text-blue-600">22.7%</div>
+              <div className="text-xs text-muted-foreground">Ecom % of Retail</div>
+            </div>
+            <div className="hidden lg:block text-center">
+              <div className="text-xl md:text-2xl font-bold text-purple-600">$5.5T</div>
+              <div className="text-xs text-muted-foreground">Global Ecom 2026</div>
+            </div>
+          </div>
+          <div className="text-center mt-3 text-[10px] text-muted-foreground/70">
+            Sources: Marketplace Pulse, eMarketer, US Census Bureau
+          </div>
+        </div>
+      </div>
+
       {/* Category Filter Bar */}
       <div className="sticky top-16 z-40 bg-background border-b">
         <div className="max-w-7xl mx-auto px-4">
@@ -474,6 +518,71 @@ export default function HomePage() {
 
       {/* Main Content */}
       <main id="briefing" className="max-w-7xl mx-auto px-4 py-8">
+        {/* Hero Featured Article - Full Width (outside flex layout) */}
+        {!loading && featuredArticles.length > 0 && selectedCategory === "all" && (
+          <div className="mb-8">
+            <div 
+              onClick={() => {
+                setSelectedArticle(featuredArticles[0])
+                setArticleModalOpen(true)
+              }}
+              className="cursor-pointer"
+            >
+              <Card className="overflow-hidden group cursor-pointer hover:shadow-xl transition-all border-0">
+                <div className="aspect-[16/9] md:aspect-[21/9] lg:aspect-[3/1] min-h-[350px] md:min-h-[400px] lg:min-h-[450px] relative overflow-hidden">
+                  {featuredArticles[0]?.imageUrl ? (
+                    <Image
+                      src={featuredArticles[0].imageUrl}
+                      alt={featuredArticles[0].title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      sizes="100vw"
+                      priority
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5" />
+                  )}
+                  {/* Strong gradient overlay for text readability on any image */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/20" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 lg:p-12">
+                    <div className="max-w-4xl">
+                      <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-4">
+                        <Badge className="bg-category-breaking text-white border-0 px-3 py-1 shadow-lg">
+                          Featured
+                        </Badge>
+                        <Badge className={`${getCategoryConfig(featuredArticles[0].category).color} text-white border-0 shadow-lg`}>
+                          {featuredArticles[0].category}
+                        </Badge>
+                        <span className="text-sm text-white/90 drop-shadow-md">
+                          {formatTimeAgo(featuredArticles[0].publishedAt)}
+                        </span>
+                      </div>
+                      <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-white text-balance leading-tight drop-shadow-lg [text-shadow:_0_2px_12px_rgb(0_0_0_/_60%)]">
+                        {featuredArticles[0].title}
+                      </h2>
+                      <p className="text-base md:text-lg text-white/95 line-clamp-2 md:line-clamp-3 max-w-2xl mb-4 drop-shadow-md [text-shadow:_0_1px_6px_rgb(0_0_0_/_50%)]">
+                        {featuredArticles[0].excerpt}
+                      </p>
+                      <div className="flex flex-wrap items-center gap-3 md:gap-4 text-sm text-white/90 drop-shadow-md">
+                        <span className="flex items-center gap-1">
+                          <Globe className="h-4 w-4" />
+                          {featuredArticles[0].source}
+                        </span>
+                        <span>{featuredArticles[0].readTime} min read</span>
+                        <span className="ml-auto inline-flex items-center gap-2 bg-white/25 hover:bg-white/35 backdrop-blur-sm px-4 py-2 rounded-lg transition-colors shadow-lg">
+                          Read Full Story <ArrowRight className="h-4 w-4" />
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          </div>
+        )}
+
+        {/* Main Content with Sidebar */}
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Main Feed */}
           <div className="flex-1 space-y-8">
@@ -508,239 +617,196 @@ export default function HomePage() {
               </div>
             </div>
 
-            {loading ? (
-              <div className="flex items-center justify-center py-16">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            ) : (
-              <>
-                {/* Hero Featured Article - Full Width */}
-                {featuredArticles.length > 0 && selectedCategory === "all" && (
-                  <div className="space-y-6">
-                    {/* Main Hero - Full Width */}
-                    <div 
-                      onClick={() => {
-                        setSelectedArticle(featuredArticles[0])
-                        setArticleModalOpen(true)
-                      }}
-                      className="cursor-pointer"
-                    >
-                      <Card className="overflow-hidden group cursor-pointer hover:shadow-xl transition-all border-0">
-                        <div className="aspect-[16/9] md:aspect-[21/9] lg:aspect-[2.5/1] min-h-[400px] md:min-h-[450px] lg:min-h-[500px] relative overflow-hidden">
-                          {featuredArticles[0]?.imageUrl ? (
-                            <Image
-                              src={featuredArticles[0].imageUrl}
-                              alt={featuredArticles[0].title}
-                              fill
-                              className="object-cover group-hover:scale-105 transition-transform duration-500"
-                              sizes="100vw"
-                              priority
-                            />
-                          ) : (
-                            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5" />
-                          )}
-                          {/* Strong gradient overlay for text readability on any image */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/20" />
-                          <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent" />
-                          <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 lg:p-12">
-                            <div className="max-w-4xl">
-                              <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-4">
-                                <Badge className="bg-category-breaking text-white border-0 px-3 py-1 shadow-lg">
-                                  Featured
-                                </Badge>
-                                <Badge className={`${getCategoryConfig(featuredArticles[0].category).color} text-white border-0 shadow-lg`}>
-                                  {featuredArticles[0].category}
-                                </Badge>
-                                <span className="text-sm text-white/90 drop-shadow-md">
-                                  {formatTimeAgo(featuredArticles[0].publishedAt)}
-                                </span>
-                              </div>
-                              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-white text-balance leading-tight drop-shadow-lg [text-shadow:_0_2px_12px_rgb(0_0_0_/_60%)]">
-                                {featuredArticles[0].title}
-                              </h2>
-                              <p className="text-base md:text-lg text-white/95 line-clamp-2 md:line-clamp-3 max-w-2xl mb-4 drop-shadow-md [text-shadow:_0_1px_6px_rgb(0_0_0_/_50%)]">
-                                {featuredArticles[0].excerpt}
-                              </p>
-                              <div className="flex flex-wrap items-center gap-3 md:gap-4 text-sm text-white/90 drop-shadow-md">
-                                <span className="flex items-center gap-1">
-                                  <Globe className="h-4 w-4" />
-                                  {featuredArticles[0].source}
-                                </span>
-                                <span>{featuredArticles[0].readTime} min read</span>
-                                <span className="ml-auto inline-flex items-center gap-2 bg-white/25 hover:bg-white/35 backdrop-blur-sm px-4 py-2 rounded-lg transition-colors shadow-lg">
-                                  Read Full Story
-                                  <ArrowRight className="h-4 w-4" />
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </Card>
+            {/* Inline Newsletter CTA */}
+            {!loading && filteredArticles.length > 3 && (
+              <Card className="bg-primary text-primary-foreground border-0">
+                <CardContent className="p-6">
+                  <div className="flex flex-col md:flex-row items-center gap-6">
+                    <div className="flex-1">
+                      <h3 className="text-xl font-bold mb-2">Get the Daily Marketplace Brief</h3>
+                      <p className="text-primary-foreground/80">
+                        Join 5,000+ e-commerce professionals who start their day with the most important marketplace news.
+                      </p>
                     </div>
-
-                    
+                    <form onSubmit={handleSubscribe} className="flex gap-2 w-full md:w-auto">
+                      <Input
+                        type="email"
+                        placeholder="Enter your email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="bg-primary-foreground text-foreground w-full md:w-64"
+                      />
+                      <Button type="submit" variant="secondary" disabled={isSubscribing || subscribed}>
+                        {subscribed ? "Subscribed!" : isSubscribing ? <Loader2 className="h-4 w-4 animate-spin" /> : "Subscribe"}
+                      </Button>
+                    </form>
                   </div>
-                )}
+                </CardContent>
+              </Card>
+            )}
 
-                {/* Inline Newsletter CTA */}
-                {filteredArticles.length > 3 && (
-                  <Card className="bg-primary text-primary-foreground border-0">
-                    <CardContent className="p-6">
-                      <div className="flex flex-col md:flex-row items-center gap-6">
-                        <div className="flex-1">
-                          <h3 className="text-xl font-bold mb-2">Get the Daily Marketplace Brief</h3>
-                          <p className="text-primary-foreground/80">
-                            Join 5,000+ e-commerce professionals who start their day with the most important marketplace news.
-                          </p>
-                        </div>
-                        <form onSubmit={handleSubscribe} className="flex gap-2 w-full md:w-auto">
-                          <Input
-                            type="email"
-                            placeholder="Enter your email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="bg-primary-foreground text-foreground w-full md:w-64"
-                          />
-                          <Button type="submit" variant="secondary" disabled={isSubscribing || subscribed}>
-                            {subscribed ? "Subscribed!" : isSubscribing ? <Loader2 className="h-4 w-4 animate-spin" /> : "Subscribe"}
-                          </Button>
-                        </form>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-
-{/* Regular Articles Grid */}
-                <div>
-                  <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-xl font-bold">
-                      {searchQuery ? `Search Results` : 'Latest News'}
-                    </h2>
-                    <span className="text-sm text-muted-foreground">
-                      {loading ? '' : `${filteredArticles.length} article${filteredArticles.length !== 1 ? 's' : ''}`}
-                    </span>
+            {/* Regular Articles Grid */}
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold">
+                {searchQuery ? `Search Results` : 'Latest News'}
+              </h2>
+              <span className="text-sm text-muted-foreground">
+                {loading ? '' : `${filteredArticles.length} article${filteredArticles.length !== 1 ? 's' : ''}`}
+              </span>
+            </div>
+            
+            {/* Loading State with Skeletons */}
+            {loading ? (
+              <ArticleGridSkeleton count={6} />
+            ) : filteredArticles.length === 0 ? (
+              <Card className="border-0 shadow-sm">
+                <CardContent className="p-12 text-center">
+                  <div className="h-24 w-24 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center">
+                    <FileText className="h-12 w-12 text-muted-foreground/50" />
                   </div>
-                  
-                  {/* Loading State with Skeletons */}
-                  {loading ? (
-                    <ArticleGridSkeleton count={6} />
-                  ) : filteredArticles.length === 0 ? (
-                    <Card className="border-0 shadow-sm">
-<CardContent className="p-12 text-center">
-                        <div className="h-24 w-24 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center">
-                          <FileText className="h-12 w-12 text-muted-foreground/50" />
-                        </div>
-                        <h3 className="text-lg font-semibold mb-2">No articles found</h3>
-                        <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                          {searchQuery
-                            ? `No results for "${searchQuery}". Try a different search term or browse by category.`
-                            : 'No articles match your current filters. Try adjusting your selection.'}
-                        </p>
-                        <div className="flex flex-wrap justify-center gap-2">
-                          {searchQuery && (
-                            <Button variant="outline" onClick={() => setSearchQuery('')}>
-                              Clear Search
-                            </Button>
-                          )}
-                          {selectedCategory !== 'all' && (
-                            <Button variant="outline" onClick={() => setSelectedCategory('all')}>
-                              Show All Categories
-                            </Button>
-                          )}
-                          {selectedPlatform !== 'All' && (
-                            <Button variant="outline" onClick={() => setSelectedPlatform('All')}>
-                              Show All Platforms
-                            </Button>
-                          )}
-                        </div>
-                        {/* Suggested Categories */}
-                        <div className="mt-8 pt-6 border-t">
-                          <p className="text-sm text-muted-foreground mb-3">Browse popular categories:</p>
-                          <div className="flex flex-wrap justify-center gap-2">
-                            {['Breaking', 'Platform Updates', 'M&A & Deal Flow', 'Tools & Technology'].map((cat) => (
-                              <Badge 
-                                key={cat} 
-                                variant="secondary" 
-                                className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
-                                onClick={() => {
-                                  setSearchQuery('')
-                                  setSelectedCategory(cat.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-'))
-                                }}
-                              >
-                                {cat}
+                  <h3 className="text-lg font-semibold mb-2">No articles found</h3>
+                  <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                    {searchQuery
+                      ? `No results for "${searchQuery}". Try a different search term or browse by category.`
+                      : 'No articles match your current filters. Try adjusting your selection.'}
+                  </p>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {searchQuery && (
+                      <Button variant="outline" onClick={() => setSearchQuery('')}>
+                        Clear Search
+                      </Button>
+                    )}
+                    {selectedCategory !== 'all' && (
+                      <Button variant="outline" onClick={() => setSelectedCategory('all')}>
+                        Show All Categories
+                      </Button>
+                    )}
+                    {selectedPlatform !== 'All' && (
+                      <Button variant="outline" onClick={() => setSelectedPlatform('All')}>
+                        Show All Platforms
+                      </Button>
+                    )}
+                  </div>
+                  {/* Suggested Categories */}
+                  <div className="mt-8 pt-6 border-t">
+                    <p className="text-sm text-muted-foreground mb-3">Browse popular categories:</p>
+                    <div className="flex flex-wrap justify-center gap-2">
+                      {['Breaking', 'Platform Updates', 'M&A & Deal Flow', 'Tools & Technology'].map((cat) => (
+                        <Badge 
+                          key={cat} 
+                          variant="secondary" 
+                          className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
+                          onClick={() => {
+                            setSearchQuery('')
+                            setSelectedCategory(cat.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-'))
+                          }}
+                        >
+                          {cat}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid md:grid-cols-2 gap-6">
+                {regularArticles.map((article, index) => (
+                  <Fragment key={article.id}>
+                    <div onClick={(e) => handleArticleClick(article, e)}>
+                      <Card className="overflow-hidden group cursor-pointer hover:shadow-md transition-all border-0 h-full">
+                        {article.imageUrl && (
+                          <div className="aspect-video relative overflow-hidden">
+                            <Image
+                              src={article.imageUrl}
+                              alt={article.title}
+                              fill
+                              className="object-cover group-hover:scale-105 transition-transform duration-300"
+                              sizes="(max-width: 768px) 100vw, 50vw"
+                            />
+                          </div>
+                        )}
+                        <CardContent className="p-5">
+                          <div className="flex items-center gap-2 mb-3 flex-wrap">
+                            <Badge variant="outline" className="text-xs">
+                              {article.category}
+                            </Badge>
+                            {article.platforms?.slice(0, 2).map((p) => (
+                              <Badge key={p} variant="secondary" className="text-xs">
+                                {p}
                               </Badge>
                             ))}
+                            <span className="text-xs text-muted-foreground flex items-center gap-1 ml-auto">
+                              <Clock className="h-3 w-3" />
+                              {formatTimeAgo(article.publishedAt)}
+                            </span>
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ) : (
-                  <div className="grid md:grid-cols-2 gap-6">
-                    {regularArticles.map((article) => (
-                      <div key={article.id} onClick={(e) => handleArticleClick(article, e)}>
-                        <Card className="overflow-hidden group cursor-pointer hover:shadow-md transition-all border-0 h-full">
-                          {article.imageUrl && (
-                            <div className="aspect-video relative overflow-hidden">
-                              <Image
-                                src={article.imageUrl}
-                                alt={article.title}
-                                fill
-                                className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                sizes="(max-width: 768px) 100vw, 50vw"
-                              />
+                          <h3 className="font-semibold mb-2 group-hover:text-primary transition-colors line-clamp-2 text-balance">
+                            {article.title}
+                          </h3>
+                          <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+                            {article.excerpt}
+                          </p>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <Globe className="h-3 w-3" />
+                              <span>{article.source}</span>
+                              <span className="mx-1">|</span>
+                              <span>{article.readTime} min read</span>
                             </div>
-                          )}
-                          <CardContent className="p-5">
-                            <div className="flex items-center gap-2 mb-3 flex-wrap">
-                              <Badge variant="outline" className="text-xs">
-                                {article.category}
-                              </Badge>
-                              {article.platforms?.slice(0, 2).map((p) => (
-                                <Badge key={p} variant="secondary" className="text-xs">
-                                  {p}
-                                </Badge>
-                              ))}
-                              <span className="text-xs text-muted-foreground flex items-center gap-1 ml-auto">
-                                <Clock className="h-3 w-3" />
-                                {formatTimeAgo(article.publishedAt)}
-                              </span>
-                            </div>
-                            <h3 className="font-semibold mb-2 group-hover:text-primary transition-colors line-clamp-2 text-balance">
-                              {article.title}
-                            </h3>
-                            <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
-                              {article.excerpt}
-                            </p>
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                <Globe className="h-3 w-3" />
-                                <span>{article.source}</span>
-                                <span className="mx-1">|</span>
-                                <span>{article.readTime} min read</span>
+                            <span className="text-xs text-primary font-medium flex items-center gap-1">
+                              Read more
+                              <ArrowRight className="h-3 w-3" />
+                            </span>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                    
+                    {/* Inline Newsletter CTA after every 6th article */}
+                    {(index + 1) % 6 === 0 && index < regularArticles.length - 1 && (
+                      <div key={`newsletter-cta-${index}`} className="md:col-span-2">
+                        <Card className="border-0 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent overflow-hidden">
+                          <CardContent className="p-6">
+                            <div className="flex flex-col sm:flex-row items-center gap-4">
+                              <div className="flex items-center gap-3 flex-1">
+                                <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                                  <Mail className="h-5 w-5 text-primary" />
+                                </div>
+                                <div>
+                                  <p className="font-semibold text-sm">Getting value from these insights?</p>
+                                  <p className="text-xs text-muted-foreground">Get them delivered to your inbox daily.</p>
+                                </div>
                               </div>
-                              <span className="text-xs text-primary font-medium flex items-center gap-1">
-                                Read more
-                                <ArrowRight className="h-3 w-3" />
-                              </span>
+                              <form onSubmit={handleSubscribe} className="flex gap-2 w-full sm:w-auto">
+                                <Input
+                                  type="email"
+                                  placeholder="Enter your email"
+                                  value={email}
+                                  onChange={(e) => setEmail(e.target.value)}
+                                  className="w-full sm:w-48 h-9"
+                                />
+                                <Button type="submit" size="sm" disabled={isSubscribing || subscribed}>
+                                  {subscribed ? "Subscribed!" : isSubscribing ? <Loader2 className="h-4 w-4 animate-spin" /> : "Subscribe"}
+                                </Button>
+                              </form>
                             </div>
                           </CardContent>
                         </Card>
                       </div>
-                    ))}
-                  </div>
-                  )}
-                </div>
+                    )}
+                  </Fragment>
+                ))}
+              </div>
+            )}
 
-                {/* Load More */}
-                {regularArticles.length > 8 && (
-                  <div className="flex justify-center pt-4">
-                    <Button variant="outline" size="lg">
-                      Load More Articles
-                      <ChevronRight className="h-4 w-4 ml-2" />
-                    </Button>
-                  </div>
-                )}
-              </>
+            {/* Load More */}
+            {regularArticles.length > 8 && (
+              <div className="flex justify-center pt-4">
+                <Button variant="outline" size="lg">
+                  Load More Articles
+                  <ChevronRight className="h-4 w-4 ml-2" />
+                </Button>
+              </div>
             )}
           </div>
 
@@ -900,8 +966,68 @@ export default function HomePage() {
         </div>
       </main>
 
+      {/* Popular Tools Strip */}
+      <section className="bg-muted/30 border-y py-12">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold mb-2">Popular Seller Tools</h2>
+            <p className="text-muted-foreground">Free tools to help you make better business decisions</p>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { 
+                name: "Profit Calculator", 
+                icon: Calculator, 
+                description: "Calculate true profit margins with all fees included",
+                href: "/tools#calculator",
+                color: "bg-emerald-500"
+              },
+              { 
+                name: "Listing Optimizer", 
+                icon: Target, 
+                description: "Score and improve your product listings instantly",
+                href: "/tools#listing",
+                color: "bg-blue-500"
+              },
+              { 
+                name: "Keyword Research", 
+                icon: LineChart, 
+                description: "Find high-converting keywords for your products",
+                href: "/tools#keywords",
+                color: "bg-purple-500"
+              },
+              { 
+                name: "Hot Products", 
+                icon: TrendingUp, 
+                description: "Discover trending products with opportunity scores",
+                href: "/tools#products",
+                color: "bg-orange-500"
+              },
+            ].map((tool) => (
+              <Link key={tool.name} href={tool.href}>
+                <Card className="border-0 shadow-sm hover:shadow-md transition-all h-full group cursor-pointer">
+                  <CardContent className="p-5">
+                    <div className={`h-10 w-10 rounded-lg ${tool.color} flex items-center justify-center mb-4`}>
+                      <tool.icon className="h-5 w-5 text-white" />
+                    </div>
+                    <h3 className="font-semibold mb-1 group-hover:text-primary transition-colors">{tool.name}</h3>
+                    <p className="text-sm text-muted-foreground mb-3">{tool.description}</p>
+                    <span className="text-sm text-primary font-medium flex items-center gap-1">
+                      Try Free <ArrowRight className="h-3 w-3" />
+                    </span>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+          <p className="text-center text-sm text-muted-foreground mt-6">
+            Used by <span className="font-semibold text-foreground">10,000+</span> sellers, agencies, and SaaS teams
+          </p>
+        </div>
+      </section>
+
       {/* Footer */}
-      <footer className="bg-card border-t mt-16">
+      <footer className="bg-card border-t">
         <div className="max-w-7xl mx-auto px-4 py-12">
           <div className="grid md:grid-cols-4 gap-8">
             {/* Brand */}
