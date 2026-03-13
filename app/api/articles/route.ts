@@ -41,7 +41,7 @@ const INDUSTRY_RSS_FEEDS: RSSFeed[] = [
   { url: 'https://tinuiti.com/blog/feed/', name: 'Tinuiti', tier: 2, defaultCategory: 'advertising' },
   
   // TIER 3 — Platform Official Blogs
-  { url: 'https://www.shopify.com/blog/feed', name: 'Shopify Blog', tier: 3, defaultCategory: 'platform_updates' },
+  { url: 'https://www.shopify.com/blog/feed.atom', name: 'Shopify Blog', tier: 3, defaultCategory: 'platform_updates' },
   { url: 'https://www.aboutamazon.com/news/feed', name: 'About Amazon', tier: 3, defaultCategory: 'platform_updates' },
   
   // TIER 4 — Business/Tech Press
@@ -113,41 +113,69 @@ const parser = new Parser({
   }
 })
 
+function isValidArticleImage(url: string | null | undefined): boolean {
+  if (!url) return false
+  if (!url.startsWith('http')) return false
+  
+  // Filter out tiny icons, tracking pixels, and invalid URLs
+  const invalidPatterns = [
+    'favicon',
+    '1x1',
+    'pixel',
+    'gravatar.com',
+    'wp-content/plugins',
+    'google.com/s2/favicons',
+    'track',
+    'spacer',
+    'blank',
+    'transparent',
+    '.gif', // Most GIFs are tracking pixels or low quality
+    'badge',
+    'icon',
+    'logo',
+    'avatar',
+  ]
+  
+  const lowerUrl = url.toLowerCase()
+  for (const pattern of invalidPatterns) {
+    if (lowerUrl.includes(pattern)) return false
+  }
+  
+  return true
+}
+
 function extractImageFromItem(item: Record<string, unknown>): string | null {
+  const candidates: (string | null | undefined)[] = []
+  
   // Try media:content
   const mediaContent = item.mediaContent as { $?: { url?: string } } | undefined
-  if (mediaContent?.$?.url) return mediaContent.$.url
+  candidates.push(mediaContent?.$?.url)
   
   // Try media:thumbnail
   const mediaThumbnail = item.mediaThumbnail as { $?: { url?: string } } | undefined
-  if (mediaThumbnail?.$?.url) return mediaThumbnail.$.url
+  candidates.push(mediaThumbnail?.$?.url)
   
   // Try enclosure
   const enclosure = item.enclosure as { url?: string; type?: string } | undefined
-  if (enclosure?.url && enclosure?.type?.startsWith('image/')) {
-    return enclosure.url
+  if (enclosure?.type?.startsWith('image/')) {
+    candidates.push(enclosure.url)
   }
   
   // Try extracting first <img> from HTML content
   const html = (item['content:encoded'] || item.content || '') as string
   const imgMatch = html.match(/<img[^>]+src=["']([^"']+)["']/i)
   if (imgMatch?.[1] && imgMatch[1].startsWith('http')) {
-    return imgMatch[1]
+    candidates.push(imgMatch[1])
+  }
+  
+  // Return first VALID image (not a favicon/icon/tracking pixel)
+  for (const url of candidates) {
+    if (isValidArticleImage(url)) {
+      return url!
+    }
   }
   
   return null
-}
-
-function getArticleImage(article: { imageUrl?: string | null; sourceUrl: string }): string | null {
-  if (article.imageUrl) return article.imageUrl
-  
-  // Fallback: source favicon as a small visual
-  try {
-    const domain = new URL(article.sourceUrl).hostname
-    return `https://www.google.com/s2/favicons?domain=${domain}&sz=128`
-  } catch {
-    return null
-  }
 }
 
 async function fetchRSSFeed(feed: RSSFeed, sourceType: 'industry' | 'google'): Promise<RawArticle[]> {
@@ -208,21 +236,51 @@ function generateArticleId(url: string): string {
 
 function deduplicateByTitle(articles: RawArticle[]): RawArticle[] {
   const seen = new Map<string, RawArticle>()
-  const titleSeen = new Set<string>()
   
   for (const article of articles) {
-    // Skip if we've seen this exact URL
-    if (seen.has(article.id)) continue
+    // Create a normalized key from the title
+    const normalizedTitle = article.title
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g, '')  // Remove punctuation
+      .replace(/\s+/g, ' ')          // Collapse whitespace
+      .trim()
     
-    // Skip if title is too similar
-    const normalizedTitle = article.title.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 50)
-    if (titleSeen.has(normalizedTitle)) continue
+    // Use first 60 chars as the dedup key (catches same story from different sources)
+    const shortKey = normalizedTitle.substring(0, 60)
     
-    seen.set(article.id, article)
-    titleSeen.add(normalizedTitle)
+    // Also create word-based keys (catches reworded headlines)
+    const words = normalizedTitle.split(' ').filter(w => w.length > 3)
+    const wordKey = words.slice(0, 6).sort().join(' ')
+    
+    // Check both keys
+    const existingByShort = seen.get(`short:${shortKey}`)
+    const existingByWord = seen.get(`word:${wordKey}`)
+    const existing = existingByShort || existingByWord
+    
+    if (existing) {
+      // Keep the one from the higher-tier source or with a real image
+      const existingTier = existing.tier || 5
+      const newTier = article.tier || 5
+      const existingHasImage = existing.imageUrl && isValidArticleImage(existing.imageUrl)
+      const newHasImage = article.imageUrl && isValidArticleImage(article.imageUrl)
+      
+      if (newTier < existingTier || (newHasImage && !existingHasImage)) {
+        // Replace with the better version
+        seen.set(`short:${shortKey}`, article)
+        seen.set(`word:${wordKey}`, article)
+      }
+      // Otherwise keep the existing one
+    } else {
+      seen.set(`short:${shortKey}`, article)
+      if (wordKey !== shortKey) {
+        seen.set(`word:${wordKey}`, article)
+      }
+    }
   }
   
-  return Array.from(seen.values())
+  // Return unique articles (deduplicate the Map values)
+  const uniqueArticles = [...new Set(seen.values())]
+  return uniqueArticles
 }
 
 // ============================================================================

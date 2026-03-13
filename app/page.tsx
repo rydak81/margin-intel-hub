@@ -137,6 +137,48 @@ function getCategoryConfig(categoryId: string) {
   return CATEGORIES.find(c => c.id === categoryId.toLowerCase()) || CATEGORIES[0]
 }
 
+// Check if an image URL is valid (not a favicon or tracking pixel)
+function isValidArticleImage(url: string | undefined): boolean {
+  if (!url) return false
+  if (!url.startsWith('http')) return false
+  
+  const invalidPatterns = [
+    'favicon', '1x1', 'pixel', 'gravatar.com', 'wp-content/plugins',
+    'google.com/s2/favicons', 'track', 'spacer', 'blank', 'transparent',
+    '.gif', 'badge', 'icon', 'logo', 'avatar'
+  ]
+  
+  const lowerUrl = url.toLowerCase()
+  return !invalidPatterns.some(pattern => lowerUrl.includes(pattern))
+}
+
+// Get article image URL with fallback to OG image
+function getArticleImageUrl(article: NewsArticle): string {
+  if (article.imageUrl && isValidArticleImage(article.imageUrl)) {
+    return article.imageUrl
+  }
+  // Fallback to generated OG image
+  return `/api/og/article?title=${encodeURIComponent(article.title.substring(0, 100))}&category=${encodeURIComponent(article.category || 'platform')}&source=${encodeURIComponent(article.source || '')}`
+}
+
+// Category colors for hero badge
+const CATEGORY_COLORS: Record<string, string> = {
+  breaking: '#DC2626',
+  platform: '#2563EB',
+  'platform-updates': '#2563EB',
+  market: '#0891B2',
+  'market-trends': '#0891B2',
+  profitability: '#059669',
+  advertising: '#EA580C',
+  logistics: '#475569',
+  'seller-operations': '#475569',
+  tools: '#0EA5E9',
+  'tools-technology': '#0EA5E9',
+  tactics: '#CA8A04',
+  'strategy-tactics': '#CA8A04',
+  'compliance-policy': '#7C3AED',
+}
+
 export default function HomePage() {
   const [articles, setArticles] = useState<NewsArticle[]>([])
   const [breakingNews, setBreakingNews] = useState<BreakingNews[]>([])
@@ -333,8 +375,16 @@ export default function HomePage() {
     return true
   })
 
-  const featuredArticles = filteredArticles.filter(a => a.featured).slice(0, 3)
-  const regularArticles = filteredArticles.filter(a => !a.featured)
+  // Select hero article: first with a real image, or first article
+  const heroArticle = filteredArticles.find(a => 
+    a.imageUrl && isValidArticleImage(a.imageUrl)
+  ) || filteredArticles[0]
+  
+  // Remove hero from regular feed so it doesn't show twice
+  const feedArticles = filteredArticles.filter(a => a.id !== heroArticle?.id)
+  
+  const featuredArticles = feedArticles.filter(a => a.featured).slice(0, 3)
+  const regularArticles = feedArticles.filter(a => !a.featured)
   const trendingArticles = [...articles].sort(() => Math.random() - 0.5).slice(0, 5)
 
   const handleSubscribe = async (e: React.FormEvent) => {
@@ -817,13 +867,104 @@ export default function HomePage() {
               </Card>
             )}
 
+            {/* Hero Article Section */}
+            {!loading && heroArticle && !searchQuery && (
+              <section className="mb-8">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                  <span className="text-sm font-semibold text-primary uppercase tracking-wider">
+                    Top Story
+                  </span>
+                </div>
+                
+                <div 
+                  className="relative rounded-xl overflow-hidden cursor-pointer group"
+                  onClick={() => {
+                    setSelectedArticle(heroArticle)
+                    setArticleModalOpen(true)
+                  }}
+                >
+                  {/* Large image */}
+                  <div className="relative w-full h-[300px] md:h-[400px]">
+                    <img
+                      src={getArticleImageUrl(heroArticle)}
+                      alt={heroArticle.title}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      loading="eager"
+                      onError={(e) => {
+                        const target = e.currentTarget
+                        const fallback = `/api/og/article?title=${encodeURIComponent(heroArticle.title.substring(0, 100))}&category=${encodeURIComponent(heroArticle.category || 'platform')}&source=${encodeURIComponent(heroArticle.source || '')}`
+                        if (target.src !== fallback) {
+                          target.src = fallback
+                        }
+                      }}
+                    />
+                    {/* Dark gradient overlay for text readability */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                  </div>
+                  
+                  {/* Content overlay */}
+                  <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+                    {/* Category + Impact badges */}
+                    <div className="flex items-center gap-2 mb-3 flex-wrap">
+                      <span 
+                        className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-white"
+                        style={{ backgroundColor: CATEGORY_COLORS[heroArticle.category] || '#2563EB' }}
+                      >
+                        {heroArticle.category.replace(/[-_]/g, ' ')}
+                      </span>
+                      {heroArticle.impactLevel && (
+                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-white/20 backdrop-blur-sm text-white">
+                          {heroArticle.impactLevel === 'high' ? '●' : heroArticle.impactLevel === 'medium' ? '●' : '●'}{' '}
+                          {heroArticle.impactLevel.toUpperCase()} IMPACT
+                        </span>
+                      )}
+                      <span className="text-white/60 text-sm">
+                        {formatTimeAgo(heroArticle.publishedAt)}
+                      </span>
+                    </div>
+                    
+                    {/* Headline */}
+                    <h2 className="text-2xl md:text-3xl font-bold text-white mb-2 leading-tight line-clamp-2 text-balance">
+                      {heroArticle.title}
+                    </h2>
+                    
+                    {/* Summary */}
+                    <p className="text-white/80 text-sm md:text-base mb-3 line-clamp-2 max-w-3xl">
+                      {heroArticle.aiSummary || heroArticle.excerpt}
+                    </p>
+                    
+                    {/* Source + Read more */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-white/60 text-sm">
+                        <span className="font-medium text-white/80">
+                          {heroArticle.source}
+                        </span>
+                        {heroArticle.platforms?.slice(0, 2).map(p => (
+                          <span 
+                            key={p} 
+                            className="px-2 py-0.5 rounded bg-white/10 text-xs capitalize"
+                          >
+                            {p.replace(/[-_]/g, ' ')}
+                          </span>
+                        ))}
+                      </div>
+                      <span className="text-primary font-medium text-sm group-hover:underline">
+                        Read more →
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            )}
+
             {/* Regular Articles Grid */}
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold">
                 {searchQuery ? `Search Results` : 'Latest News'}
               </h2>
               <span className="text-sm text-muted-foreground">
-                {loading ? '' : `${filteredArticles.length} article${filteredArticles.length !== 1 ? 's' : ''}`}
+                {loading ? '' : `${feedArticles.length} article${feedArticles.length !== 1 ? 's' : ''}`}
               </span>
             </div>
             
@@ -896,17 +1037,21 @@ export default function HomePage() {
                   <Fragment key={article.id}>
                     <div onClick={(e) => handleArticleClick(article, e)}>
                       <Card className="overflow-hidden group cursor-pointer hover:shadow-md transition-all border-0 h-full">
-                        {article.imageUrl && (
-                          <div className="aspect-video relative overflow-hidden">
-                            <Image
-                              src={article.imageUrl}
-                              alt={article.title}
-                              fill
-                              className="object-cover group-hover:scale-105 transition-transform duration-300"
-                              sizes="(max-width: 768px) 100vw, 50vw"
-                            />
-                          </div>
-                        )}
+                        <div className="aspect-video relative overflow-hidden bg-muted">
+                          <img
+                            src={getArticleImageUrl(article)}
+                            alt={article.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            loading={index < 4 ? 'eager' : 'lazy'}
+                            onError={(e) => {
+                              const target = e.currentTarget
+                              const fallback = `/api/og/article?title=${encodeURIComponent(article.title.substring(0, 100))}&category=${encodeURIComponent(article.category || 'platform')}&source=${encodeURIComponent(article.source || '')}`
+                              if (target.src !== fallback) {
+                                target.src = fallback
+                              }
+                            }}
+                          />
+                        </div>
                         <CardContent className="p-5">
                           <div className="flex items-center gap-2 mb-3 flex-wrap">
                             <Badge variant="outline" className="text-xs">
