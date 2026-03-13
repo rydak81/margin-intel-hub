@@ -547,7 +547,11 @@ export default function HomePage() {
                   <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 lg:p-12">
                     <div className="max-w-4xl">
-                      <Badge className={`${getCategoryConfig(featuredArticles[0].category).color} text-white border-0 shadow-lg`}>
+                      <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-4">
+                        <Badge className="bg-category-breaking text-white border-0 px-3 py-1 shadow-lg">
+                          Featured
+                        </Badge>
+                        <Badge className={`${getCategoryConfig(featuredArticles[0].category).color} text-white border-0 shadow-lg`}>
                           {featuredArticles[0].category}
                         </Badge>
                         <span className="text-sm text-white/90 drop-shadow-md">
