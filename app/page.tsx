@@ -71,7 +71,7 @@ interface NewsArticle {
   imageUrl?: string
   platforms?: string[]
   tier?: number
-  sourceType?: 'industry' | 'google' | 'reddit'
+  sourceType?: 'industry' | 'google'
   }
 
 interface BreakingNews {
@@ -838,9 +838,7 @@ export default function HomePage() {
                           </p>
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                              {article.sourceType === 'reddit' ? (
-                                <span className="text-orange-500 font-medium">Reddit</span>
-                              ) : article.tier === 1 ? (
+                              {article.tier === 1 ? (
                                 <span className="flex items-center gap-1">
                                   <span className="text-amber-500">&#10022;</span>
                                   <span className="font-medium text-foreground">{article.source}</span>

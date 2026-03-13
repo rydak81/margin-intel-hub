@@ -20,7 +20,7 @@ interface RawArticle {
   creator?: string
   source: string
   tier: number
-  sourceType: 'industry' | 'google' | 'reddit'
+  sourceType: 'industry' | 'google'
 }
 
 interface ProcessedArticle {
@@ -35,7 +35,7 @@ interface ProcessedArticle {
   imageUrl?: string
   relevanceScore: number
   tier: number
-  sourceType: 'industry' | 'google' | 'reddit'
+  sourceType: 'industry' | 'google'
   tags: string[]
   aiAnalysis: {
     isRelevant: boolean
@@ -83,8 +83,7 @@ const articleAnalysisSchema = z.object({
 // ============================================================================
 
 const INDUSTRY_RSS_FEEDS: RSSFeed[] = [
-  // Tier 1 — Core Industry Publications (most trusted)
-  { url: 'https://www.marketplacepulse.com/feed', name: 'Marketplace Pulse', tier: 1 },
+  // Tier 1 — Core Industry Publications (verified working)
   { url: 'https://www.digitalcommerce360.com/feed/', name: 'Digital Commerce 360', tier: 1 },
   { url: 'https://www.modernretail.co/feed/', name: 'Modern Retail', tier: 1 },
   { url: 'https://www.retaildive.com/feeds/news/', name: 'Retail Dive', tier: 1 },
@@ -116,10 +115,7 @@ const GOOGLE_NEWS_FEEDS: RSSFeed[] = [
   },
 ]
 
-const REDDIT_FEEDS: RSSFeed[] = [
-  { url: 'https://www.reddit.com/r/FulfillmentByAmazon/hot/.rss', name: 'r/FulfillmentByAmazon', tier: 4 },
-  { url: 'https://www.reddit.com/r/AmazonSeller/hot/.rss', name: 'r/AmazonSeller', tier: 4 },
-]
+// Reddit feeds removed - they now require OAuth authentication and block RSS access
 
 // ============================================================================
 // IN-MEMORY CACHE
@@ -144,7 +140,7 @@ const parser = new Parser({
   },
 })
 
-async function fetchRSSFeed(feed: RSSFeed, sourceType: 'industry' | 'google' | 'reddit'): Promise<RawArticle[]> {
+async function fetchRSSFeed(feed: RSSFeed, sourceType: 'industry' | 'google'): Promise<RawArticle[]> {
   try {
     const feedData = await parser.parseURL(feed.url)
     const articles: RawArticle[] = []
@@ -333,17 +329,15 @@ function deduplicateArticles(articles: ProcessedArticle[]): ProcessedArticle[] {
 async function aggregateAndProcessArticles(): Promise<ProcessedArticle[]> {
   console.log('[v0] Starting AI-powered news aggregation...')
   
-  // Fetch from all sources in parallel
-  const [industryArticles, googleArticles, redditArticles] = await Promise.all([
+  // Fetch from industry and Google News sources in parallel
+  const [industryArticles, googleArticles] = await Promise.all([
     Promise.all(INDUSTRY_RSS_FEEDS.map(feed => fetchRSSFeed(feed, 'industry'))),
     Promise.all(GOOGLE_NEWS_FEEDS.map(feed => fetchRSSFeed(feed, 'google'))),
-    Promise.all(REDDIT_FEEDS.map(feed => fetchRSSFeed(feed, 'reddit'))),
   ])
   
   const allRawArticles = [
     ...industryArticles.flat(),
     ...googleArticles.flat(),
-    ...redditArticles.flat(),
   ]
   
   console.log(`[v0] Fetched ${allRawArticles.length} raw articles from all sources`)
