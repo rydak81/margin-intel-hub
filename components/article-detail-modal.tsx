@@ -26,6 +26,11 @@ import {
   X,
   Mail,
   ArrowRight,
+  Sparkles,
+  AlertTriangle,
+  Target,
+  Users,
+  TrendingUp,
 } from "lucide-react"
 
 interface NewsArticle {
@@ -40,6 +45,13 @@ interface NewsArticle {
   imageUrl?: string
   platforms?: string[]
   featured?: boolean
+  // AI Enrichment fields
+  audience?: string[]
+  impactLevel?: 'high' | 'medium' | 'low'
+  impactDetail?: string
+  actionItem?: string
+  keyStat?: string | null
+  aiSummary?: string
 }
 
 interface ArticleDetailModalProps {
@@ -146,6 +158,33 @@ export function ArticleDetailModal({
                 {platform}
               </Badge>
             ))}
+            {/* AI Impact Badge */}
+            {article.impactLevel && (
+              <Badge 
+                variant="outline" 
+                className={`${
+                  article.impactLevel === 'high' 
+                    ? 'border-red-500/50 text-red-600 bg-red-500/10' 
+                    : article.impactLevel === 'medium' 
+                    ? 'border-amber-500/50 text-amber-600 bg-amber-500/10' 
+                    : 'border-green-500/50 text-green-600 bg-green-500/10'
+                }`}
+              >
+                <span className={`mr-1 ${
+                  article.impactLevel === 'high' ? 'text-red-500' 
+                  : article.impactLevel === 'medium' ? 'text-amber-500' 
+                  : 'text-green-500'
+                }`}>●</span>
+                {article.impactLevel.charAt(0).toUpperCase() + article.impactLevel.slice(1)} Impact
+              </Badge>
+            )}
+            {/* AI Enhanced indicator */}
+            {article.aiSummary && (
+              <Badge variant="outline" className="border-primary/30 text-primary bg-primary/5">
+                <Sparkles className="h-3 w-3 mr-1" />
+                AI Enhanced
+              </Badge>
+            )}
           </div>
 
           {/* Title */}
@@ -167,8 +206,91 @@ export function ArticleDetailModal({
 
           {/* Excerpt */}
           <p className="text-muted-foreground leading-relaxed mb-6">
-            {article.excerpt}
+            {article.aiSummary || article.excerpt}
           </p>
+
+          {/* AI Insights Section */}
+          {(article.impactLevel || article.actionItem || article.keyStat || article.audience?.length) && (
+            <div className="bg-muted/30 rounded-xl p-5 mb-6 border border-border/50">
+              <div className="flex items-center gap-2 mb-4">
+                <Sparkles className="h-4 w-4 text-primary" />
+                <span className="text-sm font-semibold text-primary">AI Insights</span>
+              </div>
+              
+              <div className="grid gap-4">
+                {/* Impact Assessment */}
+                {article.impactLevel && (
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle className={`h-4 w-4 mt-0.5 flex-shrink-0 ${
+                      article.impactLevel === 'high' ? 'text-red-500' 
+                      : article.impactLevel === 'medium' ? 'text-amber-500' 
+                      : 'text-green-500'
+                    }`} />
+                    <div>
+                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                        Impact Level
+                      </span>
+                      <p className={`text-sm font-medium ${
+                        article.impactLevel === 'high' ? 'text-red-600' 
+                        : article.impactLevel === 'medium' ? 'text-amber-600' 
+                        : 'text-green-600'
+                      }`}>
+                        {article.impactLevel.charAt(0).toUpperCase() + article.impactLevel.slice(1)} Impact
+                      </p>
+                      {article.impactDetail && (
+                        <p className="text-sm text-muted-foreground mt-1">{article.impactDetail}</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Key Stat */}
+                {article.keyStat && (
+                  <div className="flex items-start gap-3">
+                    <TrendingUp className="h-4 w-4 mt-0.5 text-blue-500 flex-shrink-0" />
+                    <div>
+                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                        Key Stat
+                      </span>
+                      <p className="text-sm font-semibold text-foreground">{article.keyStat}</p>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Action Item */}
+                {article.actionItem && (
+                  <div className="flex items-start gap-3">
+                    <Target className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
+                    <div>
+                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                        Action Item
+                      </span>
+                      <p className="text-sm text-foreground">{article.actionItem}</p>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Audience */}
+                {article.audience && article.audience.length > 0 && (
+                  <div className="flex items-start gap-3">
+                    <Users className="h-4 w-4 mt-0.5 text-muted-foreground flex-shrink-0" />
+                    <div>
+                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                        Relevant For
+                      </span>
+                      <div className="flex flex-wrap gap-1.5 mt-1">
+                        {article.audience.map(aud => (
+                          <Badge key={aud} variant="secondary" className="text-xs capitalize">
+                            {aud}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Published Date */}
           <p className="text-sm text-muted-foreground mb-6">

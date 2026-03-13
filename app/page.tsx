@@ -52,6 +52,7 @@ import {
   FileText,
   Linkedin,
   Twitter,
+  Sparkles,
 } from "lucide-react"
 
 // Types
@@ -71,7 +72,14 @@ interface NewsArticle {
   imageUrl?: string
   platforms?: string[]
   tier?: number
-  sourceType?: 'industry' | 'google' | 'reddit'
+  sourceType?: 'industry' | 'google'
+  // AI Enrichment fields
+  audience?: string[]
+  impactLevel?: 'high' | 'medium' | 'low'
+  impactDetail?: string
+  actionItem?: string
+  keyStat?: string | null
+  aiSummary?: string
   }
 
 interface BreakingNews {
@@ -135,6 +143,8 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [selectedPlatform, setSelectedPlatform] = useState("All")
+  const [selectedAudience, setSelectedAudience] = useState("all")
+  const [selectedImpact, setSelectedImpact] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
   const [sortBy, setSortBy] = useState<"latest" | "popular" | "shared">("latest")
   const [isDark, setIsDark] = useState(false)
@@ -181,68 +191,73 @@ export default function HomePage() {
   const [isSubscribing, setIsSubscribing] = useState(false)
   const [subscribed, setSubscribed] = useState(false)
 
-  // Fetch news from database-backed aggregation API
+  // Fetch news from AI-powered articles API
   const fetchNews = useCallback(async () => {
     try {
-      // Fetch from our new database-backed articles API
-      const params = new URLSearchParams({
-        limit: '50',
-        sortBy: sortBy === 'popular' ? 'relevance' : sortBy === 'shared' ? 'trending' : 'recent'
-      })
-      
-      const response = await fetch(`/api/news/articles?${params}`)
+      // Fetch from AI-powered articles API
+      const response = await fetch(`/api/articles?limit=50`)
       const data = await response.json()
       
-      if (data.articles?.length > 0) {
-        // Transform database articles to match frontend interface
+      if (data.success && data.articles?.length > 0) {
+        // Transform AI-analyzed articles to match frontend interface
         const transformedArticles: NewsArticle[] = data.articles.map((a: {
           id: string
           title: string
-          excerpt: string | null
-          ai_summary: string | null
+          summary: string
+          aiSummary: string
           category: string
-          source_name: string
-          source_url: string
-          author: string | null
-          published_at: string
-          ai_relevance_score: number
+          sourceName: string
+          sourceUrl: string
+          publishedAt: string
+          relevanceScore: number
           tags: string[]
-          is_featured: boolean
-          is_breaking: boolean
-          image_url: string | null
           platforms: string[]
-          tier?: number
-          sourceType?: 'industry' | 'google' | 'reddit'
+          tier: number
+          sourceType: 'industry' | 'google'
+          isBreaking: boolean
+          audience: string[]
+          impactLevel: 'high' | 'medium' | 'low'
+          impactDetail: string
+          actionItem: string
+          keyStat: string | null
+          imageUrl?: string
         }) => ({
           id: a.id,
           title: a.title,
-          excerpt: a.excerpt || a.ai_summary || '',
-          category: mapDatabaseCategory(a.category),
-          source: a.source_name,
-          sourceUrl: a.source_url,
-          author: a.author || a.source_name,
-          publishedAt: a.published_at,
-          readTime: Math.ceil((a.excerpt?.length || 500) / 200),
+          excerpt: a.aiSummary || a.summary,
+          category: mapAICategory(a.category),
+          source: a.sourceName,
+          sourceUrl: a.sourceUrl,
+          author: a.sourceName,
+          publishedAt: a.publishedAt,
+          readTime: Math.ceil((a.summary?.length || 200) / 200),
           tags: a.tags || [],
-          featured: a.is_featured,
-          breaking: a.is_breaking,
-          imageUrl: a.image_url || undefined,
+          featured: a.relevanceScore >= 80,
+          breaking: a.isBreaking || (a.relevanceScore >= 90 && a.tier === 1),
           platforms: a.platforms || [],
           tier: a.tier,
           sourceType: a.sourceType,
+          imageUrl: a.imageUrl,
+          // AI enrichment fields
+          audience: a.audience || [],
+          impactLevel: a.impactLevel || 'medium',
+          impactDetail: a.impactDetail || '',
+          actionItem: a.actionItem || '',
+          keyStat: a.keyStat || null,
+          aiSummary: a.aiSummary || a.summary,
         }))
         
         setArticles(transformedArticles)
         
-        // Get breaking news
+        // Get breaking news from high-relevance articles
         const breaking = transformedArticles
-          .filter((a: NewsArticle) => a.breaking)
+          .filter((a: NewsArticle) => a.breaking || a.featured)
           .slice(0, 5)
           .map((a: NewsArticle) => ({
             id: a.id,
             title: a.title,
             timestamp: a.publishedAt,
-            urgent: true,
+            urgent: a.breaking,
           }))
         
         // Use fetched breaking news or fallback headlines
@@ -251,48 +266,28 @@ export default function HomePage() {
           { id: "2", title: "TikTok Shop US GMV surpasses $10B milestone in Q1", timestamp: new Date().toISOString(), urgent: true },
           { id: "3", title: "New tariff regulations impact cross-border sellers starting May 1", timestamp: new Date().toISOString(), urgent: false },
         ])
-      } else {
-        // Fallback to RSS-based articles API
-        const fallbackResponse = await fetch("/api/articles?limit=50")
-        const fallbackData = await fallbackResponse.json()
-        if (fallbackData.success && fallbackData.articles) {
-          setArticles(fallbackData.articles)
-        }
       }
     } catch (error) {
-      console.error("Failed to fetch news:", error)
-      // Try fallback API on error
-      try {
-        const fallbackResponse = await fetch("/api/articles?limit=50")
-        const fallbackData = await fallbackResponse.json()
-        if (fallbackData.success) {
-          setArticles(fallbackData.articles)
-        }
-      } catch (fallbackError) {
-        console.error("Fallback API also failed:", fallbackError)
-      }
+      console.error("Failed to fetch AI-powered news:", error)
     } finally {
       setLoading(false)
     }
-  }, [sortBy])
+  }, [])
   
-  // Map database categories to frontend category IDs
-  function mapDatabaseCategory(dbCategory: string): string {
+  // Map AI categories to frontend category IDs
+  function mapAICategory(aiCategory: string): string {
     const mapping: Record<string, string> = {
-      'announcements': 'breaking',
-      'amazon': 'platform',
-      'other-marketplaces': 'platform',
-      'profitability': 'profitability',
+      'platform-updates': 'platform',
+      'seller-operations': 'logistics',
       'advertising': 'advertising',
-      'logistics': 'logistics',
-      'tools': 'tools',
-      'general': 'market',
-      'reviews': 'tactics',
-      'deals': 'deals',
-      'wins': 'market',
-      'help': 'tactics',
+      'profitability': 'profitability',
+      'market-trends': 'market',
+      'tools-technology': 'tools',
+      'compliance-policy': 'platform',
+      'strategy-tactics': 'tactics',
+      'irrelevant': 'market',
     }
-    return mapping[dbCategory] || 'market'
+    return mapping[aiCategory] || 'market'
   }
 
   useEffect(() => {
@@ -319,6 +314,10 @@ export default function HomePage() {
       }
     }
     if (selectedPlatform !== "All" && !article.platforms?.includes(selectedPlatform)) return false
+    // Audience filter
+    if (selectedAudience !== "all" && !article.audience?.includes(selectedAudience)) return false
+    // Impact filter
+    if (selectedImpact !== "all" && article.impactLevel !== selectedImpact) return false
     // Enhanced search - searches across title, excerpt, source, category, and platforms
     if (searchQuery) {
       const query = searchQuery.toLowerCase()
@@ -734,6 +733,61 @@ export default function HomePage() {
                 ))}
               </div>
             </div>
+            
+            {/* AI Filters: Audience & Impact */}
+            <div className="flex flex-wrap items-center gap-4 pt-2 border-t border-border/50">
+              {/* Audience Filter */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground font-medium">For:</span>
+                <div className="flex items-center gap-1">
+                  {[
+                    { id: 'all', label: 'All' },
+                    { id: 'sellers', label: 'Sellers' },
+                    { id: 'agencies', label: 'Agencies' },
+                    { id: 'saas', label: 'SaaS/Tech' },
+                    { id: 'investors', label: 'Investors' },
+                  ].map((aud) => (
+                    <Button
+                      key={aud.id}
+                      variant={selectedAudience === aud.id ? "secondary" : "ghost"}
+                      size="sm"
+                      onClick={() => setSelectedAudience(aud.id)}
+                      className="text-xs h-7 px-2"
+                    >
+                      {aud.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Impact Filter */}
+              <div className="flex items-center gap-2 ml-auto">
+                <span className="text-xs text-muted-foreground font-medium">Impact:</span>
+                <div className="flex items-center gap-1">
+                  {[
+                    { id: 'all', label: 'All', color: '' },
+                    { id: 'high', label: 'High', color: 'text-red-500' },
+                    { id: 'medium', label: 'Medium', color: 'text-amber-500' },
+                    { id: 'low', label: 'Low', color: 'text-green-500' },
+                  ].map((impact) => (
+                    <Button
+                      key={impact.id}
+                      variant={selectedImpact === impact.id ? "secondary" : "ghost"}
+                      size="sm"
+                      onClick={() => setSelectedImpact(impact.id)}
+                      className={`text-xs h-7 px-2 ${selectedImpact === impact.id ? '' : impact.color}`}
+                    >
+                      {impact.id !== 'all' && (
+                        <span className={`mr-1 ${impact.color}`}>
+                          {impact.id === 'high' ? '●' : impact.id === 'medium' ? '●' : '●'}
+                        </span>
+                      )}
+                      {impact.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </div>
 
             {/* Inline Newsletter CTA */}
             {!loading && filteredArticles.length > 3 && (
@@ -804,6 +858,16 @@ export default function HomePage() {
                         Show All Platforms
                       </Button>
                     )}
+                    {selectedAudience !== 'all' && (
+                      <Button variant="outline" onClick={() => setSelectedAudience('all')}>
+                        Show All Audiences
+                      </Button>
+                    )}
+                    {selectedImpact !== 'all' && (
+                      <Button variant="outline" onClick={() => setSelectedImpact('all')}>
+                        Show All Impact Levels
+                      </Button>
+                    )}
                   </div>
                   {/* Suggested Categories */}
                   <div className="mt-8 pt-6 border-t">
@@ -853,22 +917,61 @@ export default function HomePage() {
                                 {p}
                               </Badge>
                             ))}
+                            {/* AI Impact Badge */}
+                            {article.impactLevel && (
+                              <Badge 
+                                variant="outline" 
+                                className={`text-xs ${
+                                  article.impactLevel === 'high' 
+                                    ? 'border-red-500/50 text-red-600 bg-red-500/10' 
+                                    : article.impactLevel === 'medium' 
+                                    ? 'border-amber-500/50 text-amber-600 bg-amber-500/10' 
+                                    : 'border-green-500/50 text-green-600 bg-green-500/10'
+                                }`}
+                              >
+                                <span className={`mr-1 ${
+                                  article.impactLevel === 'high' ? 'text-red-500' 
+                                  : article.impactLevel === 'medium' ? 'text-amber-500' 
+                                  : 'text-green-500'
+                                }`}>●</span>
+                                {article.impactLevel.charAt(0).toUpperCase() + article.impactLevel.slice(1)} Impact
+                              </Badge>
+                            )}
                             <span className="text-xs text-muted-foreground flex items-center gap-1 ml-auto">
                               <Clock className="h-3 w-3" />
                               {formatTimeAgo(article.publishedAt)}
                             </span>
                           </div>
+                          {/* AI Enhanced indicator */}
+                          {article.aiSummary && (
+                            <div className="flex items-center gap-1 mb-2">
+                              <Sparkles className="h-3 w-3 text-primary" />
+                              <span className="text-[10px] text-primary font-medium">AI Enhanced</span>
+                            </div>
+                          )}
                           <h3 className="font-semibold mb-2 group-hover:text-primary transition-colors line-clamp-2 text-balance">
                             {article.title}
                           </h3>
-                          <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
-                            {article.excerpt}
+                          <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                            {article.aiSummary || article.excerpt}
                           </p>
+                          {/* Audience pills */}
+                          {article.audience && article.audience.length > 0 && (
+                            <div className="flex items-center gap-1 mb-3">
+                              <span className="text-[10px] text-muted-foreground">For:</span>
+                              {article.audience.slice(0, 3).map((aud) => (
+                                <span 
+                                  key={aud} 
+                                  className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground capitalize"
+                                >
+                                  {aud}
+                                </span>
+                              ))}
+                            </div>
+                          )}
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                              {article.sourceType === 'reddit' ? (
-                                <span className="text-orange-500 font-medium">Reddit</span>
-                              ) : article.tier === 1 ? (
+                              {article.tier === 1 ? (
                                 <span className="flex items-center gap-1">
                                   <span className="text-amber-500">&#10022;</span>
                                   <span className="font-medium text-foreground">{article.source}</span>
