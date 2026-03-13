@@ -149,7 +149,7 @@ Rules:
 
   try {
     const { output } = await generateText({
-      model: 'anthropic/claude-haiku-4-5-20251001',
+      model: 'anthropic/claude-sonnet-4',
       system: SYSTEM_PROMPT,
       prompt: userPrompt,
       output: Output.object({ schema: ClassificationResponseSchema }),

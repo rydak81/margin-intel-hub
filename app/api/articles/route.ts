@@ -35,8 +35,6 @@ const INDUSTRY_RSS_FEEDS: RSSFeed[] = [
   // Tier 2 — Platform & Tool Blogs  
   { url: 'https://www.junglescout.com/blog/feed/', name: 'Jungle Scout', tier: 2 },
   { url: 'https://ecomcrew.com/feed/', name: 'EcomCrew', tier: 2 },
-  { url: 'https://www.webretailer.com/feed/', name: 'Web Retailer', tier: 2 },
-  { url: 'https://sellerengine.com/feed/', name: 'SellerEngine', tier: 2 },
   
   // Tier 3 — Business Press
   { url: 'https://techcrunch.com/category/commerce/feed/', name: 'TechCrunch Commerce', tier: 3 },
