@@ -41,7 +41,6 @@ const INDUSTRY_RSS_FEEDS: RSSFeed[] = [
   { url: 'https://tinuiti.com/blog/feed/', name: 'Tinuiti', tier: 2, defaultCategory: 'advertising' },
   
   // TIER 3 — Platform Official Blogs
-  { url: 'https://www.shopify.com/blog/feed.atom', name: 'Shopify Blog', tier: 3, defaultCategory: 'platform_updates' },
   { url: 'https://www.aboutamazon.com/news/feed', name: 'About Amazon', tier: 3, defaultCategory: 'platform_updates' },
   
   // TIER 4 — Business/Tech Press
