@@ -139,7 +139,18 @@ export default function HomePage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [selectedArticle, setSelectedArticle] = useState<NewsArticle | null>(null)
   const [articleModalOpen, setArticleModalOpen] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false)
+  const [searchExpanded, setSearchExpanded] = useState(false)
   const searchInputRef = useRef<HTMLInputElement>(null)
+
+  // Track scroll position for header transition
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50)
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   // Handle article click - open modal instead of navigating
   const handleArticleClick = (article: NewsArticle, e: React.MouseEvent) => {
@@ -322,25 +333,37 @@ export default function HomePage() {
       )}
 
       {/* Navigation */}
-      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b">
+      <header className={`sticky top-0 z-50 transition-all duration-300 ${
+        isScrolled 
+          ? 'bg-background/80 backdrop-blur-md border-b shadow-sm' 
+          : 'bg-primary text-primary-foreground'
+      }`}>
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-14">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2">
-              <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center">
-                <BarChart3 className="h-5 w-5 text-primary-foreground" />
+              <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${
+                isScrolled ? 'bg-primary' : 'bg-primary-foreground/20'
+              }`}>
+                <BarChart3 className={`h-4 w-4 ${isScrolled ? 'text-primary-foreground' : 'text-primary-foreground'}`} />
               </div>
-              <span className="font-bold text-xl hidden sm:block">Ecom Intel Hub</span>
+              <span className={`font-bold text-lg hidden sm:block ${isScrolled ? 'text-foreground' : 'text-primary-foreground'}`}>
+                Ecom Intel Hub
+              </span>
             </Link>
 
             {/* Desktop Nav */}
-            <nav className="hidden lg:flex items-center gap-8">
-              <Link href="/" className="text-base font-semibold hover:text-primary transition-colors">
+            <nav className="hidden lg:flex items-center gap-6">
+              <Link href="/" className={`text-sm font-medium transition-colors ${
+                isScrolled ? 'hover:text-primary' : 'text-primary-foreground/90 hover:text-primary-foreground'
+              }`}>
                 Home
               </Link>
               <DropdownMenu>
-                <DropdownMenuTrigger className="text-base font-semibold hover:text-primary transition-colors flex items-center gap-1">
-                  Categories <ChevronDown className="h-4 w-4" />
+                <DropdownMenuTrigger className={`text-sm font-medium transition-colors flex items-center gap-1 ${
+                  isScrolled ? 'hover:text-primary' : 'text-primary-foreground/90 hover:text-primary-foreground'
+                }`}>
+                  Categories <ChevronDown className="h-3 w-3" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-56">
                   {CATEGORIES.slice(1).map((cat) => (
@@ -351,74 +374,128 @@ export default function HomePage() {
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
-              <Link href="/tools" className="text-base font-semibold hover:text-primary transition-colors">
+              <Link href="/tools" className={`text-sm font-medium transition-colors ${
+                isScrolled ? 'hover:text-primary' : 'text-primary-foreground/90 hover:text-primary-foreground'
+              }`}>
                 Tools
               </Link>
-              <Link href="/community" className="text-base font-semibold hover:text-primary transition-colors flex items-center gap-1.5">
+              <Link href="/community" className={`text-sm font-medium transition-colors flex items-center gap-1.5 ${
+                isScrolled ? 'hover:text-primary' : 'text-primary-foreground/90 hover:text-primary-foreground'
+              }`}>
                 Community
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">BETA</span>
+                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
+                  isScrolled 
+                    ? 'bg-primary/10 text-primary border border-primary/20' 
+                    : 'bg-primary-foreground/20 text-primary-foreground border border-primary-foreground/30'
+                }`}>BETA</span>
               </Link>
-              <Link href="/events" className="text-base font-semibold hover:text-primary transition-colors">
+              <Link href="/events" className={`text-sm font-medium transition-colors ${
+                isScrolled ? 'hover:text-primary' : 'text-primary-foreground/90 hover:text-primary-foreground'
+              }`}>
                 Events
               </Link>
-              <Link href="/newsletter" className="text-base font-semibold hover:text-primary transition-colors">
+              <Link href="/newsletter" className={`text-sm font-medium transition-colors ${
+                isScrolled ? 'hover:text-primary' : 'text-primary-foreground/90 hover:text-primary-foreground'
+              }`}>
                 Newsletter
               </Link>
             </nav>
 
             {/* Right Actions */}
-            <div className="flex items-center gap-3">
-<div className="hidden md:flex relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    ref={searchInputRef}
-                    placeholder="Search news..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-9 w-48 lg:w-64 pr-12"
-                  />
-                  <kbd className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none hidden lg:inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
-                    <span className="text-xs">⌘</span>K
-                  </kbd>
+            <div className="flex items-center gap-2">
+              {/* Expandable Search */}
+              <div className="hidden md:flex items-center">
+                <div className={`flex items-center transition-all duration-300 ${
+                  searchExpanded ? 'w-64' : 'w-9'
+                }`}>
+                  {searchExpanded ? (
+                    <div className="relative w-full">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        ref={searchInputRef}
+                        placeholder="Search news..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onBlur={() => {
+                          if (!searchQuery) setSearchExpanded(false)
+                        }}
+                        className="pl-9 pr-8 h-9 text-sm"
+                        autoFocus
+                      />
+                      <button 
+                        onClick={() => {
+                          setSearchQuery('')
+                          setSearchExpanded(false)
+                        }}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setSearchExpanded(true)}
+                      className={`h-9 w-9 ${isScrolled ? '' : 'text-primary-foreground hover:bg-primary-foreground/10'}`}
+                    >
+                      <Search className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
+              </div>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsDark(!isDark)}
+                className={`h-9 w-9 ${isScrolled ? '' : 'text-primary-foreground hover:bg-primary-foreground/10'}`}
               >
-                {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </Button>
-              <Button asChild className="hidden sm:flex">
+              <Button 
+                asChild 
+                size="sm"
+                className={`hidden sm:flex text-sm ${
+                  isScrolled 
+                    ? '' 
+                    : 'bg-primary-foreground text-primary hover:bg-primary-foreground/90'
+                }`}
+              >
                 <Link href="/newsletter">Subscribe</Link>
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
-                className="lg:hidden"
+                className={`lg:hidden h-9 w-9 ${isScrolled ? '' : 'text-primary-foreground hover:bg-primary-foreground/10'}`}
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
-                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                {mobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
               </Button>
             </div>
           </div>
 
           {/* Mobile Menu */}
           {mobileMenuOpen && (
-            <div className="lg:hidden py-4 border-t">
+            <div className={`lg:hidden py-4 border-t ${isScrolled ? 'border-border' : 'border-primary-foreground/20'}`}>
               <nav className="flex flex-col gap-2">
-                <Link href="/" className="px-4 py-2 hover:bg-muted rounded-md" onClick={() => setMobileMenuOpen(false)}>Home</Link>
-                <Link href="/tools" className="px-4 py-2 hover:bg-muted rounded-md" onClick={() => setMobileMenuOpen(false)}>Tools</Link>
-                <Link href="/community" className="px-4 py-2 hover:bg-muted rounded-md flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
+                <Link href="/" className={`px-4 py-2 rounded-md ${isScrolled ? 'hover:bg-muted' : 'hover:bg-primary-foreground/10'}`} onClick={() => setMobileMenuOpen(false)}>Home</Link>
+                <Link href="/tools" className={`px-4 py-2 rounded-md ${isScrolled ? 'hover:bg-muted' : 'hover:bg-primary-foreground/10'}`} onClick={() => setMobileMenuOpen(false)}>Tools</Link>
+                <Link href="/community" className={`px-4 py-2 rounded-md flex items-center gap-2 ${isScrolled ? 'hover:bg-muted' : 'hover:bg-primary-foreground/10'}`} onClick={() => setMobileMenuOpen(false)}>
                   Community
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">BETA</span>
+                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
+                    isScrolled 
+                      ? 'bg-primary/10 text-primary border border-primary/20' 
+                      : 'bg-primary-foreground/20 text-primary-foreground border border-primary-foreground/30'
+                  }`}>BETA</span>
                 </Link>
-                <Link href="/events" className="px-4 py-2 hover:bg-muted rounded-md" onClick={() => setMobileMenuOpen(false)}>Events</Link>
-                <Link href="/newsletter" className="px-4 py-2 hover:bg-muted rounded-md" onClick={() => setMobileMenuOpen(false)}>Newsletter</Link>
+                <Link href="/events" className={`px-4 py-2 rounded-md ${isScrolled ? 'hover:bg-muted' : 'hover:bg-primary-foreground/10'}`} onClick={() => setMobileMenuOpen(false)}>Events</Link>
+                <Link href="/newsletter" className={`px-4 py-2 rounded-md ${isScrolled ? 'hover:bg-muted' : 'hover:bg-primary-foreground/10'}`} onClick={() => setMobileMenuOpen(false)}>Newsletter</Link>
                 <div className="px-4 py-2">
                   <Input
                     placeholder="Search news..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
+                    className={isScrolled ? '' : 'bg-primary-foreground/10 border-primary-foreground/20 placeholder:text-primary-foreground/50'}
                   />
                 </div>
               </nav>
