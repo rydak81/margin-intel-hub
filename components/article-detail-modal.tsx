@@ -1,7 +1,6 @@
 "use client"
 
 import { useMemo } from "react"
-import Image from "next/image"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -32,6 +31,7 @@ import {
   Users,
   TrendingUp,
 } from "lucide-react"
+import { getArticleFallbackImage } from "@/lib/article-images"
 
 interface NewsArticle {
   id: string
@@ -139,13 +139,22 @@ export function ArticleDetailModal({
         <div className="p-6">
           {/* Image */}
           {article.imageUrl && (
-            <div className="relative aspect-video rounded-lg overflow-hidden mb-6">
-              <Image
+            <div className="relative aspect-video rounded-lg overflow-hidden mb-6 bg-muted">
+              <img
                 src={article.imageUrl}
                 alt={article.title}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 600px"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  const target = e.currentTarget
+                  const fallback = getArticleFallbackImage(
+                    article.title,
+                    article.category,
+                    article.platforms || []
+                  )
+                  if (target.src !== fallback) {
+                    target.src = fallback
+                  }
+                }}
               />
             </div>
           )}
@@ -371,13 +380,22 @@ export function ArticleDetailModal({
                     <CardContent className="p-4">
                       <div className="flex gap-4">
                         {related.imageUrl && (
-                          <div className="relative w-20 h-20 rounded-md overflow-hidden flex-shrink-0">
-                            <Image
+                          <div className="relative w-20 h-20 rounded-md overflow-hidden flex-shrink-0 bg-muted">
+                            <img
                               src={related.imageUrl}
                               alt={related.title}
-                              fill
-                              className="object-cover"
-                              sizes="80px"
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                const target = e.currentTarget
+                                const fallback = getArticleFallbackImage(
+                                  related.title,
+                                  related.category,
+                                  related.platforms || []
+                                )
+                                if (target.src !== fallback) {
+                                  target.src = fallback
+                                }
+                              }}
                             />
                           </div>
                         )}

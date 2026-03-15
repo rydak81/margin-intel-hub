@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { ArticleDetailModal } from "@/components/article-detail-modal"
 import { BackToTop } from "@/components/back-to-top"
+import { getArticleFallbackImage } from "@/lib/article-images"
 import { ArticleGridSkeleton, FeaturedArticleSkeleton, MarketSnapshotSkeleton } from "@/components/article-skeleton"
 import {
   DropdownMenu,
@@ -383,10 +384,9 @@ export default function HomePage() {
     return true
   })
 
-  // Select hero article: first with a real image, or first article
-  const heroArticle = filteredArticles.find(a => 
-    a.imageUrl && isValidArticleImage(a.imageUrl)
-  ) || filteredArticles[0]
+  // Select hero article: prioritize articles with REAL images (not stock fallbacks)
+  // The hasRealImage flag is set by the API based on whether the RSS feed had a valid image
+  const heroArticle = filteredArticles.find(a => a.hasRealImage) || filteredArticles[0]
   
   // Remove hero from regular feed so it doesn't show twice
   const feedArticles = filteredArticles.filter(a => a.id !== heroArticle?.id)
@@ -901,7 +901,12 @@ export default function HomePage() {
                       loading="eager"
                       onError={(e) => {
                         const target = e.currentTarget
-                        const fallback = `/api/og/article?title=${encodeURIComponent(heroArticle.title.substring(0, 100))}&category=${encodeURIComponent(heroArticle.category || 'platform')}&source=${encodeURIComponent(heroArticle.source || '')}`
+                        // Use curated stock image fallback instead of OG
+                        const fallback = getArticleFallbackImage(
+                          heroArticle.title,
+                          heroArticle.category,
+                          heroArticle.platforms || []
+                        )
                         if (target.src !== fallback) {
                           target.src = fallback
                         }
@@ -1053,7 +1058,12 @@ export default function HomePage() {
                             loading={index < 4 ? 'eager' : 'lazy'}
                             onError={(e) => {
                               const target = e.currentTarget
-                              const fallback = `/api/og/article?title=${encodeURIComponent(article.title.substring(0, 100))}&category=${encodeURIComponent(article.category || 'platform')}&source=${encodeURIComponent(article.source || '')}`
+                              // Use curated stock image fallback instead of OG
+                              const fallback = getArticleFallbackImage(
+                                article.title,
+                                article.category,
+                                article.platforms || []
+                              )
                               if (target.src !== fallback) {
                                 target.src = fallback
                               }
