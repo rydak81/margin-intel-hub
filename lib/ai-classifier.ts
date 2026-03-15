@@ -244,55 +244,83 @@ Rules:
 
 Return ONLY the JSON array, no other text.`
 
-  try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 4000,
-        system: SYSTEM_PROMPT,
-        messages: [{ role: 'user', content: userPrompt }]
+  // Retry with exponential backoff for rate limits
+  const maxRetries = 3
+  let retryDelay = 2000 // Start with 2 seconds
+  
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01'
+        },
+        body: JSON.stringify({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 4000,
+          system: SYSTEM_PROMPT,
+          messages: [{ role: 'user', content: userPrompt }]
+        })
       })
-    })
 
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error(`[v0] Anthropic API error ${response.status}:`, errorText)
+      // Handle rate limits with retry
+      if (response.status === 429) {
+        if (attempt < maxRetries) {
+          console.log(`[v0] Rate limited, waiting ${retryDelay / 1000}s before retry ${attempt + 1}/${maxRetries}...`)
+          await new Promise(resolve => setTimeout(resolve, retryDelay))
+          retryDelay *= 2 // Exponential backoff
+          continue
+        }
+        console.error('[v0] Rate limit exceeded after all retries, using fallback')
+        return articles.map((a, i) => ({ ...fallbackClassify(a), index: i }))
+      }
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error(`[v0] Anthropic API error ${response.status}:`, errorText)
+        // Fallback to keyword classification
+        return articles.map((a, i) => ({ ...fallbackClassify(a), index: i }))
+      }
+
+      const data = await response.json()
+      const rawText = data.content?.[0]?.text || '[]'
+
+      // Strip markdown fences and parse the JSON response
+      const text = rawText.replace(/```json\n?|```\n?/g, '').trim()
+      const jsonMatch = text.match(/\[[\s\S]*\]/)
+      if (!jsonMatch) {
+        console.error('[v0] Could not parse AI response as JSON')
+        return articles.map((a, i) => ({ ...fallbackClassify(a), index: i }))
+      }
+
+      const parsed = JSON.parse(jsonMatch[0])
+      console.log(`[v0] Anthropic API call successful, received ${parsed.length} classifications`)
+      return parsed as ArticleClassification[]
+
+    } catch (error) {
+      console.error('[v0] AI classification batch failed:', error)
+      if (attempt < maxRetries) {
+        await new Promise(resolve => setTimeout(resolve, retryDelay))
+        retryDelay *= 2
+        continue
+      }
       // Fallback to keyword classification
       return articles.map((a, i) => ({ ...fallbackClassify(a), index: i }))
     }
-
-    const data = await response.json()
-    const rawText = data.content?.[0]?.text || '[]'
-
-    // Strip markdown fences and parse the JSON response
-    const text = rawText.replace(/```json\n?|```\n?/g, '').trim()
-    const jsonMatch = text.match(/\[[\s\S]*\]/)
-    if (!jsonMatch) {
-      console.error('[v0] Could not parse AI response as JSON')
-      return articles.map((a, i) => ({ ...fallbackClassify(a), index: i }))
-    }
-
-    const parsed = JSON.parse(jsonMatch[0])
-    return parsed as ArticleClassification[]
-    
-  } catch (error) {
-    console.error('[v0] AI classification batch failed:', error)
-    // Fallback to keyword classification
-    return articles.map((a, i) => ({ ...fallbackClassify(a), index: i }))
   }
+  
+  // Should never reach here, but fallback just in case
+  return articles.map((a, i) => ({ ...fallbackClassify(a), index: i }))
 }
 
 const BATCH_SIZE = 12 // 12 articles per API call
-const CONCURRENT_BATCHES = 3 // Process 3 batches at a time
+const DELAY_BETWEEN_BATCHES = 8000 // 8 seconds between batches to stay under 10k tokens/min
 
 /**
  * Classify all articles in batches with rate limiting
+ * Processes SEQUENTIALLY to avoid rate limits (10k output tokens/min)
  */
 export async function classifyAllArticles(articles: RawArticle[]): Promise<ArticleClassification[]> {
   console.log(`[v0] Starting AI classification for ${articles.length} articles...`)
@@ -303,26 +331,21 @@ export async function classifyAllArticles(articles: RawArticle[]): Promise<Artic
     batches.push(articles.slice(i, i + BATCH_SIZE))
   }
 
-  console.log(`[v0] Processing ${batches.length} batches of ${BATCH_SIZE} articles each`)
+  console.log(`[v0] Processing ${batches.length} batches sequentially (${DELAY_BETWEEN_BATCHES / 1000}s between each)`)
 
   const results: ArticleClassification[] = []
   
-  // Process batches with concurrency limit
-  for (let i = 0; i < batches.length; i += CONCURRENT_BATCHES) {
-    const concurrentBatches = batches.slice(i, i + CONCURRENT_BATCHES)
-    const batchResults = await Promise.allSettled(
-      concurrentBatches.map(batch => classifyBatch(batch))
-    )
+  // Process batches SEQUENTIALLY to avoid rate limits
+  for (let i = 0; i < batches.length; i++) {
+    console.log(`[v0] Processing batch ${i + 1}/${batches.length}...`)
     
-    for (const result of batchResults) {
-      if (result.status === 'fulfilled') {
-        results.push(...result.value)
-      }
-    }
+    const batchResult = await classifyBatch(batches[i])
+    results.push(...batchResult)
     
-    // Small delay between concurrent groups to respect rate limits
-    if (i + CONCURRENT_BATCHES < batches.length) {
-      await new Promise(resolve => setTimeout(resolve, 500))
+    // Wait between batches to respect rate limits (except for the last batch)
+    if (i < batches.length - 1) {
+      console.log(`[v0] Waiting ${DELAY_BETWEEN_BATCHES / 1000}s before next batch...`)
+      await new Promise(resolve => setTimeout(resolve, DELAY_BETWEEN_BATCHES))
     }
   }
 
