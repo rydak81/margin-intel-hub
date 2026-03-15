@@ -60,6 +60,7 @@ interface NewsArticle {
   id: string
   title: string
   excerpt: string
+  fullContent?: string // Full RSS content for modal
   category: string
   source: string
   sourceUrl: string
@@ -70,6 +71,7 @@ interface NewsArticle {
   featured: boolean
   breaking: boolean
   imageUrl?: string
+  hasRealImage?: boolean // Flag for hero selection
   platforms?: string[]
   tier?: number
   sourceType?: 'industry' | 'google'
@@ -152,12 +154,14 @@ function isValidArticleImage(url: string | undefined): boolean {
   return !invalidPatterns.some(pattern => lowerUrl.includes(pattern))
 }
 
-// Get article image URL with fallback to OG image
+// Get article image URL - the API already enriches with stock fallbacks
 function getArticleImageUrl(article: NewsArticle): string {
-  if (article.imageUrl && isValidArticleImage(article.imageUrl)) {
+  // The API now returns stock Unsplash images when RSS image is missing
+  // so we can directly use article.imageUrl
+  if (article.imageUrl) {
     return article.imageUrl
   }
-  // Fallback to generated OG image
+  // Absolute last resort - OG fallback (shouldn't happen anymore)
   return `/api/og/article?title=${encodeURIComponent(article.title.substring(0, 100))}&category=${encodeURIComponent(article.category || 'platform')}&source=${encodeURIComponent(article.source || '')}`
 }
 
@@ -246,6 +250,7 @@ export default function HomePage() {
           id: string
           title: string
           summary: string
+          fullContent?: string
           aiSummary: string
           category: string
           sourceName: string
@@ -263,10 +268,12 @@ export default function HomePage() {
           actionItem: string
           keyStat: string | null
           imageUrl?: string
+          hasRealImage?: boolean
         }) => ({
           id: a.id,
           title: a.title,
           excerpt: a.aiSummary || a.summary,
+          fullContent: a.fullContent || a.summary, // Full content for modal
           category: mapAICategory(a.category),
           source: a.sourceName,
           sourceUrl: a.sourceUrl,
@@ -280,6 +287,7 @@ export default function HomePage() {
           tier: a.tier,
           sourceType: a.sourceType,
           imageUrl: a.imageUrl,
+          hasRealImage: a.hasRealImage, // Flag for hero selection
           // AI enrichment fields
           audience: a.audience || [],
           impactLevel: a.impactLevel || 'medium',

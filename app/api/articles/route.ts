@@ -7,6 +7,7 @@ import {
   type RawArticle,
   type ClassifiedArticle 
 } from "@/lib/ai-classifier"
+import { getArticleImageUrl, isGoodArticleImage } from "@/lib/article-images"
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 1800 // Revalidate every 30 minutes
@@ -194,14 +195,20 @@ async function fetchRSSFeed(feed: RSSFeed, sourceType: 'industry' | 'google'): P
       
       const imageUrl = extractImageFromItem(item as unknown as Record<string, unknown>)
       
+      // Store original RSS image separately to check if it's a real image
+      const originalRssImage = imageUrl
+      
       articles.push({
         id: generateArticleId(item.link),
         title: item.title.trim(),
         summary: (item.contentSnippet || item.content || '').substring(0, 250),
+        fullContent: item.contentSnippet || item.content || '', // Full content for modal
         sourceName: feed.label || feed.name,
         sourceUrl: item.link,
         publishedAt: item.pubDate ? new Date(item.pubDate).toISOString() : new Date().toISOString(),
-        imageUrl: imageUrl || undefined,
+        imageUrl: originalRssImage || undefined,
+        originalRssImage: originalRssImage || undefined, // Keep track of real vs fallback
+        hasRealImage: isGoodArticleImage(originalRssImage), // Flag for hero selection
         tier: feed.tier,
         sourceType,
       })
@@ -428,9 +435,23 @@ export async function GET(request: Request) {
       })
     })
     
+    // Enrich articles with stock fallback images where needed
+    const enrichedArticles = articles.slice(0, limit).map(article => ({
+      ...article,
+      // Use stock fallback if no valid RSS image
+      imageUrl: getArticleImageUrl(
+        article.imageUrl,
+        article.title,
+        article.category,
+        article.platforms || []
+      ),
+      // Flag whether this has a real image (for hero selection)
+      hasRealImage: isGoodArticleImage(article.imageUrl),
+    }))
+    
     return NextResponse.json({
       success: true,
-      articles: articles.slice(0, limit),
+      articles: enrichedArticles,
       meta: {
         total: articles.length,
         cached: cacheValid,
