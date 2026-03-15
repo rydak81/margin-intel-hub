@@ -37,7 +37,6 @@ const INDUSTRY_RSS_FEEDS: RSSFeed[] = [
   { url: 'https://www.junglescout.com/blog/feed/', name: 'Jungle Scout', tier: 2, defaultCategory: 'tactics' },
   { url: 'https://ecomcrew.com/feed/', name: 'EcomCrew', tier: 2, defaultCategory: 'tactics' },
   { url: 'https://carbon6.io/blog/feed/', name: 'Carbon6', tier: 2, defaultCategory: 'tools_technology' },
-  { url: 'https://tinuiti.com/blog/feed/', name: 'Tinuiti', tier: 2, defaultCategory: 'advertising' },
   
   // TIER 3 — Platform Official Blogs
   { url: 'https://www.aboutamazon.com/news/feed', name: 'About Amazon', tier: 3, defaultCategory: 'platform_updates' },
