@@ -847,37 +847,9 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Inline Newsletter CTA */}
-            {!loading && filteredArticles.length > 3 && (
-              <Card className="bg-primary text-primary-foreground border-0">
-                <CardContent className="p-6">
-                  <div className="flex flex-col md:flex-row items-center gap-6">
-                    <div className="flex-1">
-                      <h3 className="text-xl font-bold mb-2">Get the Daily Marketplace Brief</h3>
-                      <p className="text-primary-foreground/80">
-                        Join 5,000+ e-commerce professionals who start their day with the most important marketplace news.
-                      </p>
-                    </div>
-                    <form onSubmit={handleSubscribe} className="flex gap-2 w-full md:w-auto">
-                      <Input
-                        type="email"
-                        placeholder="Enter your email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="bg-primary-foreground text-foreground w-full md:w-64"
-                      />
-                      <Button type="submit" variant="secondary" disabled={isSubscribing || subscribed}>
-                        {subscribed ? "Subscribed!" : isSubscribing ? <Loader2 className="h-4 w-4 animate-spin" /> : "Subscribe"}
-                      </Button>
-                    </form>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Hero Article Section */}
+            {/* Hero Article Section - Top Story */}
             {!loading && heroArticle && !searchQuery && (
-              <section className="mb-8">
+              <section className="mb-6">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
                   <span className="text-sm font-semibold text-primary uppercase tracking-wider">
@@ -969,6 +941,28 @@ export default function HomePage() {
                   </div>
                 </div>
               </section>
+            )}
+
+            {/* Compact Newsletter CTA */}
+            {!loading && filteredArticles.length > 3 && (
+              <div className="flex items-center gap-4 p-4 rounded-lg bg-primary/10 border border-primary/20 mb-6">
+                <Mail className="h-5 w-5 text-primary flex-shrink-0" />
+                <span className="text-sm text-muted-foreground flex-1">
+                  <span className="font-medium text-foreground">Daily Marketplace Brief</span> — Join 5,000+ pros
+                </span>
+                <form onSubmit={handleSubscribe} className="flex gap-2">
+                  <Input
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="h-8 w-40 text-sm"
+                  />
+                  <Button type="submit" size="sm" className="h-8" disabled={isSubscribing || subscribed}>
+                    {subscribed ? "Done" : isSubscribing ? <Loader2 className="h-3 w-3 animate-spin" /> : "Subscribe"}
+                  </Button>
+                </form>
+              </div>
             )}
 
             {/* Regular Articles Grid */}
