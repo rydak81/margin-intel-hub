@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { ArticleDetailModal } from "@/components/article-detail-modal"
 import { BackToTop } from "@/components/back-to-top"
+import { getArticleFallbackImage } from "@/lib/article-images"
 import { ArticleGridSkeleton, FeaturedArticleSkeleton, MarketSnapshotSkeleton } from "@/components/article-skeleton"
 import {
   DropdownMenu,
@@ -60,6 +61,7 @@ interface NewsArticle {
   id: string
   title: string
   excerpt: string
+  fullContent?: string // Full RSS content for modal
   category: string
   source: string
   sourceUrl: string
@@ -70,6 +72,7 @@ interface NewsArticle {
   featured: boolean
   breaking: boolean
   imageUrl?: string
+  hasRealImage?: boolean // Flag for hero selection
   platforms?: string[]
   tier?: number
   sourceType?: 'industry' | 'google'
@@ -152,12 +155,14 @@ function isValidArticleImage(url: string | undefined): boolean {
   return !invalidPatterns.some(pattern => lowerUrl.includes(pattern))
 }
 
-// Get article image URL with fallback to OG image
+// Get article image URL - the API already enriches with stock fallbacks
 function getArticleImageUrl(article: NewsArticle): string {
-  if (article.imageUrl && isValidArticleImage(article.imageUrl)) {
+  // The API now returns stock Unsplash images when RSS image is missing
+  // so we can directly use article.imageUrl
+  if (article.imageUrl) {
     return article.imageUrl
   }
-  // Fallback to generated OG image
+  // Absolute last resort - OG fallback (shouldn't happen anymore)
   return `/api/og/article?title=${encodeURIComponent(article.title.substring(0, 100))}&category=${encodeURIComponent(article.category || 'platform')}&source=${encodeURIComponent(article.source || '')}`
 }
 
@@ -246,6 +251,7 @@ export default function HomePage() {
           id: string
           title: string
           summary: string
+          fullContent?: string
           aiSummary: string
           category: string
           sourceName: string
@@ -263,10 +269,12 @@ export default function HomePage() {
           actionItem: string
           keyStat: string | null
           imageUrl?: string
+          hasRealImage?: boolean
         }) => ({
           id: a.id,
           title: a.title,
           excerpt: a.aiSummary || a.summary,
+          fullContent: a.fullContent || a.summary, // Full content for modal
           category: mapAICategory(a.category),
           source: a.sourceName,
           sourceUrl: a.sourceUrl,
@@ -280,6 +288,7 @@ export default function HomePage() {
           tier: a.tier,
           sourceType: a.sourceType,
           imageUrl: a.imageUrl,
+          hasRealImage: a.hasRealImage, // Flag for hero selection
           // AI enrichment fields
           audience: a.audience || [],
           impactLevel: a.impactLevel || 'medium',
@@ -375,10 +384,9 @@ export default function HomePage() {
     return true
   })
 
-  // Select hero article: first with a real image, or first article
-  const heroArticle = filteredArticles.find(a => 
-    a.imageUrl && isValidArticleImage(a.imageUrl)
-  ) || filteredArticles[0]
+  // Select hero article: prioritize articles with REAL images (not stock fallbacks)
+  // The hasRealImage flag is set by the API based on whether the RSS feed had a valid image
+  const heroArticle = filteredArticles.find(a => a.hasRealImage) || filteredArticles[0]
   
   // Remove hero from regular feed so it doesn't show twice
   const feedArticles = filteredArticles.filter(a => a.id !== heroArticle?.id)
@@ -893,7 +901,12 @@ export default function HomePage() {
                       loading="eager"
                       onError={(e) => {
                         const target = e.currentTarget
-                        const fallback = `/api/og/article?title=${encodeURIComponent(heroArticle.title.substring(0, 100))}&category=${encodeURIComponent(heroArticle.category || 'platform')}&source=${encodeURIComponent(heroArticle.source || '')}`
+                        // Use curated stock image fallback instead of OG
+                        const fallback = getArticleFallbackImage(
+                          heroArticle.title,
+                          heroArticle.category,
+                          heroArticle.platforms || []
+                        )
                         if (target.src !== fallback) {
                           target.src = fallback
                         }
@@ -1045,7 +1058,12 @@ export default function HomePage() {
                             loading={index < 4 ? 'eager' : 'lazy'}
                             onError={(e) => {
                               const target = e.currentTarget
-                              const fallback = `/api/og/article?title=${encodeURIComponent(article.title.substring(0, 100))}&category=${encodeURIComponent(article.category || 'platform')}&source=${encodeURIComponent(article.source || '')}`
+                              // Use curated stock image fallback instead of OG
+                              const fallback = getArticleFallbackImage(
+                                article.title,
+                                article.category,
+                                article.platforms || []
+                              )
                               if (target.src !== fallback) {
                                 target.src = fallback
                               }

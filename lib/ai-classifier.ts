@@ -75,10 +75,13 @@ export interface RawArticle {
   id: string
   title: string
   summary: string
+  fullContent?: string // Full RSS content for modal display
   sourceName: string
   sourceUrl: string
   publishedAt: string
   imageUrl?: string
+  originalRssImage?: string // Original RSS image before fallback
+  hasRealImage?: boolean // Flag for hero selection
   tier: number
   sourceType: 'industry' | 'google'
 }
@@ -96,6 +99,7 @@ export interface ClassifiedArticle extends RawArticle {
   actionItem: string
   keyStat: string | null
   rejectionReason: string | null
+  hasRealImage?: boolean // Flag for hero/featured selection
 }
 
 // Track already-classified article IDs to avoid re-processing
