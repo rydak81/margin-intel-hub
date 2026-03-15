@@ -30,7 +30,6 @@ const INDUSTRY_RSS_FEEDS: RSSFeed[] = [
   { url: 'https://www.modernretail.co/feed/', name: 'Modern Retail', tier: 1, defaultCategory: 'platform_updates' },
   { url: 'https://www.retaildive.com/feeds/news/', name: 'Retail Dive', tier: 1, defaultCategory: 'market_metrics' },
   { url: 'https://www.supplychaindive.com/feeds/news/', name: 'Supply Chain Dive', tier: 1, defaultCategory: 'logistics' },
-  { url: 'https://practicalcommerce.com/feed', name: 'Practical Ecommerce', tier: 1, defaultCategory: 'tactics' },
   { url: 'https://www.ecommercebytes.com/feed/', name: 'EcommerceBytes', tier: 1, defaultCategory: 'platform_updates' },
   
   // TIER 2 — Amazon/Seller Tool Blogs  
@@ -343,17 +342,11 @@ async function aggregateAndProcessArticles(): Promise<ClassifiedArticle[]> {
       a.relevant !== false && a.relevanceScore >= 50
     )
     
-    // Add image fallbacks
-    const withImages = relevant.map(a => ({
-      ...a,
-      imageUrl: getArticleImage(a) || undefined
-    }))
-    
-    console.log(`[v0] AI approved ${withImages.length} of ${articlesToClassify.length} articles as relevant`)
+    console.log(`[v0] AI approved ${relevant.length} of ${articlesToClassify.length} articles as relevant`)
     
     // Add to cache (merge with existing)
     const existingIds = new Set(articlesCache.map(a => a.id))
-    const newRelevant = withImages.filter(a => !existingIds.has(a.id))
+    const newRelevant = relevant.filter(a => !existingIds.has(a.id))
     articlesCache = [...newRelevant, ...articlesCache]
   }
   
