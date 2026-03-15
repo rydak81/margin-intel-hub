@@ -1,10 +1,16 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
-const _geistSans = Geist({ subsets: ["latin"], variable: "--font-sans" });
-const _geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" });
+const geistSans = Geist({ subsets: ["latin"], variable: "--font-sans" });
+const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" });
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#14b8a6',
+}
 
 export const metadata: Metadata = {
   title: 'Ecom Intel Hub | The Intelligence Hub for Marketplace Commerce',
@@ -26,11 +32,6 @@ export const metadata: Metadata = {
     icon: '/favicon.jpg',
     apple: '/favicon.jpg',
   },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    themeColor: '#14b8a6',
-  },
 }
 
 export default function RootLayout({
@@ -40,7 +41,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${_geistSans.variable} ${_geistMono.variable} font-sans antialiased text-base`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased text-base`}>
         {children}
         <Analytics />
       </body>
