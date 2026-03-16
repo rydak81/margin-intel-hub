@@ -33,14 +33,17 @@ const INDUSTRY_RSS_FEEDS: RSSFeed[] = [
   { url: 'https://www.supplychaindive.com/feeds/news/', name: 'Supply Chain Dive', tier: 1, defaultCategory: 'logistics' },
   { url: 'https://www.ecommercebytes.com/feed/', name: 'EcommerceBytes', tier: 1, defaultCategory: 'platform_updates' },
   
-  // TIER 2 — Amazon/Seller Tool Blogs  
+  // TIER 2 — Amazon/Seller Tool Blogs
   { url: 'https://www.junglescout.com/blog/feed/', name: 'Jungle Scout', tier: 2, defaultCategory: 'tactics' },
+  { url: 'https://www.helium10.com/blog/feed/', name: 'Helium 10', tier: 2, defaultCategory: 'tactics' },
   { url: 'https://ecomcrew.com/feed/', name: 'EcomCrew', tier: 2, defaultCategory: 'tactics' },
   { url: 'https://carbon6.io/blog/feed/', name: 'Carbon6', tier: 2, defaultCategory: 'tools_technology' },
-  
+  { url: 'https://practicalcommerce.com/feed', name: 'Practical Commerce', tier: 2, defaultCategory: 'tactics' },
+  { url: 'https://tinuiti.com/blog/feed/', name: 'Tinuiti', tier: 2, defaultCategory: 'advertising' },
+
   // TIER 3 — Platform Official Blogs
   { url: 'https://www.aboutamazon.com/news/feed', name: 'About Amazon', tier: 3, defaultCategory: 'platform_updates' },
-  
+
   // TIER 4 — Business/Tech Press
   { url: 'https://techcrunch.com/category/commerce/feed/', name: 'TechCrunch Commerce', tier: 4, defaultCategory: 'mergers_acquisitions' },
 ]
