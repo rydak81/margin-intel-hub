@@ -300,12 +300,14 @@ Return ONLY the JSON array, no other text.`
   return articles.map((a, i) => ({ ...fallbackClassify(a), index: i }))
 }
 
-const BATCH_SIZE = 12
-const DELAY_BETWEEN_BATCHES = 8000
+const BATCH_SIZE = 25
+const DELAY_BETWEEN_BATCHES = 2000
+const PARALLEL_BATCHES = 2
 
 /**
  * Classify all articles in batches with rate limiting.
- * Uses the best available AI provider with automatic fallback.
+ * Uses parallel batch processing to fit within Vercel's 120s timeout.
+ * With 50 articles: 2 batches of 25, processed in parallel ≈ 30-35s total.
  */
 export async function classifyAllArticles(articles: RawArticle[]): Promise<ArticleClassification[]> {
   console.log(`[AI] Starting classification for ${articles.length} articles — ${getAIStrategyDescription()}`)
@@ -315,18 +317,27 @@ export async function classifyAllArticles(articles: RawArticle[]): Promise<Artic
     batches.push(articles.slice(i, i + BATCH_SIZE))
   }
 
-  console.log(`[AI] Processing ${batches.length} batches sequentially (${DELAY_BETWEEN_BATCHES / 1000}s between each)`)
+  console.log(`[AI] Processing ${batches.length} batches (${PARALLEL_BATCHES} concurrent, ${DELAY_BETWEEN_BATCHES / 1000}s between waves)`)
 
   const results: ArticleClassification[] = []
 
-  for (let i = 0; i < batches.length; i++) {
-    console.log(`[AI] Processing batch ${i + 1}/${batches.length}...`)
+  // Process batches in parallel waves
+  for (let i = 0; i < batches.length; i += PARALLEL_BATCHES) {
+    const wave = batches.slice(i, i + PARALLEL_BATCHES)
+    const waveNum = Math.floor(i / PARALLEL_BATCHES) + 1
+    const totalWaves = Math.ceil(batches.length / PARALLEL_BATCHES)
+    console.log(`[AI] Processing wave ${waveNum}/${totalWaves} (${wave.length} batches in parallel)...`)
 
-    const batchResult = await classifyBatch(batches[i])
-    results.push(...batchResult)
+    const waveResults = await Promise.all(
+      wave.map(batch => classifyBatch(batch))
+    )
+    for (const batchResult of waveResults) {
+      results.push(...batchResult)
+    }
 
-    if (i < batches.length - 1) {
-      console.log(`[AI] Waiting ${DELAY_BETWEEN_BATCHES / 1000}s before next batch...`)
+    // Brief delay between waves (not after the last one)
+    if (i + PARALLEL_BATCHES < batches.length) {
+      console.log(`[AI] Waiting ${DELAY_BETWEEN_BATCHES / 1000}s before next wave...`)
       await new Promise(resolve => setTimeout(resolve, DELAY_BETWEEN_BATCHES))
     }
   }
