@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { aiComplete, parseAIJson, getAIStrategyDescription } from './ai-providers'
 
 // Classification result schema
 const ArticleClassificationSchema = z.object({
@@ -18,7 +19,7 @@ const ArticleClassificationSchema = z.object({
     'tactics'
   ]),
   platforms: z.array(z.enum([
-    'amazon', 'walmart', 'tiktok', 'shopify', 'ebay', 
+    'amazon', 'walmart', 'tiktok', 'shopify', 'ebay',
     'etsy', 'target', 'temu', 'shein', 'multi_platform'
   ])),
   summary: z.string(),
@@ -34,18 +35,21 @@ const ArticleClassificationSchema = z.object({
 
 export type ArticleClassification = z.infer<typeof ArticleClassificationSchema>
 
-// System prompt for the AI classifier
-const SYSTEM_PROMPT = `You are an expert editorial classifier for an e-commerce 
-and marketplace seller industry news platform called "Ecom Intel Hub." Your 
-audience is: Amazon/Walmart/eBay sellers, e-commerce brand operators, marketplace 
-agencies, SaaS tool providers, and e-commerce investors.
+// ============================================================================
+// SYSTEM PROMPT — Enhanced for richer AI summaries and insights
+// ============================================================================
 
-Your job is to evaluate news articles and determine:
-1. Whether they are RELEVANT to marketplace selling and e-commerce operations
-2. How to categorize and tag them
-3. How to summarize them for a professional audience
+const SYSTEM_PROMPT = `You are an expert editorial analyst and intelligence classifier for "Ecom Intel Hub,"
+a marketplace seller intelligence platform. Your audience includes Amazon/Walmart/eBay sellers,
+e-commerce brand operators, marketplace agencies, SaaS tool providers, and e-commerce investors.
 
-RELEVANT articles are about:
+Your job is to evaluate news articles and provide INTELLIGENT ANALYSIS:
+1. Determine if articles are RELEVANT to marketplace selling and e-commerce operations
+2. Categorize and tag them accurately
+3. Write insightful, analyst-grade summaries that go beyond restating headlines
+4. Identify specific implications, opportunities, and risks for sellers
+
+RELEVANT articles cover:
 - Selling on Amazon, Walmart, eBay, TikTok Shop, Shopify, Target+, Etsy, Temu, Shein
 - Marketplace fees, policies, algorithms, or program changes
 - Seller tools, SaaS products, or technology for e-commerce
@@ -68,8 +72,16 @@ NOT RELEVANT articles include:
 - Crypto, stock market, or finance news (unless about e-commerce company earnings)
 - Product spec comparisons or buyer guides aimed at consumers
 - Amazon/Walmart labor disputes, union news, warehouse conditions
-- Any article where "Amazon" or "Walmart" is only mentioned because a product 
-  is sold there, not because the article is about the marketplace/platform itself`
+- Any article where "Amazon" or "Walmart" is only mentioned because a product
+  is sold there, not because the article is about the marketplace/platform itself
+
+SUMMARY QUALITY STANDARDS:
+- Write like a Bloomberg/Morning Brew analyst, not a content mill
+- Lead with the "so what" — why should a seller care?
+- Include specific numbers, percentages, dates, and dollar amounts when available
+- Connect the news to broader trends (e.g., "This continues the trend of...")
+- Identify winners and losers — which sellers benefit, which are hurt?
+- Make the action_item genuinely useful, not generic advice`
 
 export interface RawArticle {
   id: string
@@ -106,7 +118,7 @@ export interface ClassifiedArticle extends RawArticle {
 const classifiedArticleIds = new Set<string>()
 
 // ============================================================================
-// KEYWORD-BASED FALLBACK (when AI is unavailable)
+// KEYWORD-BASED FALLBACK (when ALL AI providers are unavailable)
 // ============================================================================
 
 const RELEVANT_KEYWORDS = [
@@ -131,16 +143,20 @@ function detectPlatformsFromText(text: string): string[] {
   if (text.match(/tiktok shop|tiktok seller/i)) platforms.push('tiktok')
   if (text.match(/shopify|shop pay|shopify fulfillment/i)) platforms.push('shopify')
   if (text.match(/ebay|promoted listing/i)) platforms.push('ebay')
+  if (text.match(/target\+|target plus|target marketplace/i)) platforms.push('target')
+  if (text.match(/etsy|etsy seller/i)) platforms.push('etsy')
+  if (text.match(/temu/i)) platforms.push('temu')
+  if (text.match(/shein/i)) platforms.push('shein')
   if (platforms.length === 0) platforms.push('multi_platform')
   return platforms
 }
 
 function fallbackClassify(article: RawArticle): ArticleClassification {
   const text = (article.title + ' ' + (article.summary || '')).toLowerCase()
-  
+
   const hasRelevant = RELEVANT_KEYWORDS.some(kw => text.includes(kw))
   const hasExclude = EXCLUDE_KEYWORDS.some(kw => text.includes(kw))
-  
+
   if (hasExclude && !hasRelevant) {
     return {
       index: 0,
@@ -159,7 +175,7 @@ function fallbackClassify(article: RawArticle): ArticleClassification {
       key_stat: null
     }
   }
-  
+
   // Basic category detection
   let category: ArticleClassification['category'] = 'platform_updates'
   if (text.match(/fee|cost|margin|profit|reimburse/)) category = 'profitability'
@@ -171,7 +187,7 @@ function fallbackClassify(article: RawArticle): ArticleClassification {
   if (text.match(/how to|strategy|tip|guide|tutorial|best practice/)) category = 'tactics'
   if (text.match(/revenue|gmv|earnings|quarterly|market share|billion/)) category = 'market_metrics'
   if (text.match(/breaking|urgent|outage|suspended/)) category = 'breaking'
-  
+
   return {
     index: 0,
     relevant: hasRelevant,
@@ -191,23 +207,15 @@ function fallbackClassify(article: RawArticle): ArticleClassification {
 }
 
 // ============================================================================
-// AI CLASSIFICATION (using direct Anthropic API)
+// MULTI-PROVIDER AI CLASSIFICATION
 // ============================================================================
 
 async function classifyBatch(articles: RawArticle[]): Promise<ArticleClassification[]> {
-  const apiKey = process.env.ANTHROPIC_API_KEY
-  
-  // If no API key, use fallback
-  if (!apiKey) {
-    console.log('[v0] ANTHROPIC_API_KEY not set — using keyword fallback')
-    return articles.map((a, i) => ({ ...fallbackClassify(a), index: i }))
-  }
-  
-  const articlesText = articles.map((a, i) => 
+  const articlesText = articles.map((a, i) =>
     `[${i}] TITLE: ${a.title}\nSOURCE: ${a.sourceName}\nSUMMARY: ${a.summary || 'No summary available'}`
   ).join('\n\n')
 
-  const userPrompt = `Classify each of these ${articles.length} articles. 
+  const userPrompt = `Classify each of these ${articles.length} articles.
 For each article, return a JSON array with one object per article:
 
 ${articlesText}
@@ -220,15 +228,15 @@ Return this exact JSON structure (array of objects):
     "relevance_score": 0-100,
     "category": "one of: breaking, market_metrics, platform_updates, profitability, mergers_acquisitions, tools_technology, advertising, logistics, events, tactics",
     "platforms": ["amazon", "walmart", "tiktok", "shopify", "ebay", "etsy", "target", "temu", "shein", "multi_platform"],
-    "summary": "One clear sentence summarizing why this matters to e-commerce professionals",
+    "summary": "One clear sentence on why this matters to e-commerce professionals",
     "is_breaking": true or false,
     "audience": ["sellers", "agencies", "saas", "investors", "service_providers"],
     "rejection_reason": "Only if relevant=false, explain why in 5 words or less",
-    "ai_summary": "A seller-focused summary with specific details and numbers (2-3 sentences)",
+    "ai_summary": "An analyst-grade seller-focused insight (2-3 sentences). Lead with 'so what.' Include specific numbers/dates. Connect to broader industry trends. Identify who wins and who loses.",
     "impact_level": "high" or "medium" or "low",
-    "impact_detail": "Who this affects and estimated magnitude",
-    "action_item": "What the reader should do about this",
-    "key_stat": "The most important number or data point from this article, if any (null if none)"
+    "impact_detail": "Who exactly is affected, estimated magnitude, and timeline",
+    "action_item": "A specific, actionable next step (not generic advice like 'stay informed')",
+    "key_stat": "The single most important number or data point (null if none)"
   }
 ]
 
@@ -237,119 +245,93 @@ Rules:
 - If "Amazon" is only mentioned because a product is sold there: relevant=false
 - relevance_score: 80-100 = highly relevant, 50-79 = moderately relevant, below 50 = reject
 - is_breaking: only true for major policy changes, platform outages, or urgent fee changes
-- ai_summary: write for a professional audience, be specific about what changed and why it matters
-- audience: tag which audience segments would care about this article
-- impact_level: high = affects many sellers significantly, medium = affects some sellers, low = minor/niche impact
-- action_item: specific next step the reader should take
+- ai_summary: write like a Bloomberg analyst — specific, opinionated, numbers-first. Example: "Amazon's 5% referral fee hike on electronics (effective May 1) will squeeze margins for small sellers doing <$1M/yr. Large brands with negotiated rates are unaffected. This follows Walmart's similar move in Q4, signaling industry-wide fee compression."
+- audience: tag ALL segments that would care about this article
+- impact_level: high = affects many sellers significantly, medium = affects some sellers, low = minor/niche
+- action_item: give a SPECIFIC action, e.g. "Audit your FBA inventory before April 15 to avoid new overage fees" instead of "Review your fees"
 
 Return ONLY the JSON array, no other text.`
 
-  // Retry with exponential backoff for rate limits
-  const maxRetries = 3
-  let retryDelay = 2000 // Start with 2 seconds
-  
+  // Retry with exponential backoff
+  const maxRetries = 2
+  let retryDelay = 2000
+
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01'
-        },
-        body: JSON.stringify({
-          model: 'claude-haiku-4-5-20251001',
-          max_tokens: 4000,
-          system: SYSTEM_PROMPT,
-          messages: [{ role: 'user', content: userPrompt }]
-        })
+      const result = await aiComplete({
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'user', content: userPrompt },
+        ],
+        maxTokens: 4000,
+        purpose: `classify batch of ${articles.length} articles`,
       })
 
-      // Handle rate limits with retry
-      if (response.status === 429) {
-        if (attempt < maxRetries) {
-          console.log(`[v0] Rate limited, waiting ${retryDelay / 1000}s before retry ${attempt + 1}/${maxRetries}...`)
-          await new Promise(resolve => setTimeout(resolve, retryDelay))
-          retryDelay *= 2 // Exponential backoff
-          continue
-        }
-        console.error('[v0] Rate limit exceeded after all retries, using fallback')
+      const parsed = parseAIJson<ArticleClassification[]>(result.text, 'array')
+      if (!parsed || parsed.length === 0) {
+        console.error(`[AI] Could not parse classification response from ${result.provider}`)
+        if (attempt < maxRetries) continue
         return articles.map((a, i) => ({ ...fallbackClassify(a), index: i }))
       }
 
-      if (!response.ok) {
-        const errorText = await response.text()
-        console.error(`[v0] Anthropic API error ${response.status}:`, errorText)
-        // Fallback to keyword classification
-        return articles.map((a, i) => ({ ...fallbackClassify(a), index: i }))
-      }
-
-      const data = await response.json()
-      const rawText = data.content?.[0]?.text || '[]'
-
-      // Strip markdown fences and parse the JSON response
-      const text = rawText.replace(/```json\n?|```\n?/g, '').trim()
-      const jsonMatch = text.match(/\[[\s\S]*\]/)
-      if (!jsonMatch) {
-        console.error('[v0] Could not parse AI response as JSON')
-        return articles.map((a, i) => ({ ...fallbackClassify(a), index: i }))
-      }
-
-      const parsed = JSON.parse(jsonMatch[0])
-      console.log(`[v0] Anthropic API call successful, received ${parsed.length} classifications`)
-      return parsed as ArticleClassification[]
+      console.log(`[AI] Classified ${parsed.length} articles via ${result.provider} (${result.model}) in ${result.latencyMs}ms`)
+      return parsed
 
     } catch (error) {
-      console.error('[v0] AI classification batch failed:', error)
+      const msg = error instanceof Error ? error.message : String(error)
+
+      if (msg === 'NO_AI_PROVIDER') {
+        console.log('[AI] No AI providers available — using keyword fallback')
+        return articles.map((a, i) => ({ ...fallbackClassify(a), index: i }))
+      }
+
+      console.error(`[AI] Classification attempt ${attempt + 1} failed: ${msg}`)
       if (attempt < maxRetries) {
-        await new Promise(resolve => setTimeout(resolve, retryDelay))
+        await new Promise(r => setTimeout(r, retryDelay))
         retryDelay *= 2
         continue
       }
-      // Fallback to keyword classification
+
+      // All retries exhausted — keyword fallback
       return articles.map((a, i) => ({ ...fallbackClassify(a), index: i }))
     }
   }
-  
-  // Should never reach here, but fallback just in case
+
   return articles.map((a, i) => ({ ...fallbackClassify(a), index: i }))
 }
 
-const BATCH_SIZE = 12 // 12 articles per API call
-const DELAY_BETWEEN_BATCHES = 8000 // 8 seconds between batches to stay under 10k tokens/min
+const BATCH_SIZE = 12
+const DELAY_BETWEEN_BATCHES = 8000
 
 /**
- * Classify all articles in batches with rate limiting
- * Processes SEQUENTIALLY to avoid rate limits (10k output tokens/min)
+ * Classify all articles in batches with rate limiting.
+ * Uses the best available AI provider with automatic fallback.
  */
 export async function classifyAllArticles(articles: RawArticle[]): Promise<ArticleClassification[]> {
-  console.log(`[v0] Starting AI classification for ${articles.length} articles...`)
-  
-  // Split into batches
+  console.log(`[AI] Starting classification for ${articles.length} articles — ${getAIStrategyDescription()}`)
+
   const batches: RawArticle[][] = []
   for (let i = 0; i < articles.length; i += BATCH_SIZE) {
     batches.push(articles.slice(i, i + BATCH_SIZE))
   }
 
-  console.log(`[v0] Processing ${batches.length} batches sequentially (${DELAY_BETWEEN_BATCHES / 1000}s between each)`)
+  console.log(`[AI] Processing ${batches.length} batches sequentially (${DELAY_BETWEEN_BATCHES / 1000}s between each)`)
 
   const results: ArticleClassification[] = []
-  
-  // Process batches SEQUENTIALLY to avoid rate limits
+
   for (let i = 0; i < batches.length; i++) {
-    console.log(`[v0] Processing batch ${i + 1}/${batches.length}...`)
-    
+    console.log(`[AI] Processing batch ${i + 1}/${batches.length}...`)
+
     const batchResult = await classifyBatch(batches[i])
     results.push(...batchResult)
-    
-    // Wait between batches to respect rate limits (except for the last batch)
+
     if (i < batches.length - 1) {
-      console.log(`[v0] Waiting ${DELAY_BETWEEN_BATCHES / 1000}s before next batch...`)
+      console.log(`[AI] Waiting ${DELAY_BETWEEN_BATCHES / 1000}s before next batch...`)
       await new Promise(resolve => setTimeout(resolve, DELAY_BETWEEN_BATCHES))
     }
   }
 
-  console.log(`[v0] Classification complete. ${results.length} articles processed.`)
+  console.log(`[AI] Classification complete. ${results.length} articles processed.`)
   return results
 }
 
@@ -378,14 +360,13 @@ export function clearClassificationCache(): void {
  * Merge classification results back into raw articles
  */
 export function mergeClassifications(
-  articles: RawArticle[], 
+  articles: RawArticle[],
   classifications: ArticleClassification[]
 ): ClassifiedArticle[] {
   return articles.map((article, index) => {
     const classification = classifications[index]
-    
+
     if (!classification) {
-      // If classification failed, return with default values
       return {
         ...article,
         relevant: false,
@@ -402,10 +383,9 @@ export function mergeClassifications(
         rejectionReason: 'Classification not available'
       }
     }
-    
-    // Mark as classified
+
     markAsClassified(article.id)
-    
+
     return {
       ...article,
       relevant: classification.relevant,
