@@ -1,6 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { z } from 'zod'
 import crypto from 'crypto'
+import { aiComplete, parseAIJson } from '@/lib/ai-providers'
 
 // Types
 export interface NewsSource {
@@ -373,102 +374,55 @@ function cleanHtml(html: string): string {
     .trim()
 }
 
-// AI-powered article classification using direct Anthropic API
+// AI-powered article classification using multi-provider system
 export async function classifyArticle(
   title: string,
   content: string,
   sourcePlatforms: string[]
 ): Promise<z.infer<typeof articleClassificationSchema>> {
-  const apiKey = process.env.ANTHROPIC_API_KEY
-
-  if (!apiKey) {
-    console.log('[v0] ANTHROPIC_API_KEY not set — using default classification')
-    return {
-      category: 'general',
-      categoryConfidence: 0.5,
-      relevanceScore: 0.5,
-      sentiment: 'neutral',
-      keywords: [],
-      summary: content.substring(0, 200),
-      isBreaking: false,
-      platforms: sourcePlatforms,
-    }
+  const defaultResult: z.infer<typeof articleClassificationSchema> = {
+    category: 'general',
+    categoryConfidence: 0.5,
+    relevanceScore: 0.5,
+    sentiment: 'neutral',
+    keywords: [],
+    summary: content.substring(0, 200),
+    isBreaking: false,
+    platforms: sourcePlatforms,
   }
 
-  const systemPrompt = `You are an e-commerce news classifier. Analyze articles and classify them for an Amazon/Walmart seller audience.
+  const systemPrompt = `You are an e-commerce news classifier and analyst. Analyze articles for an Amazon/Walmart/marketplace seller audience.
 
-Categories:
-- announcements: Official platform announcements, policy changes
-- amazon: Amazon-specific news, FBA updates, Seller Central changes
-- other-marketplaces: Walmart, TikTok Shop, eBay, Etsy news
-- profitability: Margin optimization, fees, pricing strategies
-- advertising: PPC, sponsored products, marketing
-- logistics: Shipping, FBA, 3PL, supply chain
-- tools: Software, apps, seller tools
-- industry: General e-commerce industry news
-- general: Other relevant news
+Categories: announcements, amazon, other-marketplaces, profitability, advertising, logistics, tools, industry, general
 
-Determine:
-1. Best category fit
-2. Relevance score (0-1) for e-commerce sellers
-3. Sentiment (positive/negative/neutral for sellers)
-4. Key keywords (max 10)
-5. Brief summary (max 300 chars)
-6. If this is breaking/urgent news
-7. Which platforms it relates to (amazon, walmart, tiktok, ebay, etsy, shopify, etc.)
-
-Return ONLY valid JSON, no other text.`
+Determine: category, relevanceScore (0-1), sentiment (positive/negative/neutral), keywords (max 10), summary (max 300 chars, analyst-grade), isBreaking, platforms.
+Return ONLY valid JSON.`
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 1000,
-        system: systemPrompt,
-        messages: [{
+    const result = await aiComplete({
+      messages: [
+        { role: 'system', content: systemPrompt },
+        {
           role: 'user',
-          content: `Title: ${title}\n\nContent: ${content.substring(0, 2000)}\n\nSource platforms: ${sourcePlatforms.join(', ')}\n\nReturn JSON with: category, categoryConfidence (0-1), relevanceScore (0-1), sentiment (positive/negative/neutral), keywords (array, max 10), summary (max 300 chars), isBreaking (boolean), platforms (array)`
-        }]
-      })
+          content: `Title: ${title}\n\nContent: ${content.substring(0, 2000)}\n\nSource platforms: ${sourcePlatforms.join(', ')}\n\nReturn JSON with: category, categoryConfidence (0-1), relevanceScore (0-1), sentiment, keywords (array, max 10), summary (max 300 chars), isBreaking (boolean), platforms (array)`
+        }
+      ],
+      maxTokens: 1000,
+      purpose: `classify: "${title.substring(0, 50)}"`,
     })
 
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error(`[v0] Anthropic API error ${response.status}:`, errorText)
-      throw new Error(`API error: ${response.status}`)
-    }
-
-    const data = await response.json()
-    const text = data.content?.[0]?.text || '{}'
-
-    // Strip markdown fences and parse JSON
-    const cleanedText = text.replace(/```json\n?|```\n?/g, '').trim()
-    const jsonMatch = cleanedText.match(/\{[\s\S]*\}/)
-    if (!jsonMatch) {
+    const parsed = parseAIJson(result.text, 'object')
+    if (!parsed) {
       throw new Error('Could not parse AI response as JSON')
     }
 
-    const parsed = JSON.parse(jsonMatch[0])
     return articleClassificationSchema.parse(parsed)
   } catch (error) {
-    console.error('AI classification error:', error)
-    // Return default classification on error
-    return {
-      category: 'general',
-      categoryConfidence: 0.5,
-      relevanceScore: 0.5,
-      sentiment: 'neutral',
-      keywords: [],
-      summary: content.substring(0, 200),
-      isBreaking: false,
-      platforms: sourcePlatforms,
+    const msg = error instanceof Error ? error.message : String(error)
+    if (msg !== 'NO_AI_PROVIDER') {
+      console.error('AI classification error:', msg)
     }
+    return defaultResult
   }
 }
 

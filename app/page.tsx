@@ -109,19 +109,20 @@ const CATEGORIES = [
 
 const PLATFORMS = ["All", "Amazon", "Walmart", "TikTok Shop", "Shopify", "eBay"]
 
-// Map filter category IDs to actual article categories from database
+// Map filter category IDs to actual article categories
+// These must match the values returned by mapAICategory()
 const CATEGORY_MAPPINGS: Record<string, string[]> = {
   all: [], // Shows all
-  breaking: ["breaking", "platform"], // Breaking news
-  market: ["market", "platform"], // Market & Metrics
+  breaking: ["breaking"], // Breaking news
+  market: ["market"], // Market & Metrics
   platform: ["platform"], // Platform Updates
   profitability: ["profitability"], // Seller Profitability
-  deals: ["deals", "market"], // M&A & Deal Flow
+  deals: ["deals"], // M&A & Deal Flow
   tools: ["tools"], // Tools & Technology
   advertising: ["advertising"], // Advertising
   logistics: ["logistics"], // Logistics
-  events: ["market", "platform"], // Events
-  tactics: ["tactics", "profitability"], // Tactics & Strategy
+  events: ["events"], // Events
+  tactics: ["tactics"], // Tactics & Strategy
 }
 
 // Helper functions
@@ -246,7 +247,7 @@ export default function HomePage() {
       const data = await response.json()
       
       if (data.success && data.articles?.length > 0) {
-        // Transform AI-analyzed articles to match frontend interface
+        // Transform AI-classified articles to match frontend interface
         const transformedArticles: NewsArticle[] = data.articles.map((a: {
           id: string
           title: string
@@ -318,8 +319,79 @@ export default function HomePage() {
           { id: "3", title: "New tariff regulations impact cross-border sellers starting May 1", timestamp: new Date().toISOString(), urgent: false },
         ])
       }
+      // Fallback: if AI-powered articles API returned nothing, try /api/news
+      if (!data.success || !data.articles?.length) {
+        console.log('[v0] No articles from /api/articles, trying /api/news fallback...')
+        const fallbackResponse = await fetch('/api/news?limit=30')
+        const fallbackData = await fallbackResponse.json()
+
+        if (fallbackData.articles?.length > 0) {
+          const fallbackArticles: NewsArticle[] = fallbackData.articles.map((a: {
+            id: string
+            title: string
+            excerpt: string
+            content?: string
+            category: string
+            source: string
+            sourceUrl: string
+            author: string
+            publishedAt: string
+            readTime: number
+            tags: string[]
+            featured: boolean
+            breaking: boolean
+            imageUrl?: string
+            platforms?: string[]
+          }) => ({
+            ...a,
+            fullContent: a.content || a.excerpt,
+            category: mapAICategory(a.category.toLowerCase()) || a.category.toLowerCase(),
+            audience: [],
+            impactLevel: 'medium' as const,
+            impactDetail: '',
+            actionItem: '',
+            keyStat: null,
+            aiSummary: a.excerpt,
+          }))
+
+          setArticles(fallbackArticles)
+
+          const breaking = fallbackArticles
+            .filter((a: NewsArticle) => a.breaking)
+            .slice(0, 3)
+            .map((a: NewsArticle) => ({
+              id: a.id,
+              title: a.title,
+              timestamp: a.publishedAt,
+              urgent: a.breaking,
+            }))
+
+          if (breaking.length > 0) {
+            setBreakingNews(breaking)
+          }
+        }
+      }
     } catch (error) {
       console.error("Failed to fetch AI-powered news:", error)
+      // Last resort: try /api/news
+      try {
+        const fallbackResponse = await fetch('/api/news?limit=30')
+        const fallbackData = await fallbackResponse.json()
+        if (fallbackData.articles?.length > 0) {
+          setArticles(fallbackData.articles.map((a: Record<string, unknown>) => ({
+            ...a,
+            fullContent: a.content || a.excerpt || '',
+            audience: [],
+            impactLevel: 'medium',
+            impactDetail: '',
+            actionItem: '',
+            keyStat: null,
+            aiSummary: a.excerpt || '',
+          })))
+        }
+      } catch {
+        console.error("All news sources failed")
+      }
     } finally {
       setLoading(false)
     }
@@ -328,10 +400,20 @@ export default function HomePage() {
   // Map AI categories to frontend category IDs
   function mapAICategory(aiCategory: string): string {
     const mapping: Record<string, string> = {
+      // Snake_case from AI classifier (lib/ai-classifier.ts)
+      'platform_updates': 'platform',
+      'market_metrics': 'market',
+      'tools_technology': 'tools',
+      'mergers_acquisitions': 'deals',
+      'breaking': 'breaking',
+      'profitability': 'profitability',
+      'advertising': 'advertising',
+      'logistics': 'logistics',
+      'events': 'events',
+      'tactics': 'tactics',
+      // Kebab-case (legacy / fallback)
       'platform-updates': 'platform',
       'seller-operations': 'logistics',
-      'advertising': 'advertising',
-      'profitability': 'profitability',
       'market-trends': 'market',
       'tools-technology': 'tools',
       'compliance-policy': 'platform',
