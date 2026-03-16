@@ -31,6 +31,9 @@ import {
   ArrowRight,
   Mail,
   ChevronRight,
+  Zap,
+  BookOpen,
+  Lightbulb,
 } from "lucide-react"
 
 interface Article {
@@ -107,13 +110,19 @@ function formatCategoryLabel(category: string): string {
  */
 function cleanArticleHTML(html: string): string {
   if (!html) return ''
-  // Remove script/style tags
   let clean = html.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
   clean = clean.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-  // Remove inline event handlers
   clean = clean.replace(/\son\w+="[^"]*"/gi, '')
   clean = clean.replace(/\son\w+='[^']*'/gi, '')
   return clean
+}
+
+/**
+ * Strip HTML tags to get plain text length.
+ */
+function getPlainTextLength(html: string): number {
+  if (!html) return 0
+  return html.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().length
 }
 
 export default function ArticlePage() {
@@ -230,8 +239,15 @@ export default function ArticlePage() {
     )
   }
 
-  const readTime = getReadTime((article.fullContent || article.aiSummary || article.summary || ''))
-  const hasFullContent = article.fullContent && article.fullContent.length > 300
+  const allContent = [article.fullContent, article.aiSummary, article.summary].filter(Boolean).join(' ')
+  const readTime = getReadTime(allContent)
+  const hasRichContent = getPlainTextLength(article.fullContent || '') > 300
+  const hasAISummary = !!(article.aiSummary && article.aiSummary.length > 10 && article.aiSummary !== article.summary)
+  const hasImpactDetail = !!(article.impactDetail && article.impactDetail.length > 5)
+  const hasActionItem = !!(article.actionItem && article.actionItem.length > 5)
+  const hasKeyStat = !!(article.keyStat && article.keyStat.length > 2)
+  const hasAudience = !!(article.audience && article.audience.length > 0)
+  const hasAnyInsight = hasAISummary || hasImpactDetail || hasActionItem || hasKeyStat
 
   return (
     <div className="min-h-screen bg-background">
@@ -346,27 +362,42 @@ export default function ArticlePage() {
                   <Clock className="h-4 w-4" />
                   {readTime} min read
                 </span>
+                {hasAnyInsight && (
+                  <Badge variant="outline" className="border-primary/30 text-primary bg-primary/5">
+                    <Sparkles className="h-3 w-3 mr-1" />
+                    AI Enhanced
+                  </Badge>
+                )}
               </div>
             </header>
 
-            {/* AI Intelligence Brief */}
-            {(article.aiSummary || article.impactLevel || article.actionItem || article.keyStat) && (
-              <div className="bg-primary/5 rounded-xl p-6 mb-8 border border-primary/20">
-                <div className="flex items-center gap-2 mb-4">
-                  <Sparkles className="h-5 w-5 text-primary" />
-                  <h2 className="font-bold text-lg text-primary">AI Intelligence Brief</h2>
+            {/* ========================================================= */}
+            {/* AI INTELLIGENCE BRIEF — The star of the page               */}
+            {/* ========================================================= */}
+            {hasAnyInsight && (
+              <div className="bg-primary/5 rounded-xl p-6 md:p-8 mb-8 border border-primary/20">
+                <div className="flex items-center gap-2 mb-5">
+                  <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Sparkles className="h-4 w-4 text-primary" />
+                  </div>
+                  <div>
+                    <h2 className="font-bold text-lg text-primary">AI Intelligence Brief</h2>
+                    <p className="text-xs text-muted-foreground">Automated analysis by Ecom Intel Hub</p>
+                  </div>
                 </div>
 
-                {/* AI Summary */}
-                {article.aiSummary && (
-                  <p className="text-base leading-relaxed mb-6">
-                    {article.aiSummary}
-                  </p>
+                {/* AI Summary — the main analysis paragraph */}
+                {hasAISummary && (
+                  <div className="mb-6">
+                    <p className="text-base md:text-lg leading-relaxed">
+                      {article.aiSummary}
+                    </p>
+                  </div>
                 )}
 
                 <div className="grid sm:grid-cols-2 gap-4">
                   {/* Key Stat */}
-                  {article.keyStat && (
+                  {hasKeyStat && (
                     <div className="bg-background rounded-lg p-4 border">
                       <div className="flex items-center gap-2 mb-2">
                         <TrendingUp className="h-4 w-4 text-blue-500" />
@@ -394,14 +425,14 @@ export default function ArticlePage() {
                       }`}>
                         {article.impactLevel.charAt(0).toUpperCase() + article.impactLevel.slice(1)} Impact
                       </p>
-                      {article.impactDetail && (
+                      {hasImpactDetail && (
                         <p className="text-sm text-muted-foreground mt-1">{article.impactDetail}</p>
                       )}
                     </div>
                   )}
 
                   {/* Action Item */}
-                  {article.actionItem && (
+                  {hasActionItem && (
                     <div className="bg-background rounded-lg p-4 border sm:col-span-2">
                       <div className="flex items-center gap-2 mb-2">
                         <Target className="h-4 w-4 text-primary" />
@@ -412,14 +443,14 @@ export default function ArticlePage() {
                   )}
 
                   {/* Audience */}
-                  {article.audience && article.audience.length > 0 && (
+                  {hasAudience && (
                     <div className="bg-background rounded-lg p-4 border sm:col-span-2">
                       <div className="flex items-center gap-2 mb-2">
                         <Users className="h-4 w-4 text-muted-foreground" />
                         <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Relevant For</span>
                       </div>
                       <div className="flex flex-wrap gap-2">
-                        {article.audience.map(aud => (
+                        {article.audience!.map(aud => (
                           <Badge key={aud} variant="secondary" className="capitalize">
                             {aud.replace(/_/g, ' ')}
                           </Badge>
@@ -433,34 +464,75 @@ export default function ArticlePage() {
 
             <Separator className="my-8" />
 
-            {/* Article Body */}
-            {hasFullContent ? (
-              <div
-                className="prose prose-lg max-w-none dark:prose-invert
-                  prose-headings:font-bold prose-headings:tracking-tight
-                  prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4
-                  prose-p:leading-relaxed prose-p:mb-6
-                  prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-6
-                  prose-blockquote:italic prose-blockquote:bg-muted/30 prose-blockquote:py-4
-                  prose-blockquote:pr-4 prose-blockquote:rounded-r-lg
-                  prose-ul:my-6 prose-li:my-2
-                  prose-strong:text-foreground
-                  prose-a:text-primary prose-a:no-underline hover:prose-a:underline
-                  prose-img:rounded-lg"
-                dangerouslySetInnerHTML={{ __html: cleanArticleHTML(article.fullContent || '') }}
-              />
+            {/* ========================================================= */}
+            {/* ARTICLE BODY — Rich content or expanded summary             */}
+            {/* ========================================================= */}
+            {hasRichContent ? (
+              <>
+                <div className="flex items-center gap-2 mb-6">
+                  <BookOpen className="h-5 w-5 text-muted-foreground" />
+                  <h2 className="font-bold text-xl">Full Coverage</h2>
+                </div>
+                <div
+                  className="prose prose-lg max-w-none dark:prose-invert
+                    prose-headings:font-bold prose-headings:tracking-tight
+                    prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4
+                    prose-p:leading-relaxed prose-p:mb-6
+                    prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-6
+                    prose-blockquote:italic prose-blockquote:bg-muted/30 prose-blockquote:py-4
+                    prose-blockquote:pr-4 prose-blockquote:rounded-r-lg
+                    prose-ul:my-6 prose-li:my-2
+                    prose-strong:text-foreground
+                    prose-a:text-primary prose-a:no-underline hover:prose-a:underline
+                    prose-img:rounded-lg"
+                  dangerouslySetInnerHTML={{ __html: cleanArticleHTML(article.fullContent || '') }}
+                />
+              </>
             ) : (
-              <div className="space-y-6">
-                <p className="text-lg leading-relaxed text-muted-foreground">
-                  {article.summary}
-                </p>
-                {article.aiSummary && article.aiSummary !== article.summary && (
-                  <div className="bg-muted/30 rounded-lg p-6 border">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Sparkles className="h-4 w-4 text-primary" />
-                      <span className="text-sm font-semibold text-primary">AI Analysis</span>
+              <div className="space-y-8">
+                {/* When there's no full RSS content, make the summary the main body */}
+                <div>
+                  <div className="flex items-center gap-2 mb-6">
+                    <BookOpen className="h-5 w-5 text-muted-foreground" />
+                    <h2 className="font-bold text-xl">Summary</h2>
+                  </div>
+                  <p className="text-lg leading-relaxed text-foreground">
+                    {article.summary}
+                  </p>
+                </div>
+
+                {/* If AI summary is different from summary, show it as additional analysis */}
+                {hasAISummary && (
+                  <div className="bg-muted/30 rounded-xl p-6 border">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Lightbulb className="h-5 w-5 text-amber-500" />
+                      <h3 className="font-bold text-base">Our Take</h3>
                     </div>
-                    <p className="leading-relaxed">{article.aiSummary}</p>
+                    <p className="leading-relaxed text-foreground">{article.aiSummary}</p>
+                  </div>
+                )}
+
+                {/* What This Means section — helps fill content when RSS is thin */}
+                {(hasImpactDetail || hasActionItem) && (
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-2">
+                      <Zap className="h-5 w-5 text-primary" />
+                      <h2 className="font-bold text-xl">What This Means for Sellers</h2>
+                    </div>
+
+                    {hasImpactDetail && (
+                      <div className="pl-4 border-l-2 border-primary/30">
+                        <h4 className="font-semibold text-sm uppercase text-muted-foreground tracking-wide mb-2">Impact Assessment</h4>
+                        <p className="leading-relaxed">{article.impactDetail}</p>
+                      </div>
+                    )}
+
+                    {hasActionItem && (
+                      <div className="pl-4 border-l-2 border-emerald-500/30">
+                        <h4 className="font-semibold text-sm uppercase text-muted-foreground tracking-wide mb-2">What You Should Do</h4>
+                        <p className="leading-relaxed">{article.actionItem}</p>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -468,21 +540,23 @@ export default function ArticlePage() {
 
             <Separator className="my-8" />
 
-            {/* Original Source Link */}
+            {/* Source Attribution — small, non-distracting */}
             {article.sourceUrl && article.sourceUrl !== '#' && (
-              <div className="p-6 bg-muted/30 rounded-xl border mb-8">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Originally published by</p>
-                    <p className="font-semibold">{article.sourceName}</p>
-                  </div>
-                  <Button variant="outline" asChild className="gap-2">
-                    <a href={article.sourceUrl} target="_blank" rel="noopener noreferrer">
-                      View Original Article
-                      <ExternalLink className="h-4 w-4" />
-                    </a>
-                  </Button>
-                </div>
+              <div className="flex items-center gap-3 text-sm text-muted-foreground mb-8">
+                <Globe className="h-4 w-4 flex-shrink-0" />
+                <span>
+                  Source: {article.sourceName}
+                  {' · '}
+                  <a
+                    href={article.sourceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline inline-flex items-center gap-1"
+                  >
+                    View original
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                </span>
               </div>
             )}
 
