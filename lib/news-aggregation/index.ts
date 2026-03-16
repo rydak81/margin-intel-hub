@@ -154,6 +154,84 @@ export const DEFAULT_RSS_SOURCES: Omit<NewsSource, 'id' | 'last_fetched_at'>[] =
     priority_score: 70,
     fetch_frequency_minutes: 120,
     metadata: {}
+  },
+  {
+    name: 'Practical Commerce',
+    slug: 'practical-commerce',
+    source_type: 'rss',
+    url: 'https://practicalcommerce.com',
+    feed_url: 'https://practicalcommerce.com/feed',
+    category: 'ecommerce',
+    platform: ['general'],
+    is_active: true,
+    priority_score: 75,
+    fetch_frequency_minutes: 120,
+    metadata: {}
+  },
+  {
+    name: 'Helium 10',
+    slug: 'helium-10',
+    source_type: 'rss',
+    url: 'https://www.helium10.com/blog',
+    feed_url: 'https://www.helium10.com/blog/feed/',
+    category: 'amazon',
+    platform: ['amazon'],
+    is_active: true,
+    priority_score: 80,
+    fetch_frequency_minutes: 120,
+    metadata: {}
+  },
+  {
+    name: 'Carbon6',
+    slug: 'carbon6',
+    source_type: 'rss',
+    url: 'https://carbon6.io/blog',
+    feed_url: 'https://carbon6.io/blog/feed/',
+    category: 'amazon',
+    platform: ['amazon'],
+    is_active: true,
+    priority_score: 75,
+    fetch_frequency_minutes: 120,
+    metadata: {}
+  },
+  {
+    name: 'EcomCrew',
+    slug: 'ecomcrew',
+    source_type: 'rss',
+    url: 'https://ecomcrew.com',
+    feed_url: 'https://ecomcrew.com/feed/',
+    category: 'ecommerce',
+    platform: ['amazon', 'general'],
+    is_active: true,
+    priority_score: 75,
+    fetch_frequency_minutes: 120,
+    metadata: {}
+  },
+  {
+    name: 'About Amazon',
+    slug: 'about-amazon',
+    source_type: 'rss',
+    url: 'https://www.aboutamazon.com/news',
+    feed_url: 'https://www.aboutamazon.com/news/feed',
+    category: 'amazon',
+    platform: ['amazon'],
+    is_active: true,
+    priority_score: 80,
+    fetch_frequency_minutes: 60,
+    metadata: {}
+  },
+  {
+    name: 'Tinuiti',
+    slug: 'tinuiti',
+    source_type: 'rss',
+    url: 'https://tinuiti.com/blog',
+    feed_url: 'https://tinuiti.com/blog/feed/',
+    category: 'advertising',
+    platform: ['amazon', 'walmart', 'general'],
+    is_active: true,
+    priority_score: 75,
+    fetch_frequency_minutes: 120,
+    metadata: {}
   }
 ]
 
