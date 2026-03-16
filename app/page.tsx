@@ -12,7 +12,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { ArticleDetailModal } from "@/components/article-detail-modal"
 import { BackToTop } from "@/components/back-to-top"
 import { getArticleFallbackImage } from "@/lib/article-images"
-import { ArticleGridSkeleton, FeaturedArticleSkeleton, MarketSnapshotSkeleton } from "@/components/article-skeleton"
+import { ArticleGridSkeleton } from "@/components/article-skeleton"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,7 +48,6 @@ import {
   Calculator,
   Target,
   LineChart,
-  Package,
   ChevronDown,
   FileText,
   Linkedin,
@@ -720,39 +719,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Quick Stats Bar */}
-      <div className="bg-muted/50 border-y">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
-            <div className="text-center">
-              <div className="text-xl md:text-2xl font-bold text-primary">2.1M+</div>
-              <div className="text-xs text-muted-foreground">Amazon 3P Sellers</div>
-            </div>
-            <div className="text-center">
-              <div className="text-xl md:text-2xl font-bold text-emerald-600">22%</div>
-              <div className="text-xs text-muted-foreground">Avg FBA Margin</div>
-            </div>
-            <div className="text-center">
-              <div className="text-xl md:text-2xl font-bold text-orange-500">+180%</div>
-              <div className="text-xs text-muted-foreground">TikTok Shop YoY</div>
-            </div>
-            <div className="text-center">
-              <div className="text-xl md:text-2xl font-bold text-blue-600">22.7%</div>
-              <div className="text-xs text-muted-foreground">Ecom % of Retail</div>
-            </div>
-            <div className="hidden lg:block text-center">
-              <div className="text-xl md:text-2xl font-bold text-purple-600">$5.5T</div>
-              <div className="text-xs text-muted-foreground">Global Ecom 2026</div>
-            </div>
-          </div>
-          <div className="text-center mt-3 text-[10px] text-muted-foreground/70">
-            Sources: Marketplace Pulse, eMarketer, US Census Bureau
-          </div>
-        </div>
-      </div>
-
       {/* Category Filter Bar */}
-      <div className="sticky top-16 z-40 bg-background border-b">
+      <div className="sticky top-14 z-40 bg-background border-b">
         <div className="max-w-7xl mx-auto px-4">
           <ScrollArea className="w-full">
             <div className="flex items-center gap-2 py-3">
@@ -1465,66 +1433,6 @@ export default function HomePage() {
           </aside>
         </div>
       </main>
-      {/* Popular Tools Strip */}
-      <section className="bg-muted/30 border-y py-12">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold mb-2">Popular Seller Tools</h2>
-            <p className="text-muted-foreground">Free tools to help you make better business decisions</p>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { 
-                name: "Profit Calculator", 
-                icon: Calculator, 
-                description: "Calculate true profit margins with all fees included",
-                href: "/tools#calculator",
-                color: "bg-emerald-500"
-              },
-              { 
-                name: "Listing Optimizer", 
-                icon: Target, 
-                description: "Score and improve your product listings instantly",
-                href: "/tools#listing",
-                color: "bg-blue-500"
-              },
-              { 
-                name: "Keyword Research", 
-                icon: LineChart, 
-                description: "Find high-converting keywords for your products",
-                href: "/tools#keywords",
-                color: "bg-purple-500"
-              },
-              { 
-                name: "Hot Products", 
-                icon: TrendingUp, 
-                description: "Discover trending products with opportunity scores",
-                href: "/tools#products",
-                color: "bg-orange-500"
-              },
-            ].map((tool) => (
-              <Link key={tool.name} href={tool.href}>
-                <Card className="border-0 shadow-sm hover:shadow-md transition-all h-full group cursor-pointer">
-                  <CardContent className="p-5">
-                    <div className={`h-10 w-10 rounded-lg ${tool.color} flex items-center justify-center mb-4`}>
-                      <tool.icon className="h-5 w-5 text-white" />
-                    </div>
-                    <h3 className="font-semibold mb-1 group-hover:text-primary transition-colors">{tool.name}</h3>
-                    <p className="text-sm text-muted-foreground mb-3">{tool.description}</p>
-                    <span className="text-sm text-primary font-medium flex items-center gap-1">
-                      Try Free <ArrowRight className="h-3 w-3" />
-                    </span>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
-          <p className="text-center text-sm text-muted-foreground mt-6">
-            Used by <span className="font-semibold text-foreground">10,000+</span> sellers, agencies, and SaaS teams
-          </p>
-        </div>
-      </section>
-
       {/* Footer */}
       <footer className="bg-card border-t">
         <div className="max-w-7xl mx-auto px-4 py-12">
@@ -1645,16 +1553,6 @@ export default function HomePage() {
           </div>
         </div>
       </footer>
-
-      {/* Mobile Subscribe Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-primary text-primary-foreground p-3 sm:hidden z-50">
-        <Button variant="secondary" className="w-full" asChild>
-          <Link href="/newsletter">
-            <Mail className="h-4 w-4 mr-2" />
-            Subscribe to Daily Brief
-          </Link>
-        </Button>
-      </div>
 
       {/* Article Detail Modal */}
       <ArticleDetailModal
