@@ -94,6 +94,15 @@ let articlesCache: ClassifiedArticle[] = []
 let lastCacheUpdate: number = 0
 const CACHE_DURATION = 30 * 60 * 1000 // 30 minutes
 
+// Pipeline stats from last aggregation run
+let lastAggregationStats = {
+  totalFetched: 0,
+  afterDedup: 0,
+  aiProcessed: 0,
+  relevant: 0,
+  rejected: 0,
+}
+
 // ============================================================================
 // RSS FETCHING WITH ERROR RESILIENCE
 // ============================================================================
@@ -201,11 +210,15 @@ async function fetchRSSFeed(feed: RSSFeed, sourceType: 'industry' | 'google'): P
       // Store original RSS image separately to check if it's a real image
       const originalRssImage = imageUrl
       
+      // Get full content (prefer content:encoded > content > snippet)
+      const rawItem = item as unknown as Record<string, unknown>
+      const fullContentRaw = (rawItem['content:encoded'] || item.content || item.contentSnippet || '') as string
+
       articles.push({
         id: generateArticleId(item.link),
         title: item.title.trim(),
         summary: (item.contentSnippet || item.content || '').substring(0, 250),
-        fullContent: item.contentSnippet || item.content || '', // Full content for modal
+        fullContent: fullContentRaw, // Full RSS content, not truncated
         sourceName: feed.label || feed.name,
         sourceUrl: item.link,
         publishedAt: item.pubDate ? new Date(item.pubDate).toISOString() : new Date().toISOString(),
@@ -318,10 +331,12 @@ async function aggregateAndProcessArticles(): Promise<ClassifiedArticle[]> {
   const failedFeeds = results.filter(r => r.status === 'rejected').length
   
   console.log(`[v0] Fetched ${allRawArticles.length} articles from ${successfulFeeds} feeds (${failedFeeds} feeds failed)`)
-  
+  lastAggregationStats.totalFetched = allRawArticles.length
+
   // Quick deduplication before AI (saves API costs)
   const deduplicated = deduplicateByTitle(allRawArticles)
   console.log(`[v0] After deduplication: ${deduplicated.length} unique articles`)
+  lastAggregationStats.afterDedup = deduplicated.length
   
   // Prioritize by tier and recency
   const sortedArticles = deduplicated.sort((a, b) => {
@@ -353,7 +368,10 @@ async function aggregateAndProcessArticles(): Promise<ClassifiedArticle[]> {
     )
     
     console.log(`[v0] AI approved ${relevant.length} of ${articlesToClassify.length} articles as relevant`)
-    
+    lastAggregationStats.aiProcessed = articlesToClassify.length
+    lastAggregationStats.relevant = relevant.length
+    lastAggregationStats.rejected = articlesToClassify.length - relevant.length
+
     // Add to cache (merge with existing)
     const existingIds = new Set(articlesCache.map(a => a.id))
     const newRelevant = relevant.filter(a => !existingIds.has(a.id))
@@ -386,6 +404,7 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
     const limit = Math.min(parseInt(searchParams.get('limit') || '60'), 100)
+    const offset = Math.max(parseInt(searchParams.get('offset') || '0'), 0)
     const category = searchParams.get('category')
     const platform = searchParams.get('platform')
     const audience = searchParams.get('audience')
@@ -421,26 +440,26 @@ export async function GET(request: Request) {
       articles = articles.filter(a => a.impactLevel === impactLevel)
     }
     
-    // Calculate stats
-    const stats = {
-      totalInCache: articlesCache.length,
-      afterFilters: articles.length,
-      byCategory: {} as Record<string, number>,
-      byImpact: { high: 0, medium: 0, low: 0 },
-      byAudience: {} as Record<string, number>,
-    }
-    
+    // Calculate breakdown stats
+    const byCategory: Record<string, number> = {}
+    const byImpact = { high: 0, medium: 0, low: 0 }
+    const byAudience: Record<string, number> = {}
+
     articlesCache.forEach(a => {
-      stats.byCategory[a.category] = (stats.byCategory[a.category] || 0) + 1
-      if (a.impactLevel) stats.byImpact[a.impactLevel]++
+      byCategory[a.category] = (byCategory[a.category] || 0) + 1
+      if (a.impactLevel) byImpact[a.impactLevel]++
       a.audience?.forEach(aud => {
-        stats.byAudience[aud] = (stats.byAudience[aud] || 0) + 1
+        byAudience[aud] = (byAudience[aud] || 0) + 1
       })
     })
-    
-    // Enrich articles with stock fallback images where needed
-    const enrichedArticles = articles.slice(0, limit).map(article => ({
+
+    // Apply offset + limit pagination
+    const paginatedArticles = articles.slice(offset, offset + limit)
+
+    // Enrich articles with stock fallback images and sourceTier
+    const enrichedArticles = paginatedArticles.map(article => ({
       ...article,
+      sourceTier: article.tier,
       // Use stock fallback if no valid RSS image
       imageUrl: getArticleImageUrl(
         article.imageUrl,
@@ -451,17 +470,22 @@ export async function GET(request: Request) {
       // Flag whether this has a real image (for hero selection)
       hasRealImage: isGoodArticleImage(article.imageUrl),
     }))
-    
+
     return NextResponse.json({
       success: true,
       articles: enrichedArticles,
+      totalCount: articles.length,
+      aiClassified: true,
+      cacheHit: cacheValid,
+      stats: {
+        ...lastAggregationStats,
+        byCategory,
+        byImpact,
+        byAudience,
+      },
       meta: {
-        total: articles.length,
-        cached: cacheValid,
         lastUpdate: new Date(lastCacheUpdate).toISOString(),
-        aiPowered: true,
         model: 'claude-haiku-4-5-20251001',
-        stats,
       }
     })
     
