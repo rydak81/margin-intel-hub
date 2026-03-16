@@ -367,8 +367,9 @@ async function aggregateAndProcessArticles(): Promise<ClassifiedArticle[]> {
   const unclassified = getUnclassifiedArticles(sortedArticles)
   console.log(`[v0] ${unclassified.length} articles need AI classification`)
 
-  // Limit to control API costs (classify top 100 new articles)
-  const articlesToClassify = unclassified.slice(0, 100)
+  // Limit to 50 articles per run to stay within Vercel's 120s timeout
+  // With batch size 25 and parallel processing: 2 batches ≈ 30-35s
+  const articlesToClassify = unclassified.slice(0, 50)
 
   if (articlesToClassify.length > 0) {
     console.log(`[v0] Sending ${articlesToClassify.length} articles to Claude Haiku for classification...`)
