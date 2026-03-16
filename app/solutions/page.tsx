@@ -242,10 +242,7 @@ export default function SolutionsPage() {
               <Link href="/" className="text-sm font-semibold hover:text-primary transition-colors">Home</Link>
               <Link href="/tools" className="text-sm font-semibold hover:text-primary transition-colors">Tools</Link>
               <Link href="/solutions" className="text-sm font-semibold text-primary transition-colors">Solutions</Link>
-              <Link href="/community" className="text-sm font-semibold hover:text-primary transition-colors flex items-center gap-1.5">
-                Community
-                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">BETA</span>
-              </Link>
+              {/* Community hidden — launching later */}
               <Link href="/events" className="text-sm font-semibold hover:text-primary transition-colors">Events</Link>
               <Link href="/newsletter" className="text-sm font-semibold hover:text-primary transition-colors">Newsletter</Link>
             </nav>
@@ -271,7 +268,7 @@ export default function SolutionsPage() {
                 <Link href="/" className="px-4 py-2 hover:bg-muted rounded-md" onClick={() => setMobileMenuOpen(false)}>Home</Link>
                 <Link href="/tools" className="px-4 py-2 hover:bg-muted rounded-md" onClick={() => setMobileMenuOpen(false)}>Tools</Link>
                 <Link href="/solutions" className="px-4 py-2 hover:bg-muted rounded-md bg-muted" onClick={() => setMobileMenuOpen(false)}>Solutions</Link>
-                <Link href="/community" className="px-4 py-2 hover:bg-muted rounded-md" onClick={() => setMobileMenuOpen(false)}>Community</Link>
+                {/* Community hidden — launching later */}
                 <Link href="/events" className="px-4 py-2 hover:bg-muted rounded-md" onClick={() => setMobileMenuOpen(false)}>Events</Link>
                 <Link href="/newsletter" className="px-4 py-2 hover:bg-muted rounded-md" onClick={() => setMobileMenuOpen(false)}>Newsletter</Link>
               </nav>
