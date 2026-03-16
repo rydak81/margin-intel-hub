@@ -1,4 +1,4 @@
-# Ecom Intel Hub
+# MarketplaceBeta
 
 The Intelligence Hub for Marketplace Commerce — breaking news, platform updates, M&A activity, and actionable insights for Amazon sellers, agencies, SaaS providers, and e-commerce operators, all in one place.
 

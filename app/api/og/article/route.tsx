@@ -4,7 +4,7 @@ export const runtime = 'edge'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
-  const title = searchParams.get('title') || 'Ecom Intel Hub'
+  const title = searchParams.get('title') || 'MarketplaceBeta'
   const category = searchParams.get('category') || 'platform_updates'
   const source = searchParams.get('source') || ''
 
@@ -87,7 +87,7 @@ export async function GET(request: Request) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ color: '#64748B', fontSize: '18px', display: 'flex' }}>{source}</div>
           <div style={{ color: '#00D4AA', fontSize: '22px', fontWeight: 700, display: 'flex' }}>
-            ECOM INTEL HUB
+            MARKETPLACEBETA
           </div>
         </div>
       </div>

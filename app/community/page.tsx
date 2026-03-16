@@ -510,7 +510,7 @@ export default function CommunityPage() {
               <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center">
                 <BarChart3 className="h-5 w-5 text-primary-foreground" />
               </div>
-              <span className="font-bold text-xl hidden sm:block">Ecom Intel Hub</span>
+              <span className="font-bold text-xl hidden sm:block">MarketplaceBeta</span>
             </Link>
 
             <div className="hidden md:flex items-center gap-8">
@@ -1109,7 +1109,7 @@ export default function CommunityPage() {
       {/* Footer */}
       <footer className="border-t bg-muted/30 py-8 mt-12">
         <div className="max-w-7xl mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>Ecom Intel Hub Community - Connecting marketplace professionals worldwide</p>
+          <p>MarketplaceBeta Community - Connecting marketplace professionals worldwide</p>
         </div>
       </footer>
     </div>

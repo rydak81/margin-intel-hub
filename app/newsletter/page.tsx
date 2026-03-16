@@ -156,7 +156,7 @@ export default function NewsletterPage() {
               <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center">
                 <BarChart3 className="h-5 w-5 text-primary-foreground" />
               </div>
-              <span className="font-bold text-xl hidden sm:block">Ecom Intel Hub</span>
+              <span className="font-bold text-xl hidden sm:block">MarketplaceBeta</span>
             </Link>
             <nav className="hidden md:flex items-center gap-8">
               <Link href="/" className="text-base font-semibold hover:text-primary transition-colors">
@@ -455,7 +455,7 @@ export default function NewsletterPage() {
               <div className="h-6 w-6 rounded bg-primary flex items-center justify-center">
                 <BarChart3 className="h-3 w-3 text-primary-foreground" />
               </div>
-              <span>Ecom Intel Hub</span>
+              <span>MarketplaceBeta</span>
             </div>
             <div className="flex gap-6">
               <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
