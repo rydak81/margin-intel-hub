@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { Input } from "@/components/ui/input"
 import {
   Sheet,
   SheetContent,
@@ -23,13 +22,14 @@ import {
   Linkedin,
   Link as LinkIcon,
   X,
-  Mail,
   ArrowRight,
   Sparkles,
   AlertTriangle,
   Target,
   Users,
   TrendingUp,
+  Zap,
+  Lightbulb,
 } from "lucide-react"
 import { getArticleFallbackImage } from "@/lib/article-images"
 
@@ -37,6 +37,7 @@ interface NewsArticle {
   id: string
   title: string
   excerpt: string
+  fullContent?: string
   category: string
   source: string
   sourceUrl: string
@@ -61,11 +62,11 @@ interface ArticleDetailModalProps {
   allArticles: NewsArticle[]
 }
 
-export function ArticleDetailModal({ 
-  article, 
-  open, 
+export function ArticleDetailModal({
+  article,
+  open,
   onOpenChange,
-  allArticles 
+  allArticles
 }: ArticleDetailModalProps) {
   // Get related articles from the same category
   const relatedArticles = useMemo(() => {
@@ -88,10 +89,11 @@ export function ArticleDetailModal({
 
   const handleShare = (platform: 'twitter' | 'linkedin' | 'copy') => {
     if (!article) return
-    
-    const url = article.sourceUrl || window.location.href
+
+    // Share the on-site article URL, not the source
+    const url = `${window.location.origin}/news/${article.id}`
     const text = article.title
-    
+
     switch (platform) {
       case 'twitter':
         window.open(
@@ -107,28 +109,34 @@ export function ArticleDetailModal({
         break
       case 'copy':
         navigator.clipboard.writeText(url)
-        // Could add a toast notification here
         break
     }
   }
 
   if (!article) return null
 
+  const hasAISummary = !!(article.aiSummary && article.aiSummary.length > 10 && article.aiSummary !== article.excerpt)
+  const hasImpactDetail = !!(article.impactDetail && article.impactDetail.length > 5)
+  const hasActionItem = !!(article.actionItem && article.actionItem.length > 5)
+  const hasKeyStat = !!(article.keyStat && article.keyStat.length > 2)
+  const hasAudience = !!(article.audience && article.audience.length > 0)
+  const hasAnyInsight = hasAISummary || hasImpactDetail || hasActionItem || hasKeyStat
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-2xl overflow-y-auto p-0">
         <div className="sticky top-0 z-10 bg-background border-b px-6 py-4 flex items-center justify-between">
-<SheetHeader className="text-left">
-              <SheetTitle className="text-sm font-normal text-muted-foreground">
-                Article Preview
-              </SheetTitle>
-              <SheetDescription className="sr-only">
-                Preview of the selected article with options to read the full story
-              </SheetDescription>
-            </SheetHeader>
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <SheetHeader className="text-left">
+            <SheetTitle className="text-sm font-normal text-muted-foreground">
+              Article Preview
+            </SheetTitle>
+            <SheetDescription className="sr-only">
+              Preview of the selected article with AI analysis
+            </SheetDescription>
+          </SheetHeader>
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => onOpenChange(false)}
             className="h-8 w-8"
           >
@@ -167,28 +175,26 @@ export function ArticleDetailModal({
                 {platform}
               </Badge>
             ))}
-            {/* AI Impact Badge */}
             {article.impactLevel && (
-              <Badge 
-                variant="outline" 
+              <Badge
+                variant="outline"
                 className={`${
-                  article.impactLevel === 'high' 
-                    ? 'border-red-500/50 text-red-600 bg-red-500/10' 
-                    : article.impactLevel === 'medium' 
-                    ? 'border-amber-500/50 text-amber-600 bg-amber-500/10' 
+                  article.impactLevel === 'high'
+                    ? 'border-red-500/50 text-red-600 bg-red-500/10'
+                    : article.impactLevel === 'medium'
+                    ? 'border-amber-500/50 text-amber-600 bg-amber-500/10'
                     : 'border-green-500/50 text-green-600 bg-green-500/10'
                 }`}
               >
                 <span className={`mr-1 ${
-                  article.impactLevel === 'high' ? 'text-red-500' 
-                  : article.impactLevel === 'medium' ? 'text-amber-500' 
+                  article.impactLevel === 'high' ? 'text-red-500'
+                  : article.impactLevel === 'medium' ? 'text-amber-500'
                   : 'text-green-500'
                 }`}>●</span>
                 {article.impactLevel.charAt(0).toUpperCase() + article.impactLevel.slice(1)} Impact
               </Badge>
             )}
-            {/* AI Enhanced indicator */}
-            {article.aiSummary && (
+            {hasAnyInsight && (
               <Badge variant="outline" className="border-primary/30 text-primary bg-primary/5">
                 <Sparkles className="h-3 w-3 mr-1" />
                 AI Enhanced
@@ -201,7 +207,7 @@ export function ArticleDetailModal({
             {article.title}
           </h1>
 
-          {/* Source & Date */}
+          {/* Source & Date — small, non-distracting */}
           <div className="flex items-center gap-4 text-sm text-muted-foreground mb-6">
             <span className="flex items-center gap-1">
               <Globe className="h-4 w-4" />
@@ -213,48 +219,28 @@ export function ArticleDetailModal({
             </span>
           </div>
 
-          {/* Excerpt */}
-          <p className="text-muted-foreground leading-relaxed mb-6">
-            {article.aiSummary || article.excerpt}
-          </p>
+          {/* ========================================================= */}
+          {/* AI ANALYSIS — Show everything inline, keep users engaged   */}
+          {/* ========================================================= */}
 
-          {/* AI Insights Section */}
-          {(article.impactLevel || article.actionItem || article.keyStat || article.audience?.length) && (
-            <div className="bg-muted/30 rounded-xl p-5 mb-6 border border-border/50">
+          {/* Main summary/analysis */}
+          <div className="mb-6">
+            <p className="text-base leading-relaxed">
+              {hasAISummary ? article.aiSummary : article.excerpt}
+            </p>
+          </div>
+
+          {/* AI Insights Section — rich content inline */}
+          {hasAnyInsight && (
+            <div className="bg-primary/5 rounded-xl p-5 mb-6 border border-primary/20">
               <div className="flex items-center gap-2 mb-4">
                 <Sparkles className="h-4 w-4 text-primary" />
-                <span className="text-sm font-semibold text-primary">AI Insights</span>
+                <span className="text-sm font-semibold text-primary">AI Intelligence Brief</span>
               </div>
-              
+
               <div className="grid gap-4">
-                {/* Impact Assessment */}
-                {article.impactLevel && (
-                  <div className="flex items-start gap-3">
-                    <AlertTriangle className={`h-4 w-4 mt-0.5 flex-shrink-0 ${
-                      article.impactLevel === 'high' ? 'text-red-500' 
-                      : article.impactLevel === 'medium' ? 'text-amber-500' 
-                      : 'text-green-500'
-                    }`} />
-                    <div>
-                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                        Impact Level
-                      </span>
-                      <p className={`text-sm font-medium ${
-                        article.impactLevel === 'high' ? 'text-red-600' 
-                        : article.impactLevel === 'medium' ? 'text-amber-600' 
-                        : 'text-green-600'
-                      }`}>
-                        {article.impactLevel.charAt(0).toUpperCase() + article.impactLevel.slice(1)} Impact
-                      </p>
-                      {article.impactDetail && (
-                        <p className="text-sm text-muted-foreground mt-1">{article.impactDetail}</p>
-                      )}
-                    </div>
-                  </div>
-                )}
-                
                 {/* Key Stat */}
-                {article.keyStat && (
+                {hasKeyStat && (
                   <div className="flex items-start gap-3">
                     <TrendingUp className="h-4 w-4 mt-0.5 text-blue-500 flex-shrink-0" />
                     <div>
@@ -265,22 +251,39 @@ export function ArticleDetailModal({
                     </div>
                   </div>
                 )}
-                
+
+                {/* Impact Assessment */}
+                {hasImpactDetail && (
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle className={`h-4 w-4 mt-0.5 flex-shrink-0 ${
+                      article.impactLevel === 'high' ? 'text-red-500'
+                      : article.impactLevel === 'medium' ? 'text-amber-500'
+                      : 'text-green-500'
+                    }`} />
+                    <div>
+                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                        Impact
+                      </span>
+                      <p className="text-sm text-foreground">{article.impactDetail}</p>
+                    </div>
+                  </div>
+                )}
+
                 {/* Action Item */}
-                {article.actionItem && (
+                {hasActionItem && (
                   <div className="flex items-start gap-3">
                     <Target className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
                     <div>
                       <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                        Action Item
+                        What You Should Do
                       </span>
                       <p className="text-sm text-foreground">{article.actionItem}</p>
                     </div>
                   </div>
                 )}
-                
+
                 {/* Audience */}
-                {article.audience && article.audience.length > 0 && (
+                {hasAudience && (
                   <div className="flex items-start gap-3">
                     <Users className="h-4 w-4 mt-0.5 text-muted-foreground flex-shrink-0" />
                     <div>
@@ -288,7 +291,7 @@ export function ArticleDetailModal({
                         Relevant For
                       </span>
                       <div className="flex flex-wrap gap-1.5 mt-1">
-                        {article.audience.map(aud => (
+                        {article.audience!.map(aud => (
                           <Badge key={aud} variant="secondary" className="text-xs capitalize">
                             {aud}
                           </Badge>
@@ -306,57 +309,62 @@ export function ArticleDetailModal({
             Published: {formatDate(article.publishedAt)}
           </p>
 
-          {/* Read Full Article CTA — keep users on site */}
-          <div className="bg-primary/5 rounded-xl p-6 mb-8 border border-primary/20">
-            <h3 className="font-semibold mb-2">Read Full Article with AI Insights</h3>
+          {/* Read Full Analysis CTA — keeps user ON SITE */}
+          <div className="bg-primary/5 rounded-xl p-6 mb-6 border border-primary/20">
+            <h3 className="font-semibold mb-2">Read Full Analysis</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              View our full analysis with AI intelligence brief, key stats, and recommended actions.
+              View the complete article with full coverage, AI insights, and related stories.
             </p>
-            <div className="flex flex-col sm:flex-row gap-2">
-              <Button asChild className="flex-1">
-                <Link href={`/news/${article.id}`} onClick={() => onOpenChange(false)}>
-                  Read Full Analysis
-                  <ArrowRight className="h-4 w-4 ml-2" />
-                </Link>
-              </Button>
-              <Button variant="outline" asChild>
-                <a
-                  href={article.sourceUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Original Source
-                  <ExternalLink className="h-4 w-4 ml-2" />
-                </a>
-              </Button>
-            </div>
+            <Button asChild className="w-full">
+              <Link href={`/news/${article.id}`} onClick={() => onOpenChange(false)}>
+                Read Full Analysis
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Link>
+            </Button>
           </div>
+
+          {/* Source link — small, de-emphasized inline text */}
+          {article.sourceUrl && article.sourceUrl !== '#' && (
+            <p className="text-xs text-muted-foreground mb-8">
+              Source: {article.source}
+              {' · '}
+              <a
+                href={article.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline inline-flex items-center gap-0.5"
+              >
+                View original
+                <ExternalLink className="h-2.5 w-2.5" />
+              </a>
+            </p>
+          )}
 
           {/* Share Buttons */}
           <div className="mb-8">
             <h4 className="text-sm font-medium mb-3">Share this article</h4>
             <div className="flex items-center gap-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => handleShare('twitter')}
                 className="gap-2"
               >
                 <Twitter className="h-4 w-4" />
                 Twitter
               </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => handleShare('linkedin')}
                 className="gap-2"
               >
                 <Linkedin className="h-4 w-4" />
                 LinkedIn
               </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => handleShare('copy')}
                 className="gap-2"
               >
@@ -368,17 +376,16 @@ export function ArticleDetailModal({
 
           <Separator className="my-8" />
 
-          {/* Related Stories */}
+          {/* Related Stories — keeps users browsing on-site */}
           {relatedArticles.length > 0 && (
             <div className="mb-8">
               <h3 className="font-semibold mb-4">Related Stories</h3>
               <div className="space-y-4">
                 {relatedArticles.map(related => (
-                  <Card 
-                    key={related.id} 
+                  <Card
+                    key={related.id}
                     className="border-0 shadow-sm hover:shadow-md transition-all cursor-pointer"
                     onClick={() => {
-                      // Update to show the related article
                       onOpenChange(false)
                       setTimeout(() => {
                         window.location.href = `/news/${related.id}`
@@ -425,29 +432,6 @@ export function ArticleDetailModal({
               </div>
             </div>
           )}
-
-          <Separator className="my-8" />
-
-          {/* Newsletter CTA */}
-          <div className="bg-primary text-primary-foreground rounded-xl p-6">
-            <Mail className="h-8 w-8 mb-3" />
-            <h3 className="font-bold mb-2">Get stories like this daily</h3>
-            <p className="text-sm text-primary-foreground/80 mb-4">
-              Join 5,000+ e-commerce professionals who start their day with the Daily Marketplace Brief.
-            </p>
-            <div className="flex gap-2">
-              <Input
-                placeholder="Enter your email"
-                className="bg-primary-foreground text-foreground flex-1"
-              />
-              <Button variant="secondary" asChild>
-                <Link href="/newsletter">
-                  Subscribe
-                  <ArrowRight className="h-4 w-4 ml-1" />
-                </Link>
-              </Button>
-            </div>
-          </div>
         </div>
       </SheetContent>
     </Sheet>
