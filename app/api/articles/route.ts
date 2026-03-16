@@ -439,15 +439,28 @@ export async function GET(request: Request) {
     const impactLevel = searchParams.get('impact')
     const forceRefresh = searchParams.get('refresh') === 'true'
     
-    // Check cache
+    // Check in-memory cache first (instant response)
     const cacheValid = !forceRefresh && isCacheValid()
 
     if (cacheValid) {
-      console.log('[v0] Serving from cache')
+      console.log('[v0] Serving from in-memory cache')
     } else {
-      // Refresh cache with AI-powered aggregation
-      console.log('[v0] Cache expired, running AI-powered aggregation...')
-      await aggregateAndProcessArticles()
+      // Try loading from Supabase DB first (fast, ~200ms)
+      // This avoids blocking the user for 30-120s while RSS feeds are fetched
+      console.log('[v0] Cache cold — loading from Supabase DB...')
+      const dbArticles = await loadArticlesFromDB({ limit: 200 })
+
+      if (dbArticles.length > 0) {
+        console.log(`[v0] Loaded ${dbArticles.length} articles from DB (fast path)`)
+        setArticlesCache(dbArticles)
+      } else if (forceRefresh) {
+        // Only run full aggregation if explicitly requested via ?refresh=true
+        // Normal page loads should NEVER trigger aggregation — the cron job handles that
+        console.log('[v0] No DB articles + force refresh — running aggregation...')
+        await aggregateAndProcessArticles()
+      } else {
+        console.log('[v0] No cached articles available — cron job will populate soon')
+      }
     }
 
     const articlesCache = getArticlesCache()

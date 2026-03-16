@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { ArticleDetailModal } from "@/components/article-detail-modal"
 import { BackToTop } from "@/components/back-to-top"
 import { getArticleFallbackImage } from "@/lib/article-images"
@@ -106,8 +105,6 @@ const CATEGORIES = [
   { id: "tactics", label: "Tactics & Strategy", icon: Lightbulb, color: "bg-yellow-500" },
 ]
 
-const PLATFORMS = ["All", "Amazon", "Walmart", "TikTok Shop", "Shopify", "eBay"]
-
 // Map filter category IDs to actual article categories
 // These must match the values returned by mapAICategory()
 const CATEGORY_MAPPINGS: Record<string, string[]> = {
@@ -189,11 +186,7 @@ export default function HomePage() {
   const [breakingNews, setBreakingNews] = useState<BreakingNews[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState("all")
-  const [selectedPlatform, setSelectedPlatform] = useState("All")
-  const [selectedAudience, setSelectedAudience] = useState("all")
-  const [selectedImpact, setSelectedImpact] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
-  const [sortBy, setSortBy] = useState<"latest" | "popular" | "shared">("latest")
   const [isDark, setIsDark] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [selectedArticle, setSelectedArticle] = useState<NewsArticle | null>(null)
@@ -365,7 +358,7 @@ export default function HomePage() {
     }
   }, [isDark])
 
-  // Filter articles
+  // Filter articles — category (from nav dropdown) + search only
   const filteredArticles = articles.filter(article => {
     // Category filter using mappings
     if (selectedCategory !== "all") {
@@ -374,12 +367,7 @@ export default function HomePage() {
         return false
       }
     }
-    if (selectedPlatform !== "All" && !article.platforms?.includes(selectedPlatform)) return false
-    // Audience filter
-    if (selectedAudience !== "all" && !article.audience?.includes(selectedAudience)) return false
-    // Impact filter
-    if (selectedImpact !== "all" && article.impactLevel !== selectedImpact) return false
-    // Enhanced search - searches across title, excerpt, source, category, and platforms
+    // Search across title, excerpt, source, category, and platforms
     if (searchQuery) {
       const query = searchQuery.toLowerCase()
       const searchableText = [
@@ -648,27 +636,20 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Category Filter Bar */}
-      <div className="sticky top-14 z-40 bg-background border-b">
-        <div className="max-w-7xl mx-auto px-4">
-          <ScrollArea className="w-full">
-            <div className="flex items-center gap-2 py-3">
-              {CATEGORIES.map((cat) => (
-                <Button
-                  key={cat.id}
-                  variant={selectedCategory === cat.id ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => setSelectedCategory(cat.id)}
-                  className="whitespace-nowrap"
-                >
-                  <cat.icon className="h-4 w-4 mr-1.5" />
-                  {cat.label}
-                </Button>
-              ))}
-            </div>
-          </ScrollArea>
+      {/* Active Filter Indicator — only shows when a filter is active */}
+      {selectedCategory !== "all" && (
+        <div className="bg-muted/50 border-b">
+          <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between">
+            <span className="text-sm text-muted-foreground">
+              Filtered by: <Badge variant="secondary" className="ml-1">{getCategoryConfig(selectedCategory).label}</Badge>
+            </span>
+            <Button variant="ghost" size="sm" onClick={() => setSelectedCategory("all")} className="text-xs h-7">
+              <X className="h-3 w-3 mr-1" />
+              Clear
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Main Content */}
       <main id="briefing" className="max-w-7xl mx-auto px-4 py-8">
@@ -740,91 +721,7 @@ export default function HomePage() {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Main Feed */}
           <div className="flex-1 space-y-8">
-            {/* Platform Filter & Sort */}
-            <div className="flex flex-wrap items-center gap-4">
-              <div className="flex items-center gap-2 overflow-x-auto">
-                {PLATFORMS.map((platform) => (
-                  <Button
-                    key={platform}
-                    variant={selectedPlatform === platform ? "secondary" : "ghost"}
-                    size="sm"
-                    onClick={() => setSelectedPlatform(platform)}
-                    className="text-xs whitespace-nowrap"
-                  >
-                    {platform}
-                  </Button>
-                ))}
-              </div>
-              <div className="ml-auto flex items-center gap-2 text-sm text-muted-foreground">
-                <span className="hidden sm:inline">Sort:</span>
-                {(["latest", "popular", "shared"] as const).map((sort) => (
-                  <Button
-                    key={sort}
-                    variant={sortBy === sort ? "secondary" : "ghost"}
-                    size="sm"
-                    onClick={() => setSortBy(sort)}
-                    className="text-xs capitalize"
-                  >
-                    {sort === "latest" ? "Latest" : sort === "popular" ? "Most Read" : "Most Shared"}
-                  </Button>
-                ))}
-              </div>
-            </div>
-            
-            {/* AI Filters: Audience & Impact */}
-            <div className="flex flex-wrap items-center gap-4 pt-2 border-t border-border/50">
-              {/* Audience Filter */}
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground font-medium">For:</span>
-                <div className="flex items-center gap-1">
-                  {[
-                    { id: 'all', label: 'All' },
-                    { id: 'sellers', label: 'Sellers' },
-                    { id: 'agencies', label: 'Agencies' },
-                    { id: 'saas', label: 'SaaS/Tech' },
-                    { id: 'investors', label: 'Investors' },
-                  ].map((aud) => (
-                    <Button
-                      key={aud.id}
-                      variant={selectedAudience === aud.id ? "secondary" : "ghost"}
-                      size="sm"
-                      onClick={() => setSelectedAudience(aud.id)}
-                      className="text-xs h-7 px-2"
-                    >
-                      {aud.label}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Impact Filter */}
-              <div className="flex items-center gap-2 ml-auto">
-                <span className="text-xs text-muted-foreground font-medium">Impact:</span>
-                <div className="flex items-center gap-1">
-                  {[
-                    { id: 'all', label: 'All', color: '' },
-                    { id: 'high', label: 'High', color: 'text-red-500' },
-                    { id: 'medium', label: 'Medium', color: 'text-amber-500' },
-                    { id: 'low', label: 'Low', color: 'text-green-500' },
-                  ].map((impact) => (
-                    <Button
-                      key={impact.id}
-                      variant={selectedImpact === impact.id ? "secondary" : "ghost"}
-                      size="sm"
-                      onClick={() => setSelectedImpact(impact.id)}
-                      className={`text-xs h-7 px-2 ${selectedImpact === impact.id ? '' : impact.color}`}
-                    >
-                      {impact.id !== 'all' && (
-                        <span className={`mr-1 ${impact.color}`}>
-                          {impact.id === 'high' ? '●' : impact.id === 'medium' ? '●' : '●'}
-                        </span>
-                      )}
-                      {impact.label}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            </div>
+            {/* Clean section header */}
 
             {/* Hero Article Section - Top Story */}
             {!loading && heroArticle && !searchQuery && (
@@ -978,21 +875,6 @@ export default function HomePage() {
                     {selectedCategory !== 'all' && (
                       <Button variant="outline" onClick={() => setSelectedCategory('all')}>
                         Show All Categories
-                      </Button>
-                    )}
-                    {selectedPlatform !== 'All' && (
-                      <Button variant="outline" onClick={() => setSelectedPlatform('All')}>
-                        Show All Platforms
-                      </Button>
-                    )}
-                    {selectedAudience !== 'all' && (
-                      <Button variant="outline" onClick={() => setSelectedAudience('all')}>
-                        Show All Audiences
-                      </Button>
-                    )}
-                    {selectedImpact !== 'all' && (
-                      <Button variant="outline" onClick={() => setSelectedImpact('all')}>
-                        Show All Impact Levels
                       </Button>
                     )}
                   </div>
