@@ -109,14 +109,15 @@ Return ONLY the JSON object, no other text.`
     }
 
     const data = await response.json()
-    const text = data.content?.[0]?.text || '{}'
-    
-    // Parse the JSON response
+    const rawText = data.content?.[0]?.text || '{}'
+
+    // Strip markdown fences and parse the JSON response
+    const text = rawText.replace(/```json\n?|```\n?/g, '').trim()
     const jsonMatch = text.match(/\{[\s\S]*\}/)
     if (!jsonMatch) {
       throw new Error('Could not parse AI response as JSON')
     }
-    
+
     const output = JSON.parse(jsonMatch[0]) as SearchResult
 
     // Map indices back to full article objects

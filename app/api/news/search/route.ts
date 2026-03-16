@@ -191,7 +191,7 @@ export async function GET(request: Request) {
       searchedAt: new Date().toISOString(),
       sources: ["Marketplace Pulse", "eCommerceBytes", "Modern Retail", "TechCrunch", "Supply Chain Dive", "Retail Dive"],
     })
-  } catch (error) {
+  } catch {
     return NextResponse.json({
       success: false,
       error: "Search failed",

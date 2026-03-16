@@ -285,19 +285,20 @@ Return ONLY the JSON array, no other text.`
       }
 
       const data = await response.json()
-      const text = data.content?.[0]?.text || '[]'
-      
-      // Parse the JSON response
+      const rawText = data.content?.[0]?.text || '[]'
+
+      // Strip markdown fences and parse the JSON response
+      const text = rawText.replace(/```json\n?|```\n?/g, '').trim()
       const jsonMatch = text.match(/\[[\s\S]*\]/)
       if (!jsonMatch) {
         console.error('[v0] Could not parse AI response as JSON')
         return articles.map((a, i) => ({ ...fallbackClassify(a), index: i }))
       }
-      
+
       const parsed = JSON.parse(jsonMatch[0])
       console.log(`[v0] Anthropic API call successful, received ${parsed.length} classifications`)
       return parsed as ArticleClassification[]
-      
+
     } catch (error) {
       console.error('[v0] AI classification batch failed:', error)
       if (attempt < maxRetries) {

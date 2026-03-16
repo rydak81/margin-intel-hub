@@ -22,7 +22,7 @@ export async function GET(request: Request) {
         categories: [...new Set(products.map(p => p.category))]
       }
     })
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { success: false, error: 'Failed to fetch products' },
       { status: 500 }

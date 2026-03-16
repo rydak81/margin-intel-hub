@@ -1,5 +1,4 @@
 import { createAdminClient } from '@/lib/supabase/admin'
-import { generateText, Output } from 'ai'
 import { z } from 'zod'
 import crypto from 'crypto'
 
@@ -296,22 +295,29 @@ function cleanHtml(html: string): string {
     .trim()
 }
 
-// AI-powered article classification
+// AI-powered article classification using direct Anthropic API
 export async function classifyArticle(
   title: string,
   content: string,
   sourcePlatforms: string[]
 ): Promise<z.infer<typeof articleClassificationSchema>> {
-  try {
-    const { output } = await generateText({
-      model: 'openai/gpt-4o-mini',
-      output: Output.object({
-        schema: articleClassificationSchema,
-      }),
-      messages: [
-        {
-          role: 'system',
-          content: `You are an e-commerce news classifier. Analyze articles and classify them for an Amazon/Walmart seller audience.
+  const apiKey = process.env.ANTHROPIC_API_KEY
+
+  if (!apiKey) {
+    console.log('[v0] ANTHROPIC_API_KEY not set — using default classification')
+    return {
+      category: 'general',
+      categoryConfidence: 0.5,
+      relevanceScore: 0.5,
+      sentiment: 'neutral',
+      keywords: [],
+      summary: content.substring(0, 200),
+      isBreaking: false,
+      platforms: sourcePlatforms,
+    }
+  }
+
+  const systemPrompt = `You are an e-commerce news classifier. Analyze articles and classify them for an Amazon/Walmart seller audience.
 
 Categories:
 - announcements: Official platform announcements, policy changes
@@ -331,16 +337,47 @@ Determine:
 4. Key keywords (max 10)
 5. Brief summary (max 300 chars)
 6. If this is breaking/urgent news
-7. Which platforms it relates to (amazon, walmart, tiktok, ebay, etsy, shopify, etc.)`
-        },
-        {
+7. Which platforms it relates to (amazon, walmart, tiktok, ebay, etsy, shopify, etc.)
+
+Return ONLY valid JSON, no other text.`
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: [{
           role: 'user',
-          content: `Title: ${title}\n\nContent: ${content.substring(0, 2000)}\n\nSource platforms: ${sourcePlatforms.join(', ')}`
-        }
-      ],
+          content: `Title: ${title}\n\nContent: ${content.substring(0, 2000)}\n\nSource platforms: ${sourcePlatforms.join(', ')}\n\nReturn JSON with: category, categoryConfidence (0-1), relevanceScore (0-1), sentiment (positive/negative/neutral), keywords (array, max 10), summary (max 300 chars), isBreaking (boolean), platforms (array)`
+        }]
+      })
     })
 
-    return output
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error(`[v0] Anthropic API error ${response.status}:`, errorText)
+      throw new Error(`API error: ${response.status}`)
+    }
+
+    const data = await response.json()
+    const text = data.content?.[0]?.text || '{}'
+
+    // Strip markdown fences and parse JSON
+    const cleanedText = text.replace(/```json\n?|```\n?/g, '').trim()
+    const jsonMatch = cleanedText.match(/\{[\s\S]*\}/)
+    if (!jsonMatch) {
+      throw new Error('Could not parse AI response as JSON')
+    }
+
+    const parsed = JSON.parse(jsonMatch[0])
+    return articleClassificationSchema.parse(parsed)
   } catch (error) {
     console.error('AI classification error:', error)
     // Return default classification on error
