@@ -13,24 +13,24 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: 'Ecom Intel Hub | The Intelligence Hub for Marketplace Commerce',
+  title: 'MarketplaceBeta | The Intelligence Hub for Marketplace Commerce',
   description: 'Breaking news, platform updates, M&A activity, and actionable insights for Amazon sellers, agencies, SaaS providers, and e-commerce operators — all in one place.',
   generator: 'v0.app',
   keywords: ['e-commerce', 'Amazon FBA', 'marketplace sellers', 'e-commerce news', 'seller tools', 'Amazon news'],
-  authors: [{ name: 'Ecom Intel Hub' }],
+  authors: [{ name: 'MarketplaceBeta' }],
   openGraph: {
-    title: 'Ecom Intel Hub | The Intelligence Hub for Marketplace Commerce',
+    title: 'MarketplaceBeta | The Intelligence Hub for Marketplace Commerce',
     description: 'Breaking news, platform updates, and actionable insights for marketplace sellers and e-commerce operators.',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Ecom Intel Hub',
+    title: 'MarketplaceBeta',
     description: 'The Intelligence Hub for Marketplace Commerce',
   },
   icons: {
-    icon: '/favicon.jpg',
-    apple: '/favicon.jpg',
+    icon: '/logo.jpg',
+    apple: '/logo.jpg',
   },
 }
 

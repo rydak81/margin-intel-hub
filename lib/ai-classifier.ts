@@ -39,7 +39,7 @@ export type ArticleClassification = z.infer<typeof ArticleClassificationSchema>
 // SYSTEM PROMPT — Enhanced for richer AI summaries and insights
 // ============================================================================
 
-const SYSTEM_PROMPT = `You are an expert editorial analyst and intelligence classifier for "Ecom Intel Hub,"
+const SYSTEM_PROMPT = `You are an expert editorial analyst and intelligence classifier for "MarketplaceBeta,"
 a marketplace seller intelligence platform. Your audience includes Amazon/Walmart/eBay sellers,
 e-commerce brand operators, marketplace agencies, SaaS tool providers, and e-commerce investors.
 

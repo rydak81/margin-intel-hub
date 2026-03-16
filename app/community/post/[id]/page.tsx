@@ -612,7 +612,7 @@ What's everyone's strategy for dealing with these changes?`,
                 <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center">
                   <BarChart3 className="h-5 w-5 text-primary-foreground" />
                 </div>
-                <span className="font-bold text-xl hidden sm:block">Ecom Intel Hub</span>
+                <span className="font-bold text-xl hidden sm:block">MarketplaceBeta</span>
               </Link>
             </div>
 

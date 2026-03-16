@@ -16,7 +16,7 @@ export interface AISearchResponse {
   query: string
 }
 
-const SEARCH_SYSTEM_PROMPT = `You are the search engine for Ecom Intel Hub, a marketplace
+const SEARCH_SYSTEM_PROMPT = `You are the search engine for MarketplaceBeta, a marketplace
 seller intelligence platform. When a user searches, find the most relevant
 articles from the provided article list AND synthesize a brief answer.
 
