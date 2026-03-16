@@ -1,7 +1,7 @@
 {
   "crons": [
     {
-      "path": "/api/news/aggregate",
+      "path": "/api/articles?refresh=true",
       "schedule": "0 */2 * * *"
     }
   ]
