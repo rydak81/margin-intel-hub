@@ -306,22 +306,30 @@ export function ArticleDetailModal({
             Published: {formatDate(article.publishedAt)}
           </p>
 
-          {/* Read Full Article CTA */}
+          {/* Read Full Article CTA — keep users on site */}
           <div className="bg-primary/5 rounded-xl p-6 mb-8 border border-primary/20">
-            <h3 className="font-semibold mb-2">Read the Full Story</h3>
+            <h3 className="font-semibold mb-2">Read Full Article with AI Insights</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Continue reading on {article.source} for the complete article, analysis, and expert commentary.
+              View our full analysis with AI intelligence brief, key stats, and recommended actions.
             </p>
-            <Button asChild className="w-full sm:w-auto">
-              <a 
-                href={article.sourceUrl} 
-                target="_blank" 
-                rel="noopener noreferrer"
-              >
-                Read on {article.source}
-                <ExternalLink className="h-4 w-4 ml-2" />
-              </a>
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button asChild className="flex-1">
+                <Link href={`/news/${article.id}`} onClick={() => onOpenChange(false)}>
+                  Read Full Analysis
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <a
+                  href={article.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Original Source
+                  <ExternalLink className="h-4 w-4 ml-2" />
+                </a>
+              </Button>
+            </div>
           </div>
 
           {/* Share Buttons */}

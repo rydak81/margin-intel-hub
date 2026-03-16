@@ -1,13 +1,21 @@
 import { NextResponse } from "next/server"
 import Parser from "rss-parser"
-import { 
-  classifyAllArticles, 
-  mergeClassifications, 
+import {
+  classifyAllArticles,
+  mergeClassifications,
   getUnclassifiedArticles,
   type RawArticle,
-  type ClassifiedArticle 
+  type ClassifiedArticle
 } from "@/lib/ai-classifier"
 import { getArticleImageUrl, isGoodArticleImage } from "@/lib/article-images"
+import {
+  saveArticles,
+  loadArticlesFromDB,
+  getArticlesCache,
+  setArticlesCache,
+  isCacheValid,
+  getLastCacheUpdate
+} from "@/lib/article-store"
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 1800 // Revalidate every 30 minutes
@@ -87,12 +95,8 @@ const GOOGLE_NEWS_FEEDS: RSSFeed[] = [
 ]
 
 // ============================================================================
-// IN-MEMORY CACHE
+// CACHE (delegated to article-store.ts — Supabase + in-memory)
 // ============================================================================
-
-let articlesCache: ClassifiedArticle[] = []
-let lastCacheUpdate: number = 0
-const CACHE_DURATION = 30 * 60 * 1000 // 30 minutes
 
 // Pipeline stats from last aggregation run
 let lastAggregationStats = {
@@ -308,28 +312,41 @@ function deduplicateByTitle(articles: RawArticle[]): RawArticle[] {
 
 async function aggregateAndProcessArticles(): Promise<ClassifiedArticle[]> {
   console.log('[v0] Starting AI-powered news aggregation (Claude Haiku 4.5)...')
-  
+
+  let articlesCache = getArticlesCache()
+
+  // On cold start, try loading from Supabase first
+  if (articlesCache.length === 0) {
+    console.log('[v0] Cold start — loading articles from Supabase...')
+    const dbArticles = await loadArticlesFromDB({ limit: 200 })
+    if (dbArticles.length > 0) {
+      console.log(`[v0] Loaded ${dbArticles.length} articles from Supabase`)
+      setArticlesCache(dbArticles)
+      articlesCache = dbArticles
+    }
+  }
+
   // Combine all feeds
   const allFeeds = [
     ...INDUSTRY_RSS_FEEDS.map(f => ({ ...f, type: 'industry' as const })),
     ...GOOGLE_NEWS_FEEDS.map(f => ({ ...f, type: 'google' as const })),
   ]
-  
+
   // Fetch from all sources with error resilience
   const results = await Promise.allSettled(
     allFeeds.map(async (feed) => {
       return fetchRSSFeed(feed, feed.type)
     })
   )
-  
+
   // Flatten results, ignoring failed feeds
   const allRawArticles = results
     .filter((r): r is PromiseFulfilledResult<RawArticle[]> => r.status === 'fulfilled')
     .flatMap(r => r.value)
-  
+
   const successfulFeeds = results.filter(r => r.status === 'fulfilled' && (r as PromiseFulfilledResult<RawArticle[]>).value.length > 0).length
   const failedFeeds = results.filter(r => r.status === 'rejected').length
-  
+
   console.log(`[v0] Fetched ${allRawArticles.length} articles from ${successfulFeeds} feeds (${failedFeeds} feeds failed)`)
   lastAggregationStats.totalFetched = allRawArticles.length
 
@@ -337,7 +354,7 @@ async function aggregateAndProcessArticles(): Promise<ClassifiedArticle[]> {
   const deduplicated = deduplicateByTitle(allRawArticles)
   console.log(`[v0] After deduplication: ${deduplicated.length} unique articles`)
   lastAggregationStats.afterDedup = deduplicated.length
-  
+
   // Prioritize by tier and recency
   const sortedArticles = deduplicated.sort((a, b) => {
     if (a.tier !== b.tier) return a.tier - b.tier
@@ -345,28 +362,28 @@ async function aggregateAndProcessArticles(): Promise<ClassifiedArticle[]> {
     const dateB = new Date(b.publishedAt).getTime()
     return dateB - dateA
   })
-  
+
   // Only classify NEW articles (optimization to reduce API costs)
   const unclassified = getUnclassifiedArticles(sortedArticles)
   console.log(`[v0] ${unclassified.length} articles need AI classification`)
-  
+
   // Limit to control API costs (classify top 100 new articles)
   const articlesToClassify = unclassified.slice(0, 100)
-  
+
   if (articlesToClassify.length > 0) {
     console.log(`[v0] Sending ${articlesToClassify.length} articles to Claude Haiku for classification...`)
-    
+
     // AI-powered batch classification (with fallback to keyword matching)
     const classifications = await classifyAllArticles(articlesToClassify)
-    
+
     // Merge classifications back into articles
     const classified = mergeClassifications(articlesToClassify, classifications)
-    
+
     // Filter: only show relevant articles with score >= 50
-    const relevant = classified.filter(a => 
+    const relevant = classified.filter(a =>
       a.relevant !== false && a.relevanceScore >= 50
     )
-    
+
     console.log(`[v0] AI approved ${relevant.length} of ${articlesToClassify.length} articles as relevant`)
     lastAggregationStats.aiProcessed = articlesToClassify.length
     lastAggregationStats.relevant = relevant.length
@@ -376,8 +393,15 @@ async function aggregateAndProcessArticles(): Promise<ClassifiedArticle[]> {
     const existingIds = new Set(articlesCache.map(a => a.id))
     const newRelevant = relevant.filter(a => !existingIds.has(a.id))
     articlesCache = [...newRelevant, ...articlesCache]
+
+    // Persist new articles to Supabase (non-blocking)
+    if (newRelevant.length > 0) {
+      saveArticles(newRelevant).catch(err =>
+        console.warn('[v0] Background save to Supabase failed:', err)
+      )
+    }
   }
-  
+
   // Sort: breaking first, then by score, then by date
   articlesCache.sort((a, b) => {
     if (a.isBreaking && !b.isBreaking) return -1
@@ -387,12 +411,15 @@ async function aggregateAndProcessArticles(): Promise<ClassifiedArticle[]> {
     }
     return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
   })
-  
+
   // Keep only last 200 articles in cache
   articlesCache = articlesCache.slice(0, 200)
-  
+
+  // Update the shared cache
+  setArticlesCache(articlesCache)
+
   console.log(`[v0] Final cache: ${articlesCache.length} AI-curated articles`)
-  
+
   return articlesCache
 }
 
@@ -412,18 +439,17 @@ export async function GET(request: Request) {
     const forceRefresh = searchParams.get('refresh') === 'true'
     
     // Check cache
-    const now = Date.now()
-    const cacheValid = !forceRefresh && articlesCache.length > 0 && (now - lastCacheUpdate) < CACHE_DURATION
-    
+    const cacheValid = !forceRefresh && isCacheValid()
+
     if (cacheValid) {
       console.log('[v0] Serving from cache')
     } else {
       // Refresh cache with AI-powered aggregation
       console.log('[v0] Cache expired, running AI-powered aggregation...')
       await aggregateAndProcessArticles()
-      lastCacheUpdate = now
     }
-    
+
+    const articlesCache = getArticlesCache()
     let articles = [...articlesCache]
     
     // Apply filters
@@ -460,12 +486,13 @@ export async function GET(request: Request) {
     const enrichedArticles = paginatedArticles.map(article => ({
       ...article,
       sourceTier: article.tier,
-      // Use stock fallback if no valid RSS image
+      // Use stock fallback if no valid RSS image (with OG extraction from HTML)
       imageUrl: getArticleImageUrl(
         article.imageUrl,
         article.title,
         article.category,
-        article.platforms || []
+        article.platforms || [],
+        article.fullContent
       ),
       // Flag whether this has a real image (for hero selection)
       hasRealImage: isGoodArticleImage(article.imageUrl),
@@ -484,7 +511,7 @@ export async function GET(request: Request) {
         byAudience,
       },
       meta: {
-        lastUpdate: new Date(lastCacheUpdate).toISOString(),
+        lastUpdate: new Date(getLastCacheUpdate()).toISOString(),
         model: 'claude-haiku-4-5-20251001',
       }
     })
@@ -494,7 +521,7 @@ export async function GET(request: Request) {
     return NextResponse.json({
       success: false,
       error: 'Failed to fetch articles',
-      articles: articlesCache.slice(0, 30), // Return stale cache on error
+      articles: getArticlesCache().slice(0, 30), // Return stale cache on error
     }, { status: 500 })
   }
 }

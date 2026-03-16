@@ -8,74 +8,52 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { getArticleFallbackImage } from "@/lib/article-images"
 import {
   ArrowLeft,
   Clock,
   Calendar,
-  User,
   Share2,
   Bookmark,
   ExternalLink,
   Globe,
   TrendingUp,
-  ChevronRight,
   Loader2,
   Twitter,
   Linkedin,
   Facebook,
   Link2,
-  MessageSquare
+  Sparkles,
+  AlertTriangle,
+  Target,
+  Users,
+  BarChart3,
+  ArrowRight,
+  Mail,
+  ChevronRight,
 } from "lucide-react"
 
 interface Article {
   id: string
   title: string
-  excerpt: string
-  content: string
+  summary: string
+  fullContent?: string
+  aiSummary?: string
   category: string
-  source: string
+  sourceName: string
   sourceUrl: string
-  author: string
   publishedAt: string
-  readTime: number
-  tags: string[]
-  featured: boolean
-  breaking: boolean
   imageUrl?: string
+  hasRealImage?: boolean
   platforms?: string[]
-}
-
-interface RelatedArticle {
-  id: string
-  title: string
-  category: string
-  publishedAt: string
-  imageUrl?: string
-}
-
-// Format article content from API or generate formatted content
-function formatArticleContent(article: Article): string {
-  // If article has full content from the API, use it
-  if (article.content && article.content.length > 200) {
-    // Clean up NewsAPI content (often truncated with [+XXX chars])
-    const cleanContent = article.content.replace(/\[\+\d+ chars\]$/, '')
-    return `
-      <p class="lead">${article.excerpt}</p>
-      <p>${cleanContent}</p>
-      <div class="source-notice">
-        <p><em>This article was originally published by <strong>${article.source}</strong>. Click the button below to read the full story on the original source.</em></p>
-      </div>
-    `
-  }
-  
-  // Otherwise, show excerpt with link to source
-  return `
-    <p class="lead">${article.excerpt}</p>
-    <p>This content is sourced from <strong>${article.source}</strong>. For the complete article with all details, analysis, and expert commentary, please visit the original source.</p>
-    <div class="source-notice">
-      <p><em>Click the button below to read the full story on ${article.source}.</em></p>
-    </div>
-  `
+  isBreaking?: boolean
+  relevanceScore?: number
+  audience?: string[]
+  impactLevel?: 'high' | 'medium' | 'low'
+  impactDetail?: string
+  actionItem?: string
+  keyStat?: string | null
+  tier?: number
 }
 
 function formatDate(dateString: string): string {
@@ -92,49 +70,89 @@ function formatTimeAgo(dateString: string): string {
   const date = new Date(dateString)
   const now = new Date()
   const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))
-  
+
   if (diffInHours < 1) return "Just now"
   if (diffInHours < 24) return `${diffInHours}h ago`
   if (diffInHours < 48) return "Yesterday"
   return `${Math.floor(diffInHours / 24)}d ago`
 }
 
-function getCategoryColor(category: string): string {
-  const colors: Record<string, string> = {
-    Amazon: "bg-amber-500",
-    Industry: "bg-blue-500",
-    Strategy: "bg-emerald-500",
-    Logistics: "bg-purple-500",
-    Tech: "bg-cyan-500",
-    Retail: "bg-rose-500",
-    D2C: "bg-orange-500",
-    Marketplaces: "bg-indigo-500",
-    Policy: "bg-slate-500",
-    Tools: "bg-teal-500",
-  }
-  return colors[category] || "bg-primary"
+function getReadTime(content: string): number {
+  const wordCount = content.split(/\s+/).length
+  return Math.max(2, Math.ceil(wordCount / 200))
+}
+
+const CATEGORY_COLORS: Record<string, string> = {
+  breaking: 'bg-red-500',
+  platform_updates: 'bg-blue-500',
+  market_metrics: 'bg-teal-500',
+  profitability: 'bg-emerald-500',
+  mergers_acquisitions: 'bg-purple-500',
+  tools_technology: 'bg-cyan-500',
+  advertising: 'bg-orange-500',
+  logistics: 'bg-slate-500',
+  events: 'bg-pink-500',
+  tactics: 'bg-yellow-600',
+  compliance_policy: 'bg-violet-500',
+}
+
+function formatCategoryLabel(category: string): string {
+  return category
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, c => c.toUpperCase())
+}
+
+/**
+ * Clean and format article HTML content for safe rendering.
+ */
+function cleanArticleHTML(html: string): string {
+  if (!html) return ''
+  // Remove script/style tags
+  let clean = html.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+  clean = clean.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+  // Remove inline event handlers
+  clean = clean.replace(/\son\w+="[^"]*"/gi, '')
+  clean = clean.replace(/\son\w+='[^']*'/gi, '')
+  return clean
 }
 
 export default function ArticlePage() {
   const params = useParams()
   const [article, setArticle] = useState<Article | null>(null)
-  const [relatedArticles, setRelatedArticles] = useState<RelatedArticle[]>([])
+  const [relatedArticles, setRelatedArticles] = useState<Article[]>([])
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     const fetchArticle = async () => {
       setLoading(true)
-      
+
       try {
+        // Try dedicated article detail endpoint first
+        try {
+          const detailResponse = await fetch(`/api/articles/${params.id}`)
+          const detailData = await detailResponse.json()
+
+          if (detailData.success && detailData.article) {
+            setArticle(detailData.article)
+            if (detailData.relatedArticles) {
+              setRelatedArticles(detailData.relatedArticles)
+            }
+            setLoading(false)
+            return
+          }
+        } catch (e) {
+          console.error("Failed to fetch from /api/articles/[id]:", e)
+        }
+
+        // Fallback: search in the main articles list
         let foundArticle = null
         let allArticles: Article[] = []
-        
-        // Try RSS-based articles API first (same as homepage)
+
         try {
           const articlesResponse = await fetch('/api/articles?limit=100')
           const articlesData = await articlesResponse.json()
-          
+
           if (articlesData.success && articlesData.articles) {
             allArticles = articlesData.articles
             foundArticle = articlesData.articles.find((a: Article) => a.id === params.id)
@@ -142,26 +160,9 @@ export default function ArticlePage() {
         } catch (e) {
           console.error("Failed to fetch from /api/articles:", e)
         }
-        
-        // If not found, try the news API
-        if (!foundArticle) {
-          try {
-            const newsResponse = await fetch('/api/news')
-            const newsData = await newsResponse.json()
-            
-            if (newsData.success && newsData.articles) {
-              allArticles = [...allArticles, ...newsData.articles]
-              foundArticle = newsData.articles.find((a: Article) => a.id === params.id)
-            }
-          } catch (e) {
-            console.error("Failed to fetch from /api/news:", e)
-          }
-        }
-        
+
         if (foundArticle) {
           setArticle(foundArticle)
-          
-          // Get related articles from same category
           const related = allArticles
             .filter((a: Article) => a.id !== params.id && a.category === foundArticle.category)
             .slice(0, 4)
@@ -182,7 +183,7 @@ export default function ArticlePage() {
   const handleShare = async (platform: string) => {
     const url = window.location.href
     const title = article?.title || ""
-    
+
     switch (platform) {
       case "twitter":
         window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`, "_blank")
@@ -217,7 +218,7 @@ export default function ArticlePage() {
       <div className="min-h-screen bg-background">
         <div className="max-w-4xl mx-auto px-4 py-16 text-center">
           <h1 className="text-2xl font-bold mb-4">Article Not Found</h1>
-          <p className="text-muted-foreground mb-8">The article you're looking for doesn't exist or has been removed.</p>
+          <p className="text-muted-foreground mb-8">The article you&apos;re looking for doesn&apos;t exist or has been removed.</p>
           <Button asChild>
             <Link href="/">
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -229,11 +230,14 @@ export default function ArticlePage() {
     )
   }
 
+  const readTime = getReadTime((article.fullContent || article.aiSummary || article.summary || ''))
+  const hasFullContent = article.fullContent && article.fullContent.length > 300
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="sm" asChild>
               <Link href="/">
@@ -243,17 +247,17 @@ export default function ArticlePage() {
             </Button>
             <Separator orientation="vertical" className="h-6" />
             <Link href="/" className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-                <TrendingUp className="h-4 w-4 text-primary-foreground" />
+              <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center">
+                <BarChart3 className="h-3.5 w-3.5 text-primary-foreground" />
               </div>
               <span className="font-bold text-lg hidden sm:block">Ecom Intel Hub</span>
             </Link>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" className="h-8 w-8">
               <Bookmark className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => handleShare("copy")}>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleShare("copy")}>
               {copied ? <Link2 className="h-4 w-4 text-green-500" /> : <Share2 className="h-4 w-4" />}
             </Button>
           </div>
@@ -262,13 +266,24 @@ export default function ArticlePage() {
 
       {/* Hero Image */}
       {article.imageUrl && (
-        <div className="relative w-full aspect-[21/9] md:aspect-[3/1] max-h-[500px]">
+        <div className="relative w-full aspect-[21/9] md:aspect-[3/1] max-h-[450px]">
           <Image
             src={article.imageUrl}
             alt={article.title}
             fill
             className="object-cover"
             priority
+            onError={(e) => {
+              const target = e.currentTarget as HTMLImageElement
+              const fallback = getArticleFallbackImage(
+                article.title,
+                article.category,
+                article.platforms || []
+              )
+              if (target.src !== fallback) {
+                target.src = fallback
+              }
+            }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
         </div>
@@ -281,76 +296,189 @@ export default function ArticlePage() {
           <article className="lg:col-span-2">
             {/* Article Header */}
             <header className="mb-8">
-              <div className="flex flex-wrap items-center gap-3 mb-4">
-                <Badge className={`${getCategoryColor(article.category)} text-white border-0`}>
-                  {article.category}
+              <div className="flex flex-wrap items-center gap-2 mb-4">
+                <Badge className={`${CATEGORY_COLORS[article.category] || 'bg-primary'} text-white border-0`}>
+                  {formatCategoryLabel(article.category)}
                 </Badge>
-                {article.breaking && (
+                {article.isBreaking && (
                   <Badge className="bg-red-500 text-white border-0">Breaking</Badge>
                 )}
+                {article.impactLevel && (
+                  <Badge
+                    variant="outline"
+                    className={`${
+                      article.impactLevel === 'high'
+                        ? 'border-red-500/50 text-red-600 bg-red-500/10'
+                        : article.impactLevel === 'medium'
+                        ? 'border-amber-500/50 text-amber-600 bg-amber-500/10'
+                        : 'border-green-500/50 text-green-600 bg-green-500/10'
+                    }`}
+                  >
+                    <span className={`mr-1 ${
+                      article.impactLevel === 'high' ? 'text-red-500'
+                      : article.impactLevel === 'medium' ? 'text-amber-500'
+                      : 'text-green-500'
+                    }`}>&#9679;</span>
+                    {article.impactLevel.charAt(0).toUpperCase() + article.impactLevel.slice(1)} Impact
+                  </Badge>
+                )}
                 {article.platforms?.map((platform) => (
-                  <Badge key={platform} variant="outline" className="text-xs">
-                    {platform}
+                  <Badge key={platform} variant="outline" className="text-xs capitalize">
+                    {platform.replace(/_/g, ' ')}
                   </Badge>
                 ))}
               </div>
-              
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 text-balance leading-tight">
+
+              <h1 className="text-3xl md:text-4xl font-bold mb-6 text-balance leading-tight">
                 {article.title}
               </h1>
-              
-              <p className="text-xl text-muted-foreground mb-6 leading-relaxed">
-                {article.excerpt}
-              </p>
-              
-              <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <User className="h-4 w-4" />
-                  <span>{article.author}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4" />
-                  <span>{formatDate(article.publishedAt)}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4" />
-                  <span>{article.readTime} min read</span>
-                </div>
-                <div className="flex items-center gap-2">
+
+              <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                <span className="flex items-center gap-1.5">
                   <Globe className="h-4 w-4" />
-                  <span>{article.source}</span>
-                </div>
+                  {article.sourceName}
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <Calendar className="h-4 w-4" />
+                  {formatDate(article.publishedAt)}
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <Clock className="h-4 w-4" />
+                  {readTime} min read
+                </span>
               </div>
             </header>
+
+            {/* AI Intelligence Brief */}
+            {(article.aiSummary || article.impactLevel || article.actionItem || article.keyStat) && (
+              <div className="bg-primary/5 rounded-xl p-6 mb-8 border border-primary/20">
+                <div className="flex items-center gap-2 mb-4">
+                  <Sparkles className="h-5 w-5 text-primary" />
+                  <h2 className="font-bold text-lg text-primary">AI Intelligence Brief</h2>
+                </div>
+
+                {/* AI Summary */}
+                {article.aiSummary && (
+                  <p className="text-base leading-relaxed mb-6">
+                    {article.aiSummary}
+                  </p>
+                )}
+
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {/* Key Stat */}
+                  {article.keyStat && (
+                    <div className="bg-background rounded-lg p-4 border">
+                      <div className="flex items-center gap-2 mb-2">
+                        <TrendingUp className="h-4 w-4 text-blue-500" />
+                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Key Stat</span>
+                      </div>
+                      <p className="font-bold text-lg">{article.keyStat}</p>
+                    </div>
+                  )}
+
+                  {/* Impact Assessment */}
+                  {article.impactLevel && (
+                    <div className="bg-background rounded-lg p-4 border">
+                      <div className="flex items-center gap-2 mb-2">
+                        <AlertTriangle className={`h-4 w-4 ${
+                          article.impactLevel === 'high' ? 'text-red-500'
+                          : article.impactLevel === 'medium' ? 'text-amber-500'
+                          : 'text-green-500'
+                        }`} />
+                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Impact</span>
+                      </div>
+                      <p className={`font-bold ${
+                        article.impactLevel === 'high' ? 'text-red-600'
+                        : article.impactLevel === 'medium' ? 'text-amber-600'
+                        : 'text-green-600'
+                      }`}>
+                        {article.impactLevel.charAt(0).toUpperCase() + article.impactLevel.slice(1)} Impact
+                      </p>
+                      {article.impactDetail && (
+                        <p className="text-sm text-muted-foreground mt-1">{article.impactDetail}</p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Action Item */}
+                  {article.actionItem && (
+                    <div className="bg-background rounded-lg p-4 border sm:col-span-2">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Target className="h-4 w-4 text-primary" />
+                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Recommended Action</span>
+                      </div>
+                      <p className="text-sm font-medium">{article.actionItem}</p>
+                    </div>
+                  )}
+
+                  {/* Audience */}
+                  {article.audience && article.audience.length > 0 && (
+                    <div className="bg-background rounded-lg p-4 border sm:col-span-2">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Users className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Relevant For</span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {article.audience.map(aud => (
+                          <Badge key={aud} variant="secondary" className="capitalize">
+                            {aud.replace(/_/g, ' ')}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             <Separator className="my-8" />
 
             {/* Article Body */}
-            <div 
-              className="prose prose-lg max-w-none dark:prose-invert 
-                prose-headings:font-bold prose-headings:tracking-tight
-                prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4
-                prose-p:leading-relaxed prose-p:mb-6
-                prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-6 prose-blockquote:italic prose-blockquote:bg-muted/30 prose-blockquote:py-4 prose-blockquote:pr-4 prose-blockquote:rounded-r-lg
-                prose-ul:my-6 prose-li:my-2
-                prose-strong:text-foreground
-                prose-a:text-primary prose-a:no-underline hover:prose-a:underline"
-              dangerouslySetInnerHTML={{ __html: formatArticleContent(article) }}
-            />
+            {hasFullContent ? (
+              <div
+                className="prose prose-lg max-w-none dark:prose-invert
+                  prose-headings:font-bold prose-headings:tracking-tight
+                  prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4
+                  prose-p:leading-relaxed prose-p:mb-6
+                  prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-6
+                  prose-blockquote:italic prose-blockquote:bg-muted/30 prose-blockquote:py-4
+                  prose-blockquote:pr-4 prose-blockquote:rounded-r-lg
+                  prose-ul:my-6 prose-li:my-2
+                  prose-strong:text-foreground
+                  prose-a:text-primary prose-a:no-underline hover:prose-a:underline
+                  prose-img:rounded-lg"
+                dangerouslySetInnerHTML={{ __html: cleanArticleHTML(article.fullContent || '') }}
+              />
+            ) : (
+              <div className="space-y-6">
+                <p className="text-lg leading-relaxed text-muted-foreground">
+                  {article.summary}
+                </p>
+                {article.aiSummary && article.aiSummary !== article.summary && (
+                  <div className="bg-muted/30 rounded-lg p-6 border">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Sparkles className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-semibold text-primary">AI Analysis</span>
+                    </div>
+                    <p className="leading-relaxed">{article.aiSummary}</p>
+                  </div>
+                )}
+              </div>
+            )}
 
-            {/* Read Full Story Button */}
+            <Separator className="my-8" />
+
+            {/* Original Source Link */}
             {article.sourceUrl && article.sourceUrl !== '#' && (
-              <div className="mt-8 p-6 bg-primary/5 rounded-xl border border-primary/20">
+              <div className="p-6 bg-muted/30 rounded-xl border mb-8">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div>
-                    <h3 className="font-semibold text-lg">Read the Full Story</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Continue reading on {article.source}
-                    </p>
+                    <p className="text-sm text-muted-foreground mb-1">Originally published by</p>
+                    <p className="font-semibold">{article.sourceName}</p>
                   </div>
-                  <Button asChild className="gap-2">
+                  <Button variant="outline" asChild className="gap-2">
                     <a href={article.sourceUrl} target="_blank" rel="noopener noreferrer">
-                      Read on {article.source}
+                      View Original Article
                       <ExternalLink className="h-4 w-4" />
                     </a>
                   </Button>
@@ -358,24 +486,8 @@ export default function ArticlePage() {
               </div>
             )}
 
-            <Separator className="my-8" />
-
-            {/* Tags */}
-            {article.tags && article.tags.length > 0 && (
-              <div className="mb-8">
-                <h3 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wide">Tags</h3>
-                <div className="flex flex-wrap gap-2">
-                  {article.tags.map((tag) => (
-                    <Badge key={tag} variant="secondary" className="text-sm">
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-
             {/* Share */}
-            <Card className="border-0 bg-muted/30">
+            <Card className="border-0 bg-muted/30 mb-8">
               <CardContent className="p-6">
                 <h3 className="font-semibold mb-4">Share this article</h3>
                 <div className="flex gap-3">
@@ -398,16 +510,17 @@ export default function ArticlePage() {
           </article>
 
           {/* Sidebar */}
-          <aside className="space-y-8">
+          <aside className="space-y-6">
             {/* Newsletter CTA */}
             <Card className="bg-primary text-primary-foreground border-0">
               <CardContent className="p-6">
-                <h3 className="font-bold text-lg mb-2">Stay Informed</h3>
+                <Mail className="h-6 w-6 mb-3" />
+                <h3 className="font-bold text-lg mb-2">Daily Marketplace Brief</h3>
                 <p className="text-primary-foreground/80 text-sm mb-4">
-                  Get the latest e-commerce news delivered to your inbox daily.
+                  Get the most important e-commerce news delivered to your inbox daily.
                 </p>
                 <Button variant="secondary" className="w-full" asChild>
-                  <Link href="/newsletter">Subscribe Now</Link>
+                  <Link href="/newsletter">Subscribe Free</Link>
                 </Button>
               </CardContent>
             </Card>
@@ -415,14 +528,11 @@ export default function ArticlePage() {
             {/* Related Articles */}
             {relatedArticles.length > 0 && (
               <div>
-                <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-                  <MessageSquare className="h-5 w-5" />
-                  Related Articles
-                </h3>
+                <h3 className="font-bold text-base mb-4">Related Articles</h3>
                 <div className="space-y-4">
                   {relatedArticles.map((related) => (
                     <Link key={related.id} href={`/news/${related.id}`}>
-                      <Card className="overflow-hidden group cursor-pointer hover:shadow-md transition-all border-0">
+                      <Card className="overflow-hidden group cursor-pointer hover:shadow-md transition-all border-0 mb-4">
                         {related.imageUrl && (
                           <div className="aspect-video relative overflow-hidden">
                             <Image
@@ -431,18 +541,29 @@ export default function ArticlePage() {
                               fill
                               className="object-cover group-hover:scale-105 transition-transform duration-300"
                               sizes="300px"
+                              onError={(e) => {
+                                const target = e.currentTarget as HTMLImageElement
+                                const fallback = getArticleFallbackImage(
+                                  related.title,
+                                  related.category,
+                                  related.platforms || []
+                                )
+                                if (target.src !== fallback) {
+                                  target.src = fallback
+                                }
+                              }}
                             />
                           </div>
                         )}
                         <CardContent className="p-4">
                           <Badge variant="outline" className="text-xs mb-2">
-                            {related.category}
+                            {formatCategoryLabel(related.category)}
                           </Badge>
                           <h4 className="font-semibold text-sm group-hover:text-primary transition-colors line-clamp-2">
                             {related.title}
                           </h4>
                           <p className="text-xs text-muted-foreground mt-2">
-                            {formatTimeAgo(related.publishedAt)}
+                            {related.sourceName} &middot; {formatTimeAgo(related.publishedAt)}
                           </p>
                         </CardContent>
                       </Card>
@@ -451,6 +572,25 @@ export default function ArticlePage() {
                 </div>
               </div>
             )}
+
+            {/* Tools CTA */}
+            <Card className="border-0 shadow-sm">
+              <CardContent className="p-5">
+                <h3 className="font-bold text-sm mb-3">Seller Tools</h3>
+                <div className="space-y-2">
+                  {[
+                    { name: "Profit Calculator", href: "/tools#calculator" },
+                    { name: "Listing Optimizer", href: "/tools#listing" },
+                    { name: "Keyword Research", href: "/tools#keywords" },
+                  ].map((tool) => (
+                    <Link key={tool.name} href={tool.href} className="flex items-center justify-between p-2 rounded hover:bg-muted transition-colors text-sm">
+                      {tool.name}
+                      <ChevronRight className="h-3 w-3 text-muted-foreground" />
+                    </Link>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Back to Home */}
             <Button variant="outline" className="w-full" asChild>
@@ -468,8 +608,8 @@ export default function ArticlePage() {
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <Link href="/" className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-                <TrendingUp className="h-4 w-4 text-primary-foreground" />
+              <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center">
+                <BarChart3 className="h-3.5 w-3.5 text-primary-foreground" />
               </div>
               <span className="font-bold">Ecom Intel Hub</span>
             </Link>
