@@ -1,8 +1,13 @@
 {
   "crons": [
     {
-      "path": "/api/articles?refresh=true",
+      "path": "/api/news/aggregate",
       "schedule": "0 */2 * * *"
     }
-  ]
+  ],
+  "functions": {
+    "app/api/news/aggregate/route.ts": {
+      "maxDuration": 60
+    }
+  }
 }
