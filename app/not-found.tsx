@@ -56,7 +56,7 @@ export default function NotFound() {
               <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
                 <TrendingUp className="h-5 w-5 text-primary-foreground" />
               </div>
-              <span className="font-bold text-xl">Ecom Intel Hub</span>
+              <span className="font-bold text-xl">MarketplaceBeta</span>
             </Link>
           </div>
         </div>

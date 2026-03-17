@@ -274,7 +274,7 @@ export default function ArticlePage() {
               <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center">
                 <BarChart3 className="h-3.5 w-3.5 text-primary-foreground" />
               </div>
-              <span className="font-bold text-lg hidden sm:block">Ecom Intel Hub</span>
+              <span className="font-bold text-lg hidden sm:block">MarketplaceBeta</span>
             </Link>
           </div>
           <div className="flex items-center gap-2">
@@ -390,7 +390,7 @@ export default function ArticlePage() {
                   </div>
                   <div>
                     <h2 className="font-bold text-lg text-primary">AI Intelligence Brief</h2>
-                    <p className="text-xs text-muted-foreground">Automated analysis by Ecom Intel Hub</p>
+                    <p className="text-xs text-muted-foreground">Automated analysis by MarketplaceBeta</p>
                   </div>
                 </div>
 
@@ -779,7 +779,7 @@ export default function ArticlePage() {
               <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center">
                 <BarChart3 className="h-3.5 w-3.5 text-primary-foreground" />
               </div>
-              <span className="font-bold">Ecom Intel Hub</span>
+              <span className="font-bold">MarketplaceBeta</span>
             </Link>
             <div className="flex items-center gap-6 text-sm text-muted-foreground">
               <Link href="/" className="hover:text-foreground transition-colors">Home</Link>

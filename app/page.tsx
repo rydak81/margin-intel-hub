@@ -550,11 +550,15 @@ export default function HomePage() {
           <div className="flex items-center justify-between h-14">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-                <BarChart3 className="h-4 w-4 text-primary-foreground" />
-              </div>
+              <Image 
+                src="/logo.jpg" 
+                alt="MarketplaceBeta logo" 
+                width={32} 
+                height={32} 
+                className="h-8 w-8 rounded-lg object-cover"
+              />
               <span className="font-bold text-lg hidden sm:block">
-                Ecom Intel Hub
+                MarketplaceBeta
               </span>
             </Link>
 
@@ -1337,7 +1341,7 @@ export default function HomePage() {
                 <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center">
                   <BarChart3 className="h-5 w-5 text-primary-foreground" />
                 </div>
-                <span className="font-bold text-xl">Ecom Intel Hub</span>
+                <span className="font-bold text-xl">MarketplaceBeta</span>
               </div>
               <p className="text-sm text-muted-foreground mb-4">
                 The intelligence hub for marketplace commerce. News, tools, and insights for e-commerce professionals.
@@ -1412,7 +1416,7 @@ export default function HomePage() {
 
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
             <div className="flex flex-col items-center md:items-start gap-2">
-              <p>2026 Ecom Intel Hub. All rights reserved.</p>
+              <p>2026 MarketplaceBeta. All rights reserved.</p>
               <p className="text-xs italic">Built for the marketplace commerce community</p>
             </div>
             <div className="flex items-center gap-6">

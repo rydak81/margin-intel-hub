@@ -235,7 +235,7 @@ export default function SolutionsPage() {
               <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
                 <BarChart3 className="h-4 w-4 text-primary-foreground" />
               </div>
-              <span className="font-bold text-lg hidden sm:block">Ecom Intel Hub</span>
+              <span className="font-bold text-lg hidden sm:block">MarketplaceBeta</span>
             </Link>
 
             <nav className="hidden lg:flex items-center gap-6">
@@ -551,7 +551,7 @@ export default function SolutionsPage() {
               <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
                 <BarChart3 className="h-4 w-4 text-primary-foreground" />
               </div>
-              <span className="font-bold">Ecom Intel Hub</span>
+              <span className="font-bold">MarketplaceBeta</span>
             </div>
             <p className="text-sm text-muted-foreground">
               Your source for e-commerce industry intelligence
