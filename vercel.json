@@ -3,10 +3,17 @@
     {
       "path": "/api/news/aggregate",
       "schedule": "0 */2 * * *"
+    },
+    {
+      "path": "/api/news/classify",
+      "schedule": "15 */2 * * *"
     }
   ],
   "functions": {
     "app/api/news/aggregate/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/news/classify/route.ts": {
       "maxDuration": 60
     }
   }

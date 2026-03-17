@@ -8,10 +8,23 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+// Competitor domains to block (especially from Google News feeds)
+const BLOCKED_DOMAINS = [
+  'carbon6.io',
+  'helium10.com',
+  'junglescout.com',
+  'sellersessions.com',
+  'feedvisor.com',
+  'tinuiti.com',
+]
+
+function isBlockedSource(url: string): boolean {
+  return BLOCKED_DOMAINS.some(domain => url.includes(domain))
+}
+
 // GET handler - called by Vercel cron every 2 hours
 export async function GET(request: Request) {
   try {
-    // Verify cron secret if configured
     const authHeader = request.headers.get('authorization')
     const cronSecret = process.env.CRON_SECRET
     if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
@@ -60,6 +73,9 @@ export async function POST(request: Request) {
 }
 
 async function runAggregationFromDB() {
+  const startTime = Date.now()
+  const MAX_RUNTIME_MS = 50000 // Stop at 50s to leave buffer for DB writes
+
   // 1. Fetch active sources from the news_sources table
   const { data: sources, error: sourcesError } = await supabaseAdmin
     .from('news_sources')
@@ -75,10 +91,18 @@ async function runAggregationFromDB() {
   let totalFetched = 0
   let totalStored = 0
   let totalErrors = 0
+  let sourcesProcessed = 0
+  let totalBlocked = 0
   const errors: string[] = []
 
-  // 2. Process each source - fetch RSS, classify, store
+  // 2. Process each source - fetch RSS, store (NO AI classification)
   for (const source of sources) {
+    // Time guard: stop before hitting the 60s limit
+    if (Date.now() - startTime > MAX_RUNTIME_MS) {
+      console.log(`[Aggregate] Time limit reached after processing ${sourcesProcessed} sources`)
+      break
+    }
+
     try {
       // Skip reddit sources for now (need different parsing)
       if (source.source_type === 'reddit') continue
@@ -89,14 +113,20 @@ async function runAggregationFromDB() {
       // Fetch and parse RSS
       const articles = await fetchRSSFeed(feedUrl, source)
       totalFetched += articles.length
+      sourcesProcessed++
 
       if (articles.length === 0) continue
 
-      // AI classify each article (batch)
-      const classified = await classifyArticles(articles)
-
       // Store in Supabase (upsert by source_url to avoid duplicates)
-      for (const article of classified) {
+      // No AI classification here — that's handled by /api/news/classify
+      for (const article of articles) {
+        // Block competitor content
+        if (isBlockedSource(article.source_url)) {
+          console.log(`[Aggregate] Blocked competitor article: ${article.source_url}`)
+          totalBlocked++
+          continue
+        }
+
         const { error: upsertError } = await supabaseAdmin
           .from('articles')
           .upsert(article, { onConflict: 'source_url' })
@@ -114,19 +144,114 @@ async function runAggregationFromDB() {
 
     } catch (err) {
       totalErrors++
+      sourcesProcessed++
       const msg = `${source.name}: ${String(err)}`
       errors.push(msg)
       console.error(`[Aggregate] Error: ${msg}`)
     }
   }
 
+  // 3. Fetch from NewsAPI if we still have time
+  let newsApiCount = 0
+  if (Date.now() - startTime < MAX_RUNTIME_MS) {
+    console.log('[Aggregate] Fetching from NewsAPI...')
+    try {
+      const newsApiArticles = await fetchFromNewsAPI()
+      for (const article of newsApiArticles) {
+        if (isBlockedSource(article.source_url)) {
+          totalBlocked++
+          continue
+        }
+        const { error } = await supabaseAdmin
+          .from('articles')
+          .upsert(article, { onConflict: 'source_url' })
+        if (!error) totalStored++
+      }
+      newsApiCount = newsApiArticles.length
+      totalFetched += newsApiCount
+    } catch (err) {
+      console.error('[Aggregate] NewsAPI error:', err)
+      errors.push(`NewsAPI: ${String(err)}`)
+    }
+  }
+
   return {
-    sources_processed: sources.length,
+    sources_total: sources.length,
+    sources_processed: sourcesProcessed,
     articles_fetched: totalFetched,
     articles_stored: totalStored,
+    articles_blocked: totalBlocked,
+    newsapi_articles: newsApiCount,
     errors: totalErrors,
-    error_details: errors.slice(0, 10) // Cap error details
+    error_details: errors.slice(0, 10),
+    runtime_ms: Date.now() - startTime
   }
+}
+
+// Fetch articles from NewsAPI (free tier: 100 requests/day)
+async function fetchFromNewsAPI(): Promise<any[]> {
+  const apiKey = process.env.NEWS_API_KEY
+  if (!apiKey) return []
+
+  const queries = [
+    'amazon marketplace seller',
+    'walmart marketplace ecommerce',
+    'shopify seller store',
+    'tiktok shop ecommerce',
+    'ecommerce tariffs import',
+    'amazon FBA fulfillment',
+  ]
+
+  const articles: any[] = []
+
+  // Only use 2-3 queries per run to conserve the 100/day limit
+  const selectedQueries = queries.slice(0, 2)
+
+  for (const query of selectedQueries) {
+    try {
+      const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&language=en&sortBy=publishedAt&pageSize=10&apiKey=${apiKey}`
+
+      const response = await fetch(url, {
+        signal: AbortSignal.timeout(8000)
+      })
+
+      if (!response.ok) continue
+      const data = await response.json()
+
+      for (const item of data.articles || []) {
+        if (!item.title || !item.url) continue
+        // Skip removed/placeholder articles from NewsAPI
+        if (item.title === '[Removed]') continue
+
+        const id = 'art_' + generateShortId(item.url)
+
+        articles.push({
+          id,
+          title: item.title,
+          summary: item.description || '',
+          source_name: item.source?.name || 'NewsAPI',
+          source_url: item.url,
+          published_at: item.publishedAt || new Date().toISOString(),
+          image_url: item.urlToImage || null,
+          original_rss_image: item.urlToImage || null,
+          has_real_image: !!item.urlToImage,
+          category: 'platform_updates',
+          platforms: [],
+          source_type: 'google', // Mark as external API source
+          relevant: true,
+          relevance_score: 50, // Will be updated by AI classification
+          impact_level: 'medium',
+          is_breaking: false,
+          audience: ['brand_sellers'],
+          tier: 2
+        })
+      }
+    } catch (err) {
+      console.error(`[NewsAPI] Error for query "${query}":`, err)
+    }
+  }
+
+  return articles
 }
 
 // Parse RSS feed XML into article objects
@@ -240,76 +365,6 @@ function parseRSSXML(xml: string, source: any) {
         audience: ['brand_sellers', 'agencies'],
         tier: source.priority_score >= 90 ? 1 : source.priority_score >= 80 ? 2 : 3
       })
-    }
-  }
-
-  return articles
-}
-
-// AI classification using Anthropic Claude
-async function classifyArticles(articles: any[]) {
-  const apiKey = process.env.ANTHROPIC_API_KEY
-  if (!apiKey) return articles // Return unclassified if no API key
-
-  // Process up to 10 articles per batch to stay within time limits
-  const batch = articles.slice(0, 10)
-
-  for (const article of batch) {
-    try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01'
-        },
-        body: JSON.stringify({
-          model: 'claude-haiku-4-5-20251001',
-          max_tokens: 500,
-          messages: [{
-            role: 'user',
-            content: `Classify this e-commerce article. Return ONLY valid JSON, no markdown.
-{
-  "category": one of: "breaking", "market_metrics", "platform_updates", "seller_profitability", "ma_deal_flow", "tools_technology", "advertising", "logistics",
-  "relevance_score": 1-100 (how relevant to marketplace sellers),
-  "impact_level": "high" | "medium" | "low",
-  "is_breaking": true/false,
-  "platforms": array of: "amazon", "walmart", "ebay", "shopify", "tiktok", "target",
-  "audience": array of: "brand_sellers", "agencies", "saas_tech", "investors", "service_providers",
-  "ai_summary": 2-3 sentence summary for marketplace professionals,
-  "action_item": one actionable takeaway for sellers (or null),
-  "key_stat": key statistic from the article (or null)
-}
-
-Title: ${article.title}
-Summary: ${article.summary}`
-          }]
-        })
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        const text = data.content?.[0]?.text || ''
-        // Extract JSON from response
-        const jsonMatch = text.match(/\{[\s\S]*\}/)
-        if (jsonMatch) {
-          const classification = JSON.parse(jsonMatch[0])
-          Object.assign(article, {
-            category: classification.category || article.category,
-            relevance_score: classification.relevance_score || article.relevance_score,
-            impact_level: classification.impact_level || article.impact_level,
-            is_breaking: classification.is_breaking || false,
-            platforms: classification.platforms || article.platforms,
-            audience: classification.audience || article.audience,
-            ai_summary: classification.ai_summary || article.summary,
-            action_item: classification.action_item || null,
-            key_stat: classification.key_stat || null
-          })
-        }
-      }
-    } catch (err) {
-      console.error(`[AI] Classification failed for: ${article.title}`, err)
-      // Keep article with default classification
     }
   }
 
