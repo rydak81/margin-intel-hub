@@ -24,11 +24,9 @@ import {
   X,
   ArrowRight,
   Sparkles,
-  AlertTriangle,
   Target,
   Users,
   TrendingUp,
-  Zap,
   Lightbulb,
 } from "lucide-react"
 import { getArticleFallbackImage } from "@/lib/article-images"
@@ -57,6 +55,7 @@ interface NewsArticle {
   whatThisMeans?: string
   keyTakeaways?: string[]
   relatedContext?: string
+  bottomLine?: string
 }
 
 interface ArticleDetailModalProps {
@@ -119,15 +118,15 @@ export function ArticleDetailModal({
 
   if (!article) return null
 
+  const formatAudience = (tag: string) => tag.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+
   const hasAISummary = !!(article.aiSummary && article.aiSummary.length > 10 && article.aiSummary !== article.excerpt)
   const hasOurTake = !!(article.ourTake && article.ourTake.length > 10)
-  const hasWhatThisMeans = !!(article.whatThisMeans && article.whatThisMeans.length > 10)
   const hasKeyTakeaways = !!(article.keyTakeaways && article.keyTakeaways.length > 0)
-  const hasImpactDetail = !!(article.impactDetail && article.impactDetail.length > 5)
-  const hasActionItem = !!(article.actionItem && article.actionItem.length > 5)
   const hasKeyStat = !!(article.keyStat && article.keyStat.length > 2)
+  const hasBottomLine = !!(article.bottomLine && article.bottomLine.length > 5)
   const hasAudience = !!(article.audience && article.audience.length > 0)
-  const hasAnyInsight = hasAISummary || hasImpactDetail || hasActionItem || hasKeyStat || hasOurTake || hasWhatThisMeans
+  const hasAnyInsight = hasAISummary || hasOurTake || hasKeyTakeaways || hasBottomLine
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -237,7 +236,7 @@ export function ArticleDetailModal({
             </p>
           </div>
 
-          {/* AI Insights Section — rich content inline */}
+          {/* AI Intelligence Brief — Phase 5 four-section design */}
           {hasAnyInsight && (
             <div className="bg-primary/5 rounded-xl p-5 mb-6 border border-primary/20">
               <div className="flex items-center gap-2 mb-4">
@@ -246,48 +245,15 @@ export function ArticleDetailModal({
               </div>
 
               <div className="grid gap-4">
-                {/* Our Take */}
+                {/* The Operator's Edge */}
                 {hasOurTake && (
                   <div className="flex items-start gap-3">
                     <Lightbulb className="h-4 w-4 mt-0.5 text-amber-500 flex-shrink-0" />
                     <div>
                       <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                        Our Take
+                        The Operator&apos;s Edge
                       </span>
                       <p className="text-sm text-foreground italic">{article.ourTake}</p>
-                    </div>
-                  </div>
-                )}
-
-                {/* What This Means */}
-                {hasWhatThisMeans && (
-                  <div className="flex items-start gap-3">
-                    <Zap className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
-                    <div>
-                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                        What This Means for Sellers
-                      </span>
-                      <p className="text-sm text-foreground">{article.whatThisMeans}</p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Key Takeaways */}
-                {hasKeyTakeaways && (
-                  <div className="flex items-start gap-3">
-                    <Target className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
-                    <div>
-                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                        Key Takeaways
-                      </span>
-                      <ul className="mt-1 space-y-1">
-                        {article.keyTakeaways!.map((point, i) => (
-                          <li key={i} className="text-sm text-foreground flex items-start gap-1.5">
-                            <span className="text-primary mt-1">&#8226;</span>
-                            <span>{point}</span>
-                          </li>
-                        ))}
-                      </ul>
                     </div>
                   </div>
                 )}
@@ -305,33 +271,33 @@ export function ArticleDetailModal({
                   </div>
                 )}
 
-                {/* Impact Assessment */}
-                {hasImpactDetail && (
-                  <div className="flex items-start gap-3">
-                    <AlertTriangle className={`h-4 w-4 mt-0.5 flex-shrink-0 ${
-                      article.impactLevel === 'high' ? 'text-red-500'
-                      : article.impactLevel === 'medium' ? 'text-amber-500'
-                      : 'text-green-500'
-                    }`} />
-                    <div>
-                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                        Impact
-                      </span>
-                      <p className="text-sm text-foreground">{article.impactDetail}</p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Action Item */}
-                {hasActionItem && (
+                {/* Moves to Make */}
+                {hasKeyTakeaways && (
                   <div className="flex items-start gap-3">
                     <Target className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
                     <div>
                       <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                        What You Should Do
+                        Moves to Make
                       </span>
-                      <p className="text-sm text-foreground">{article.actionItem}</p>
+                      <ul className="mt-1 space-y-1">
+                        {article.keyTakeaways!.map((point, i) => (
+                          <li key={i} className="text-sm text-foreground flex items-start gap-1.5">
+                            <span className="text-primary mt-1">&#8226;</span>
+                            <span>{point}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
+                  </div>
+                )}
+
+                {/* The Bottom Line */}
+                {hasBottomLine && (
+                  <div className="border-l-4 border-primary pl-4 py-1">
+                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      The Bottom Line
+                    </span>
+                    <p className="text-sm font-medium text-foreground">{article.bottomLine}</p>
                   </div>
                 )}
 
@@ -345,8 +311,8 @@ export function ArticleDetailModal({
                       </span>
                       <div className="flex flex-wrap gap-1.5 mt-1">
                         {article.audience!.map(aud => (
-                          <Badge key={aud} variant="secondary" className="text-xs capitalize">
-                            {aud}
+                          <Badge key={aud} variant="secondary" className="text-xs">
+                            {formatAudience(aud)}
                           </Badge>
                         ))}
                       </div>

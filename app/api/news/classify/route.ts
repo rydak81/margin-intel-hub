@@ -90,12 +90,13 @@ export async function GET(request: Request) {
         const updateData: Record<string, unknown> = {
           ai_summary: classification.ai_summary,
           our_take: classification.our_take,
-          what_this_means: classification.what_this_means,
+          what_this_means: classification.our_take,  // Map operator's edge to both fields for backward compatibility
           key_takeaways: classification.key_takeaways || [],
-          related_context: classification.related_context,
-          action_item: classification.action_item,
+          related_context: classification.bottom_line,  // Repurpose for bottom line storage
+          action_item: classification.key_takeaways?.[0] || null,  // First action item
           key_stat: classification.key_stat,
-          impact_detail: classification.impact_detail,
+          impact_detail: classification.bottom_line,  // Bottom line also stored here for display
+          bottom_line: classification.bottom_line,
           category: classification.category,
           platforms: classification.platforms || [],
           audience: classification.audience || [],
@@ -166,42 +167,29 @@ async function classifyWithAI(article: { id: string; title: string; summary: str
   const apiKey = process.env.ANTHROPIC_API_KEY
   if (!apiKey) return null
 
-  const classificationPrompt = `You are a senior marketplace intelligence analyst writing for ecommerce professionals who sell on Amazon, Walmart, Shopify, and other marketplaces.
+  const classificationPrompt = `You are MarketplaceBeta's senior intelligence analyst. Your readers are enterprise brand operators, Amazon/Walmart sellers doing $1M+, agency directors, and ecommerce SaaS executives. They don't need hand-holding — they need the insight they'd miss without you.
 
-Analyze this article and return a JSON object with these fields:
+Analyze this article and return a JSON object. Every field must earn its place — no filler, no restating the headline, no generic advice.
 
 {
-  "ai_summary": "2-3 sentence executive summary of the article focused on what happened and why it matters to marketplace sellers. Be specific with numbers, dates, and companies mentioned.",
+  "ai_summary": "THE SIGNAL — 1-2 sentences max. What happened, stated like a Bloomberg terminal alert. Be specific: name the companies, cite the numbers, state the timeline. No setup language like 'In a move that...' — just the facts, dense and direct.",
 
-  "our_take": "2-3 sentences giving MarketplaceBeta's editorial perspective. What's the real story here? What are most people missing? Connect this to broader industry trends. Write in first person plural (we/our). Be opinionated but substantiated.",
+  "our_take": "THE OPERATOR'S EDGE — 3-4 sentences. This is the insight that justifies reading MarketplaceBeta instead of just scanning headlines. What's the non-obvious implication? What pattern does this fit into? How does this connect to other moves in the space? Differentiate impact by seller type where relevant (1P vendor vs 3P seller, brand owner vs reseller, US-only vs international). Reference specific regulations, timelines, fee structures, or competitive dynamics. Write in first person plural. Be opinionated and specific — vague takes like 'sellers should pay attention' are worthless.",
 
-  "what_this_means": "2-3 sentences explaining the practical implications for different types of sellers. How does this affect a private-label brand owner vs. a wholesale reseller vs. an agency? Be specific about who should care and why.",
+  "key_takeaways": ["MOVES TO MAKE — Array of exactly 2-3 action items. Each must be concrete and specific enough that someone could execute it this week. Bad: 'Review your compliance documentation.' Good: 'Pull your EU seller verification status in Seller Central > Account Health before the June 1 enforcement date — unverified accounts face listing suspension.' Target each bullet at a different audience where possible (one for brands, one for agencies, one for SaaS/operators)."],
 
-  "key_takeaways": ["Array of 2-4 short bullet points (one sentence each) that a seller could act on immediately"],
+  "bottom_line": "THE BOTTOM LINE — One sentence, quotable, shareable. Written so an executive could paste this into LinkedIn and sound like the smartest person in the room. This is the pull quote of the entire brief. Think: 'If your EU compliance workflow takes more than 48 hours per marketplace, you're not ready for what's coming in Q3.' or 'Amazon just told every 1P vendor that margin protection is now your problem, not theirs.'",
 
-  "related_context": "1-2 sentences connecting this news to other recent industry developments, regulatory changes, or market trends that provide additional context. Reference specific events or data points if possible.",
-
-  "action_item": "One clear, specific action a marketplace seller should take in response to this news. Start with a verb.",
-
-  "key_stat": "The single most important number or data point from this article (e.g., '23% increase in FBA fees' or '$150B Walmart ecommerce revenue'). Return null if no meaningful stat exists.",
-
-  "impact_detail": "One sentence explaining HOW this impacts seller operations, margins, or strategy. Be specific about the mechanism of impact.",
+  "key_stat": "The single most important number from this article (e.g., '23% FBA fee increase effective April 1' or 'Walmart marketplace grew 42% YoY to $65B GMV'). Return null if no meaningful stat exists.",
 
   "category": "One of: platform_updates, seller_tools, market_trends, policy_regulatory, logistics_supply_chain, advertising_marketing, international, mergers_acquisitions, consumer_trends, ai_technology",
-
   "platforms": ["Array of relevant platforms: amazon, walmart, shopify, tiktok, ebay, target, etsy, general"],
-
-  "audience": ["Array of who should read this: brand_sellers, wholesale_resellers, agencies, saas_providers, investors, new_sellers"],
-
+  "audience": ["Array using clean labels: Brand Sellers, Wholesale Resellers, Agencies, SaaS Providers, Investors, New Sellers"],
   "impact_level": "One of: low, medium, high, critical",
-
-  "relevance_score": "Integer 0-100 based on how relevant this is to marketplace professionals. 90+ = breaking/must-read, 70-89 = important, 50-69 = nice to know, below 50 = tangential",
-
+  "relevance_score": "Integer 0-100. Be strict: 90+ = industry-shaping, every operator must know. 70-89 = important for specific segments. 50-69 = useful context. Below 50 = tangential to marketplace selling. Logistics/trucking news that doesn't directly affect seller operations or costs should score below 40.",
   "is_breaking": true/false,
-
-  "relevant": true/false (false only if completely unrelated to ecommerce/marketplaces),
-
-  "image_search_query": "A 2-4 word search query that would find a relevant, specific stock photo for this article. Be specific — not 'ecommerce' but 'amazon warehouse robots' or 'walmart storefront' or 'shipping container port'. Match the actual topic of the article."
+  "relevant": "true/false — Set false for articles about trucking regulations, carrier operations, freight brokerage, port operations, or other logistics topics that don't directly impact marketplace seller costs, delivery times, or operations. The test: would an Amazon seller making $2M/year care about this? If not, mark false.",
+  "image_search_query": "2-4 word stock photo search. Be specific to the article topic — 'amazon warehouse robots' not 'ecommerce'. Match the actual subject."
 }
 
 Article title: "${article.title}"
@@ -219,11 +207,8 @@ Return ONLY valid JSON, no markdown or explanation.`
     },
     body: JSON.stringify({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 1000,
-      messages: [{
-        role: 'user',
-        content: classificationPrompt
-      }]
+      max_tokens: 1200,
+      messages: [{ role: 'user', content: classificationPrompt }]
     })
   })
 
@@ -233,10 +218,8 @@ Return ONLY valid JSON, no markdown or explanation.`
 
   const data = await response.json()
   const text = data.content?.[0]?.text || ''
-
   const jsonMatch = text.match(/\{[\s\S]*\}/)
   if (!jsonMatch) return null
-
   return JSON.parse(jsonMatch[0])
 }
 

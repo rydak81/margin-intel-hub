@@ -85,6 +85,7 @@ interface NewsArticle {
   whatThisMeans?: string
   keyTakeaways?: string[]
   relatedContext?: string
+  bottomLine?: string
   }
 
 interface BreakingNews {
@@ -282,6 +283,7 @@ export default function HomePage() {
             whatThisMeans: a.whatThisMeans || '',
             keyTakeaways: a.keyTakeaways || [],
             relatedContext: a.relatedContext || '',
+            bottomLine: a.bottomLine || '',
           }))
           setSearchResults(mapped)
         }
@@ -332,6 +334,7 @@ export default function HomePage() {
           whatThisMeans?: string
           keyTakeaways?: string[]
           relatedContext?: string
+          bottomLine?: string
           imageUrl?: string
           hasRealImage?: boolean
         }) => ({
@@ -364,6 +367,7 @@ export default function HomePage() {
           whatThisMeans: a.whatThisMeans || '',
           keyTakeaways: a.keyTakeaways || [],
           relatedContext: a.relatedContext || '',
+          bottomLine: a.bottomLine || '',
         }))
         
         setArticles(transformedArticles)

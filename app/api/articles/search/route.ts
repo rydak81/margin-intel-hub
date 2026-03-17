@@ -56,6 +56,7 @@ export async function GET(request: Request) {
       whatThisMeans: row.what_this_means || '',
       keyTakeaways: row.key_takeaways || [],
       relatedContext: row.related_context || '',
+      bottomLine: row.bottom_line || '',
       sourceName: row.source_name,
       sourceUrl: row.source_url,
       publishedAt: row.published_at,

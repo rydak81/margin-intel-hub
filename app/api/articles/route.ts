@@ -168,6 +168,7 @@ function dbRowToArticle(row: any) {
     whatThisMeans: row.what_this_means || '',
     keyTakeaways: row.key_takeaways || [],
     relatedContext: row.related_context || '',
+    bottomLine: row.bottom_line || '',
     rejectionReason: row.rejection_reason || null,
     tier: row.tier || 3,
     sourceType: row.source_type || 'industry',
