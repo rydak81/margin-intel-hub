@@ -2,7 +2,7 @@
 
 The Intelligence Hub for Marketplace Commerce — breaking news, platform updates, M&A activity, and actionable insights for Amazon sellers, agencies, SaaS providers, and e-commerce operators, all in one place.
 
-**Live site:** [v0-vercel-ecom-intelpro.vercel.app](https://v0-vercel-ecom-intelpro.vercel.app)
+**Live site:** www.marketplacebeta.com
 
 ## Features
 
