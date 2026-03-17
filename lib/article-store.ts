@@ -16,7 +16,7 @@ import type { ClassifiedArticle } from '@/lib/ai-classifier'
 // In-memory cache (fast reads, populated from Supabase on startup)
 let articlesCache: ClassifiedArticle[] = []
 let lastCacheUpdate = 0
-const CACHE_DURATION = 30 * 60 * 1000 // 30 minutes
+const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
 
 // Check if Supabase is configured
 function isSupabaseConfigured(): boolean {
