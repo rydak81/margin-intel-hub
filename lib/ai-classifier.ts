@@ -351,24 +351,10 @@ export async function classifyAllArticles(articles: RawArticle[]): Promise<Artic
 }
 
 /**
- * Filter out articles that have already been classified
- */
-export function getUnclassifiedArticles(articles: RawArticle[]): RawArticle[] {
-  return articles.filter(a => !classifiedArticleIds.has(a.id))
-}
-
-/**
  * Mark an article as classified
  */
 export function markAsClassified(articleId: string): void {
   classifiedArticleIds.add(articleId)
-}
-
-/**
- * Clear the classification cache (useful for forcing re-classification)
- */
-export function clearClassificationCache(): void {
-  classifiedArticleIds.clear()
 }
 
 /**
