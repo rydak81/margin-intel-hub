@@ -7,6 +7,18 @@
     {
       "path": "/api/news/classify",
       "schedule": "15 */2 * * *"
+    },
+    {
+      "path": "/api/community/aggregate",
+      "schedule": "0 */6 * * *"
+    },
+    {
+      "path": "/api/community/analyze",
+      "schedule": "30 */6 * * *"
+    },
+    {
+      "path": "/api/community/pulse",
+      "schedule": "0 12 * * *"
     }
   ],
   "functions": {
@@ -14,6 +26,15 @@
       "maxDuration": 60
     },
     "app/api/news/classify/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/community/aggregate/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/community/analyze/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/community/pulse/route.ts": {
       "maxDuration": 60
     }
   }
