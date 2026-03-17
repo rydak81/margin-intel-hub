@@ -42,6 +42,10 @@ interface Article {
   summary: string
   fullContent?: string
   aiSummary?: string
+  ourTake?: string
+  whatThisMeans?: string
+  keyTakeaways?: string[]
+  relatedContext?: string
   category: string
   sourceName: string
   sourceUrl: string
@@ -243,11 +247,15 @@ export default function ArticlePage() {
   const readTime = getReadTime(allContent)
   const hasRichContent = getPlainTextLength(article.fullContent || '') > 300
   const hasAISummary = !!(article.aiSummary && article.aiSummary.length > 10 && article.aiSummary !== article.summary)
+  const hasOurTake = !!(article.ourTake && article.ourTake.length > 10)
+  const hasWhatThisMeans = !!(article.whatThisMeans && article.whatThisMeans.length > 10)
+  const hasKeyTakeaways = !!(article.keyTakeaways && article.keyTakeaways.length > 0)
+  const hasRelatedContext = !!(article.relatedContext && article.relatedContext.length > 10)
   const hasImpactDetail = !!(article.impactDetail && article.impactDetail.length > 5)
   const hasActionItem = !!(article.actionItem && article.actionItem.length > 5)
   const hasKeyStat = !!(article.keyStat && article.keyStat.length > 2)
   const hasAudience = !!(article.audience && article.audience.length > 0)
-  const hasAnyInsight = hasAISummary || hasImpactDetail || hasActionItem || hasKeyStat
+  const hasAnyInsight = hasAISummary || hasImpactDetail || hasActionItem || hasKeyStat || hasOurTake || hasWhatThisMeans
 
   return (
     <div className="min-h-screen bg-background">
@@ -395,6 +403,57 @@ export default function ArticlePage() {
                   </div>
                 )}
 
+                {/* What This Means for Sellers */}
+                {hasWhatThisMeans && (
+                  <div className="bg-background rounded-lg p-5 border mb-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Zap className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-semibold">What This Means for Sellers</span>
+                    </div>
+                    <p className="text-sm leading-relaxed">{article.whatThisMeans}</p>
+                  </div>
+                )}
+
+                {/* Our Take */}
+                {hasOurTake && (
+                  <div className="bg-background rounded-lg p-5 border mb-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Lightbulb className="h-4 w-4 text-amber-500" />
+                      <span className="text-sm font-semibold">Our Take</span>
+                    </div>
+                    <p className="text-sm leading-relaxed italic">{article.ourTake}</p>
+                  </div>
+                )}
+
+                {/* Key Takeaways */}
+                {hasKeyTakeaways && (
+                  <div className="bg-background rounded-lg p-5 border mb-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Target className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-semibold">Key Takeaways</span>
+                    </div>
+                    <ul className="space-y-2">
+                      {article.keyTakeaways!.map((point, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm">
+                          <ChevronRight className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
+                          <span>{point}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Industry Context */}
+                {hasRelatedContext && (
+                  <div className="bg-background rounded-lg p-5 border mb-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Globe className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm font-semibold">Industry Context</span>
+                    </div>
+                    <p className="text-sm leading-relaxed text-muted-foreground">{article.relatedContext}</p>
+                  </div>
+                )}
+
                 <div className="grid sm:grid-cols-2 gap-4">
                   {/* Key Stat */}
                   {hasKeyStat && (
@@ -501,24 +560,30 @@ export default function ArticlePage() {
                   </p>
                 </div>
 
-                {/* If AI summary is different from summary, show it as additional analysis */}
-                {hasAISummary && (
+                {/* Our Take — editorial perspective */}
+                {hasOurTake && (
                   <div className="bg-muted/30 rounded-xl p-6 border">
                     <div className="flex items-center gap-2 mb-4">
                       <Lightbulb className="h-5 w-5 text-amber-500" />
                       <h3 className="font-bold text-base">Our Take</h3>
                     </div>
-                    <p className="leading-relaxed text-foreground">{article.aiSummary}</p>
+                    <p className="leading-relaxed text-foreground italic">{article.ourTake}</p>
                   </div>
                 )}
 
-                {/* What This Means section — helps fill content when RSS is thin */}
-                {(hasImpactDetail || hasActionItem) && (
+                {/* What This Means section */}
+                {(hasWhatThisMeans || hasImpactDetail || hasActionItem) && (
                   <div className="space-y-6">
                     <div className="flex items-center gap-2">
                       <Zap className="h-5 w-5 text-primary" />
                       <h2 className="font-bold text-xl">What This Means for Sellers</h2>
                     </div>
+
+                    {hasWhatThisMeans && (
+                      <div className="pl-4 border-l-2 border-primary/30">
+                        <p className="leading-relaxed">{article.whatThisMeans}</p>
+                      </div>
+                    )}
 
                     {hasImpactDetail && (
                       <div className="pl-4 border-l-2 border-primary/30">
@@ -533,6 +598,35 @@ export default function ArticlePage() {
                         <p className="leading-relaxed">{article.actionItem}</p>
                       </div>
                     )}
+                  </div>
+                )}
+
+                {/* Key Takeaways in body area */}
+                {hasKeyTakeaways && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <Target className="h-5 w-5 text-primary" />
+                      <h2 className="font-bold text-xl">Key Takeaways</h2>
+                    </div>
+                    <ul className="space-y-3">
+                      {article.keyTakeaways!.map((point, i) => (
+                        <li key={i} className="flex items-start gap-3">
+                          <ChevronRight className="h-5 w-5 mt-0.5 text-primary flex-shrink-0" />
+                          <span className="leading-relaxed">{point}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Industry Context */}
+                {hasRelatedContext && (
+                  <div className="bg-muted/30 rounded-xl p-6 border">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Globe className="h-5 w-5 text-muted-foreground" />
+                      <h3 className="font-bold text-base">Industry Context</h3>
+                    </div>
+                    <p className="leading-relaxed text-muted-foreground">{article.relatedContext}</p>
                   </div>
                 )}
               </div>
