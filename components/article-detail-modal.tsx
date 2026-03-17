@@ -53,6 +53,10 @@ interface NewsArticle {
   actionItem?: string
   keyStat?: string | null
   aiSummary?: string
+  ourTake?: string
+  whatThisMeans?: string
+  keyTakeaways?: string[]
+  relatedContext?: string
 }
 
 interface ArticleDetailModalProps {
@@ -116,11 +120,14 @@ export function ArticleDetailModal({
   if (!article) return null
 
   const hasAISummary = !!(article.aiSummary && article.aiSummary.length > 10 && article.aiSummary !== article.excerpt)
+  const hasOurTake = !!(article.ourTake && article.ourTake.length > 10)
+  const hasWhatThisMeans = !!(article.whatThisMeans && article.whatThisMeans.length > 10)
+  const hasKeyTakeaways = !!(article.keyTakeaways && article.keyTakeaways.length > 0)
   const hasImpactDetail = !!(article.impactDetail && article.impactDetail.length > 5)
   const hasActionItem = !!(article.actionItem && article.actionItem.length > 5)
   const hasKeyStat = !!(article.keyStat && article.keyStat.length > 2)
   const hasAudience = !!(article.audience && article.audience.length > 0)
-  const hasAnyInsight = hasAISummary || hasImpactDetail || hasActionItem || hasKeyStat
+  const hasAnyInsight = hasAISummary || hasImpactDetail || hasActionItem || hasKeyStat || hasOurTake || hasWhatThisMeans
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -239,6 +246,52 @@ export function ArticleDetailModal({
               </div>
 
               <div className="grid gap-4">
+                {/* Our Take */}
+                {hasOurTake && (
+                  <div className="flex items-start gap-3">
+                    <Lightbulb className="h-4 w-4 mt-0.5 text-amber-500 flex-shrink-0" />
+                    <div>
+                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                        Our Take
+                      </span>
+                      <p className="text-sm text-foreground italic">{article.ourTake}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* What This Means */}
+                {hasWhatThisMeans && (
+                  <div className="flex items-start gap-3">
+                    <Zap className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
+                    <div>
+                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                        What This Means for Sellers
+                      </span>
+                      <p className="text-sm text-foreground">{article.whatThisMeans}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Key Takeaways */}
+                {hasKeyTakeaways && (
+                  <div className="flex items-start gap-3">
+                    <Target className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
+                    <div>
+                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                        Key Takeaways
+                      </span>
+                      <ul className="mt-1 space-y-1">
+                        {article.keyTakeaways!.map((point, i) => (
+                          <li key={i} className="text-sm text-foreground flex items-start gap-1.5">
+                            <span className="text-primary mt-1">&#8226;</span>
+                            <span>{point}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                )}
+
                 {/* Key Stat */}
                 {hasKeyStat && (
                   <div className="flex items-start gap-3">

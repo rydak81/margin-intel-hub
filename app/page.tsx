@@ -81,6 +81,10 @@ interface NewsArticle {
   actionItem?: string
   keyStat?: string | null
   aiSummary?: string
+  ourTake?: string
+  whatThisMeans?: string
+  keyTakeaways?: string[]
+  relatedContext?: string
   }
 
 interface BreakingNews {
@@ -193,6 +197,8 @@ export default function HomePage() {
   const [articleModalOpen, setArticleModalOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [searchExpanded, setSearchExpanded] = useState(false)
+  const [searchResults, setSearchResults] = useState<NewsArticle[] | null>(null)
+  const [searchLoading, setSearchLoading] = useState(false)
   const searchInputRef = useRef<HTMLInputElement>(null)
 
   // Track scroll position for header transition
@@ -227,6 +233,61 @@ export default function HomePage() {
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [])
+
+  // Debounced full-text search via API
+  useEffect(() => {
+    if (!searchQuery || searchQuery.length < 2) {
+      setSearchResults(null)
+      return
+    }
+
+    const timer = setTimeout(async () => {
+      setSearchLoading(true)
+      try {
+        const res = await fetch(`/api/articles/search?q=${encodeURIComponent(searchQuery)}&limit=30`)
+        const data = await res.json()
+        if (data.success && data.articles) {
+          const mapped: NewsArticle[] = data.articles.map((a: any) => ({
+            id: a.id,
+            title: a.title,
+            excerpt: a.aiSummary || a.summary,
+            fullContent: a.summary,
+            category: mapAICategory(a.category),
+            source: a.sourceName,
+            sourceUrl: a.sourceUrl,
+            author: a.sourceName,
+            publishedAt: a.publishedAt,
+            readTime: Math.ceil((a.summary?.length || 200) / 200),
+            tags: [],
+            featured: a.relevanceScore >= 80,
+            breaking: a.isBreaking,
+            platforms: a.platforms || [],
+            tier: a.tier,
+            sourceType: a.sourceType,
+            imageUrl: a.imageUrl,
+            hasRealImage: a.hasRealImage,
+            audience: a.audience || [],
+            impactLevel: a.impactLevel || 'medium',
+            impactDetail: a.impactDetail || '',
+            actionItem: a.actionItem || '',
+            keyStat: a.keyStat || null,
+            aiSummary: a.aiSummary || a.summary,
+            ourTake: a.ourTake || '',
+            whatThisMeans: a.whatThisMeans || '',
+            keyTakeaways: a.keyTakeaways || [],
+            relatedContext: a.relatedContext || '',
+          }))
+          setSearchResults(mapped)
+        }
+      } catch (err) {
+        console.error('Search error:', err)
+      }
+      setSearchLoading(false)
+    }, 300) // 300ms debounce
+
+    return () => clearTimeout(timer)
+  }, [searchQuery])
+
   const [email, setEmail] = useState("")
   const [isSubscribing, setIsSubscribing] = useState(false)
   const [subscribed, setSubscribed] = useState(false)
@@ -261,6 +322,10 @@ export default function HomePage() {
           impactDetail: string
           actionItem: string
           keyStat: string | null
+          ourTake?: string
+          whatThisMeans?: string
+          keyTakeaways?: string[]
+          relatedContext?: string
           imageUrl?: string
           hasRealImage?: boolean
         }) => ({
@@ -289,6 +354,10 @@ export default function HomePage() {
           actionItem: a.actionItem || '',
           keyStat: a.keyStat || null,
           aiSummary: a.aiSummary || a.summary,
+          ourTake: a.ourTake || '',
+          whatThisMeans: a.whatThisMeans || '',
+          keyTakeaways: a.keyTakeaways || [],
+          relatedContext: a.relatedContext || '',
         }))
         
         setArticles(transformedArticles)
@@ -358,39 +427,53 @@ export default function HomePage() {
     }
   }, [isDark])
 
-  // Filter articles — category (from nav dropdown) + search only
-  const filteredArticles = articles.filter(article => {
-    // Category filter using mappings
-    if (selectedCategory !== "all") {
-      const allowedCategories = CATEGORY_MAPPINGS[selectedCategory] || []
-      if (allowedCategories.length > 0 && !allowedCategories.includes(article.category)) {
-        return false
+  // Filter articles — use API search results when searching, client-side for category only
+  const filteredArticles = (() => {
+    // When searching via API, use search results directly
+    if (searchQuery && searchQuery.length >= 2 && searchResults !== null) {
+      if (selectedCategory === "all") return searchResults
+      // Apply category filter on top of search results
+      return searchResults.filter(article => {
+        const allowedCategories = CATEGORY_MAPPINGS[selectedCategory] || []
+        return allowedCategories.length === 0 || allowedCategories.includes(article.category)
+      })
+    }
+
+    // No search — filter by category only (client-side)
+    return articles.filter(article => {
+      if (selectedCategory !== "all") {
+        const allowedCategories = CATEGORY_MAPPINGS[selectedCategory] || []
+        if (allowedCategories.length > 0 && !allowedCategories.includes(article.category)) {
+          return false
+        }
       }
-    }
-    // Search across title, excerpt, source, category, and platforms
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase()
-      const searchableText = [
-        article.title,
-        article.excerpt || '',
-        article.source || '',
-        article.category || '',
-        ...(article.platforms || [])
-      ].join(' ').toLowerCase()
-      if (!searchableText.includes(query)) return false
-    }
-    return true
-  })
+      return true
+    })
+  })()
 
   // Select hero article: prioritize articles with REAL images (not stock fallbacks)
   // The hasRealImage flag is set by the API based on whether the RSS feed had a valid image
   const heroArticle = filteredArticles.find(a => a.hasRealImage) || filteredArticles[0]
-  
+
   // Remove hero from regular feed so it doesn't show twice
   const feedArticles = filteredArticles.filter(a => a.id !== heroArticle?.id)
-  
-  const featuredArticles = feedArticles.filter(a => a.featured).slice(0, 3)
-  const regularArticles = feedArticles.filter(a => !a.featured)
+
+  // Deduplicate images so the same photo doesn't appear on multiple cards
+  const deduplicatedFeed = (() => {
+    const seenImages = new Set<string>()
+    // Reserve the hero image
+    if (heroArticle?.imageUrl) seenImages.add(heroArticle.imageUrl)
+    return feedArticles.map(article => {
+      if (article.imageUrl && seenImages.has(article.imageUrl)) {
+        return { ...article, imageUrl: undefined, hasRealImage: false }
+      }
+      if (article.imageUrl) seenImages.add(article.imageUrl)
+      return article
+    })
+  })()
+
+  const featuredArticles = deduplicatedFeed.filter(a => a.featured).slice(0, 3)
+  const regularArticles = deduplicatedFeed.filter(a => !a.featured)
   const trendingArticles = [...articles].sort(() => Math.random() - 0.5).slice(0, 5)
 
   const handleSubscribe = async (e: React.FormEvent) => {

@@ -127,6 +127,24 @@ async function runAggregationFromDB() {
           continue
         }
 
+        // Try OG image extraction for articles missing images or with tiny RSS thumbnails
+        if (!article.image_url || (article.image_url && article.image_url.includes('150x150'))) {
+          // Only attempt OG extraction if we have time
+          if (Date.now() - startTime < MAX_RUNTIME_MS) {
+            const ogImage = await extractOGImage(article.source_url)
+            if (ogImage) {
+              article.og_image_url = ogImage
+              article.image_url = ogImage
+              article.has_real_image = true
+              article.image_source = 'og'
+            } else {
+              article.image_source = article.image_url ? 'rss' : 'none'
+            }
+          }
+        } else {
+          article.image_source = 'rss'
+        }
+
         const { error: upsertError } = await supabaseAdmin
           .from('articles')
           .upsert(article, { onConflict: 'source_url' })
@@ -252,6 +270,58 @@ async function fetchFromNewsAPI(): Promise<any[]> {
   }
 
   return articles
+}
+
+// Extract OG image from article source URL
+async function extractOGImage(url: string): Promise<string | null> {
+  try {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 5000)
+
+    const response = await fetch(url, {
+      signal: controller.signal,
+      headers: { 'User-Agent': 'MarketplaceBeta/1.0 (news aggregator)' }
+    })
+    clearTimeout(timeout)
+
+    if (!response.ok) return null
+
+    // Only read first 50KB to find OG tags (they're in <head>)
+    const reader = response.body?.getReader()
+    if (!reader) return null
+
+    let html = ''
+    const decoder = new TextDecoder()
+
+    while (html.length < 50000) {
+      const { done, value } = await reader.read()
+      if (done) break
+      html += decoder.decode(value, { stream: true })
+
+      // Check if we've passed </head> - no need to read more
+      if (html.includes('</head>')) break
+    }
+    reader.cancel()
+
+    // Extract og:image
+    const ogMatch = html.match(/<meta[^>]*property=["']og:image["'][^>]*content=["']([^"']+)["']/i)
+      || html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*property=["']og:image["']/i)
+
+    if (ogMatch?.[1]) {
+      const imgUrl = ogMatch[1]
+      // Skip tiny images and placeholders
+      if (imgUrl.includes('placeholder') || imgUrl.includes('default') || imgUrl.includes('1x1')) return null
+      return imgUrl
+    }
+
+    // Fallback: try twitter:image
+    const twitterMatch = html.match(/<meta[^>]*name=["']twitter:image["'][^>]*content=["']([^"']+)["']/i)
+      || html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*name=["']twitter:image["']/i)
+
+    return twitterMatch?.[1] || null
+  } catch {
+    return null
+  }
 }
 
 // Parse RSS feed XML into article objects
