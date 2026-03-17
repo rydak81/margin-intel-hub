@@ -85,6 +85,7 @@ interface NewsArticle {
   whatThisMeans?: string
   keyTakeaways?: string[]
   relatedContext?: string
+  bottomLine?: string
   }
 
 interface BreakingNews {
@@ -196,6 +197,12 @@ export default function HomePage() {
   const [selectedArticle, setSelectedArticle] = useState<NewsArticle | null>(null)
   const [articleModalOpen, setArticleModalOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+  const [visibleArticleCount, setVisibleArticleCount] = useState(12)
+
+  // Reset pagination when filters or search change
+  useEffect(() => {
+    setVisibleArticleCount(12)
+  }, [selectedCategory, searchQuery])
   const [searchExpanded, setSearchExpanded] = useState(false)
   const [searchResults, setSearchResults] = useState<NewsArticle[] | null>(null)
   const [searchLoading, setSearchLoading] = useState(false)
@@ -276,6 +283,7 @@ export default function HomePage() {
             whatThisMeans: a.whatThisMeans || '',
             keyTakeaways: a.keyTakeaways || [],
             relatedContext: a.relatedContext || '',
+            bottomLine: a.bottomLine || '',
           }))
           setSearchResults(mapped)
         }
@@ -326,6 +334,7 @@ export default function HomePage() {
           whatThisMeans?: string
           keyTakeaways?: string[]
           relatedContext?: string
+          bottomLine?: string
           imageUrl?: string
           hasRealImage?: boolean
         }) => ({
@@ -358,6 +367,7 @@ export default function HomePage() {
           whatThisMeans: a.whatThisMeans || '',
           keyTakeaways: a.keyTakeaways || [],
           relatedContext: a.relatedContext || '',
+          bottomLine: a.bottomLine || '',
         }))
         
         setArticles(transformedArticles)
@@ -988,7 +998,7 @@ export default function HomePage() {
               </Card>
             ) : (
               <div className="grid md:grid-cols-2 gap-6">
-                {regularArticles.map((article, index) => (
+                {regularArticles.slice(0, visibleArticleCount).map((article, index) => (
                   <Fragment key={article.id}>
                     <div onClick={(e) => handleArticleClick(article, e)}>
                       <Card className="overflow-hidden group cursor-pointer hover:shadow-md transition-all border-0 h-full">
@@ -1164,10 +1174,14 @@ export default function HomePage() {
             )}
 
             {/* Load More */}
-            {regularArticles.length > 8 && (
+            {regularArticles.length > visibleArticleCount && (
               <div className="flex justify-center pt-4">
-                <Button variant="outline" size="lg">
-                  Load More Articles
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => setVisibleArticleCount(prev => prev + 12)}
+                >
+                  Load More Articles ({regularArticles.length - visibleArticleCount} remaining)
                   <ChevronRight className="h-4 w-4 ml-2" />
                 </Button>
               </div>

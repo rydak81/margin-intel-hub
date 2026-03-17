@@ -46,6 +46,7 @@ interface Article {
   whatThisMeans?: string
   keyTakeaways?: string[]
   relatedContext?: string
+  bottomLine?: string
   category: string
   sourceName: string
   sourceUrl: string
@@ -248,14 +249,12 @@ export default function ArticlePage() {
   const hasRichContent = getPlainTextLength(article.fullContent || '') > 300
   const hasAISummary = !!(article.aiSummary && article.aiSummary.length > 10 && article.aiSummary !== article.summary)
   const hasOurTake = !!(article.ourTake && article.ourTake.length > 10)
-  const hasWhatThisMeans = !!(article.whatThisMeans && article.whatThisMeans.length > 10)
   const hasKeyTakeaways = !!(article.keyTakeaways && article.keyTakeaways.length > 0)
-  const hasRelatedContext = !!(article.relatedContext && article.relatedContext.length > 10)
-  const hasImpactDetail = !!(article.impactDetail && article.impactDetail.length > 5)
-  const hasActionItem = !!(article.actionItem && article.actionItem.length > 5)
+  const hasBottomLine = !!(article.bottomLine && article.bottomLine.length > 10)
   const hasKeyStat = !!(article.keyStat && article.keyStat.length > 2)
   const hasAudience = !!(article.audience && article.audience.length > 0)
-  const hasAnyInsight = hasAISummary || hasImpactDetail || hasActionItem || hasKeyStat || hasOurTake || hasWhatThisMeans
+  const hasAnyInsight = hasAISummary || hasOurTake || hasKeyTakeaways || hasBottomLine || hasKeyStat
+  const formatAudience = (tag: string) => tag.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
 
   return (
     <div className="min-h-screen bg-background">
@@ -394,43 +393,35 @@ export default function ArticlePage() {
                   </div>
                 </div>
 
-                {/* AI Summary — the main analysis paragraph */}
+                {/* THE SIGNAL — ai_summary */}
                 {hasAISummary && (
                   <div className="mb-6">
-                    <p className="text-base md:text-lg leading-relaxed">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">The Signal</span>
+                    </div>
+                    <p className="text-base md:text-lg leading-relaxed font-medium">
                       {article.aiSummary}
                     </p>
                   </div>
                 )}
 
-                {/* What This Means for Sellers */}
-                {hasWhatThisMeans && (
-                  <div className="bg-background rounded-lg p-5 border mb-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Zap className="h-4 w-4 text-primary" />
-                      <span className="text-sm font-semibold">What This Means for Sellers</span>
-                    </div>
-                    <p className="text-sm leading-relaxed">{article.whatThisMeans}</p>
-                  </div>
-                )}
-
-                {/* Our Take */}
+                {/* THE OPERATOR'S EDGE — our_take */}
                 {hasOurTake && (
                   <div className="bg-background rounded-lg p-5 border mb-4">
                     <div className="flex items-center gap-2 mb-3">
                       <Lightbulb className="h-4 w-4 text-amber-500" />
-                      <span className="text-sm font-semibold">Our Take</span>
+                      <span className="text-sm font-semibold">The Operator&apos;s Edge</span>
                     </div>
-                    <p className="text-sm leading-relaxed italic">{article.ourTake}</p>
+                    <p className="text-sm leading-relaxed">{article.ourTake}</p>
                   </div>
                 )}
 
-                {/* Key Takeaways */}
+                {/* MOVES TO MAKE — key_takeaways */}
                 {hasKeyTakeaways && (
                   <div className="bg-background rounded-lg p-5 border mb-4">
                     <div className="flex items-center gap-2 mb-3">
                       <Target className="h-4 w-4 text-primary" />
-                      <span className="text-sm font-semibold">Key Takeaways</span>
+                      <span className="text-sm font-semibold">Moves to Make</span>
                     </div>
                     <ul className="space-y-2">
                       {article.keyTakeaways!.map((point, i) => (
@@ -443,14 +434,14 @@ export default function ArticlePage() {
                   </div>
                 )}
 
-                {/* Industry Context */}
-                {hasRelatedContext && (
-                  <div className="bg-background rounded-lg p-5 border mb-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Globe className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm font-semibold">Industry Context</span>
+                {/* THE BOTTOM LINE — quotable one-liner */}
+                {hasBottomLine && (
+                  <div className="border-l-4 border-primary pl-5 py-3 mb-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Zap className="h-4 w-4 text-primary" />
+                      <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">The Bottom Line</span>
                     </div>
-                    <p className="text-sm leading-relaxed text-muted-foreground">{article.relatedContext}</p>
+                    <p className="text-base md:text-lg font-semibold leading-snug">{article.bottomLine}</p>
                   </div>
                 )}
 
@@ -466,7 +457,7 @@ export default function ArticlePage() {
                     </div>
                   )}
 
-                  {/* Impact Assessment */}
+                  {/* Impact Level */}
                   {article.impactLevel && (
                     <div className="bg-background rounded-lg p-4 border">
                       <div className="flex items-center gap-2 mb-2">
@@ -484,20 +475,6 @@ export default function ArticlePage() {
                       }`}>
                         {article.impactLevel.charAt(0).toUpperCase() + article.impactLevel.slice(1)} Impact
                       </p>
-                      {hasImpactDetail && (
-                        <p className="text-sm text-muted-foreground mt-1">{article.impactDetail}</p>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Action Item */}
-                  {hasActionItem && (
-                    <div className="bg-background rounded-lg p-4 border sm:col-span-2">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Target className="h-4 w-4 text-primary" />
-                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Recommended Action</span>
-                      </div>
-                      <p className="text-sm font-medium">{article.actionItem}</p>
                     </div>
                   )}
 
@@ -510,8 +487,8 @@ export default function ArticlePage() {
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {article.audience!.map(aud => (
-                          <Badge key={aud} variant="secondary" className="capitalize">
-                            {aud.replace(/_/g, ' ')}
+                          <Badge key={aud} variant="secondary">
+                            {formatAudience(aud)}
                           </Badge>
                         ))}
                       </div>
@@ -560,53 +537,23 @@ export default function ArticlePage() {
                   </p>
                 </div>
 
-                {/* Our Take — editorial perspective */}
+                {/* The Operator's Edge — editorial analysis */}
                 {hasOurTake && (
                   <div className="bg-muted/30 rounded-xl p-6 border">
                     <div className="flex items-center gap-2 mb-4">
                       <Lightbulb className="h-5 w-5 text-amber-500" />
-                      <h3 className="font-bold text-base">Our Take</h3>
+                      <h3 className="font-bold text-base">The Operator&apos;s Edge</h3>
                     </div>
-                    <p className="leading-relaxed text-foreground italic">{article.ourTake}</p>
+                    <p className="leading-relaxed text-foreground">{article.ourTake}</p>
                   </div>
                 )}
 
-                {/* What This Means section */}
-                {(hasWhatThisMeans || hasImpactDetail || hasActionItem) && (
-                  <div className="space-y-6">
-                    <div className="flex items-center gap-2">
-                      <Zap className="h-5 w-5 text-primary" />
-                      <h2 className="font-bold text-xl">What This Means for Sellers</h2>
-                    </div>
-
-                    {hasWhatThisMeans && (
-                      <div className="pl-4 border-l-2 border-primary/30">
-                        <p className="leading-relaxed">{article.whatThisMeans}</p>
-                      </div>
-                    )}
-
-                    {hasImpactDetail && (
-                      <div className="pl-4 border-l-2 border-primary/30">
-                        <h4 className="font-semibold text-sm uppercase text-muted-foreground tracking-wide mb-2">Impact Assessment</h4>
-                        <p className="leading-relaxed">{article.impactDetail}</p>
-                      </div>
-                    )}
-
-                    {hasActionItem && (
-                      <div className="pl-4 border-l-2 border-emerald-500/30">
-                        <h4 className="font-semibold text-sm uppercase text-muted-foreground tracking-wide mb-2">What You Should Do</h4>
-                        <p className="leading-relaxed">{article.actionItem}</p>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Key Takeaways in body area */}
+                {/* Moves to Make — action items */}
                 {hasKeyTakeaways && (
                   <div className="space-y-4">
                     <div className="flex items-center gap-2">
                       <Target className="h-5 w-5 text-primary" />
-                      <h2 className="font-bold text-xl">Key Takeaways</h2>
+                      <h2 className="font-bold text-xl">Moves to Make</h2>
                     </div>
                     <ul className="space-y-3">
                       {article.keyTakeaways!.map((point, i) => (
@@ -619,14 +566,14 @@ export default function ArticlePage() {
                   </div>
                 )}
 
-                {/* Industry Context */}
-                {hasRelatedContext && (
-                  <div className="bg-muted/30 rounded-xl p-6 border">
-                    <div className="flex items-center gap-2 mb-4">
-                      <Globe className="h-5 w-5 text-muted-foreground" />
-                      <h3 className="font-bold text-base">Industry Context</h3>
+                {/* The Bottom Line — quotable pull quote */}
+                {hasBottomLine && (
+                  <div className="border-l-4 border-primary pl-5 py-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Zap className="h-5 w-5 text-primary" />
+                      <h3 className="font-bold text-base">The Bottom Line</h3>
                     </div>
-                    <p className="leading-relaxed text-muted-foreground">{article.relatedContext}</p>
+                    <p className="text-lg font-semibold leading-snug">{article.bottomLine}</p>
                   </div>
                 )}
               </div>

@@ -108,6 +108,7 @@ export interface ClassifiedArticle extends RawArticle {
   whatThisMeans?: string
   keyTakeaways?: string[]
   relatedContext?: string
+  bottomLine?: string
   isBreaking: boolean
   audience: string[]
   impactLevel: 'high' | 'medium' | 'low'
