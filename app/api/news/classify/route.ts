@@ -9,24 +9,19 @@ const supabaseAdmin = createClient(
 )
 
 // Category-based fallback images (Unsplash, landscape, 800px wide)
+// Categories aligned with UI CATEGORY_COLORS in /app/news/[id]/page.tsx
 const CATEGORY_IMAGES: Record<string, string> = {
   platform_updates: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800',
-  seller_tools: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800',
-  market_trends: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800',
-  policy_regulatory: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800',
-  logistics_supply_chain: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800',
-  advertising_marketing: 'https://images.unsplash.com/photo-1533750349088-cd871a92f312?w=800',
-  international: 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=800',
-  mergers_acquisitions: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800',
-  consumer_trends: 'https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=800',
-  ai_technology: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800',
-  breaking: 'https://images.unsplash.com/photo-1504711434969-e33886168d6c?w=800',
-  market_metrics: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800',
-  seller_profitability: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800',
-  ma_deal_flow: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800',
   tools_technology: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800',
-  advertising: 'https://images.unsplash.com/photo-1533750349088-cd871a92f312?w=800',
+  market_metrics: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800',
+  compliance_policy: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800',
   logistics: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800',
+  advertising: 'https://images.unsplash.com/photo-1533750349088-cd871a92f312?w=800',
+  mergers_acquisitions: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800',
+  profitability: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800',
+  events: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800',
+  tactics: 'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=800',
+  breaking: 'https://images.unsplash.com/photo-1504711434969-e33886168d6c?w=800',
 }
 
 // GET handler - called by Vercel cron 15 min after aggregation
@@ -38,13 +33,13 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // 1. Find articles that haven't been AI-classified yet
+    // 1. Find articles that haven't been AI-classified yet (increased from 15 to 25)
     const { data: unclassified, error } = await supabaseAdmin
       .from('articles')
-      .select('id, title, summary, source_name, image_url')
+      .select('id, title, summary, full_content, source_name, image_url')
       .is('ai_summary', null)
       .order('published_at', { ascending: false })
-      .limit(15)
+      .limit(25)
 
     if (error) {
       return NextResponse.json({ error: `DB query failed: ${error.message}` }, { status: 500 })
@@ -53,11 +48,11 @@ export async function GET(request: Request) {
     // 2. Find articles needing re-enrichment (have ai_summary but missing deep insights)
     const { data: needsEnrichment } = await supabaseAdmin
       .from('articles')
-      .select('id, title, summary, source_name, image_url')
+      .select('id, title, summary, full_content, source_name, image_url')
       .not('ai_summary', 'is', null)
       .is('our_take', null)
       .order('published_at', { ascending: false })
-      .limit(5)
+      .limit(10)
 
     const allToProcess = [
       ...(unclassified || []),
@@ -82,65 +77,25 @@ export async function GET(request: Request) {
     let imagesFixed = 0
     let errors = 0
 
-    for (const article of allToProcess) {
-      try {
-        const classification = await classifyWithAI(article)
-        if (!classification) continue
+    // Process articles in parallel batches of 5 to avoid timeout
+    const BATCH_SIZE = 5
+    for (let i = 0; i < allToProcess.length; i += BATCH_SIZE) {
+      const batch = allToProcess.slice(i, i + BATCH_SIZE)
 
-        const updateData: Record<string, unknown> = {
-          ai_summary: classification.ai_summary,
-          our_take: classification.our_take,
-          what_this_means: classification.our_take,  // Map operator's edge to both fields for backward compatibility
-          key_takeaways: classification.key_takeaways || [],
-          related_context: classification.bottom_line,  // Repurpose for bottom line storage
-          action_item: classification.key_takeaways?.[0] || null,  // First action item
-          key_stat: classification.key_stat,
-          impact_detail: classification.bottom_line,  // Bottom line also stored here for display
-          bottom_line: classification.bottom_line,
-          category: classification.category,
-          platforms: classification.platforms || [],
-          audience: classification.audience || [],
-          impact_level: classification.impact_level || 'medium',
-          relevance_score: classification.relevance_score || 50,
-          is_breaking: classification.is_breaking || false,
-          relevant: classification.relevant !== false,
-        }
+      const results = await Promise.allSettled(
+        batch.map(article => classifyAndUpdate(article, unclassified || []))
+      )
 
-        // Image fallback: if no image, try Unsplash then category fallback
-        if (!article.image_url) {
-          const unsplashUrl = await searchUnsplash(classification.image_search_query)
-          if (unsplashUrl) {
-            updateData.image_url = unsplashUrl
-            updateData.has_real_image = true
-            updateData.image_source = 'unsplash'
-            imagesFixed++
-          } else {
-            // Category-based fallback
-            const fallback = CATEGORY_IMAGES[classification.category] || CATEGORY_IMAGES['market_trends']
-            updateData.image_url = fallback
-            updateData.image_source = 'category_fallback'
-            imagesFixed++
-          }
-        }
-
-        const { error: updateError } = await supabaseAdmin
-          .from('articles')
-          .update(updateData)
-          .eq('id', article.id)
-
-        if (!updateError) {
-          if (unclassified?.some(u => u.id === article.id)) {
-            classified++
-          } else {
-            enriched++
-          }
+      for (const result of results) {
+        if (result.status === 'fulfilled') {
+          const { wasClassified, wasEnriched, imageFixed } = result.value
+          if (wasClassified) classified++
+          if (wasEnriched) enriched++
+          if (imageFixed) imagesFixed++
         } else {
-          console.error(`[Classify] Update failed for ${article.id}:`, updateError.message)
+          console.error('[Classify] Batch item failed:', result.reason)
           errors++
         }
-      } catch (err) {
-        console.error(`[Classify] Error classifying "${article.title}":`, err)
-        errors++
       }
     }
 
@@ -162,10 +117,77 @@ export async function GET(request: Request) {
   }
 }
 
+// Classify a single article and update Supabase
+async function classifyAndUpdate(
+  article: { id: string; title: string; summary: string; full_content?: string; source_name?: string; image_url?: string },
+  unclassifiedList: { id: string }[]
+): Promise<{ wasClassified: boolean; wasEnriched: boolean; imageFixed: boolean }> {
+  const classification = await classifyWithAI(article)
+  if (!classification) {
+    return { wasClassified: false, wasEnriched: false, imageFixed: false }
+  }
+
+  const updateData: Record<string, unknown> = {
+    ai_summary: classification.ai_summary,
+    our_take: classification.our_take,
+    what_this_means: classification.our_take,  // backward compat
+    key_takeaways: classification.key_takeaways || [],
+    related_context: classification.bottom_line,
+    action_item: classification.key_takeaways?.[0] || null,
+    key_stat: classification.key_stat,
+    impact_detail: classification.bottom_line,
+    bottom_line: classification.bottom_line,
+    category: classification.category,
+    platforms: classification.platforms || [],
+    audience: classification.audience || [],
+    impact_level: classification.impact_level || 'medium',
+    relevance_score: classification.relevance_score || 50,
+    is_breaking: classification.is_breaking || false,
+    relevant: classification.relevant !== false,
+  }
+
+  let imageFixed = false
+
+  // Image fallback: if no image, try Unsplash then category fallback
+  if (!article.image_url) {
+    const unsplashUrl = await searchUnsplash(classification.image_search_query)
+    if (unsplashUrl) {
+      updateData.image_url = unsplashUrl
+      updateData.has_real_image = true
+      updateData.image_source = 'unsplash'
+      imageFixed = true
+    } else {
+      const fallback = CATEGORY_IMAGES[classification.category] || CATEGORY_IMAGES['market_metrics']
+      updateData.image_url = fallback
+      updateData.image_source = 'category_fallback'
+      imageFixed = true
+    }
+  }
+
+  const { error: updateError } = await supabaseAdmin
+    .from('articles')
+    .update(updateData)
+    .eq('id', article.id)
+
+  if (updateError) {
+    console.error(`[Classify] Update failed for ${article.id}:`, updateError.message)
+    throw new Error(updateError.message)
+  }
+
+  const wasClassified = unclassifiedList.some(u => u.id === article.id)
+  return { wasClassified, wasEnriched: !wasClassified, imageFixed }
+}
+
 // Deep AI classification using Anthropic Claude Haiku
-async function classifyWithAI(article: { id: string; title: string; summary: string; source_name?: string }) {
+async function classifyWithAI(article: { id: string; title: string; summary: string; full_content?: string; source_name?: string }) {
   const apiKey = process.env.ANTHROPIC_API_KEY
   if (!apiKey) return null
+
+  // Provide the richest possible content to the AI:
+  // full_content gives the best analysis, fall back to summary if not available
+  const bodyText = article.full_content
+    ? article.full_content.substring(0, 3000)
+    : (article.summary || 'No content available')
 
   const classificationPrompt = `You are MarketplaceBeta's senior intelligence analyst. Your readers are enterprise brand operators, Amazon/Walmart sellers doing $1M+, agency directors, and ecommerce SaaS executives. They don't need hand-holding — they need the insight they'd miss without you.
 
@@ -182,18 +204,18 @@ Analyze this article and return a JSON object. Every field must earn its place �
 
   "key_stat": "The single most important number from this article (e.g., '23% FBA fee increase effective April 1' or 'Walmart marketplace grew 42% YoY to $65B GMV'). Return null if no meaningful stat exists.",
 
-  "category": "One of: platform_updates, seller_tools, market_trends, policy_regulatory, logistics_supply_chain, advertising_marketing, international, mergers_acquisitions, consumer_trends, ai_technology",
+  "category": "One of: platform_updates, tools_technology, market_metrics, compliance_policy, logistics, advertising, mergers_acquisitions, profitability, events, tactics",
   "platforms": ["Array of relevant platforms: amazon, walmart, shopify, tiktok, ebay, target, etsy, general"],
   "audience": ["Array using clean labels: Brand Sellers, Wholesale Resellers, Agencies, SaaS Providers, Investors, New Sellers"],
-  "impact_level": "One of: low, medium, high, critical",
-  "relevance_score": "Integer 0-100. Be strict: 90+ = industry-shaping, every operator must know. 70-89 = important for specific segments. 50-69 = useful context. Below 50 = tangential to marketplace selling. Logistics/trucking news that doesn't directly affect seller operations or costs should score below 40.",
-  "is_breaking": true/false,
-  "relevant": "true/false — Set false for articles about trucking regulations, carrier operations, freight brokerage, port operations, or other logistics topics that don't directly impact marketplace seller costs, delivery times, or operations. The test: would an Amazon seller making $2M/year care about this? If not, mark false.",
+  "impact_level": "One of: low, medium, high",
+  "relevance_score": 75,
+  "is_breaking": false,
+  "relevant": true,
   "image_search_query": "2-4 word stock photo search. Be specific to the article topic — 'amazon warehouse robots' not 'ecommerce'. Match the actual subject."
 }
 
 Article title: "${article.title}"
-Article summary: "${article.summary || 'No summary available'}"
+Article content: "${bodyText}"
 Source: "${article.source_name || 'Unknown'}"
 
 Return ONLY valid JSON, no markdown or explanation.`
@@ -207,7 +229,7 @@ Return ONLY valid JSON, no markdown or explanation.`
     },
     body: JSON.stringify({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 1200,
+      max_tokens: 1400,
       messages: [{ role: 'user', content: classificationPrompt }]
     })
   })
@@ -220,7 +242,12 @@ Return ONLY valid JSON, no markdown or explanation.`
   const text = data.content?.[0]?.text || ''
   const jsonMatch = text.match(/\{[\s\S]*\}/)
   if (!jsonMatch) return null
-  return JSON.parse(jsonMatch[0])
+
+  try {
+    return JSON.parse(jsonMatch[0])
+  } catch {
+    return null
+  }
 }
 
 // Search Unsplash for a relevant image

@@ -91,6 +91,7 @@ function getReadTime(content: string): number {
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
+  // Primary categories (current classify route output)
   breaking: 'bg-red-500',
   platform_updates: 'bg-blue-500',
   market_metrics: 'bg-teal-500',
@@ -102,6 +103,21 @@ const CATEGORY_COLORS: Record<string, string> = {
   events: 'bg-pink-500',
   tactics: 'bg-yellow-600',
   compliance_policy: 'bg-violet-500',
+  // Legacy / alternate categories (from older classify runs)
+  seller_tools: 'bg-cyan-500',
+  market_trends: 'bg-teal-500',
+  consumer_trends: 'bg-teal-600',
+  policy_regulatory: 'bg-violet-500',
+  logistics_supply_chain: 'bg-slate-500',
+  advertising_marketing: 'bg-orange-500',
+  ai_technology: 'bg-cyan-600',
+  international: 'bg-sky-500',
+  ma_deal_flow: 'bg-purple-500',
+  seller_profitability: 'bg-emerald-500',
+  // Source-level categories
+  ecommerce: 'bg-blue-500',
+  amazon: 'bg-blue-600',
+  industry: 'bg-teal-500',
 }
 
 function formatCategoryLabel(category: string): string {
