@@ -29,15 +29,15 @@ export async function GET(request: NextRequest) {
 
     let query = supabase
       .from('articles')
-      .select('id, title, summary, category, source_name, published_at, image_url, platform_tags, impact_level, relevance_score, audience_tags', { count: 'exact' })
+      .select('id, title, summary, category, source_name, published_at, image_url, platforms, impact_level, relevance_score, audience', { count: 'exact' })
 
     if (q.trim()) {
       query = query.or(`title.ilike.%${q}%,summary.ilike.%${q}%,ai_summary.ilike.%${q}%`)
     }
     if (category) query = query.eq('category', category)
-    if (platforms.length > 0) query = query.filter('platform_tags', 'cs', JSON.stringify(platforms))
+    if (platforms.length > 0) query = query.filter('platforms', 'cs', JSON.stringify(platforms))
     if (impact) query = query.eq('impact_level', impact)
-    if (audience) query = query.filter('audience_tags', 'cs', JSON.stringify([audience]))
+    if (audience) query = query.filter('audience', 'cs', JSON.stringify([audience]))
 
     switch (sort) {
       case 'oldest': query = query.order('published_at', { ascending: true }); break
@@ -59,9 +59,9 @@ export async function GET(request: NextRequest) {
     const categoryFacets: Record<string, number> = {}
     categoryData?.forEach(item => { if (item.category) categoryFacets[item.category] = (categoryFacets[item.category] || 0) + 1 })
 
-    const { data: platformData } = await supabase.from('articles').select('platform_tags')
+    const { data: platformData } = await supabase.from('articles').select('platforms')
     const platformFacets: Record<string, number> = {}
-    platformData?.forEach(item => { if (item.platform_tags && Array.isArray(item.platform_tags)) item.platform_tags.forEach((p: string) => { platformFacets[p] = (platformFacets[p] || 0) + 1 }) })
+    platformData?.forEach(item => { if (item.platforms && Array.isArray(item.platforms)) item.platforms.forEach((p: string) => { platformFacets[p] = (platformFacets[p] || 0) + 1 }) })
 
     const { data: impactData } = await supabase.from('articles').select('impact_level')
     const impactFacets: Record<string, number> = {}
@@ -75,10 +75,10 @@ export async function GET(request: NextRequest) {
       sourceName: article.source_name,
       publishedAt: article.published_at,
       imageUrl: article.image_url,
-      platforms: article.platform_tags || [],
+      platforms: article.platforms || [],
       impactLevel: article.impact_level,
       relevanceScore: article.relevance_score,
-      audience: article.audience_tags || [],
+      audience: article.audience || [],
     })) || []
 
     // Fix impact sort client-side since alphabetical != severity

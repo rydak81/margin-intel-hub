@@ -22,6 +22,21 @@ function isBlockedSource(url: string): boolean {
   return BLOCKED_DOMAINS.some(domain => url.includes(domain))
 }
 
+/**
+ * Strip HTML tags from text for clean storage
+ */
+function stripHTML(html: string): string {
+  if (!html) return ''
+  return html
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
 // GET handler - called by Vercel cron every 2 hours
 export async function GET(request: Request) {
   try {
@@ -262,7 +277,7 @@ async function fetchFromNewsAPI(): Promise<any[]> {
         articles.push({
           id,
           title: item.title,
-          summary: item.description || '',
+          summary: stripHTML(item.description || ''),
           source_name: item.source?.name || 'NewsAPI',
           source_url: item.url,
           published_at: item.publishedAt || new Date().toISOString(),
@@ -438,7 +453,7 @@ function parseRSSXML(xml: string, source: any) {
     articles.push({
       id,
       title: cleanHTML(title),
-      summary: cleanHTML(description || '').substring(0, 500),
+      summary: stripHTML(cleanHTML(description || '').substring(0, 500)),
       full_content: fullContentText,
       source_name: source.name,
       source_url: link,
@@ -487,7 +502,7 @@ function parseRSSXML(xml: string, source: any) {
       articles.push({
         id,
         title: cleanHTML(title),
-        summary: cleanHTML(description || fullContentRaw || '').substring(0, 500),
+        summary: stripHTML(cleanHTML(description || fullContentRaw || '').substring(0, 500)),
         full_content: fullContentText,
         source_name: source.name,
         source_url: link,
