@@ -112,16 +112,17 @@ const CATEGORIES = [
 
 // Map filter category IDs to actual article categories
 // These must match the values returned by mapAICategory()
+// Kept as reference for filter chips — actual filtering uses mapAICategory() output
 const CATEGORY_MAPPINGS: Record<string, string[]> = {
   all: [], // Shows all
   breaking: ["breaking"], // Breaking news
-  market: ["market"], // Market & Metrics
-  platform: ["platform"], // Platform Updates
-  profitability: ["profitability"], // Seller Profitability
-  deals: ["deals"], // M&A & Deal Flow
-  tools: ["tools"], // Tools & Technology
-  advertising: ["advertising"], // Advertising
-  logistics: ["logistics"], // Logistics
+  market: ["market", "market_metrics", "market_trends", "consumer_trends", "international"], // Market & Metrics
+  platform: ["platform", "platform_updates", "compliance_policy", "policy_regulatory", "ecommerce", "amazon", "other-marketplaces"], // Platform Updates
+  profitability: ["profitability", "seller_profitability"], // Seller Profitability
+  deals: ["deals", "mergers_acquisitions", "ma_deal_flow"], // M&A & Deal Flow
+  tools: ["tools", "tools_technology", "seller_tools", "ai_technology"], // Tools & Technology
+  advertising: ["advertising", "advertising_marketing"], // Advertising
+  logistics: ["logistics", "logistics_supply_chain", "seller-operations"], // Logistics
   events: ["events"], // Events
   tactics: ["tactics"], // Tactics & Strategy
 }
@@ -400,7 +401,7 @@ export default function HomePage() {
   // Map AI categories to frontend category IDs
   function mapAICategory(aiCategory: string): string {
     const mapping: Record<string, string> = {
-      // Snake_case from AI classifier (lib/ai-classifier.ts)
+      // Primary categories (current classify route outputs these)
       'platform_updates': 'platform',
       'market_metrics': 'market',
       'tools_technology': 'tools',
@@ -411,13 +412,31 @@ export default function HomePage() {
       'logistics': 'logistics',
       'events': 'events',
       'tactics': 'tactics',
-      // Kebab-case (legacy / fallback)
+      'compliance_policy': 'platform',
+      // Legacy / alternate category names (from older classify runs)
+      'seller_tools': 'tools',
+      'market_trends': 'market',
+      'consumer_trends': 'market',
+      'policy_regulatory': 'platform',
+      'logistics_supply_chain': 'logistics',
+      'advertising_marketing': 'advertising',
+      'ai_technology': 'tools',
+      'international': 'market',
+      'ma_deal_flow': 'deals',
+      'seller_profitability': 'profitability',
+      // Kebab-case variants
       'platform-updates': 'platform',
       'seller-operations': 'logistics',
       'market-trends': 'market',
       'tools-technology': 'tools',
       'compliance-policy': 'platform',
       'strategy-tactics': 'tactics',
+      'mergers-acquisitions': 'deals',
+      // Source-level categories (assigned during aggregation)
+      'ecommerce': 'platform',
+      'amazon': 'platform',
+      'industry': 'market',
+      'other-marketplaces': 'platform',
       'irrelevant': 'market',
     }
     return mapping[aiCategory] || 'market'

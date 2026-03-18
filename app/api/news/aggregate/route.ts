@@ -127,18 +127,34 @@ async function runAggregationFromDB() {
           continue
         }
 
-        // Try OG image extraction for articles missing images or with tiny RSS thumbnails
-        if (!article.image_url || (article.image_url && article.image_url.includes('150x150'))) {
-          // Only attempt OG extraction if we have time
+        // Try OG image + body text extraction for articles missing images or with tiny RSS thumbnails
+        const hasTinyThumb = article.image_url && (
+          article.image_url.includes('150x150') ||
+          article.image_url.includes('50x50') ||
+          article.image_url.includes('100x100')
+        )
+        const needsImageExtraction = !article.image_url || hasTinyThumb
+
+        if (needsImageExtraction || !article.full_content) {
+          // Only attempt extraction if we have time
           if (Date.now() - startTime < MAX_RUNTIME_MS) {
-            const ogImage = await extractOGImage(article.source_url)
+            const { ogImage, bodyText } = await extractArticleData(article.source_url)
+
             if (ogImage) {
               article.og_image_url = ogImage
               article.image_url = ogImage
               article.has_real_image = true
               article.image_source = 'og'
+            } else if (hasTinyThumb) {
+              // Clear the tiny thumbnail so the fallback image system kicks in
+              article.has_real_image = false
+              article.image_source = 'rss_thumb'
             } else {
               article.image_source = article.image_url ? 'rss' : 'none'
+            }
+
+            if (bodyText && bodyText.length > 200) {
+              article.full_content = bodyText
             }
           }
         } else {
@@ -272,11 +288,12 @@ async function fetchFromNewsAPI(): Promise<any[]> {
   return articles
 }
 
-// Extract OG image from article source URL
-async function extractOGImage(url: string): Promise<string | null> {
+// Extract OG image and article body text from article source URL
+// Returns both the OG image URL and extracted body text so we can store full_content
+async function extractArticleData(url: string): Promise<{ ogImage: string | null; bodyText: string | null }> {
   try {
     const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 5000)
+    const timeout = setTimeout(() => controller.abort(), 6000)
 
     const response = await fetch(url, {
       signal: controller.signal,
@@ -284,44 +301,79 @@ async function extractOGImage(url: string): Promise<string | null> {
     })
     clearTimeout(timeout)
 
-    if (!response.ok) return null
+    if (!response.ok) return { ogImage: null, bodyText: null }
 
-    // Only read first 50KB to find OG tags (they're in <head>)
+    // Read up to 200KB — enough for head OG tags AND the article body
     const reader = response.body?.getReader()
-    if (!reader) return null
+    if (!reader) return { ogImage: null, bodyText: null }
 
     let html = ''
     const decoder = new TextDecoder()
 
-    while (html.length < 50000) {
+    while (html.length < 200000) {
       const { done, value } = await reader.read()
       if (done) break
       html += decoder.decode(value, { stream: true })
 
-      // Check if we've passed </head> - no need to read more
-      if (html.includes('</head>')) break
+      // Stop early once we've read body content (past </article> or 200KB)
+      if (html.length > 100000 && (html.includes('</article>') || html.includes('</main>'))) break
     }
     reader.cancel()
 
-    // Extract og:image
+    // --- Extract OG image ---
+    let ogImage: string | null = null
     const ogMatch = html.match(/<meta[^>]*property=["']og:image["'][^>]*content=["']([^"']+)["']/i)
       || html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*property=["']og:image["']/i)
 
     if (ogMatch?.[1]) {
       const imgUrl = ogMatch[1]
-      // Skip tiny images and placeholders
-      if (imgUrl.includes('placeholder') || imgUrl.includes('default') || imgUrl.includes('1x1')) return null
-      return imgUrl
+      if (!imgUrl.includes('placeholder') && !imgUrl.includes('default') && !imgUrl.includes('1x1')) {
+        ogImage = imgUrl
+      }
     }
 
-    // Fallback: try twitter:image
-    const twitterMatch = html.match(/<meta[^>]*name=["']twitter:image["'][^>]*content=["']([^"']+)["']/i)
-      || html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*name=["']twitter:image["']/i)
+    if (!ogImage) {
+      const twitterMatch = html.match(/<meta[^>]*name=["']twitter:image["'][^>]*content=["']([^"']+)["']/i)
+        || html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*name=["']twitter:image["']/i)
+      ogImage = twitterMatch?.[1] || null
+    }
 
-    return twitterMatch?.[1] || null
+    // --- Extract article body text ---
+    // Try semantic article containers first, then fall back to body
+    let bodyText: string | null = null
+
+    const articleMatch = html.match(/<article[^>]*>([\s\S]*?)<\/article>/i)
+      || html.match(/<main[^>]*>([\s\S]*?)<\/main>/i)
+      || html.match(/<div[^>]*class=["'][^"']*(article|post|content|entry)[^"']*["'][^>]*>([\s\S]{500,}?)<\/div>/i)
+
+    if (articleMatch) {
+      const rawHtml = articleMatch[1] || articleMatch[2] || ''
+      // Strip scripts, styles, nav, aside, footer elements
+      const cleaned = rawHtml
+        .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+        .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+        .replace(/<nav[^>]*>[\s\S]*?<\/nav>/gi, '')
+        .replace(/<aside[^>]*>[\s\S]*?<\/aside>/gi, '')
+        .replace(/<footer[^>]*>[\s\S]*?<\/footer>/gi, '')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+
+      if (cleaned.length > 200) {
+        bodyText = cleaned.substring(0, 5000) // Cap at 5000 chars
+      }
+    }
+
+    return { ogImage, bodyText }
   } catch {
-    return null
+    return { ogImage: null, bodyText: null }
   }
+}
+
+// Kept for backward compatibility — wraps extractArticleData
+async function extractOGImage(url: string): Promise<string | null> {
+  const { ogImage } = await extractArticleData(url)
+  return ogImage
 }
 
 // Parse RSS feed XML into article objects
@@ -360,6 +412,8 @@ function parseRSSXML(xml: string, source: any) {
     const title = extractTag(item, 'title')
     const link = extractTag(item, 'link') || extractAttr(item, 'link', 'href')
     const description = extractTag(item, 'description') || extractTag(item, 'summary')
+    // content:encoded often contains the full article HTML — extract it for richer AI analysis
+    const fullContentRaw = extractTag(item, 'content:encoded') || extractTag(item, 'content')
     const pubDate = extractTag(item, 'pubDate') || extractTag(item, 'published') || extractTag(item, 'dc:date')
     const imageUrl = extractMediaImage(item)
 
@@ -373,16 +427,25 @@ function parseRSSXML(xml: string, source: any) {
     // Generate a stable ID
     const id = 'art_' + generateShortId(link)
 
+    // Strip HTML tags from full content to get plain text for AI
+    const fullContentText = fullContentRaw
+      ? cleanHTML(fullContentRaw).substring(0, 5000)
+      : null
+
+    // Try to extract a better image from content:encoded if no RSS image
+    const contentImage = !imageUrl && fullContentRaw ? extractMediaImage(fullContentRaw) : null
+
     articles.push({
       id,
       title: cleanHTML(title),
       summary: cleanHTML(description || '').substring(0, 500),
+      full_content: fullContentText,
       source_name: source.name,
       source_url: link,
       published_at: publishedAt.toISOString(),
-      image_url: imageUrl || null,
-      original_rss_image: imageUrl || null,
-      has_real_image: !!imageUrl,
+      image_url: contentImage || imageUrl || null,
+      original_rss_image: contentImage || imageUrl || null,
+      has_real_image: !!(contentImage || imageUrl),
       category: source.category || 'platform_updates',
       platforms: source.platform || [],
       source_type: 'industry',
@@ -403,7 +466,8 @@ function parseRSSXML(xml: string, source: any) {
 
       const title = extractTag(item, 'title')
       const link = extractAttr(item, 'link', 'href')
-      const description = extractTag(item, 'summary') || extractTag(item, 'content')
+      const description = extractTag(item, 'summary')
+      const fullContentRaw = extractTag(item, 'content') || extractTag(item, 'content:encoded')
       const pubDate = extractTag(item, 'published') || extractTag(item, 'updated')
       const imageUrl = extractMediaImage(item)
 
@@ -415,16 +479,22 @@ function parseRSSXML(xml: string, source: any) {
 
       const id = 'art_' + generateShortId(link)
 
+      const fullContentText = fullContentRaw
+        ? cleanHTML(fullContentRaw).substring(0, 5000)
+        : null
+      const contentImage = !imageUrl && fullContentRaw ? extractMediaImage(fullContentRaw) : null
+
       articles.push({
         id,
         title: cleanHTML(title),
-        summary: cleanHTML(description || '').substring(0, 500),
+        summary: cleanHTML(description || fullContentRaw || '').substring(0, 500),
+        full_content: fullContentText,
         source_name: source.name,
         source_url: link,
         published_at: publishedAt.toISOString(),
-        image_url: imageUrl || null,
-        original_rss_image: imageUrl || null,
-        has_real_image: !!imageUrl,
+        image_url: contentImage || imageUrl || null,
+        original_rss_image: contentImage || imageUrl || null,
+        has_real_image: !!(contentImage || imageUrl),
         category: source.category || 'platform_updates',
         platforms: source.platform || [],
         source_type: 'industry',
