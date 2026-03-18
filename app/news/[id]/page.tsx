@@ -146,6 +146,19 @@ function getPlainTextLength(html: string): number {
   return html.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().length
 }
 
+/**
+ * Calculate similarity between two strings (percentage).
+ * Simple length-based heuristic: if one string is significantly shorter, they differ.
+ */
+function calculateStringSimilarity(str1: string, str2: string): number {
+  if (!str1 || !str2) return 0
+  const len1 = str1.length
+  const len2 = str2.length
+  const minLen = Math.min(len1, len2)
+  const maxLen = Math.max(len1, len2)
+  return maxLen === 0 ? 1 : minLen / maxLen
+}
+
 export default function ArticlePage() {
   const params = useParams()
   const [article, setArticle] = useState<Article | null>(null)
@@ -271,6 +284,13 @@ export default function ArticlePage() {
   const hasAudience = !!(article.audience && article.audience.length > 0)
   const hasAnyInsight = hasAISummary || hasOurTake || hasKeyTakeaways || hasBottomLine || hasKeyStat
   const formatAudience = (tag: string) => tag.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+
+  // For !hasRichContent branch: check if article.summary differs significantly from aiSummary
+  const summaryDiffersSignificantly = () => {
+    if (!hasAISummary || !article.summary) return false
+    const similarity = calculateStringSimilarity(article.summary, article.aiSummary!)
+    return similarity < 0.5 // length difference > 50%
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -542,54 +562,31 @@ export default function ArticlePage() {
               </>
             ) : (
               <div className="space-y-8">
-                {/* When there's no full RSS content, make the summary the main body */}
-                <div>
-                  <div className="flex items-center gap-2 mb-6">
-                    <BookOpen className="h-5 w-5 text-muted-foreground" />
-                    <h2 className="font-bold text-xl">Summary</h2>
-                  </div>
-                  <p className="text-lg leading-relaxed text-foreground">
-                    {article.summary}
-                  </p>
-                </div>
-
-                {/* The Operator's Edge — editorial analysis */}
-                {hasOurTake && (
-                  <div className="bg-muted/30 rounded-xl p-6 border">
-                    <div className="flex items-center gap-2 mb-4">
-                      <Lightbulb className="h-5 w-5 text-amber-500" />
-                      <h3 className="font-bold text-base">The Operator&apos;s Edge</h3>
+                {/* When there's no full RSS content and article doesn't have AI enrichment,
+                    show the summary so users see something useful. */}
+                {!hasAnyInsight && (
+                  <div>
+                    <div className="flex items-center gap-2 mb-6">
+                      <BookOpen className="h-5 w-5 text-muted-foreground" />
+                      <h2 className="font-bold text-xl">Summary</h2>
                     </div>
-                    <p className="leading-relaxed text-foreground">{article.ourTake}</p>
+                    <p className="text-lg leading-relaxed text-foreground">
+                      {article.summary}
+                    </p>
                   </div>
                 )}
 
-                {/* Moves to Make — action items */}
-                {hasKeyTakeaways && (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2">
-                      <Target className="h-5 w-5 text-primary" />
-                      <h2 className="font-bold text-xl">Moves to Make</h2>
+                {/* If hasAnyInsight AND the raw summary differs significantly from AI summary,
+                    show it as additional detail. Otherwise skip to avoid duplication. */}
+                {hasAnyInsight && summaryDiffersSignificantly() && (
+                  <div>
+                    <div className="flex items-center gap-2 mb-6">
+                      <BookOpen className="h-5 w-5 text-muted-foreground" />
+                      <h2 className="font-bold text-xl">Additional Context</h2>
                     </div>
-                    <ul className="space-y-3">
-                      {article.keyTakeaways!.map((point, i) => (
-                        <li key={i} className="flex items-start gap-3">
-                          <ChevronRight className="h-5 w-5 mt-0.5 text-primary flex-shrink-0" />
-                          <span className="leading-relaxed">{point}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* The Bottom Line — quotable pull quote */}
-                {hasBottomLine && (
-                  <div className="border-l-4 border-primary pl-5 py-3">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Zap className="h-5 w-5 text-primary" />
-                      <h3 className="font-bold text-base">The Bottom Line</h3>
-                    </div>
-                    <p className="text-lg font-semibold leading-snug">{article.bottomLine}</p>
+                    <p className="text-lg leading-relaxed text-foreground">
+                      {article.summary}
+                    </p>
                   </div>
                 )}
               </div>
@@ -746,6 +743,7 @@ export default function ArticlePage() {
             </Link>
             <div className="flex items-center gap-6 text-sm text-muted-foreground">
               <Link href="/" className="hover:text-foreground transition-colors">Home</Link>
+              <Link href="/articles" className="hover:text-foreground transition-colors">Articles</Link>
               <Link href="/tools" className="hover:text-foreground transition-colors">Tools</Link>
               <Link href="/events" className="hover:text-foreground transition-colors">Events</Link>
               <Link href="/newsletter" className="hover:text-foreground transition-colors">Newsletter</Link>

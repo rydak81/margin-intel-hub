@@ -609,6 +609,9 @@ export default function HomePage() {
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
+              <Link href="/articles" className="text-sm font-semibold hover:text-primary transition-colors">
+                Articles
+              </Link>
               <Link href="/tools" className="text-sm font-semibold hover:text-primary transition-colors">
                 Tools
               </Link>
@@ -691,6 +694,7 @@ export default function HomePage() {
             <div className="lg:hidden py-4 border-t">
               <nav className="flex flex-col gap-2">
                 <Link href="/" className="px-4 py-2 rounded-md hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>Home</Link>
+                <Link href="/articles" className="px-4 py-2 rounded-md hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>Articles</Link>
                 <Link href="/tools" className="px-4 py-2 rounded-md hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>Tools</Link>
                 {/* Solutions and Community hidden - coming soon */}
                 <Link href="/events" className="px-4 py-2 rounded-md hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>Events</Link>
@@ -1421,6 +1425,7 @@ export default function HomePage() {
                 <li><Link href="/advertise" className="hover:text-foreground transition-colors">Advertise</Link></li>
                 <li><Link href="/submit" className="hover:text-foreground transition-colors">Submit a Tip</Link></li>
                 <li><Link href="/tools" className="hover:text-foreground transition-colors">Seller Tools</Link></li>
+                <li><Link href="/articles" className="hover:text-foreground transition-colors">Search Articles</Link></li>
               </ul>
             </div>
 
