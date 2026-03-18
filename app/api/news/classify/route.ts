@@ -185,9 +185,9 @@ async function classifyAndUpdate(
   // non-fatal — the article already has ai_summary from Phase 1.
   const deepUpdate: Record<string, unknown> = {
     our_take: classification.our_take || null,
-    what_this_means: classification.our_take || null,
+    what_this_means: classification.ai_summary || null,
     key_takeaways: classification.key_takeaways || [],
-    related_context: classification.bottom_line || null,
+    related_context: classification.related_context || null,
     bottom_line: classification.bottom_line || null,
     ...(imageSource !== undefined && { image_source: imageSource }),
   }
