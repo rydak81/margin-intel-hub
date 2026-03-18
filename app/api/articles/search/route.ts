@@ -1,97 +1,103 @@
+import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { NextResponse } from 'next/server'
-import { getArticleImageUrl, isGoodArticleImage } from '@/lib/article-images'
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url)
-  const query = searchParams.get('q')?.trim()
-  const page = parseInt(searchParams.get('page') || '1')
-  const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 50)
-  const category = searchParams.get('category')
-  const platform = searchParams.get('platform')
+if (!supabaseUrl || !supabaseServiceKey) {
+  throw new Error('Missing Supabase credentials')
+}
 
-  if (!query || query.length < 2) {
-    return NextResponse.json({ error: 'Query must be at least 2 characters' }, { status: 400 })
-  }
+const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-  const offset = (page - 1) * limit
+function parseList(str?: string): string[] {
+  if (!str) return []
+  return str.split(',').map(s => s.trim()).filter(s => s.length > 0)
+}
 
+export async function GET(request: NextRequest) {
   try {
-    // Use websearch mode for natural language queries
-    let queryBuilder = supabaseAdmin
+    const searchParams = request.nextUrl.searchParams
+    const q = searchParams.get('q') || ''
+    const category = searchParams.get('category')
+    const platforms = parseList(searchParams.get('platforms') || '')
+    const impact = searchParams.get('impact')
+    const audience = searchParams.get('audience')
+    const sort = (searchParams.get('sort') || 'newest') as 'newest' | 'oldest' | 'relevant' | 'impact'
+    const limit = Math.min(parseInt(searchParams.get('limit') || '12'), 100)
+    const offset = Math.max(0, parseInt(searchParams.get('offset') || '0'))
+
+    let query = supabase
       .from('articles')
-      .select('*', { count: 'exact' })
-      .textSearch('search_vector', query, { type: 'websearch' })
-      .eq('relevant', true)
-      .order('published_at', { ascending: false })
+      .select('id, title, summary, category, source_name, published_at, image_url, platform_tags, impact_level, relevance_score, audience_tags', { count: 'exact' })
 
-    if (category) {
-      queryBuilder = queryBuilder.eq('category', category)
+    if (q.trim()) {
+      query = query.or(`title.ilike.%${q}%,summary.ilike.%${q}%,ai_summary.ilike.%${q}%`)
     }
-    if (platform) {
-      queryBuilder = queryBuilder.contains('platforms', [platform])
+    if (category) query = query.eq('category', category)
+    if (platforms.length > 0) query = query.filter('platform_tags', 'cs', JSON.stringify(platforms))
+    if (impact) query = query.eq('impact_level', impact)
+    if (audience) query = query.filter('audience_tags', 'cs', JSON.stringify([audience]))
+
+    switch (sort) {
+      case 'oldest': query = query.order('published_at', { ascending: true }); break
+      case 'relevant': query = query.order('relevance_score', { ascending: false }); break
+      case 'impact': query = query.order('impact_level', { ascending: true }).order('published_at', { ascending: false }); break
+      default: query = query.order('published_at', { ascending: false }); break
     }
 
-    queryBuilder = queryBuilder.range(offset, offset + limit - 1)
-
-    const { data: articles, count, error } = await queryBuilder
+    query = query.range(offset, offset + limit - 1)
+    const { data, count, error } = await query
 
     if (error) {
-      console.error('[Search] Error:', error)
-      return NextResponse.json({ error: 'Search failed' }, { status: 500 })
+      console.error('Search query error:', error)
+      return NextResponse.json({ error: 'Search failed', details: error.message }, { status: 500 })
     }
 
-    // Enrich articles with images
-    const enriched = (articles || []).map(row => ({
-      id: row.id,
-      title: row.title,
-      summary: row.summary || '',
-      aiSummary: row.ai_summary || row.summary || '',
-      ourTake: row.our_take || '',
-      whatThisMeans: row.what_this_means || '',
-      keyTakeaways: row.key_takeaways || [],
-      relatedContext: row.related_context || '',
-      bottomLine: row.bottom_line || '',
-      sourceName: row.source_name,
-      sourceUrl: row.source_url,
-      publishedAt: row.published_at,
-      imageUrl: getArticleImageUrl(
-        row.image_url,
-        row.title,
-        row.category,
-        row.platforms || []
-      ),
-      hasRealImage: isGoodArticleImage(row.image_url),
-      relevant: row.relevant,
-      relevanceScore: row.relevance_score,
-      category: row.category,
-      platforms: row.platforms || [],
-      isBreaking: row.is_breaking || false,
-      audience: row.audience || [],
-      impactLevel: row.impact_level || 'medium',
-      impactDetail: row.impact_detail || '',
-      actionItem: row.action_item || '',
-      keyStat: row.key_stat || null,
-      tier: row.tier || 3,
-      sourceType: row.source_type || 'industry',
-    }))
+    // Facets
+    const { data: categoryData } = await supabase.from('articles').select('category')
+    const categoryFacets: Record<string, number> = {}
+    categoryData?.forEach(item => { if (item.category) categoryFacets[item.category] = (categoryFacets[item.category] || 0) + 1 })
+
+    const { data: platformData } = await supabase.from('articles').select('platform_tags')
+    const platformFacets: Record<string, number> = {}
+    platformData?.forEach(item => { if (item.platform_tags && Array.isArray(item.platform_tags)) item.platform_tags.forEach((p: string) => { platformFacets[p] = (platformFacets[p] || 0) + 1 }) })
+
+    const { data: impactData } = await supabase.from('articles').select('impact_level')
+    const impactFacets: Record<string, number> = {}
+    impactData?.forEach(item => { if (item.impact_level) impactFacets[item.impact_level] = (impactFacets[item.impact_level] || 0) + 1 })
+
+    const articles = data?.map(article => ({
+      id: article.id,
+      title: article.title,
+      summary: article.summary,
+      category: article.category,
+      sourceName: article.source_name,
+      publishedAt: article.published_at,
+      imageUrl: article.image_url,
+      platforms: article.platform_tags || [],
+      impactLevel: article.impact_level,
+      relevanceScore: article.relevance_score,
+      audience: article.audience_tags || [],
+    })) || []
+
+    // Fix impact sort client-side since alphabetical != severity
+    if (sort === 'impact') {
+      const impactOrder: Record<string, number> = { high: 0, medium: 1, low: 2 }
+      articles.sort((a, b) => {
+        const impactA = impactOrder[a.impactLevel || 'low'] ?? 3
+        const impactB = impactOrder[b.impactLevel || 'low'] ?? 3
+        if (impactA !== impactB) return impactA - impactB
+        return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+      })
+    }
 
     return NextResponse.json({
-      success: true,
-      articles: enriched,
-      total: count || 0,
-      page,
-      limit,
-      query,
-      hasMore: (count || 0) > offset + limit
+      success: true, articles, total: count || 0,
+      facets: { categories: categoryFacets, platforms: platformFacets, impactLevels: impactFacets }
     })
   } catch (error) {
-    console.error('[Search] Error:', error)
-    return NextResponse.json({ error: 'Search failed' }, { status: 500 })
+    console.error('Article search error:', error)
+    return NextResponse.json({ error: 'Internal server error', details: String(error) }, { status: 500 })
   }
 }
