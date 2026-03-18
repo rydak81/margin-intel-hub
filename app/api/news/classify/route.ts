@@ -125,7 +125,8 @@ Respond ONLY with valid JSON, no other text.`
   })
 
   if (!response.ok) {
-    throw new Error(`Anthropic API returned ${response.status}`)
+    const errorBody = await response.text()
+    throw new Error(`Anthropic API returned ${response.status}: ${errorBody}`)
   }
 
   const data = await response.json()
@@ -227,6 +228,10 @@ async function insertCategories(articleId: string, primaryCategory: string, plat
 
 export async function POST(request: NextRequest) {
   try {
+    if (!anthropicKey) {
+      return NextResponse.json({ error: 'ANTHROPIC_API_KEY not configured' }, { status: 500 })
+    }
+
     const authHeader = request.headers.get('authorization')
     if (authHeader !== `Bearer ${cronSecret}`) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -309,7 +314,7 @@ export async function POST(request: NextRequest) {
             classifiedCount++
           } catch (error) {
             console.error(`Classification error for article ${article.id}:`, error)
-            errors.push({ articleId: article.id, error })
+            errors.push({ articleId: article.id, error: error instanceof Error ? error.message : String(error) })
           }
         })
       )
