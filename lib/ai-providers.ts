@@ -55,13 +55,22 @@ interface ProviderConfig {
 // ============================================================================
 
 const PROVIDERS: Record<string, ProviderConfig> = {
+  // Vercel AI Gateway - zero config, uses connected gateway
+  vercel: {
+    name: 'Vercel AI Gateway',
+    model: 'anthropic/claude-opus-4.6',
+    apiKeyEnv: 'VERCEL_AI_GATEWAY', // Special: always available in Vercel projects
+    costPer1kInput: 0.0003,
+    costPer1kOutput: 0.0015,
+    qualityRank: 1,
+  },
   gemini: {
     name: 'Google Gemini',
     model: 'gemini-2.0-flash',
     apiKeyEnv: 'GOOGLE_AI_API_KEY',
     costPer1kInput: 0.0001,
     costPer1kOutput: 0.0004,
-    qualityRank: 3,
+    qualityRank: 4,
   },
   anthropic: {
     name: 'Anthropic Claude',
@@ -69,7 +78,7 @@ const PROVIDERS: Record<string, ProviderConfig> = {
     apiKeyEnv: 'ANTHROPIC_API_KEY',
     costPer1kInput: 0.00025,
     costPer1kOutput: 0.00125,
-    qualityRank: 1,
+    qualityRank: 2,
   },
   openai: {
     name: 'OpenAI',
@@ -77,7 +86,7 @@ const PROVIDERS: Record<string, ProviderConfig> = {
     apiKeyEnv: 'OPENAI_API_KEY',
     costPer1kInput: 0.00015,
     costPer1kOutput: 0.0006,
-    qualityRank: 2,
+    qualityRank: 3,
   },
 }
 
@@ -89,7 +98,13 @@ type Strategy = 'cheapest' | 'best' | 'balanced'
 
 function getAvailableProviders(): string[] {
   return Object.entries(PROVIDERS)
-    .filter(([, config]) => !!process.env[config.apiKeyEnv])
+    .filter(([id, config]) => {
+      // Vercel AI Gateway is always available in Vercel projects
+      if (id === 'vercel') {
+        return process.env.VERCEL === '1' || process.env.VERCEL_ENV !== undefined
+      }
+      return !!process.env[config.apiKeyEnv]
+    })
     .map(([id]) => id)
 }
 
@@ -250,7 +265,43 @@ async function callGemini(
   return data.candidates?.[0]?.content?.parts?.[0]?.text || ''
 }
 
+/**
+ * Vercel AI Gateway - uses the AI SDK under the hood
+ * Zero config in Vercel projects, automatically available
+ */
+async function callVercelAIGateway(
+  _apiKey: string,
+  model: string,
+  messages: AIMessage[],
+  maxTokens: number
+): Promise<string> {
+  // Vercel AI Gateway uses OpenAI-compatible API format
+  // It's available at the standard endpoint in Vercel deployments
+  const response = await fetch('https://api.vercel.ai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      // No API key needed - uses Vercel project auth
+    },
+    body: JSON.stringify({
+      model,
+      max_tokens: maxTokens,
+      messages: messages.map(m => ({ role: m.role, content: m.content })),
+    }),
+  })
+
+  if (response.status === 429) throw new Error('RATE_LIMITED')
+  if (!response.ok) {
+    const errText = await response.text()
+    throw new Error(`Vercel AI Gateway ${response.status}: ${errText}`)
+  }
+
+  const data = await response.json()
+  return data.choices?.[0]?.message?.content || ''
+}
+
 const CALLERS: Record<string, (apiKey: string, model: string, messages: AIMessage[], maxTokens: number) => Promise<string>> = {
+  vercel: callVercelAIGateway,
   anthropic: callAnthropic,
   openai: callOpenAI,
   gemini: callGemini,

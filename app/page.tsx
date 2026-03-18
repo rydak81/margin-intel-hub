@@ -193,6 +193,9 @@ export default function HomePage() {
   const [articleModalOpen, setArticleModalOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [searchExpanded, setSearchExpanded] = useState(false)
+  const [visibleArticleCount, setVisibleArticleCount] = useState(12)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [totalCount, setTotalCount] = useState(0)
   const searchInputRef = useRef<HTMLInputElement>(null)
 
   // Track scroll position for header transition
@@ -232,10 +235,10 @@ export default function HomePage() {
   const [subscribed, setSubscribed] = useState(false)
 
   // Fetch news from AI-powered articles API
-  const fetchNews = useCallback(async () => {
+  const fetchNews = useCallback(async (limit = 100) => {
     try {
-      // Fetch from AI-powered articles API
-      const response = await fetch(`/api/articles?limit=50`)
+      // Fetch from AI-powered articles API - get more articles for pagination
+      const response = await fetch(`/api/articles?limit=${limit}`)
       const data = await response.json()
       
       if (data.success && data.articles?.length > 0) {
@@ -292,6 +295,7 @@ export default function HomePage() {
         }))
         
         setArticles(transformedArticles)
+        setTotalCount(data.totalCount || transformedArticles.length)
         
         // Get breaking news from high-relevance articles
         const breaking = transformedArticles
@@ -316,6 +320,14 @@ export default function HomePage() {
     } finally {
       setLoading(false)
     }
+  }, [])
+  
+  // Load more articles handler
+  const handleLoadMore = useCallback(async () => {
+    setLoadingMore(true)
+    // Show 12 more articles each time
+    setVisibleArticleCount(prev => prev + 12)
+    setLoadingMore(false)
   }, [])
   
   // Map AI categories to frontend category IDs
@@ -345,10 +357,18 @@ export default function HomePage() {
   }
 
   useEffect(() => {
-    fetchNews()
-    const interval = setInterval(fetchNews, 5 * 60 * 1000)
+    fetchNews(100) // Fetch up to 100 articles initially
+    const interval = setInterval(() => fetchNews(100), 5 * 60 * 1000)
     return () => clearInterval(interval)
   }, [fetchNews])
+  
+  // Debug: log article counts
+  useEffect(() => {
+    if (articles.length > 0) {
+      const withAISummary = articles.filter(a => a.aiSummary && a.aiSummary.length > 100)
+      console.log(`[v0] Loaded ${articles.length} articles (${withAISummary.length} have AI summaries)`)
+    }
+  }, [articles])
 
   useEffect(() => {
     if (isDark) {
@@ -390,7 +410,10 @@ export default function HomePage() {
   const feedArticles = filteredArticles.filter(a => a.id !== heroArticle?.id)
   
   const featuredArticles = feedArticles.filter(a => a.featured).slice(0, 3)
-  const regularArticles = feedArticles.filter(a => !a.featured)
+  const allRegularArticles = feedArticles.filter(a => !a.featured)
+  // Paginate regular articles - show only visibleArticleCount
+  const regularArticles = allRegularArticles.slice(0, visibleArticleCount)
+  const hasMoreArticles = allRegularArticles.length > visibleArticleCount
   const trendingArticles = [...articles].sort(() => Math.random() - 0.5).slice(0, 5)
 
   const handleSubscribe = async (e: React.FormEvent) => {
@@ -490,7 +513,10 @@ export default function HomePage() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-56">
                   {CATEGORIES.slice(1).map((cat) => (
-                    <DropdownMenuItem key={cat.id} onClick={() => setSelectedCategory(cat.id)}>
+                    <DropdownMenuItem key={cat.id} onClick={() => {
+                      setSelectedCategory(cat.id)
+                      setVisibleArticleCount(12) // Reset pagination
+                    }}>
                       <cat.icon className="h-4 w-4 mr-2" />
                       {cat.label}
                     </DropdownMenuItem>
@@ -647,7 +673,7 @@ export default function HomePage() {
             <span className="text-sm text-muted-foreground">
               Filtered by: <Badge variant="secondary" className="ml-1">{getCategoryConfig(selectedCategory).label}</Badge>
             </span>
-            <Button variant="ghost" size="sm" onClick={() => setSelectedCategory("all")} className="text-xs h-7">
+            <Button variant="ghost" size="sm" onClick={() => { setSelectedCategory("all"); setVisibleArticleCount(12); }} className="text-xs h-7">
               <X className="h-3 w-3 mr-1" />
               Clear
             </Button>
@@ -1081,12 +1107,30 @@ export default function HomePage() {
             )}
 
             {/* Load More */}
-            {regularArticles.length > 8 && (
-              <div className="flex justify-center pt-4">
-                <Button variant="outline" size="lg">
-                  Load More Articles
-                  <ChevronRight className="h-4 w-4 ml-2" />
+            {hasMoreArticles && (
+              <div className="flex flex-col items-center gap-2 pt-6">
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  onClick={handleLoadMore}
+                  disabled={loadingMore}
+                  className="min-w-[200px]"
+                >
+                  {loadingMore ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Loading...
+                    </>
+                  ) : (
+                    <>
+                      Load More Articles
+                      <ChevronRight className="h-4 w-4 ml-2" />
+                    </>
+                  )}
                 </Button>
+                <p className="text-xs text-muted-foreground">
+                  Showing {regularArticles.length} of {allRegularArticles.length} articles
+                </p>
               </div>
             )}
           </div>
@@ -1285,6 +1329,7 @@ export default function HomePage() {
                     <button
                       onClick={() => {
                         setSelectedCategory(cat.id)
+                        setVisibleArticleCount(12)
                         window.scrollTo({ top: 0, behavior: 'smooth' })
                       }}
                       className="hover:text-foreground transition-colors"

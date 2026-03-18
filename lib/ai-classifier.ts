@@ -258,6 +258,8 @@ Return ONLY the JSON array, no other text.`
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
+      console.log(`[AI] Attempt ${attempt + 1}/${maxRetries + 1} — sending ${articles.length} articles for classification...`)
+      
       const result = await aiComplete({
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
@@ -270,29 +272,38 @@ Return ONLY the JSON array, no other text.`
       const parsed = parseAIJson<ArticleClassification[]>(result.text, 'array')
       if (!parsed || parsed.length === 0) {
         console.error(`[AI] Could not parse classification response from ${result.provider}`)
+        console.error(`[AI] Raw response (first 500 chars): ${result.text.substring(0, 500)}`)
         if (attempt < maxRetries) continue
+        console.warn(`[AI] All parsing attempts failed — using keyword fallback for ${articles.length} articles`)
         return articles.map((a, i) => ({ ...fallbackClassify(a), index: i }))
       }
 
+      // Check if AI actually provided summaries
+      const withSummaries = parsed.filter(p => p.ai_summary && p.ai_summary.length > 50)
       console.log(`[AI] Classified ${parsed.length} articles via ${result.provider} (${result.model}) in ${result.latencyMs}ms`)
+      console.log(`[AI] ${withSummaries.length}/${parsed.length} articles have AI-generated summaries`)
+      
       return parsed
 
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error)
 
       if (msg === 'NO_AI_PROVIDER') {
-        console.log('[AI] No AI providers available — using keyword fallback')
+        console.warn('[AI] No AI providers available — check ANTHROPIC_API_KEY, GOOGLE_AI_API_KEY, or OPENAI_API_KEY')
+        console.log('[AI] Using keyword fallback for classification')
         return articles.map((a, i) => ({ ...fallbackClassify(a), index: i }))
       }
 
       console.error(`[AI] Classification attempt ${attempt + 1} failed: ${msg}`)
       if (attempt < maxRetries) {
+        console.log(`[AI] Retrying in ${retryDelay / 1000}s...`)
         await new Promise(r => setTimeout(r, retryDelay))
         retryDelay *= 2
         continue
       }
 
       // All retries exhausted — keyword fallback
+      console.warn(`[AI] All ${maxRetries + 1} attempts failed — using keyword fallback`)
       return articles.map((a, i) => ({ ...fallbackClassify(a), index: i }))
     }
   }
