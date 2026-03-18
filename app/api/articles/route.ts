@@ -14,7 +14,9 @@ import {
   getArticlesCache,
   setArticlesCache,
   isCacheValid,
-  getLastCacheUpdate
+  getLastCacheUpdate,
+  getArticlesNeedingAI,
+  updateArticleWithAI
 } from "@/lib/article-store"
 
 export const dynamic = 'force-dynamic'
@@ -401,6 +403,61 @@ async function aggregateAndProcessArticles(): Promise<ClassifiedArticle[]> {
         console.warn('[v0] Background save to Supabase failed:', err)
       )
     }
+  }
+
+  // ============================================================================
+  // REPROCESS EXISTING ARTICLES MISSING AI SUMMARIES
+  // ============================================================================
+  // This ensures all articles in the database have consistent AI insights
+  // Process up to 15 articles per cron run to avoid timeout
+  
+  try {
+    const articlesNeedingAI = await getArticlesNeedingAI(15)
+    
+    if (articlesNeedingAI.length > 0) {
+      console.log(`[v0] Found ${articlesNeedingAI.length} existing articles needing AI reprocessing...`)
+      
+      // Convert to RawArticle format
+      const rawForReprocess: RawArticle[] = articlesNeedingAI.map(a => ({
+        id: a.id,
+        title: a.title,
+        summary: a.summary || '',
+        fullContent: a.fullContent || a.summary || '',
+        sourceName: a.sourceName,
+        sourceUrl: a.sourceUrl,
+        publishedAt: a.publishedAt,
+        imageUrl: a.imageUrl,
+        originalRssImage: a.originalRssImage,
+        hasRealImage: a.hasRealImage,
+        tier: a.tier || 3,
+        sourceType: a.sourceType || 'industry',
+      }))
+      
+      // Run through AI classification
+      const reprocessClassifications = await classifyAllArticles(rawForReprocess)
+      
+      // Update each article in Supabase
+      let reprocessedCount = 0
+      for (let i = 0; i < rawForReprocess.length; i++) {
+        const classification = reprocessClassifications.find(c => c.index === i)
+        if (classification?.ai_summary && classification.ai_summary.length > 100) {
+          const updated = await updateArticleWithAI(rawForReprocess[i].id, {
+            aiSummary: classification.ai_summary,
+            impactLevel: classification.impact_level,
+            impactDetail: classification.impact_detail,
+            actionItem: classification.action_item,
+            keyStat: classification.key_stat,
+            audience: classification.audience,
+          })
+          if (updated) reprocessedCount++
+        }
+      }
+      
+      console.log(`[v0] Reprocessed ${reprocessedCount} existing articles with AI summaries`)
+    }
+  } catch (reprocessError) {
+    console.warn('[v0] Reprocessing existing articles failed:', reprocessError)
+    // Don't fail the whole request, this is a background enhancement
   }
 
   // Sort: breaking first, then by score, then by date

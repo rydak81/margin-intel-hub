@@ -361,14 +361,6 @@ export default function HomePage() {
     const interval = setInterval(() => fetchNews(100), 5 * 60 * 1000)
     return () => clearInterval(interval)
   }, [fetchNews])
-  
-  // Debug: log article counts
-  useEffect(() => {
-    if (articles.length > 0) {
-      const withAISummary = articles.filter(a => a.aiSummary && a.aiSummary.length > 100)
-      console.log(`[v0] Loaded ${articles.length} articles (${withAISummary.length} have AI summaries)`)
-    }
-  }, [articles])
 
   useEffect(() => {
     if (isDark) {

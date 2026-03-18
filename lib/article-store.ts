@@ -241,6 +241,102 @@ export function getLastCacheUpdate(): number {
 }
 
 // ============================================================================
+// REPROCESSING — Find articles missing AI summaries
+// ============================================================================
+
+/**
+ * Find articles in the database that need AI reprocessing
+ * (missing ai_summary or ai_summary is too short/generic)
+ */
+export async function getArticlesNeedingAI(limit = 50): Promise<ClassifiedArticle[]> {
+  if (!isSupabaseConfigured()) return []
+
+  try {
+    const supabase = createAdminClient()
+    
+    // Find articles where ai_summary is null, empty, or suspiciously short
+    // Also find articles where ai_summary equals the basic summary (not AI-enriched)
+    const { data, error } = await supabase
+      .from('articles')
+      .select('*')
+      .eq('relevant', true)
+      .or('ai_summary.is.null,ai_summary.eq.')
+      .order('published_at', { ascending: false })
+      .limit(limit)
+
+    if (error) {
+      console.warn('[ArticleStore] Error finding articles needing AI:', error.message)
+      return []
+    }
+
+    // Also check for articles where AI summary is too short or equals the original summary
+    const articlesNeedingAI = (data || []).filter(row => {
+      const aiSummary = row.ai_summary || ''
+      const originalSummary = row.summary || ''
+      
+      // Needs AI if:
+      // 1. No AI summary at all
+      // 2. AI summary is very short (< 100 chars)
+      // 3. AI summary exactly matches original (wasn't actually processed)
+      return !aiSummary || 
+             aiSummary.length < 100 || 
+             aiSummary === originalSummary ||
+             !row.impact_detail ||
+             !row.action_item
+    })
+
+    console.log(`[ArticleStore] Found ${articlesNeedingAI.length} articles needing AI reprocessing`)
+    return articlesNeedingAI.map(dbRowToArticle)
+  } catch (err) {
+    console.warn('[ArticleStore] Failed to find articles needing AI:', err)
+    return []
+  }
+}
+
+/**
+ * Update an article with new AI-generated content
+ */
+export async function updateArticleWithAI(
+  articleId: string, 
+  aiData: {
+    aiSummary: string
+    impactLevel: 'high' | 'medium' | 'low'
+    impactDetail: string
+    actionItem: string
+    keyStat: string | null
+    audience: string[]
+  }
+): Promise<boolean> {
+  if (!isSupabaseConfigured()) return false
+
+  try {
+    const supabase = createAdminClient()
+    
+    const { error } = await supabase
+      .from('articles')
+      .update({
+        ai_summary: aiData.aiSummary,
+        impact_level: aiData.impactLevel,
+        impact_detail: aiData.impactDetail,
+        action_item: aiData.actionItem,
+        key_stat: aiData.keyStat,
+        audience: aiData.audience,
+      })
+      .eq('id', articleId)
+
+    if (error) {
+      console.warn(`[ArticleStore] Failed to update article ${articleId}:`, error.message)
+      return false
+    }
+
+    return true
+  } catch (err) {
+    console.warn(`[ArticleStore] Error updating article ${articleId}:`, err)
+    return false
+  }
+}
+
+// ============================================================================
 // HELPERS
 // ============================================================================
 

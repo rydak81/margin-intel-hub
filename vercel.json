@@ -3,6 +3,10 @@
     {
       "path": "/api/articles?refresh=true",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/articles/reprocess?limit=25",
+      "schedule": "30 * * * *"
     }
   ]
 }
