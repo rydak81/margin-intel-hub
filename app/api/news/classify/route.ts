@@ -202,7 +202,9 @@ async function insertKeywords(articleId: string, keywords: Array<{ keyword: stri
  * Insert article categories into article_categories table
  */
 async function insertCategories(articleId: string, primaryCategory: string, platforms: string[], confidenceScore: number) {
-  const categories = [{ article_id: articleId, category: primaryCategory, confidence: confidenceScore }]
+  const categories: Array<{ article_id: string; category: string; confidence_score: number; is_primary: boolean }> = [
+    { article_id: articleId, category: primaryCategory, confidence_score: confidenceScore, is_primary: true }
+  ]
 
   const platformCategoryMap: Record<string, string> = {
     amazon: 'amazon_specific',
@@ -215,7 +217,7 @@ async function insertCategories(articleId: string, primaryCategory: string, plat
   platforms.forEach(platform => {
     const platformCategory = platformCategoryMap[platform.toLowerCase()]
     if (platformCategory) {
-      categories.push({ article_id: articleId, category: platformCategory, confidence: 0.8 })
+      categories.push({ article_id: articleId, category: platformCategory, confidence_score: 0.8, is_primary: false })
     }
   })
 
@@ -260,8 +262,8 @@ export async function POST(request: NextRequest) {
             const updateData: any = {
               ai_summary: classified.aiSummary,
               category: classified.category,
-              platform_tags: classified.platforms,
-              audience_tags: classified.audience,
+              platforms: classified.platforms,
+              audience: classified.audience,
               impact_level: classified.impactLevel,
               relevance_score: classified.relevanceScore,
               classified_at: new Date().toISOString()
@@ -292,9 +294,17 @@ export async function POST(request: NextRequest) {
             const { error: insightError } = await supabase.from('articles').update(insightData).eq('id', article.id)
             if (!insightError) enrichedCount++
 
-            // Insert keywords and categories
-            await insertKeywords(article.id, keywords)
-            await insertCategories(article.id, classified.category, classified.platforms, classified.relevanceScore)
+            // Insert keywords and categories (may fail due to article_id type mismatch — non-fatal)
+            try {
+              await insertKeywords(article.id, keywords)
+            } catch (kwErr) {
+              console.warn(`[Classify] Keyword insertion failed for ${article.id} (article_id type mismatch?):`, kwErr)
+            }
+            try {
+              await insertCategories(article.id, classified.category, classified.platforms, classified.relevanceScore)
+            } catch (catErr) {
+              console.warn(`[Classify] Category insertion failed for ${article.id} (article_id type mismatch?):`, catErr)
+            }
 
             classifiedCount++
           } catch (error) {
