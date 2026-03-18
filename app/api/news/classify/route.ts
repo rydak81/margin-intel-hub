@@ -118,6 +118,10 @@ export async function GET(request: Request) {
 }
 
 // Classify a single article and update Supabase
+// Uses a two-phase update strategy:
+//   Phase 1: core fields in the base schema — always written, safe on any DB state
+//   Phase 2: deep insight fields added by migrations 004/005 — attempted separately,
+//            failure here does NOT prevent ai_summary from being saved
 async function classifyAndUpdate(
   article: { id: string; title: string; summary: string; full_content?: string; source_name?: string; image_url?: string },
   unclassifiedList: { id: string }[]
@@ -127,16 +131,31 @@ async function classifyAndUpdate(
     return { wasClassified: false, wasEnriched: false, imageFixed: false }
   }
 
-  const updateData: Record<string, unknown> = {
+  let imageFixed = false
+  let imageUrl: string | undefined
+  let hasRealImage: boolean | undefined
+  let imageSource: string | undefined
+
+  // Image fallback: if no image, try Unsplash then category fallback
+  if (!article.image_url) {
+    const unsplashUrl = await searchUnsplash(classification.image_search_query)
+    if (unsplashUrl) {
+      imageUrl = unsplashUrl
+      hasRealImage = true
+      imageSource = 'unsplash'
+      imageFixed = true
+    } else {
+      imageUrl = CATEGORY_IMAGES[classification.category] || CATEGORY_IMAGES['market_metrics']
+      imageSource = 'category_fallback'
+      imageFixed = true
+    }
+  }
+
+  // ── PHASE 1: Core fields (exist in base schema from script 003) ──────────
+  // These columns are guaranteed to exist. Write them first so articles always
+  // get at minimum an ai_summary even if the migration scripts haven't been run.
+  const coreUpdate: Record<string, unknown> = {
     ai_summary: classification.ai_summary,
-    our_take: classification.our_take,
-    what_this_means: classification.our_take,  // backward compat
-    key_takeaways: classification.key_takeaways || [],
-    related_context: classification.bottom_line,
-    action_item: classification.key_takeaways?.[0] || null,
-    key_stat: classification.key_stat,
-    impact_detail: classification.bottom_line,
-    bottom_line: classification.bottom_line,
     category: classification.category,
     platforms: classification.platforms || [],
     audience: classification.audience || [],
@@ -144,34 +163,43 @@ async function classifyAndUpdate(
     relevance_score: classification.relevance_score || 50,
     is_breaking: classification.is_breaking || false,
     relevant: classification.relevant !== false,
+    action_item: classification.key_takeaways?.[0] || null,
+    key_stat: classification.key_stat || null,
+    impact_detail: classification.bottom_line || null,
+    ...(imageUrl !== undefined && { image_url: imageUrl }),
+    ...(hasRealImage !== undefined && { has_real_image: hasRealImage }),
   }
 
-  let imageFixed = false
-
-  // Image fallback: if no image, try Unsplash then category fallback
-  if (!article.image_url) {
-    const unsplashUrl = await searchUnsplash(classification.image_search_query)
-    if (unsplashUrl) {
-      updateData.image_url = unsplashUrl
-      updateData.has_real_image = true
-      updateData.image_source = 'unsplash'
-      imageFixed = true
-    } else {
-      const fallback = CATEGORY_IMAGES[classification.category] || CATEGORY_IMAGES['market_metrics']
-      updateData.image_url = fallback
-      updateData.image_source = 'category_fallback'
-      imageFixed = true
-    }
-  }
-
-  const { error: updateError } = await supabaseAdmin
+  const { error: coreError } = await supabaseAdmin
     .from('articles')
-    .update(updateData)
+    .update(coreUpdate)
     .eq('id', article.id)
 
-  if (updateError) {
-    console.error(`[Classify] Update failed for ${article.id}:`, updateError.message)
-    throw new Error(updateError.message)
+  if (coreError) {
+    console.error(`[Classify] Core update failed for ${article.id}:`, coreError.message)
+    throw new Error(coreError.message)
+  }
+
+  // ── PHASE 2: Deep insight fields (added by migrations 004 + 005) ─────────
+  // These may not exist if migrations haven't been run yet. Failure here is
+  // non-fatal — the article already has ai_summary from Phase 1.
+  const deepUpdate: Record<string, unknown> = {
+    our_take: classification.our_take || null,
+    what_this_means: classification.our_take || null,
+    key_takeaways: classification.key_takeaways || [],
+    related_context: classification.bottom_line || null,
+    bottom_line: classification.bottom_line || null,
+    ...(imageSource !== undefined && { image_source: imageSource }),
+  }
+
+  const { error: deepError } = await supabaseAdmin
+    .from('articles')
+    .update(deepUpdate)
+    .eq('id', article.id)
+
+  if (deepError) {
+    // Log as warning only — missing migration columns are expected on fresh DBs
+    console.warn(`[Classify] Deep insight update failed for ${article.id} (run migration scripts 004+005):`, deepError.message)
   }
 
   const wasClassified = unclassifiedList.some(u => u.id === article.id)
