@@ -274,7 +274,7 @@ export async function POST(request: NextRequest) {
               platforms: classified.platforms,
               audience: classified.audience,
               impact_level: classified.impactLevel,
-              relevance_score: classified.relevanceScore,
+              relevance_score: Math.round(classified.relevanceScore > 1 ? classified.relevanceScore : (classified.relevanceScore || 0) * 100),
               classified_at: new Date().toISOString()
             }
 
