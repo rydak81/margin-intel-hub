@@ -131,7 +131,11 @@ Respond ONLY with valid JSON, no other text.`
 
   const data = await response.json()
   const responseText = data.content?.[0]?.text || ''
-  const parsed = JSON.parse(responseText)
+  let cleanedText = responseText.trim()
+  if (cleanedText.startsWith('```')) {
+    cleanedText = cleanedText.replace(/^```(?:json)?\s*\n?/, '').replace(/\n?```\s*$/, '')
+  }
+  const parsed = JSON.parse(cleanedText)
 
   return {
     aiSummary: parsed.aiSummary || '',
