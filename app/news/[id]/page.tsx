@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { getArticleFallbackImage } from "@/lib/article-images"
+import { AdBanner } from "@/components/AdBanner"
+import { getActivePlacements } from "@/lib/sponsors"
 import {
   ArrowLeft,
   Clock,
@@ -165,6 +167,8 @@ export default function ArticlePage() {
   const [relatedArticles, setRelatedArticles] = useState<Article[]>([])
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState(false)
+  const [linkedinPost, setLinkedinPost] = useState<string | null>(null)
+  const [generatingPost, setGeneratingPost] = useState(false)
 
   useEffect(() => {
     const fetchArticle = async () => {
@@ -222,6 +226,38 @@ export default function ArticlePage() {
       fetchArticle()
     }
   }, [params.id])
+
+  const generateLinkedInPost = async () => {
+    if (!article) return
+    setGeneratingPost(true)
+    try {
+      const response = await fetch('/api/linkedin/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: article.title,
+          aiSummary: article.aiSummary,
+          ourTake: article.ourTake,
+          keyTakeaways: article.keyTakeaways,
+          bottomLine: article.bottomLine,
+          keyStat: article.keyStat,
+          category: article.category,
+          platforms: article.platforms,
+          articleUrl: `https://marketplacebeta.com/news/${article.id}`
+        })
+      })
+      const data = await response.json()
+      setLinkedinPost(data.post)
+    } catch (error) {
+      console.error('Failed to generate LinkedIn post:', error)
+    } finally {
+      setGeneratingPost(false)
+    }
+  }
+
+  const articleSideBanners = getActivePlacements('article', 'sidebar')
+  const articleInlineBanners = getActivePlacements('article', 'inline')
+  const articleFooterBanners = getActivePlacements('article', 'footer')
 
   const handleShare = async (platform: string) => {
     const url = window.location.href
@@ -536,6 +572,11 @@ export default function ArticlePage() {
 
             <Separator className="my-8" />
 
+            {/* Inline Ad Banners */}
+            {articleInlineBanners.map(p => (
+              <AdBanner key={p.id} sponsor={p.sponsor} variant="inline" />
+            ))}
+
             {/* ========================================================= */}
             {/* ARTICLE BODY — Rich content or expanded summary             */}
             {/* ========================================================= */}
@@ -633,12 +674,72 @@ export default function ArticlePage() {
                     {copied ? "Copied!" : "Copy Link"}
                   </Button>
                 </div>
+
+                {/* LinkedIn Post Generator */}
+                <div className="mt-6 border-t pt-6">
+                  <h3 className="text-lg font-semibold mb-3">Share on LinkedIn</h3>
+                  {!linkedinPost ? (
+                    <button
+                      onClick={generateLinkedInPost}
+                      disabled={generatingPost}
+                      className="w-full bg-[#0A66C2] hover:bg-[#004182] text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+                    >
+                      {generatingPost ? (
+                        <>
+                          <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" opacity="0.25" />
+                            <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" opacity="0.75" />
+                          </svg>
+                          Generating Post...
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                          Generate LinkedIn Post
+                        </>
+                      )}
+                    </button>
+                  ) : (
+                    <div className="space-y-3">
+                      <textarea
+                        readOnly
+                        value={linkedinPost}
+                        className="w-full h-48 p-3 border rounded-lg bg-muted/50 text-sm resize-none"
+                      />
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => { navigator.clipboard.writeText(linkedinPost); }}
+                          className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-2 px-4 rounded-lg"
+                        >
+                          Copy to Clipboard
+                        </button>
+                        <button
+                          onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`https://marketplacebeta.com/news/${article.id}`)}`, '_blank')}
+                          className="flex-1 bg-[#0A66C2] hover:bg-[#004182] text-white font-medium py-2 px-4 rounded-lg"
+                        >
+                          Open LinkedIn
+                        </button>
+                        <button
+                          onClick={() => setLinkedinPost(null)}
+                          className="px-4 py-2 border rounded-lg hover:bg-muted"
+                        >
+                          Regenerate
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </CardContent>
             </Card>
           </article>
 
           {/* Sidebar */}
           <aside className="space-y-6">
+            {/* Sidebar Ad Banners */}
+            {articleSideBanners.map(p => (
+              <AdBanner key={p.id} sponsor={p.sponsor} variant="sidebar" />
+            ))}
+
             {/* Newsletter CTA */}
             <Card className="bg-primary text-primary-foreground border-0">
               <CardContent className="p-6">
@@ -730,6 +831,13 @@ export default function ArticlePage() {
           </aside>
         </div>
       </main>
+
+      {/* Footer Ad Banners */}
+      <div className="max-w-7xl mx-auto px-4">
+        {articleFooterBanners.map(p => (
+          <AdBanner key={p.id} sponsor={p.sponsor} variant="footer" />
+        ))}
+      </div>
 
       {/* Footer */}
       <footer className="border-t bg-muted/30 mt-16">

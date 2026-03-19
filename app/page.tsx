@@ -12,6 +12,8 @@ import { ArticleDetailModal } from "@/components/article-detail-modal"
 import { BackToTop } from "@/components/back-to-top"
 import { getArticleFallbackImage } from "@/lib/article-images"
 import { ArticleGridSkeleton } from "@/components/article-skeleton"
+import { AdBanner } from "@/components/AdBanner"
+import { getActivePlacements } from "@/lib/sponsors"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -188,6 +190,11 @@ const CATEGORY_COLORS: Record<string, string> = {
 }
 
 export default function HomePage() {
+  const topBanners = getActivePlacements('home', 'top-banner')
+  const sideBanners = getActivePlacements('home', 'sidebar')
+  const inlineBanners = getActivePlacements('home', 'inline')
+  const footerBanners = getActivePlacements('home', 'footer')
+
   const [articles, setArticles] = useState<NewsArticle[]>([])
   const [breakingNews, setBreakingNews] = useState<BreakingNews[]>([])
   const [loading, setLoading] = useState(true)
@@ -773,6 +780,11 @@ export default function HomePage() {
 
       {/* Main Content */}
       <main id="briefing" className="max-w-7xl mx-auto px-4 py-8">
+        {/* Top Ad Banners */}
+        {topBanners.map(p => (
+          <AdBanner key={p.id} sponsor={p.sponsor} variant="top-banner" />
+        ))}
+
         {/* Hero Featured Article - Full Width (outside flex layout) */}
         {!loading && featuredArticles.length > 0 && selectedCategory === "all" && (
           <div className="mb-8">
@@ -1165,6 +1177,19 @@ export default function HomePage() {
                       </div>
                     )}
                     
+                    {/* Inline Ad Banners after 6th article */}
+                    {index === 5 && inlineBanners.length > 0 && (
+                      <div key={`inline-ad-${index}`} className="md:col-span-2">
+                        <AdBanner sponsor={inlineBanners[0].sponsor} variant="inline" />
+                      </div>
+                    )}
+                    {/* Second inline ad after 12th article */}
+                    {index === 11 && inlineBanners.length > 1 && (
+                      <div key={`inline-ad-2-${index}`} className="md:col-span-2">
+                        <AdBanner sponsor={inlineBanners[1].sponsor} variant="inline" />
+                      </div>
+                    )}
+
                     {/* MarginPro CTA - shows in Seller Profitability category after every 8th article */}
                     {selectedCategory === "profitability" && (index + 1) % 8 === 0 && index < regularArticles.length - 1 && (
                       <div key={`marginpro-cta-${index}`} className="md:col-span-2">
@@ -1213,6 +1238,11 @@ export default function HomePage() {
 
           {/* Sidebar */}
           <aside className="w-full lg:w-80 space-y-6">
+            {/* Sidebar Ad Banners */}
+            {sideBanners.map(p => (
+              <AdBanner key={p.id} sponsor={p.sponsor} variant="sidebar" />
+            ))}
+
             {/* Trending This Week */}
             <Card className="border-0 shadow-sm">
               <CardHeader className="pb-3">
@@ -1368,6 +1398,13 @@ export default function HomePage() {
           </aside>
         </div>
       </main>
+      {/* Footer Ad Banners */}
+      <div className="max-w-7xl mx-auto px-4">
+        {footerBanners.map(p => (
+          <AdBanner key={p.id} sponsor={p.sponsor} variant="footer" />
+        ))}
+      </div>
+
       {/* Footer */}
       <footer className="bg-card border-t">
         <div className="max-w-7xl mx-auto px-4 py-12">
