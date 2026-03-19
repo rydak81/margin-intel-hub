@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { callAIForJSON } from '@/lib/ai-client'
 
 export const maxDuration = 60
 
@@ -27,9 +28,9 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const apiKey = process.env.ANTHROPIC_API_KEY
-    if (!apiKey) {
-      return NextResponse.json({ error: 'No API key' }, { status: 500 })
+    const hasAIKey = process.env.AI_GATEWAY_API_KEY || process.env.ANTHROPIC_API_KEY
+    if (!hasAIKey) {
+      return NextResponse.json({ error: 'No API key configured' }, { status: 500 })
     }
 
     // Get processed community topics from the last 7 days
@@ -118,32 +119,12 @@ Return JSON:
 
 Return ONLY valid JSON.`
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 3000,
-        messages: [{ role: 'user', content: pulsePrompt }]
-      })
+    const { data: article, provider, model } = await callAIForJSON<any>({
+      prompt: pulsePrompt,
+      maxTokens: 3000
     })
+    console.log(`[Pulse] Article generated via ${provider} (${model})`)
 
-    if (!response.ok) {
-      return NextResponse.json({ error: `AI returned ${response.status}` }, { status: 500 })
-    }
-
-    const aiData = await response.json()
-    const aiText = aiData.content?.[0]?.text || ''
-    const jsonMatch = aiText.match(/\{[\s\S]*\}/)
-    if (!jsonMatch) {
-      return NextResponse.json({ error: 'Failed to parse pulse article' }, { status: 500 })
-    }
-
-    const article = JSON.parse(jsonMatch[0])
     const articleId = 'pulse_' + Date.now().toString(36)
 
     const { error: insertError } = await supabaseAdmin
