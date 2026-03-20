@@ -9,6 +9,10 @@
       "schedule": "15 */2 * * *"
     },
     {
+      "path": "/api/news/daily-brief",
+      "schedule": "0 11 * * *"
+    },
+    {
       "path": "/api/community/aggregate",
       "schedule": "0 */6 * * *"
     },
@@ -35,6 +39,9 @@
       "maxDuration": 60
     },
     "app/api/community/pulse/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/news/daily-brief/route.ts": {
       "maxDuration": 60
     }
   }
