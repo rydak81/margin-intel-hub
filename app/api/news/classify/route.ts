@@ -2,15 +2,18 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { callAIForJSON } from '@/lib/ai-client'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-const cronSecret = process.env.CRON_SECRET
-
-if (!supabaseUrl || !supabaseServiceKey) {
-  throw new Error('Missing Supabase credentials')
+// Lazy-initialized Supabase client (avoids module-level crash if env vars missing)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let _supabase: any = null
+function getSupabase() {
+  if (!_supabase) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+    if (!url || !key) throw new Error('Missing Supabase credentials (NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY)')
+    _supabase = createClient(url, key)
+  }
+  return _supabase
 }
-
-const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 /**
  * Strip HTML tags from text
@@ -178,7 +181,7 @@ async function insertKeywords(articleId: string, keywords: Array<{ keyword: stri
     keyword: k.keyword,
     weight: k.weight
   }))
-  const { error } = await supabase.from('article_keywords').insert(keywordRows)
+  const { error } = await getSupabase().from('article_keywords').insert(keywordRows)
   if (error) console.error('Error inserting keywords:', error)
 }
 
@@ -205,7 +208,7 @@ async function insertCategories(articleId: string, primaryCategory: string, plat
     }
   })
 
-  const { error } = await supabase.from('article_categories').insert(categories)
+  const { error } = await getSupabase().from('article_categories').insert(categories)
   if (error) console.error('Error inserting categories:', error)
 }
 
@@ -221,12 +224,13 @@ export async function POST(request: NextRequest) {
     }
 
     const authHeader = request.headers.get('authorization')
-    if (authHeader !== `Bearer ${cronSecret}`) {
+    const cronSecret = process.env.CRON_SECRET
+    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Fetch unclassified articles (increased from 25 to 50)
-    const { data: unclassified, error: fetchError } = await supabase
+    const { data: unclassified, error: fetchError } = await getSupabase()
       .from('articles')
       .select('*')
       .is('ai_summary', null)
@@ -245,7 +249,7 @@ export async function POST(request: NextRequest) {
     for (let i = 0; i < unclassified.length; i += batchSize) {
       const batch = unclassified.slice(i, i + batchSize)
       await Promise.all(
-        batch.map(async (article) => {
+        batch.map(async (article: any) => {
           try {
             const classified = await classifyArticle(article)
             const cleanSummary = stripHTML(article.summary || '')
@@ -269,7 +273,7 @@ export async function POST(request: NextRequest) {
               fixedImageCount++
             }
 
-            const { error: updateError } = await supabase.from('articles').update(updateData).eq('id', article.id)
+            const { error: updateError } = await getSupabase().from('articles').update(updateData).eq('id', article.id)
             if (updateError) {
               errors.push({ articleId: article.id, error: updateError })
               return
@@ -284,7 +288,7 @@ export async function POST(request: NextRequest) {
               summary: cleanSummary
             }
 
-            const { error: insightError } = await supabase.from('articles').update(insightData).eq('id', article.id)
+            const { error: insightError } = await getSupabase().from('articles').update(insightData).eq('id', article.id)
             if (!insightError) enrichedCount++
 
             // Insert keywords and categories (may fail due to article_id type mismatch — non-fatal)

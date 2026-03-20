@@ -1,4 +1,9 @@
 /**
+ * @deprecated This module is superseded by lib/ai-client.ts which routes through
+ * the Vercel AI Gateway. This file is retained only because ai-search.ts and
+ * news-aggregation/index.ts still import from it. Migrate those to ai-client.ts
+ * and then delete this file.
+ *
  * Multi-Provider AI Abstraction Layer
  *
  * Supports multiple AI providers with automatic fallback:
