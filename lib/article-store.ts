@@ -92,7 +92,7 @@ export async function loadArticlesFromDB(options?: {
       .from('articles')
       .select('*')
       .eq('relevant', true)
-      .gte('relevance_score', 50)
+      .gte('relevance_score', 30)
       .order('published_at', { ascending: false })
       .limit(options?.limit || 200)
 

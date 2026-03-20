@@ -154,7 +154,7 @@ Return ONLY valid JSON.`
         source_name: 'MarketplaceBeta Community Pulse',
         source_url: `https://marketplacebeta.com/pulse/${articleId}`,
         source_type: 'community_pulse',
-        category: 'market_trends',
+        category: 'market_analysis',
         platforms: ['amazon', 'general'],
         audience: ['Brand Sellers', 'Agencies', 'SaaS Providers'],
         impact_level: 'high',

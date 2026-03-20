@@ -1,12 +1,21 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { callAI } from '@/lib/ai-client'
 
 export const maxDuration = 60
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+// Lazy-initialized Supabase client (avoids module-level crash if env vars missing)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let _supabase: any = null
+function getSupabase() {
+  if (!_supabase) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+    if (!url || !key) throw new Error('Missing Supabase credentials')
+    _supabase = createClient(url, key)
+  }
+  return _supabase
+}
 
 export async function GET(request: Request) {
   try {
@@ -19,7 +28,7 @@ export async function GET(request: Request) {
     // Get top articles from the last 24 hours
     const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
 
-    const { data: topArticles, error } = await supabaseAdmin
+    const { data: topArticles, error } = await getSupabase()
       .from('articles')
       .select('*')
       .gte('published_at', yesterday)
@@ -36,13 +45,13 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'No articles for brief' }, { status: 404 })
     }
 
-    // Use Claude to generate the brief
-    const apiKey = process.env.ANTHROPIC_API_KEY
-    if (!apiKey) {
+    // Check for any AI key (Gateway or direct)
+    const hasAIKey = process.env.AI_GATEWAY_API_KEY || process.env.ANTHROPIC_API_KEY
+    if (!hasAIKey) {
       return NextResponse.json({
         articles: topArticles.length,
         brief: null,
-        message: 'No ANTHROPIC_API_KEY set — returning raw articles',
+        message: 'No AI API key set — returning raw articles',
         topArticles,
         date: new Date().toISOString()
       })
@@ -58,41 +67,19 @@ Write a concise daily news brief with these ${topArticles.length} stories. For e
 End with a "Bottom Line" section (2-3 sentences) summarizing the day's themes.
 
 Stories:
-${topArticles.map((a, i) => `${i + 1}. "${a.title}" (${a.source_name})\nSummary: ${a.ai_summary || a.summary}`).join('\n\n')}`
+${topArticles.map((a: any, i: number) => `${i + 1}. "${a.title}" (${a.source_name})\nSummary: ${a.ai_summary || a.summary}`).join('\n\n')}`
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 2000,
-        messages: [{
-          role: 'user',
-          content: briefPrompt
-        }]
-      })
+    const response = await callAI({
+      prompt: briefPrompt,
+      maxTokens: 2000
     })
-
-    if (!response.ok) {
-      return NextResponse.json({
-        error: `Claude API returned ${response.status}`,
-        articles: topArticles.length,
-        topArticles,
-        date: new Date().toISOString()
-      }, { status: 502 })
-    }
-
-    const data = await response.json()
-    const brief = data.content?.[0]?.text || ''
+    console.log(`[DailyBrief] Generated via ${response.provider} (${response.model})`)
 
     return NextResponse.json({
       success: true,
       articles: topArticles.length,
-      brief,
+      brief: response.text,
+      provider: response.provider,
       topArticles,
       date: new Date().toISOString()
     })
