@@ -76,7 +76,7 @@ export const AD_PLACEMENTS: AdPlacement[] = [
     id: 'home-top-banner',
     zone: 'top-banner',
     sponsor: SPONSORS.marginpro,
-    active: true,
+    active: false,
     pages: ['home'],
   },
   // Sidebar on homepage
@@ -84,7 +84,7 @@ export const AD_PLACEMENTS: AdPlacement[] = [
     id: 'home-sidebar',
     zone: 'sidebar',
     sponsor: SPONSORS.marketplacepulse,
-    active: true,
+    active: false,
     pages: ['home'],
   },
   // Inline between articles on homepage (after ~6th article)
@@ -92,7 +92,7 @@ export const AD_PLACEMENTS: AdPlacement[] = [
     id: 'home-inline',
     zone: 'inline',
     sponsor: SPONSORS.threecolts,
-    active: true,
+    active: false,
     pages: ['home'],
   },
   // Footer banner — all pages
@@ -100,7 +100,7 @@ export const AD_PLACEMENTS: AdPlacement[] = [
     id: 'global-footer',
     zone: 'footer',
     sponsor: SPONSORS.threecolts,
-    active: true,
+    active: false,
     pages: ['all'],
   },
   // Sidebar on article detail pages
@@ -108,7 +108,7 @@ export const AD_PLACEMENTS: AdPlacement[] = [
     id: 'article-sidebar',
     zone: 'sidebar',
     sponsor: SPONSORS.marginpro,
-    active: true,
+    active: false,
     pages: ['article'],
   },
   // Inline on article pages (between AI brief and full content)
@@ -116,7 +116,7 @@ export const AD_PLACEMENTS: AdPlacement[] = [
     id: 'article-inline',
     zone: 'inline',
     sponsor: SPONSORS.marketplacepulse,
-    active: true,
+    active: false,
     pages: ['article'],
   },
   // CedCommerce — homepage inline (after ~12th article, second inline slot)
@@ -124,7 +124,7 @@ export const AD_PLACEMENTS: AdPlacement[] = [
     id: 'home-inline-2',
     zone: 'inline',
     sponsor: SPONSORS.cedcommerce,
-    active: true,
+    active: false,
     pages: ['home'],
   },
 ]

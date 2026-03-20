@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { callAIForJSON } from '@/lib/ai-client'
 
 export const maxDuration = 60
 
@@ -33,8 +34,8 @@ export async function GET(request: Request) {
       })
     }
 
-    const apiKey = process.env.ANTHROPIC_API_KEY
-    if (!apiKey) {
+    const hasAIKey = process.env.AI_GATEWAY_API_KEY || process.env.ANTHROPIC_API_KEY
+    if (!hasAIKey) {
       return NextResponse.json({ error: 'No API key configured' }, { status: 500 })
     }
 
@@ -56,33 +57,13 @@ ${topicSummary}
 
 Return ONLY a valid JSON array, no markdown or explanation.`
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 2000,
-        messages: [{ role: 'user', content: prompt }]
-      })
+    const { data: analyses, provider, model } = await callAIForJSON<any[]>({
+      prompt,
+      maxTokens: 2000
     })
-
-    if (!response.ok) {
-      return NextResponse.json({ error: `AI API returned ${response.status}` }, { status: 500 })
-    }
-
-    const data = await response.json()
-    const text = data.content?.[0]?.text || ''
-    const jsonMatch = text.match(/\[[\s\S]*\]/)
-    if (!jsonMatch) {
-      return NextResponse.json({ error: 'Failed to parse AI response' }, { status: 500 })
-    }
+    console.log(`[Analyze] Community topics analyzed via ${provider} (${model})`)
 
     let processed = 0
-    const analyses = JSON.parse(jsonMatch[0])
 
     for (const analysis of analyses) {
       const topic = topics[analysis.index]

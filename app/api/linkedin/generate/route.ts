@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
-
-const anthropicKey = process.env.ANTHROPIC_API_KEY
+import { callAI } from '@/lib/ai-client'
 
 export async function POST(request: Request) {
-  if (!anthropicKey) {
+  const hasAIKey = process.env.AI_GATEWAY_API_KEY || process.env.ANTHROPIC_API_KEY
+  if (!hasAIKey) {
     return NextResponse.json({ error: 'API key not configured' }, { status: 500 })
   }
 
@@ -34,27 +34,10 @@ Requirements:
 Return ONLY the LinkedIn post text, nothing else.`
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': anthropicKey,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 1024,
-        messages: [{ role: 'user', content: prompt }]
-      })
+    const { text: post } = await callAI({
+      prompt,
+      maxTokens: 1024
     })
-
-    if (!response.ok) {
-      const errorBody = await response.text()
-      return NextResponse.json({ error: `AI generation failed: ${response.status}` }, { status: 500 })
-    }
-
-    const data = await response.json()
-    const post = data.content?.[0]?.text || ''
 
     return NextResponse.json({ post })
   } catch (error) {

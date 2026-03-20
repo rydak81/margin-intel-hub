@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { callAIForJSON } from '@/lib/ai-client'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 const cronSecret = process.env.CRON_SECRET
-const anthropicKey = process.env.ANTHROPIC_API_KEY
 
 if (!supabaseUrl || !supabaseServiceKey) {
   throw new Error('Missing Supabase credentials')
@@ -83,7 +83,7 @@ function extractKeywords(text: string): Array<{ keyword: string; weight: number 
 }
 
 /**
- * Classify a single article using Claude
+ * Classify a single article using Claude (via AI Gateway or direct Anthropic)
  */
 async function classifyArticle(article: any) {
   const prompt = `You are a marketplace analyst for e-commerce sellers. Analyze this article and provide structured insights.
@@ -110,32 +110,11 @@ Provide a JSON response with EXACTLY this structure (no markdown, no code blocks
 
 Respond ONLY with valid JSON, no other text.`
 
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': anthropicKey!,
-      'anthropic-version': '2023-06-01'
-    },
-    body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 1024,
-      messages: [{ role: 'user', content: prompt }]
-    })
+  const { data: parsed, provider, model } = await callAIForJSON<any>({
+    prompt,
+    maxTokens: 1024
   })
-
-  if (!response.ok) {
-    const errorBody = await response.text()
-    throw new Error(`Anthropic API returned ${response.status}: ${errorBody}`)
-  }
-
-  const data = await response.json()
-  const responseText = data.content?.[0]?.text || ''
-  let cleanedText = responseText.trim()
-  if (cleanedText.startsWith('```')) {
-    cleanedText = cleanedText.replace(/^```(?:json)?\s*\n?/, '').replace(/\n?```\s*$/, '')
-  }
-  const parsed = JSON.parse(cleanedText)
+  console.log(`[Classify] Article classified via ${provider} (${model})`)
 
   return {
     aiSummary: parsed.aiSummary || '',
@@ -230,10 +209,15 @@ async function insertCategories(articleId: string, primaryCategory: string, plat
   if (error) console.error('Error inserting categories:', error)
 }
 
+export async function GET(request: NextRequest) {
+  return POST(request)
+}
+
 export async function POST(request: NextRequest) {
   try {
-    if (!anthropicKey) {
-      return NextResponse.json({ error: 'ANTHROPIC_API_KEY not configured' }, { status: 500 })
+    const hasAIKey = process.env.AI_GATEWAY_API_KEY || process.env.ANTHROPIC_API_KEY
+    if (!hasAIKey) {
+      return NextResponse.json({ error: 'No AI API key configured' }, { status: 500 })
     }
 
     const authHeader = request.headers.get('authorization')
