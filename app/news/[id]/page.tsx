@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import DOMPurify from "isomorphic-dompurify"
 import Image from "next/image"
 import Link from "next/link"
 import { useParams } from "next/navigation"
@@ -133,11 +134,17 @@ function formatCategoryLabel(category: string): string {
  */
 function cleanArticleHTML(html: string): string {
   if (!html) return ''
-  let clean = html.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
-  clean = clean.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-  clean = clean.replace(/\son\w+="[^"]*"/gi, '')
-  clean = clean.replace(/\son\w+='[^']*'/gi, '')
-  return clean
+  return DOMPurify.sanitize(html, {
+    ALLOWED_TAGS: [
+      'p', 'br', 'strong', 'b', 'em', 'i', 'a', 'ul', 'ol', 'li',
+      'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'img',
+      'figure', 'figcaption', 'table', 'thead', 'tbody', 'tr', 'th', 'td',
+      'pre', 'code', 'span', 'div', 'section', 'article', 'aside',
+      'details', 'summary', 'mark', 'small', 'sub', 'sup', 'hr'
+    ],
+    ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class', 'id', 'width', 'height', 'target', 'rel'],
+    ALLOW_DATA_ATTR: false,
+  })
 }
 
 /**

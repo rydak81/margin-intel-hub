@@ -78,19 +78,7 @@ export const DEFAULT_RSS_SOURCES: Omit<NewsSource, 'id' | 'last_fetched_at'>[] =
     fetch_frequency_minutes: 60,
     metadata: {}
   },
-  {
-    name: 'Jungle Scout Blog',
-    slug: 'jungle-scout',
-    source_type: 'rss',
-    url: 'https://www.junglescout.com/blog',
-    feed_url: 'https://www.junglescout.com/blog/feed/',
-    category: 'amazon',
-    platform: ['amazon'],
-    is_active: true,
-    priority_score: 80,
-    fetch_frequency_minutes: 120,
-    metadata: {}
-  },
+  // Jungle Scout removed — domain is in BLOCKED_DOMAINS (competitor)
   {
     name: 'TechCrunch E-commerce',
     slug: 'techcrunch-ecommerce',
@@ -169,32 +157,8 @@ export const DEFAULT_RSS_SOURCES: Omit<NewsSource, 'id' | 'last_fetched_at'>[] =
     fetch_frequency_minutes: 120,
     metadata: {}
   },
-  {
-    name: 'Helium 10',
-    slug: 'helium-10',
-    source_type: 'rss',
-    url: 'https://www.helium10.com/blog',
-    feed_url: 'https://www.helium10.com/blog/feed/',
-    category: 'amazon',
-    platform: ['amazon'],
-    is_active: true,
-    priority_score: 80,
-    fetch_frequency_minutes: 120,
-    metadata: {}
-  },
-  {
-    name: 'Carbon6',
-    slug: 'carbon6',
-    source_type: 'rss',
-    url: 'https://carbon6.io/blog',
-    feed_url: 'https://carbon6.io/blog/feed/',
-    category: 'amazon',
-    platform: ['amazon'],
-    is_active: true,
-    priority_score: 75,
-    fetch_frequency_minutes: 120,
-    metadata: {}
-  },
+  // Helium 10 removed — domain is in BLOCKED_DOMAINS (competitor)
+  // Carbon6 removed — domain is in BLOCKED_DOMAINS (competitor)
   {
     name: 'EcomCrew',
     slug: 'ecomcrew',
@@ -221,19 +185,7 @@ export const DEFAULT_RSS_SOURCES: Omit<NewsSource, 'id' | 'last_fetched_at'>[] =
     fetch_frequency_minutes: 60,
     metadata: {}
   },
-  {
-    name: 'Tinuiti',
-    slug: 'tinuiti',
-    source_type: 'rss',
-    url: 'https://tinuiti.com/blog',
-    feed_url: 'https://tinuiti.com/blog/feed/',
-    category: 'advertising',
-    platform: ['amazon', 'walmart', 'general'],
-    is_active: true,
-    priority_score: 75,
-    fetch_frequency_minutes: 120,
-    metadata: {}
-  }
+  // Tinuiti removed — domain is in BLOCKED_DOMAINS (competitor)
 ]
 
 // AI Classification Schema
