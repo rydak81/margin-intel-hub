@@ -587,7 +587,7 @@ export default function HomePage() {
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2">
               <Image 
-                src="/logo.jpg" 
+                src="/logo.png"
                 alt="MarketplaceBeta logo" 
                 width={32} 
                 height={32} 
@@ -1412,9 +1412,7 @@ export default function HomePage() {
             {/* Brand */}
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center">
-                  <BarChart3 className="h-5 w-5 text-primary-foreground" />
-                </div>
+                <Image src="/logo.png" alt="MarketplaceBeta logo" width={36} height={36} className="h-9 w-9 rounded-lg object-cover" />
                 <span className="font-bold text-xl">MarketplaceBeta</span>
               </div>
               <p className="text-sm text-muted-foreground mb-4">

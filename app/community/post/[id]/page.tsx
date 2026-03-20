@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, use } from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -609,9 +610,7 @@ What's everyone's strategy for dealing with these changes?`,
                 <ArrowLeft className="h-5 w-5" />
               </Button>
               <Link href="/" className="flex items-center gap-2">
-                <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center">
-                  <BarChart3 className="h-5 w-5 text-primary-foreground" />
-                </div>
+                <Image src="/logo.png" alt="MarketplaceBeta logo" width={36} height={36} className="h-9 w-9 rounded-lg object-cover" />
                 <span className="font-bold text-xl hidden sm:block">MarketplaceBeta</span>
               </Link>
             </div>
