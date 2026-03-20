@@ -94,7 +94,7 @@ async function classifyArticle(article: any) {
 ARTICLE:
 Title: ${article.title}
 Summary: ${article.summary}
-${article.fullContent ? `Full Content: ${article.fullContent.substring(0, 3000)}` : ''}
+${article.full_content ? `Full Content: ${article.full_content.substring(0, 3000)}` : ''}
 
 Provide a JSON response with EXACTLY this structure (no markdown, no code blocks, pure JSON):
 {
