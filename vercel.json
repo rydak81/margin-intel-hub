@@ -9,6 +9,10 @@
       "schedule": "15 */2 * * *"
     },
     {
+      "path": "/api/news/daily-brief",
+      "schedule": "0 11 * * *"
+    },
+    {
       "path": "/api/community/aggregate",
       "schedule": "0 */6 * * *"
     },
