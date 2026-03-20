@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -153,9 +154,7 @@ export default function NewsletterPage() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-2">
-              <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center">
-                <BarChart3 className="h-5 w-5 text-primary-foreground" />
-              </div>
+              <Image src="/logo.png" alt="MarketplaceBeta logo" width={36} height={36} className="h-9 w-9 rounded-lg object-cover" />
               <span className="font-bold text-xl hidden sm:block">MarketplaceBeta</span>
             </Link>
             <nav className="hidden md:flex items-center gap-8">
@@ -277,9 +276,7 @@ export default function NewsletterPage() {
                 <Card className="border-0 shadow-lg">
                   <CardContent className="p-6">
                     <div className="flex items-center gap-2 mb-4">
-                      <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-                        <BarChart3 className="h-4 w-4 text-primary-foreground" />
-                      </div>
+                      <Image src="/logo.png" alt="MarketplaceBeta logo" width={32} height={32} className="h-8 w-8 rounded-lg object-cover" />
                       <div>
                         <p className="font-semibold text-sm">The Daily Marketplace Brief</p>
                         <p className="text-xs text-muted-foreground">March 11, 2026</p>
@@ -452,9 +449,7 @@ export default function NewsletterPage() {
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
-              <div className="h-6 w-6 rounded bg-primary flex items-center justify-center">
-                <BarChart3 className="h-3 w-3 text-primary-foreground" />
-              </div>
+              <Image src="/logo.png" alt="MarketplaceBeta logo" width={24} height={24} className="h-6 w-6 rounded object-cover" />
               <span>MarketplaceBeta</span>
             </div>
             <div className="flex gap-6">

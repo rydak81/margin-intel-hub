@@ -342,9 +342,7 @@ export default function ArticlePage() {
             </Button>
             <Separator orientation="vertical" className="h-6" />
             <Link href="/" className="flex items-center gap-2">
-              <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center">
-                <BarChart3 className="h-3.5 w-3.5 text-primary-foreground" />
-              </div>
+              <Image src="/logo.png" alt="MarketplaceBeta logo" width={28} height={28} className="h-7 w-7 rounded-lg object-cover" />
               <span className="font-bold text-lg hidden sm:block">MarketplaceBeta</span>
             </Link>
           </div>
@@ -844,9 +842,7 @@ export default function ArticlePage() {
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <Link href="/" className="flex items-center gap-2">
-              <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center">
-                <BarChart3 className="h-3.5 w-3.5 text-primary-foreground" />
-              </div>
+              <Image src="/logo.png" alt="MarketplaceBeta logo" width={28} height={28} className="h-7 w-7 rounded-lg object-cover" />
               <span className="font-bold">MarketplaceBeta</span>
             </Link>
             <div className="flex items-center gap-6 text-sm text-muted-foreground">
