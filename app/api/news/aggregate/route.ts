@@ -243,18 +243,30 @@ async function fetchFromNewsAPI(): Promise<any[]> {
   if (!apiKey) return []
 
   const queries = [
-    'amazon marketplace seller',
-    'walmart marketplace ecommerce',
-    'shopify seller store',
-    'tiktok shop ecommerce',
-    'ecommerce tariffs import',
-    'amazon FBA fulfillment',
+    'amazon marketplace seller fees',
+    'walmart marketplace ecommerce seller',
+    'shopify seller store ecommerce',
+    'tiktok shop ecommerce seller',
+    'ecommerce tariffs import trade',
+    'amazon FBA fulfillment logistics',
+    'amazon prime day seller',
+    'ecommerce AI tools automation',
+    'amazon advertising PPC strategy',
+    'ecommerce mergers acquisitions funding',
+    'marketplace policy compliance seller',
+    'amazon seller account suspension',
   ]
 
   const articles: any[] = []
 
-  // Only use 2-3 queries per run to conserve the 100/day limit
-  const selectedQueries = queries.slice(0, 2)
+  // Rotate through queries each run (3 per run, cycles through the full list)
+  // Uses the current hour to offset which queries get picked
+  const offset = Math.floor(Date.now() / (2 * 60 * 60 * 1000)) % queries.length
+  const selectedQueries = [
+    queries[offset % queries.length],
+    queries[(offset + 1) % queries.length],
+    queries[(offset + 2) % queries.length],
+  ]
 
   for (const query of selectedQueries) {
     try {
