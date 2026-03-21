@@ -89,35 +89,35 @@ function extractKeywords(text: string): Array<{ keyword: string; weight: number 
  * Classify a single article using Claude (via AI Gateway or direct Anthropic)
  */
 async function classifyArticle(article: any) {
-  const prompt = `You are a marketplace analyst for e-commerce sellers. Analyze this article and provide structured insights.
+  const prompt = `You are a senior marketplace intelligence analyst writing for e-commerce sellers, agencies, and brands who operate on Amazon, Walmart, Shopify, eBay, and TikTok Shop.
+
+Analyze this article and provide deep, actionable insights.
 
 ARTICLE:
 Title: ${article.title}
 Summary: ${article.summary}
 ${article.full_content ? `Full Content: ${article.full_content.substring(0, 3000)}` : ''}
 
-Format all text output with proper paragraph breaks. Use double newlines (\\n\\n) between paragraphs. For the aiSummary field specifically: break the summary into 2-4 well-structured paragraphs rather than one continuous block of text. Each paragraph should focus on a distinct aspect (what happened, why it matters, market context, outlook).
-
-Provide a JSON response with EXACTLY this structure (no markdown, no code blocks, pure JSON):
+Provide a JSON response with EXACTLY this structure (no markdown, no code blocks, pure JSON only):
 {
-  "aiSummary": "1-2 sentence summary capturing THE SIGNAL - the core insight sellers should know",
-  "ourTake": "1-2 sentences of non-obvious operator insight or business implications",
-  "keyTakeaways": ["specific action item 1", "specific action item 2", "specific action item 3"],
-  "bottomLine": "A quotable one-liner that captures the essence",
+  "aiSummary": "A 2-4 sentence analyst-grade summary. Start with what happened, then explain WHY it matters to sellers. Include specific numbers, dates, platform names, and fee amounts where available. Do NOT be generic — write like a Bloomberg analyst covering the marketplace economy.",
+  "ourTake": "2-3 sentences of non-obvious insight. What is the second-order effect? What should smart operators do differently because of this? Connect to broader industry trends (tariffs, AI, platform competition, margin compression). Write like an experienced operator giving advice to a peer.",
+  "keyTakeaways": ["Specific, actionable takeaway with concrete details", "Second actionable item mentioning tools, settings, or workflows", "Third item — what to watch for next or how to prepare"],
+  "bottomLine": "A quotable one-liner that captures the essence — designed for LinkedIn sharing",
   "category": "one of: breaking, platform_updates, market_metrics, profitability, mergers_acquisitions, tools_technology, advertising, logistics, events, tactics, compliance_policy",
-  "platforms": ["amazon", "ebay", "shopify", etc - only if mentioned],
-  "audience": ["sellers", "agencies", "brands", "new_sellers", "experts"],
-  "impactLevel": "high|medium|low",
-  "keyStat": "specific number/metric mentioned or null",
-  "relevanceScore": 0.0-1.0,
-  "unsplashQuery": "search query for stock photo"
+  "platforms": ["amazon", "walmart", "shopify", "ebay", "tiktok", "target", "etsy"] (only platforms actually mentioned or directly relevant),
+  "audience": ["sellers", "agencies", "brands", "new_sellers", "experts"] (who should care most),
+  "impactLevel": "high if it affects fees/policy/revenue directly, medium if operational, low if informational",
+  "keyStat": "The single most important number or metric from the article, or null if none",
+  "relevanceScore": 0.0-1.0 (1.0 = directly impacts seller operations or revenue, 0.3 = tangentially related to e-commerce),
+  "unsplashQuery": "2-3 word search query for a relevant stock photo (e.g. 'warehouse shipping', 'online shopping', 'data analytics')"
 }
 
-Respond ONLY with valid JSON, no other text.`
+IMPORTANT: All string values must be on a single line with no literal newline characters. Use spaces between sentences, not line breaks. Respond with ONLY valid JSON, no other text.`
 
   const { data: parsed, provider, model } = await callAIForJSON<any>({
     prompt,
-    maxTokens: 1024
+    maxTokens: 2048
   })
   console.log(`[Classify] Article classified via ${provider} (${model})`)
 
