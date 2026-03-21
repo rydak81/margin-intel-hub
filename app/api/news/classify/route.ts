@@ -96,6 +96,8 @@ Title: ${article.title}
 Summary: ${article.summary}
 ${article.full_content ? `Full Content: ${article.full_content.substring(0, 3000)}` : ''}
 
+Format all text output with proper paragraph breaks. Use double newlines (\\n\\n) between paragraphs. For the aiSummary field specifically: break the summary into 2-4 well-structured paragraphs rather than one continuous block of text. Each paragraph should focus on a distinct aspect (what happened, why it matters, market context, outlook).
+
 Provide a JSON response with EXACTLY this structure (no markdown, no code blocks, pure JSON):
 {
   "aiSummary": "1-2 sentence summary capturing THE SIGNAL - the core insight sellers should know",
@@ -176,6 +178,8 @@ function getCategoryFallbackImage(category: string): string {
  */
 async function insertKeywords(articleId: string, keywords: Array<{ keyword: string; weight: number }>) {
   if (keywords.length === 0) return
+  // Delete existing keywords for this article to handle reclassification
+  await getSupabase().from('article_keywords').delete().eq('article_id', articleId)
   const keywordRows = keywords.map(k => ({
     article_id: articleId,
     keyword: k.keyword,
@@ -208,6 +212,8 @@ async function insertCategories(articleId: string, primaryCategory: string, plat
     }
   })
 
+  // Delete existing categories for this article to handle reclassification
+  await getSupabase().from('article_categories').delete().eq('article_id', articleId)
   const { error } = await getSupabase().from('article_categories').insert(categories)
   if (error) console.error('Error inserting categories:', error)
 }

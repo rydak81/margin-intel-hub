@@ -23,6 +23,10 @@
     {
       "path": "/api/community/pulse",
       "schedule": "0 12 * * *"
+    },
+    {
+      "path": "/api/news/daily-brief",
+      "schedule": "0 12 * * *"
     }
   ],
   "functions": {

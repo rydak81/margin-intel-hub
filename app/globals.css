@@ -170,6 +170,21 @@
     linear-gradient(to bottom, oklch(0.3 0.01 260 / 0.2) 1px, transparent 1px);
 }
 
+/* Article body drop cap for editorial polish */
+.article-body p:first-of-type::first-letter {
+  font-size: 3.5rem;
+  font-weight: 700;
+  float: left;
+  line-height: 1;
+  margin-right: 0.75rem;
+  margin-top: 0.25rem;
+  color: #111827;
+}
+
+.dark .article-body p:first-of-type::first-letter {
+  color: #f3f4f6;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

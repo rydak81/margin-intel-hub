@@ -476,9 +476,13 @@ export default function ArticlePage() {
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">The Signal</span>
                     </div>
-                    <p className="text-base md:text-lg leading-relaxed font-medium">
-                      {article.aiSummary}
-                    </p>
+                    <div className="space-y-3">
+                      {article.aiSummary!.split('\n\n').map((paragraph, i) => (
+                        <p key={i} className="text-base md:text-lg leading-relaxed font-medium">
+                          {paragraph}
+                        </p>
+                      ))}
+                    </div>
                   </div>
                 )}
 
@@ -575,7 +579,7 @@ export default function ArticlePage() {
               </div>
             )}
 
-            <Separator className="my-8" />
+            <div className="border-t border-gray-200 my-8" />
 
             {/* Inline Ad Banners */}
             {articleInlineBanners.map(p => (
@@ -587,24 +591,27 @@ export default function ArticlePage() {
             {/* ========================================================= */}
             {hasRichContent ? (
               <>
-                <div className="flex items-center gap-2 mb-6">
-                  <BookOpen className="h-5 w-5 text-muted-foreground" />
-                  <h2 className="font-bold text-xl">Full Coverage</h2>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2">
+                  <BookOpen className="h-5 w-5" />
+                  Full Coverage
+                </h2>
+                <div className="max-w-2xl mx-auto">
+                  <div
+                    className="article-body prose prose-lg max-w-none dark:prose-invert
+                      prose-headings:font-bold prose-headings:tracking-tight
+                      prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4
+                      prose-h3:text-xl prose-h3:font-semibold prose-h3:mt-8 prose-h3:mb-4
+                      prose-p:text-lg prose-p:leading-relaxed prose-p:mb-6 prose-p:text-gray-700 dark:prose-p:text-gray-300
+                      prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-6
+                      prose-blockquote:italic prose-blockquote:bg-muted/30 prose-blockquote:py-4
+                      prose-blockquote:pr-4 prose-blockquote:rounded-r-lg
+                      prose-ul:my-6 prose-li:my-2
+                      prose-strong:text-foreground
+                      prose-a:text-primary prose-a:no-underline hover:prose-a:underline
+                      prose-img:rounded-lg"
+                    dangerouslySetInnerHTML={{ __html: cleanArticleHTML(article.fullContent || '') }}
+                  />
                 </div>
-                <div
-                  className="prose prose-lg max-w-none dark:prose-invert
-                    prose-headings:font-bold prose-headings:tracking-tight
-                    prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4
-                    prose-p:leading-relaxed prose-p:mb-6
-                    prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-6
-                    prose-blockquote:italic prose-blockquote:bg-muted/30 prose-blockquote:py-4
-                    prose-blockquote:pr-4 prose-blockquote:rounded-r-lg
-                    prose-ul:my-6 prose-li:my-2
-                    prose-strong:text-foreground
-                    prose-a:text-primary prose-a:no-underline hover:prose-a:underline
-                    prose-img:rounded-lg"
-                  dangerouslySetInnerHTML={{ __html: cleanArticleHTML(article.fullContent || '') }}
-                />
               </>
             ) : (
               <div className="space-y-8">
@@ -612,13 +619,19 @@ export default function ArticlePage() {
                     show the summary so users see something useful. */}
                 {!hasAnyInsight && (
                   <div>
-                    <div className="flex items-center gap-2 mb-6">
-                      <BookOpen className="h-5 w-5 text-muted-foreground" />
-                      <h2 className="font-bold text-xl">Summary</h2>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2">
+                      <BookOpen className="h-5 w-5" />
+                      Summary
+                    </h2>
+                    <div className="max-w-2xl mx-auto">
+                      {article.summary.split('\n\n').map((paragraph, i) => (
+                        <p key={i} className={`text-lg leading-relaxed text-gray-700 dark:text-gray-300 mb-6 ${
+                          i === 0 ? 'first-letter:text-5xl first-letter:font-bold first-letter:float-left first-letter:mr-3 first-letter:mt-1 first-letter:text-gray-900 dark:first-letter:text-gray-100' : ''
+                        }`}>
+                          {paragraph}
+                        </p>
+                      ))}
                     </div>
-                    <p className="text-lg leading-relaxed text-foreground">
-                      {article.summary}
-                    </p>
                   </div>
                 )}
 
@@ -626,13 +639,19 @@ export default function ArticlePage() {
                     show it as additional detail. Otherwise skip to avoid duplication. */}
                 {hasAnyInsight && summaryDiffersSignificantly() && (
                   <div>
-                    <div className="flex items-center gap-2 mb-6">
-                      <BookOpen className="h-5 w-5 text-muted-foreground" />
-                      <h2 className="font-bold text-xl">Additional Context</h2>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2">
+                      <BookOpen className="h-5 w-5" />
+                      Additional Context
+                    </h2>
+                    <div className="max-w-2xl mx-auto">
+                      {article.summary.split('\n\n').map((paragraph, i) => (
+                        <p key={i} className={`text-lg leading-relaxed text-gray-700 dark:text-gray-300 mb-6 ${
+                          i === 0 ? 'first-letter:text-5xl first-letter:font-bold first-letter:float-left first-letter:mr-3 first-letter:mt-1 first-letter:text-gray-900 dark:first-letter:text-gray-100' : ''
+                        }`}>
+                          {paragraph}
+                        </p>
+                      ))}
                     </div>
-                    <p className="text-lg leading-relaxed text-foreground">
-                      {article.summary}
-                    </p>
                   </div>
                 )}
               </div>
