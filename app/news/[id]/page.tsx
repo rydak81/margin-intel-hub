@@ -324,8 +324,9 @@ export default function ArticlePage() {
   const hasKeyTakeaways = !!(article.keyTakeaways && article.keyTakeaways.length > 0)
   const hasBottomLine = !!(article.bottomLine && article.bottomLine.length > 10)
   const hasKeyStat = !!(article.keyStat && article.keyStat.length > 2)
+  const hasWhatThisMeans = !!(article.whatThisMeans && article.whatThisMeans.length > 10)
   const hasAudience = !!(article.audience && article.audience.length > 0)
-  const hasAnyInsight = hasAISummary || hasOurTake || hasKeyTakeaways || hasBottomLine || hasKeyStat
+  const hasAnyInsight = hasAISummary || hasOurTake || hasKeyTakeaways || hasBottomLine || hasKeyStat || hasWhatThisMeans
   const formatAudience = (tag: string) => tag.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
 
   // For !hasRichContent branch: check if article.summary differs significantly from aiSummary
@@ -537,6 +538,17 @@ export default function ArticlePage() {
                       <p className="font-bold text-lg">{article.keyStat}</p>
                     </div>
                   )}
+
+              {/* STRATEGIC CONTEXT */}
+              {hasWhatThisMeans && (
+                <div className="bg-background rounded-lg p-5 border mb-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <BarChart3 className="h-4 w-4 text-indigo-500" />
+                    <span className="text-sm font-semibold">Strategic Context</span>
+                  </div>
+                  <p className="text-sm leading-relaxed">{article.whatThisMeans}</p>
+                </div>
+              )}
 
                   {/* Impact Level */}
                   {article.impactLevel && (
