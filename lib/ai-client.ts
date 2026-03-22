@@ -35,9 +35,10 @@ export async function callAI(options: AIRequestOptions): Promise<AIResponse> {
     : 'https://api.anthropic.com'
   const apiKey = useGateway ? gatewayKey : anthropicKey
   // Gateway uses "anthropic/" prefix on model names
+  // Using Sonnet for deeper, operator-level intelligence analysis
   const model = useGateway
-    ? 'anthropic/claude-haiku-4-5-20251001'
-    : 'claude-haiku-4-5-20251001'
+    ? 'anthropic/claude-sonnet-4-6'
+    : 'claude-sonnet-4-6'
 
   if (!apiKey) {
     throw new Error('No AI API key configured. Set AI_GATEWAY_API_KEY or ANTHROPIC_API_KEY.')
@@ -99,3 +100,4 @@ export async function callAIForJSON<T = unknown>(
     )
   }
 }
+
