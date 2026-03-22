@@ -11,9 +11,6 @@ const supabaseAdmin = createClient(
 // Competitor domains to block (especially from Google News feeds)
 const BLOCKED_DOMAINS = [
   'carbon6.io',
-  'helium10.com',
-  'junglescout.com',
-  'sellersessions.com',
   'feedvisor.com',
   'tinuiti.com',
 ]
