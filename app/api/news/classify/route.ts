@@ -87,37 +87,58 @@ function extractKeywords(text: string): Array<{ keyword: string; weight: number 
 
 /**
  * Classify a single article using Claude (via AI Gateway or direct Anthropic)
+ * Enhanced prompt: operator-level intelligence for agencies, sellers, and enterprise brands
  */
 async function classifyArticle(article: any) {
-  const prompt = `You are a senior marketplace intelligence analyst writing for e-commerce sellers, agencies, and brands who operate on Amazon, Walmart, Shopify, eBay, and TikTok Shop.
+  const prompt = `You are the Chief Intelligence Officer at a top-tier Amazon agency that manages $500M+ in annual marketplace revenue across Amazon, Walmart, Shopify, eBay, and TikTok Shop. Your readers are agency owners, 7-8 figure sellers, and brand executives who need to make decisions THIS WEEK based on your analysis.
 
-Analyze this article and provide deep, actionable insights.
+You don't summarize news â you decode what it means for the operator's P&L, catalog strategy, and competitive positioning.
 
-ARTICLE:
+ARTICLE TO ANALYZE:
 Title: ${article.title}
-Summary: ${article.summary}
-${article.full_content ? `Full Content: ${article.full_content.substring(0, 3000)}` : ''}
+Source: ${article.source_name || 'Unknown'}
+Published: ${article.published_at || 'Recent'}
+Summary: ${article.summary || ''}
+${article.full_content ? `Full Content: ${article.full_content.substring(0, 4000)}` : ''}
 
-Provide a JSON response with EXACTLY this structure (no markdown, no code blocks, pure JSON only):
+Respond with ONLY valid JSON (no markdown, no code blocks):
 {
-  "aiSummary": "A 2-4 sentence analyst-grade summary. Start with what happened, then explain WHY it matters to sellers. Include specific numbers, dates, platform names, and fee amounts where available. Do NOT be generic — write like a Bloomberg analyst covering the marketplace economy.",
-  "ourTake": "2-3 sentences of non-obvious insight. What is the second-order effect? What should smart operators do differently because of this? Connect to broader industry trends (tariffs, AI, platform competition, margin compression). Write like an experienced operator giving advice to a peer.",
-  "keyTakeaways": ["Specific, actionable takeaway with concrete details", "Second actionable item mentioning tools, settings, or workflows", "Third item — what to watch for next or how to prepare"],
-  "bottomLine": "A quotable one-liner that captures the essence — designed for LinkedIn sharing",
+  "aiSummary": "3-4 sentences. Lead with the business impact, not what happened. What changed, what's the magnitude, and who gets hit first? Include specific numbers, percentages, dates, and platform names. Write like a Bloomberg terminal alert for marketplace operators.",
+
+  "ourTake": "3-4 sentences of second-order analysis. What's the non-obvious play here? Connect this to at least ONE of: margin compression, platform fee trajectory, supply chain shifts, advertising cost trends, competitive moat erosion, or regulatory risk. What would a $10M/year seller do differently starting Monday morning? Be specific about tactics, not vague about 'monitoring the situation.'",
+
+  "keyTakeaways": [
+    "First action item: Be hyper-specific. Name the tool, setting, report, or workflow to act on. Example format: 'Pull your [specific report] and check [specific metric] â if [threshold], then [specific action].'",
+    "Second action item: What to DO this week â not what to 'consider' or 'monitor.' Name the platform, the metric, the threshold, and the action.",
+    "Third action item: What to prepare for in the next 30-90 days. What's the second domino that falls from this news?"
+  ],
+
+  "bottomLine": "A sharp, quotable one-liner (under 25 words) that an agency owner would screenshot and send to their team Slack. Think: 'If X, then Y â and here's what that costs you.'",
+
+  "whatThisMeans": "2-3 sentences explaining the broader strategic context. How does this fit into the 2026 marketplace landscape? Is this part of a trend toward platform consolidation, margin compression, AI disruption, or regulatory tightening? Connect the dots that a busy operator would miss.",
+
   "category": "one of: breaking, platform_updates, market_metrics, profitability, mergers_acquisitions, tools_technology, advertising, logistics, events, tactics, compliance_policy",
-  "platforms": ["amazon", "walmart", "shopify", "ebay", "tiktok", "target", "etsy"] (only platforms actually mentioned or directly relevant),
-  "audience": ["sellers", "agencies", "brands", "new_sellers", "experts"] (who should care most),
-  "impactLevel": "high if it affects fees/policy/revenue directly, medium if operational, low if informational",
-  "keyStat": "The single most important number or metric from the article, or null if none",
-  "relevanceScore": 0.0-1.0 (1.0 = directly impacts seller operations or revenue, 0.3 = tangentially related to e-commerce),
-  "unsplashQuery": "2-3 word search query for a relevant stock photo (e.g. 'warehouse shipping', 'online shopping', 'data analytics')"
+  "platforms": ["amazon", "walmart", "shopify", "ebay", "tiktok", "target", "etsy"],
+  "audience": ["sellers", "agencies", "brands", "new_sellers", "experts"],
+  "impactLevel": "high if it affects fees/policy/revenue/margins directly, medium if operational, low if informational",
+  "keyStat": "The single most important number from this article. Format as a complete phrase like '$2.3B in Q4 revenue' or '15% fee increase effective April 1' or '3,000 sellers onboarded'. Return null ONLY if the article contains zero quantitative data.",
+  "relevanceScore": 0.0-1.0,
+  "unsplashQuery": "2-3 word photo search query"
 }
 
-IMPORTANT: All string values must be on a single line with no literal newline characters. Use spaces between sentences, not line breaks. Respond with ONLY valid JSON, no other text.`
+QUALITY RULES:
+- Every field must provide UNIQUE value. Do not repeat the same point across aiSummary, ourTake, and keyTakeaways.
+- aiSummary = WHAT happened and its magnitude
+- ourTake = WHY it matters (second-order effects)
+- keyTakeaways = WHAT TO DO about it (specific actions)
+- whatThisMeans = WHERE this fits (strategic context)
+- bottomLine = The HEADLINE (quotable, shareable)
+- All text must be on single lines (no literal newline characters within strings). Use spaces between sentences.
+- Respond with ONLY valid JSON, no other text.`
 
   const { data: parsed, provider, model } = await callAIForJSON<any>({
     prompt,
-    maxTokens: 2048
+    maxTokens: 4096
   })
   console.log(`[Classify] Article classified via ${provider} (${model})`)
 
@@ -126,6 +147,7 @@ IMPORTANT: All string values must be on a single line with no literal newline ch
     ourTake: parsed.ourTake || '',
     keyTakeaways: parsed.keyTakeaways || [],
     bottomLine: parsed.bottomLine || '',
+    whatThisMeans: parsed.whatThisMeans || null,
     category: parsed.category || 'market_metrics',
     platforms: parsed.platforms || [],
     audience: parsed.audience || [],
@@ -232,26 +254,54 @@ export async function POST(request: NextRequest) {
     const authHeader = request.headers.get('authorization')
     const cronSecret = process.env.CRON_SECRET
     if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+      console.warn('[Classify] Auth mismatch â may be a manual trigger without CRON_SECRET')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Fetch unclassified articles (increased from 25 to 50)
-    const { data: unclassified, error: fetchError } = await getSupabase()
+    // Phase 1: Fetch brand-new articles (no ai_summary at all)
+    const { data: brandNew, error: newErr } = await getSupabase()
       .from('articles')
       .select('*')
       .is('ai_summary', null)
-      .limit(50)
+      .limit(25)
       .order('published_at', { ascending: false })
 
-    if (fetchError) throw fetchError
+    if (newErr) throw newErr
+
+    // Phase 2: Fetch articles that have ai_summary but are missing deep insights (our_take)
+    // This catches articles that were only partially processed or have RSS-only summaries
+    const { data: needsEnrichment, error: enrichErr } = await getSupabase()
+      .from('articles')
+      .select('*')
+      .is('our_take', null)
+      .not('ai_summary', 'is', null)
+      .limit(25)
+      .order('published_at', { ascending: false })
+
+    if (enrichErr) throw enrichErr
+
+    const unclassified = [...(brandNew || []), ...(needsEnrichment || [])]
+
+    if (unclassified.length === 0) {
+      console.log('[Classify] No articles found needing classification or enrichment')
+      return NextResponse.json({
+        success: true,
+        message: 'No articles to process',
+        classifiedCount: 0,
+        enrichedCount: 0,
+        totalProcessed: 0
+      })
+    }
+
+    console.log(`[Classify] Found ${brandNew?.length || 0} new + ${needsEnrichment?.length || 0} needing enrichment = ${unclassified.length} total`)
 
     let classifiedCount = 0
     let enrichedCount = 0
     let fixedImageCount = 0
     const errors: any[] = []
 
-    // Process in batches of 10 (increased from 5)
-    const batchSize = 10
+    // Process in batches of 5 (reduced from 10 to stay within Sonnet rate limits)
+    const batchSize = 5
     for (let i = 0; i < unclassified.length; i += batchSize) {
       const batch = unclassified.slice(i, i + batchSize)
       await Promise.all(
@@ -291,13 +341,14 @@ export async function POST(request: NextRequest) {
               key_takeaways: classified.keyTakeaways,
               bottom_line: classified.bottomLine,
               key_stat: classified.keyStat,
+              what_this_means: classified.whatThisMeans,
               summary: cleanSummary
             }
 
             const { error: insightError } = await getSupabase().from('articles').update(insightData).eq('id', article.id)
             if (!insightError) enrichedCount++
 
-            // Insert keywords and categories (may fail due to article_id type mismatch — non-fatal)
+            // Insert keywords and categories (may fail due to article_id type mismatch â non-fatal)
             try {
               await insertKeywords(article.id, keywords)
             } catch (kwErr) {
@@ -311,12 +362,14 @@ export async function POST(request: NextRequest) {
 
             classifiedCount++
           } catch (error) {
-            console.error(`Classification error for article ${article.id}:`, error)
+            console.error(`[Classify] Error for article ${article.id}:`, error instanceof Error ? error.message : String(error))
             errors.push({ articleId: article.id, error: error instanceof Error ? error.message : String(error) })
           }
         })
       )
     }
+
+    console.log(`[Classify] Complete: ${classifiedCount} classified, ${enrichedCount} enriched, ${errors.length} errors`)
 
     return NextResponse.json({
       success: true,
