@@ -509,7 +509,10 @@ export default function HomePage() {
   })()
 
   const featuredArticles = deduplicatedFeed.filter(a => a.featured).slice(0, 3)
-  const regularArticles = deduplicatedFeed.filter(a => !a.featured)
+  // Show ALL articles in the main grid — the old filter(a => !a.featured) was hiding
+  // 95%+ of content because most articles score >= 80 (the "featured" threshold).
+  // Featured articles still get priority placement in the sidebar/hero sections.
+  const regularArticles = deduplicatedFeed
   const trendingArticles = [...articles].sort(() => Math.random() - 0.5).slice(0, 5)
 
   const handleSubscribe = async (e: React.FormEvent) => {
