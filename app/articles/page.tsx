@@ -135,7 +135,7 @@ export default function ArticlesPage() {
             <Link href="/"><ArrowLeft className="h-4 w-4 mr-2" />Back</Link>
           </Button>
           <Link href="/" className="flex items-center gap-2">
-            <Image src="/homepage-logo.svg" alt="MarketplaceBeta logo" width={28} height={28} className="h-7 w-7 rounded-lg object-cover" />
+            <Image src="/icon.svg" alt="MarketplaceBeta logo" width={28} height={28} className="h-7 w-7 rounded-lg object-cover" />
             <span className="font-bold text-lg hidden sm:block">MarketplaceBeta</span>
           </Link>
           <div className="w-32" />
