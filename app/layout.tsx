@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
+import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 
 const geistSans = Geist({ subsets: ["latin"], variable: "--font-sans" });
@@ -30,8 +31,8 @@ export const metadata: Metadata = {
     description: 'The Intelligence Hub for Marketplace Commerce',
   },
   icons: {
-    icon: '/logo.png',
-    apple: '/logo.png',
+    icon: '/homepage-logo.svg',
+    apple: '/homepage-logo.svg',
   },
 }
 
@@ -43,9 +44,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased text-base`}>
-        {children}
-        <Analytics />
-        <SpeedInsights />
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          {children}
+          <Analytics />
+          <SpeedInsights />
+        </ThemeProvider>
       </body>
     </html>
   )

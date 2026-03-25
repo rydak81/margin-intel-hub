@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef, Fragment } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { useTheme } from "next-themes"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -190,6 +191,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 }
 
 export default function HomePage() {
+  const { resolvedTheme, setTheme } = useTheme()
   const topBanners = getActivePlacements('home', 'top-banner')
   const sideBanners = getActivePlacements('home', 'sidebar')
   const inlineBanners = getActivePlacements('home', 'inline')
@@ -200,7 +202,7 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
-  const [isDark, setIsDark] = useState(false)
+  const [themeMounted, setThemeMounted] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [selectedArticle, setSelectedArticle] = useState<NewsArticle | null>(null)
   const [articleModalOpen, setArticleModalOpen] = useState(false)
@@ -251,15 +253,23 @@ export default function HomePage() {
 
   // Debounced full-text search via API
   useEffect(() => {
+    setThemeMounted(true)
+  }, [])
+
+  useEffect(() => {
     if (!searchQuery || searchQuery.length < 2) {
       setSearchResults(null)
+      setSearchLoading(false)
       return
     }
 
+    const controller = new AbortController()
     const timer = setTimeout(async () => {
       setSearchLoading(true)
       try {
-        const res = await fetch(`/api/articles/search?q=${encodeURIComponent(searchQuery)}&limit=30`)
+        const res = await fetch(`/api/articles/search?q=${encodeURIComponent(searchQuery)}&limit=30`, {
+          signal: controller.signal,
+        })
         const data = await res.json()
         if (data.success && data.articles) {
           const mapped: NewsArticle[] = data.articles.map((a: any) => ({
@@ -296,12 +306,21 @@ export default function HomePage() {
           setSearchResults(mapped)
         }
       } catch (err) {
+        if (err instanceof DOMException && err.name === 'AbortError') {
+          return
+        }
         console.error('Search error:', err)
+      } finally {
+        if (!controller.signal.aborted) {
+          setSearchLoading(false)
+        }
       }
-      setSearchLoading(false)
     }, 300) // 300ms debounce
 
-    return () => clearTimeout(timer)
+    return () => {
+      controller.abort()
+      clearTimeout(timer)
+    }
   }, [searchQuery])
 
   const [email, setEmail] = useState("")
@@ -455,14 +474,6 @@ export default function HomePage() {
     return () => clearInterval(interval)
   }, [fetchNews])
 
-  useEffect(() => {
-    if (isDark) {
-      document.documentElement.classList.add("dark")
-    } else {
-      document.documentElement.classList.remove("dark")
-    }
-  }, [isDark])
-
   // Filter articles — use API search results when searching, client-side for category only
   const filteredArticles = (() => {
     // When searching via API, use search results directly
@@ -552,6 +563,8 @@ export default function HomePage() {
     }
   }
 
+  const isDark = resolvedTheme === "dark"
+
   return (
     <div className="min-h-screen bg-background">
       {/* Breaking News Ticker - Live updates */}
@@ -590,7 +603,7 @@ export default function HomePage() {
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2">
               <Image 
-                src="/logo.png"
+                src="/homepage-logo.svg"
                 alt="MarketplaceBeta logo" 
                 width={32} 
                 height={32} 
@@ -680,10 +693,10 @@ export default function HomePage() {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => setIsDark(!isDark)}
+                onClick={() => setTheme(isDark ? "light" : "dark")}
                 className="h-9 w-9"
               >
-                {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                {themeMounted && isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </Button>
               <Button asChild size="sm" className="hidden sm:flex text-sm">
                 <Link href="/newsletter">Subscribe</Link>
@@ -1415,7 +1428,7 @@ export default function HomePage() {
             {/* Brand */}
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <Image src="/logo.png" alt="MarketplaceBeta logo" width={36} height={36} className="h-9 w-9 rounded-lg object-cover" />
+                <Image src="/homepage-logo.svg" alt="MarketplaceBeta logo" width={36} height={36} className="h-9 w-9 rounded-lg object-cover" />
                 <span className="font-bold text-xl">MarketplaceBeta</span>
               </div>
               <p className="text-sm text-muted-foreground mb-4">

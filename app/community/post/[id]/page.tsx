@@ -610,7 +610,7 @@ What's everyone's strategy for dealing with these changes?`,
                 <ArrowLeft className="h-5 w-5" />
               </Button>
               <Link href="/" className="flex items-center gap-2">
-                <Image src="/logo.png" alt="MarketplaceBeta logo" width={36} height={36} className="h-9 w-9 rounded-lg object-cover" />
+                <Image src="/homepage-logo.svg" alt="MarketplaceBeta logo" width={36} height={36} className="h-9 w-9 rounded-lg object-cover" />
                 <span className="font-bold text-xl hidden sm:block">MarketplaceBeta</span>
               </Link>
             </div>
