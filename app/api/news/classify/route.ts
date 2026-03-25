@@ -87,58 +87,54 @@ function extractKeywords(text: string): Array<{ keyword: string; weight: number 
 
 /**
  * Classify a single article using Claude (via AI Gateway or direct Anthropic)
- * Enhanced prompt: operator-level intelligence for agencies, sellers, and enterprise brands
+ * Concise, seller-operator-focused intelligence for marketplace professionals
  */
 async function classifyArticle(article: any) {
-  const prompt = `You are the Chief Intelligence Officer at a top-tier Amazon agency that manages $500M+ in annual marketplace revenue across Amazon, Walmart, Shopify, eBay, and TikTok Shop. Your readers are agency owners, 7-8 figure sellers, and brand executives who need to make decisions THIS WEEK based on your analysis.
+  const prompt = `You are a marketplace intelligence analyst writing for Amazon, Walmart, and Target sellers, agency owners, and brand operators. Be direct and concise. No fluff.
 
-You don't summarize news â you decode what it means for the operator's P&L, catalog strategy, and competitive positioning.
-
-ARTICLE TO ANALYZE:
+ARTICLE:
 Title: ${article.title}
 Source: ${article.source_name || 'Unknown'}
 Published: ${article.published_at || 'Recent'}
 Summary: ${article.summary || ''}
 ${article.full_content ? `Full Content: ${article.full_content.substring(0, 4000)}` : ''}
 
+RELEVANCE FILTER: Rate 0.0-1.0 how relevant this is to someone who sells on Amazon/Walmart/Target, runs an ecommerce agency, or manages marketplace brands. Score below 0.3 if the article is about general retail/tech news with no direct seller impact. Score 0.7+ only if it directly affects seller fees, policies, operations, advertising, or profitability.
+
 Respond with ONLY valid JSON (no markdown, no code blocks):
 {
-  "aiSummary": "3-4 sentences. Lead with the business impact, not what happened. What changed, what's the magnitude, and who gets hit first? Include specific numbers, percentages, dates, and platform names. Write like a Bloomberg terminal alert for marketplace operators.",
+  "aiSummary": "2 sentences MAX. What changed and who it impacts. Lead with the number or policy change, not background. Be specific with dates, percentages, platform names.",
 
-  "ourTake": "3-4 sentences of second-order analysis. What's the non-obvious play here? Connect this to at least ONE of: margin compression, platform fee trajectory, supply chain shifts, advertising cost trends, competitive moat erosion, or regulatory risk. What would a $10M/year seller do differently starting Monday morning? Be specific about tactics, not vague about 'monitoring the situation.'",
+  "ourTake": "2 sentences. The non-obvious second-order effect. What should a seller or agency DO differently? Name the report to pull, the metric to check, or the setting to change.",
 
   "keyTakeaways": [
-    "First action item: Be hyper-specific. Name the tool, setting, report, or workflow to act on. Example format: 'Pull your [specific report] and check [specific metric] â if [threshold], then [specific action].'",
-    "Second action item: What to DO this week â not what to 'consider' or 'monitor.' Name the platform, the metric, the threshold, and the action.",
-    "Third action item: What to prepare for in the next 30-90 days. What's the second domino that falls from this news?"
+    "One specific action: Name the exact tool, report, or setting. Format: 'Do X in Y to avoid Z' or 'Check X -- if above Y, then Z.'",
+    "One preparation step: What to set up or adjust in the next 30 days."
   ],
 
-  "bottomLine": "A sharp, quotable one-liner (under 25 words) that an agency owner would screenshot and send to their team Slack. Think: 'If X, then Y â and here's what that costs you.'",
+  "bottomLine": "Under 20 words. The Slack-worthy headline. Format: 'X means Y for sellers.'",
 
-  "whatThisMeans": "2-3 sentences explaining the broader strategic context. How does this fit into the 2026 marketplace landscape? Is this part of a trend toward platform consolidation, margin compression, AI disruption, or regulatory tightening? Connect the dots that a busy operator would miss.",
+  "whatThisMeans": "1-2 sentences. Where this fits in the bigger picture: platform consolidation, margin compression, AI disruption, regulatory shifts, or competitive dynamics.",
 
   "category": "one of: breaking, platform_updates, market_metrics, profitability, mergers_acquisitions, tools_technology, advertising, logistics, events, tactics, compliance_policy",
-  "platforms": ["amazon", "walmart", "shopify", "ebay", "tiktok", "target", "etsy"],
-  "audience": ["sellers", "agencies", "brands", "new_sellers", "experts"],
-  "impactLevel": "high if it affects fees/policy/revenue/margins directly, medium if operational, low if informational",
-  "keyStat": "The single most important number from this article. Format as a complete phrase like '$2.3B in Q4 revenue' or '15% fee increase effective April 1' or '3,000 sellers onboarded'. Return null ONLY if the article contains zero quantitative data.",
+  "platforms": ["only include platforms directly mentioned or affected: amazon, walmart, shopify, ebay, tiktok, target, etsy"],
+  "audience": ["who benefits most: sellers, agencies, brands, new_sellers, experts"],
+  "impactLevel": "high = directly changes fees/policy/revenue; medium = operational change; low = informational only",
+  "keyStat": "The single most important number as a complete phrase, e.g. '$2.3B in Q4 revenue' or '15% fee increase effective April 1'. null if no quantitative data.",
   "relevanceScore": 0.0-1.0,
   "unsplashQuery": "2-3 word photo search query"
 }
 
-QUALITY RULES:
-- Every field must provide UNIQUE value. Do not repeat the same point across aiSummary, ourTake, and keyTakeaways.
-- aiSummary = WHAT happened and its magnitude
-- ourTake = WHY it matters (second-order effects)
-- keyTakeaways = WHAT TO DO about it (specific actions)
-- whatThisMeans = WHERE this fits (strategic context)
-- bottomLine = The HEADLINE (quotable, shareable)
-- All text must be on single lines (no literal newline characters within strings). Use spaces between sentences.
-- Respond with ONLY valid JSON, no other text.`
+RULES:
+- Be CONCISE. Short sentences. No filler words like 'This development' or 'It is worth noting.'
+- Each field must add UNIQUE value. Never repeat information across fields.
+- aiSummary = WHAT happened. ourTake = WHY it matters. keyTakeaways = WHAT TO DO. bottomLine = HEADLINE.
+- All text on single lines (no newlines within strings).
+- Only valid JSON, no other text.`
 
   const { data: parsed, provider, model } = await callAIForJSON<any>({
     prompt,
-    maxTokens: 4096
+    maxTokens: 2048
   })
   console.log(`[Classify] Article classified via ${provider} (${model})`)
 
@@ -254,7 +250,7 @@ export async function POST(request: NextRequest) {
     const authHeader = request.headers.get('authorization')
     const cronSecret = process.env.CRON_SECRET
     if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-      console.warn('[Classify] Auth mismatch â may be a manual trigger without CRON_SECRET')
+      console.warn('[Classify] Auth mismatch -- may be a manual trigger without CRON_SECRET')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -348,7 +344,7 @@ export async function POST(request: NextRequest) {
             const { error: insightError } = await getSupabase().from('articles').update(insightData).eq('id', article.id)
             if (!insightError) enrichedCount++
 
-            // Insert keywords and categories (may fail due to article_id type mismatch â non-fatal)
+            // Insert keywords and categories (may fail due to article_id type mismatch -- non-fatal)
             try {
               await insertKeywords(article.id, keywords)
             } catch (kwErr) {
