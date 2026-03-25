@@ -603,7 +603,7 @@ export default function HomePage() {
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2">
               <Image 
-                src="/icon.svg"
+                src="/brand-icon.png"
                 alt="MarketplaceBeta logo" 
                 width={32} 
                 height={32} 
@@ -1428,7 +1428,7 @@ export default function HomePage() {
             {/* Brand */}
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <Image src="/icon.svg" alt="MarketplaceBeta logo" width={36} height={36} className="h-9 w-9 rounded-lg object-cover" />
+                <Image src="/brand-icon.png" alt="MarketplaceBeta logo" width={36} height={36} className="h-9 w-9 rounded-lg object-cover" />
                 <span className="font-bold text-xl">MarketplaceBeta</span>
               </div>
               <p className="text-sm text-muted-foreground mb-4">

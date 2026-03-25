@@ -508,7 +508,7 @@ export default function CommunityPage() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
             <Link href="/" className="flex items-center gap-2">
-              <Image src="/icon.svg" alt="MarketplaceBeta logo" width={36} height={36} className="h-9 w-9 rounded-lg object-cover" />
+              <Image src="/brand-icon.png" alt="MarketplaceBeta logo" width={36} height={36} className="h-9 w-9 rounded-lg object-cover" />
               <span className="font-bold text-xl hidden sm:block">MarketplaceBeta</span>
             </Link>
 

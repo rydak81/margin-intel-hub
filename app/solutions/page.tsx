@@ -232,7 +232,7 @@ export default function SolutionsPage() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-14">
             <Link href="/" className="flex items-center gap-2">
-              <Image src="/icon.svg" alt="MarketplaceBeta logo" width={32} height={32} className="h-8 w-8 rounded-lg object-cover" />
+              <Image src="/brand-icon.png" alt="MarketplaceBeta logo" width={32} height={32} className="h-8 w-8 rounded-lg object-cover" />
               <span className="font-bold text-lg hidden sm:block">MarketplaceBeta</span>
             </Link>
 
@@ -546,7 +546,7 @@ export default function SolutionsPage() {
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-2">
-              <Image src="/icon.svg" alt="MarketplaceBeta logo" width={32} height={32} className="h-8 w-8 rounded-lg object-cover" />
+              <Image src="/brand-icon.png" alt="MarketplaceBeta logo" width={32} height={32} className="h-8 w-8 rounded-lg object-cover" />
               <span className="font-bold">MarketplaceBeta</span>
             </div>
             <p className="text-sm text-muted-foreground">

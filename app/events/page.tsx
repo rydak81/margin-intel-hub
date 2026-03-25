@@ -346,7 +346,7 @@ export default function EventsPage() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-2">
-              <Image src="/icon.svg" alt="MarketplaceBeta logo" width={36} height={36} className="h-9 w-9 rounded-lg object-cover" />
+              <Image src="/brand-icon.png" alt="MarketplaceBeta logo" width={36} height={36} className="h-9 w-9 rounded-lg object-cover" />
               <span className="font-bold text-xl hidden sm:block">MarketplaceBeta</span>
             </Link>
             <nav className="hidden md:flex items-center gap-8">
@@ -646,7 +646,7 @@ export default function EventsPage() {
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
-              <Image src="/icon.svg" alt="MarketplaceBeta logo" width={24} height={24} className="h-6 w-6 rounded object-cover" />
+              <Image src="/brand-icon.png" alt="MarketplaceBeta logo" width={24} height={24} className="h-6 w-6 rounded object-cover" />
               <span>MarketplaceBeta</span>
             </div>
             <div className="flex gap-6">

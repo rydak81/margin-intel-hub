@@ -31,8 +31,8 @@ export const metadata: Metadata = {
     description: 'The Intelligence Hub for Marketplace Commerce',
   },
   icons: {
-    icon: '/icon.svg',
-    apple: '/icon.svg',
+    icon: '/brand-icon.png',
+    apple: '/brand-icon.png',
   },
 }
 

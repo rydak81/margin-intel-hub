@@ -77,7 +77,7 @@ export default function ToolsPage() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
             <Link href="/" className="flex items-center gap-2">
-              <Image src="/icon.svg" alt="MarketplaceBeta logo" width={36} height={36} className="h-9 w-9 rounded-lg object-cover" />
+              <Image src="/brand-icon.png" alt="MarketplaceBeta logo" width={36} height={36} className="h-9 w-9 rounded-lg object-cover" />
               <span className="font-bold text-xl hidden sm:block">MarketplaceBeta</span>
             </Link>
 
@@ -285,7 +285,7 @@ export default function ToolsPage() {
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-2">
-              <Image src="/icon.svg" alt="MarketplaceBeta logo" width={24} height={24} className="h-6 w-6 rounded object-cover" />
+              <Image src="/brand-icon.png" alt="MarketplaceBeta logo" width={24} height={24} className="h-6 w-6 rounded object-cover" />
               <span className="text-sm text-muted-foreground">MarketplaceBeta - Seller Tools</span>
             </div>
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
