@@ -24,6 +24,12 @@ export function AdBanner({ sponsor, variant, dismissible = true }: AdBannerProps
       footer: 'relative w-full overflow-hidden rounded-xl mt-8 border bg-card shadow-sm',
       sidebar: '',
     }[variant]
+    const aspectRatioByVariant = {
+      'top-banner': sponsor.bannerAspectRatio || '1773 / 420',
+      inline: sponsor.bannerAspectRatio || '1773 / 420',
+      footer: sponsor.bannerAspectRatio || '1773 / 460',
+      sidebar: sponsor.bannerAspectRatio || '1773 / 420',
+    }[variant]
 
     return (
       <div className={containerClasses}>
@@ -43,13 +49,13 @@ export function AdBanner({ sponsor, variant, dismissible = true }: AdBannerProps
           aria-label={`${sponsor.name} advertisement`}
           className="block"
         >
-          <div className="relative aspect-[1773/886] w-full bg-black">
+          <div className="relative w-full bg-black" style={{ aspectRatio: aspectRatioByVariant }}>
             <Image
               src={sponsor.bannerImageUrl!}
               alt={sponsor.bannerImageAlt || `${sponsor.name} banner`}
               fill
               sizes="(min-width: 1024px) 1200px, 100vw"
-              className="object-cover"
+              className="object-cover object-center"
               priority={variant === 'top-banner'}
             />
           </div>

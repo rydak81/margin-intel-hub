@@ -11,6 +11,7 @@ export interface SponsorConfig {
   logoUrl?: string
   bannerImageUrl?: string
   bannerImageAlt?: string
+  bannerAspectRatio?: string
   backgroundColor: string
   textColor: string
   badge: string // e.g., "Preferred Partner", "Recommended Tool"
@@ -34,6 +35,7 @@ export const SPONSORS: Record<string, SponsorConfig> = {
     logoUrl: '/sponsors/marginpro-logo.png',
     bannerImageUrl: '/sponsors/marginpro-banner.png',
     bannerImageAlt: 'MarginPro banner by Threecolts',
+    bannerAspectRatio: '1773 / 420',
     backgroundColor: '#1a365d',
     textColor: '#ffffff',
     badge: 'Recommended Tool',
@@ -69,6 +71,7 @@ export const SPONSORS: Record<string, SponsorConfig> = {
     logoUrl: '/sponsors/threecolts-logo.png',
     bannerImageUrl: '/sponsors/threecolts-banner.png',
     bannerImageAlt: 'Threecolts banner',
+    bannerAspectRatio: '1773 / 420',
     backgroundColor: '#7c3aed',
     textColor: '#ffffff',
     badge: 'Strategic Partner',
