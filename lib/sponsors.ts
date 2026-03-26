@@ -9,6 +9,8 @@ export interface SponsorConfig {
   ctaText: string
   ctaUrl: string
   logoUrl?: string
+  bannerImageUrl?: string
+  bannerImageAlt?: string
   backgroundColor: string
   textColor: string
   badge: string // e.g., "Preferred Partner", "Recommended Tool"
@@ -28,8 +30,10 @@ export const SPONSORS: Record<string, SponsorConfig> = {
     tagline: 'Stop Guessing Your Amazon Margins',
     description: 'Real-time profit analytics for Amazon sellers. Track fees, COGS, ad spend, and true profitability per SKU.',
     ctaText: 'Try MarginPro Free',
-    ctaUrl: 'https://www.threecolts.com/marginpro?ref=marketplacebeta',
+    ctaUrl: 'https://www.threecolts.com/margin-pro',
     logoUrl: '/sponsors/marginpro-logo.png',
+    bannerImageUrl: '/sponsors/marginpro-banner.png',
+    bannerImageAlt: 'MarginPro banner by Threecolts',
     backgroundColor: '#1a365d',
     textColor: '#ffffff',
     badge: 'Recommended Tool',
@@ -76,7 +80,7 @@ export const AD_PLACEMENTS: AdPlacement[] = [
     id: 'home-top-banner',
     zone: 'top-banner',
     sponsor: SPONSORS.marginpro,
-    active: false,
+    active: true,
     pages: ['home'],
   },
   // Sidebar on homepage
@@ -91,8 +95,8 @@ export const AD_PLACEMENTS: AdPlacement[] = [
   {
     id: 'home-inline',
     zone: 'inline',
-    sponsor: SPONSORS.threecolts,
-    active: false,
+    sponsor: SPONSORS.marginpro,
+    active: true,
     pages: ['home'],
   },
   // Footer banner — all pages
@@ -115,8 +119,8 @@ export const AD_PLACEMENTS: AdPlacement[] = [
   {
     id: 'article-inline',
     zone: 'inline',
-    sponsor: SPONSORS.marketplacepulse,
-    active: false,
+    sponsor: SPONSORS.marginpro,
+    active: true,
     pages: ['article'],
   },
   // CedCommerce — homepage inline (after ~12th article, second inline slot)

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { X } from 'lucide-react'
 import type { SponsorConfig } from '@/lib/sponsors'
 
@@ -12,8 +13,50 @@ interface AdBannerProps {
 
 export function AdBanner({ sponsor, variant, dismissible = true }: AdBannerProps) {
   const [dismissed, setDismissed] = useState(false)
+  const hasCreativeBanner = Boolean(sponsor.bannerImageUrl && variant !== 'sidebar')
 
   if (dismissed) return null
+
+  if (hasCreativeBanner) {
+    const containerClasses = {
+      'top-banner': 'relative w-full overflow-hidden rounded-xl mb-6 border bg-card shadow-sm',
+      inline: 'relative overflow-hidden rounded-xl my-6 border bg-card shadow-sm',
+      footer: 'relative w-full overflow-hidden rounded-xl mt-8 border bg-card shadow-sm',
+      sidebar: '',
+    }[variant]
+
+    return (
+      <div className={containerClasses}>
+        {dismissible && (
+          <button
+            onClick={() => setDismissed(true)}
+            className="absolute top-3 right-3 z-10 rounded-full bg-black/60 p-1.5 text-white/80 transition-colors hover:text-white"
+            aria-label={`Dismiss ${sponsor.name} advertisement`}
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
+        <a
+          href={sponsor.ctaUrl}
+          target="_blank"
+          rel="noopener noreferrer sponsored"
+          aria-label={`${sponsor.name} advertisement`}
+          className="block"
+        >
+          <div className="relative aspect-[1773/886] w-full bg-black">
+            <Image
+              src={sponsor.bannerImageUrl!}
+              alt={sponsor.bannerImageAlt || `${sponsor.name} banner`}
+              fill
+              sizes="(min-width: 1024px) 1200px, 100vw"
+              className="object-cover"
+              priority={variant === 'top-banner'}
+            />
+          </div>
+        </a>
+      </div>
+    )
+  }
 
   // TOP BANNER — full-width bar at the top of the page, clean and minimal
   if (variant === 'top-banner') {
