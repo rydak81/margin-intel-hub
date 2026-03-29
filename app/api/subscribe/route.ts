@@ -1,4 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin"
+import { sendEmail } from "@/lib/email"
+import { generateWelcomeEmail } from "@/lib/email-templates"
 import { NextResponse } from "next/server"
 
 // Email validation regex
@@ -11,8 +13,8 @@ export async function POST(request: Request) {
   try {
     const body = await request.json()
     const { email, firstName, company, role, source = 'website' } = body
-    
-    console.log('[v0] Subscribe API called with:', { email, firstName, company, role, source })
+
+    console.log('[Subscribe] API called with:', { email, firstName, company, role, source })
 
     // Validate email
     if (!email || typeof email !== 'string') {
@@ -50,8 +52,8 @@ export async function POST(request: Request) {
 
     if (existingSubscriber) {
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           error: 'already_subscribed',
           message: "You're already subscribed! Check your inbox for our latest updates."
         },
@@ -73,13 +75,13 @@ export async function POST(request: Request) {
       .single()
 
     if (error) {
-      console.error('[v0] Supabase insert error:', error.message, error.code, error.details)
-      
+      console.error('[Subscribe] Supabase insert error:', error.message, error.code, error.details)
+
       // Handle unique constraint violation (race condition)
       if (error.code === '23505') {
         return NextResponse.json(
-          { 
-            success: false, 
+          {
+            success: false,
             error: 'already_subscribed',
             message: "You're already subscribed! Check your inbox for our latest updates."
           },
@@ -93,8 +95,26 @@ export async function POST(request: Request) {
       )
     }
 
-    console.log('[v0] Successfully subscribed:', data.email)
-    
+    console.log('[Subscribe] Successfully subscribed:', data.email)
+
+    // ── Send welcome email (non-blocking — don't fail the subscription if email fails) ──
+    try {
+      const welcomeResult = await sendEmail({
+        to: trimmedEmail,
+        subject: 'Welcome to MarketplaceBeta — Your Daily Brief starts tomorrow',
+        html: generateWelcomeEmail(firstName?.trim()),
+      })
+
+      if (welcomeResult.success) {
+        console.log('[Subscribe] Welcome email sent to:', trimmedEmail)
+      } else {
+        console.warn('[Subscribe] Welcome email failed:', welcomeResult.error)
+      }
+    } catch (emailError) {
+      // Don't fail the subscription if the welcome email fails
+      console.error('[Subscribe] Welcome email error (non-fatal):', emailError)
+    }
+
     return NextResponse.json({
       success: true,
       message: 'Successfully subscribed to the newsletter!',
