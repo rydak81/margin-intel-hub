@@ -7,6 +7,8 @@ import './globals.css'
 
 const geistSans = Geist({ subsets: ["latin"], variable: "--font-sans" });
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" });
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://marketplacebeta.com'
+const googleSiteVerification = process.env.GOOGLE_SITE_VERIFICATION
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -15,15 +17,20 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: 'MarketplaceBeta | The Intelligence Hub for Marketplace Commerce',
   description: 'Breaking news, platform updates, M&A activity, and actionable insights for Amazon sellers, agencies, SaaS providers, and e-commerce operators — all in one place.',
   generator: 'v0.app',
   keywords: ['e-commerce', 'Amazon FBA', 'marketplace sellers', 'e-commerce news', 'seller tools', 'Amazon news'],
   authors: [{ name: 'MarketplaceBeta' }],
+  verification: googleSiteVerification ? {
+    google: googleSiteVerification,
+  } : undefined,
   openGraph: {
     title: 'MarketplaceBeta | The Intelligence Hub for Marketplace Commerce',
     description: 'Breaking news, platform updates, and actionable insights for marketplace sellers and e-commerce operators.',
     type: 'website',
+    url: siteUrl,
   },
   twitter: {
     card: 'summary_large_image',

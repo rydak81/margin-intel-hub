@@ -12,7 +12,14 @@ import { Separator } from "@/components/ui/separator"
 import { ArticleDetailModal } from "@/components/article-detail-modal"
 import { BackToTop } from "@/components/back-to-top"
 import { getArticleFallbackImage } from "@/lib/article-images"
-import { ArticleGridSkeleton } from "@/components/article-skeleton"
+import {
+  ArticleGridSkeleton,
+  CompactNewsletterSkeleton,
+  FeaturedArticleSkeleton,
+  HeroArticleSkeleton,
+  MarketSnapshotSkeleton,
+  SidebarCardSkeleton,
+} from "@/components/article-skeleton"
 import { AdBanner } from "@/components/AdBanner"
 import { getActivePlacements } from "@/lib/sponsors"
 import {
@@ -96,6 +103,16 @@ interface BreakingNews {
   title: string
   timestamp: string
   urgent: boolean
+}
+
+function createFallbackBreakingNews(): BreakingNews[] {
+  const now = new Date().toISOString()
+
+  return [
+    { id: "1", title: "Amazon announces Q2 FBA fee structure changes effective April 2026", timestamp: now, urgent: true },
+    { id: "2", title: "TikTok Shop US GMV surpasses $10B milestone in Q1", timestamp: now, urgent: true },
+    { id: "3", title: "New tariff regulations impact cross-border sellers starting May 1", timestamp: now, urgent: false },
+  ]
 }
 
 // Category configuration from design brief
@@ -198,7 +215,7 @@ export default function HomePage() {
   const footerBanners = getActivePlacements('home', 'footer')
 
   const [articles, setArticles] = useState<NewsArticle[]>([])
-  const [breakingNews, setBreakingNews] = useState<BreakingNews[]>([])
+  const [breakingNews, setBreakingNews] = useState<BreakingNews[]>(createFallbackBreakingNews)
   const [loading, setLoading] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
@@ -411,11 +428,7 @@ export default function HomePage() {
           }))
         
         // Use fetched breaking news or fallback headlines
-        setBreakingNews(breaking.length > 0 ? breaking : [
-          { id: "1", title: "Amazon announces Q2 FBA fee structure changes effective April 2026", timestamp: new Date().toISOString(), urgent: true },
-          { id: "2", title: "TikTok Shop US GMV surpasses $10B milestone in Q1", timestamp: new Date().toISOString(), urgent: true },
-          { id: "3", title: "New tariff regulations impact cross-border sellers starting May 1", timestamp: new Date().toISOString(), urgent: false },
-        ])
+        setBreakingNews(breaking.length > 0 ? breaking : createFallbackBreakingNews())
       }
     } catch (error) {
       console.error("Failed to fetch AI-powered news:", error)
@@ -524,7 +537,18 @@ export default function HomePage() {
   // 95%+ of content because most articles score >= 80 (the "featured" threshold).
   // Featured articles still get priority placement in the sidebar/hero sections.
   const regularArticles = deduplicatedFeed
-  const trendingArticles = [...articles].sort(() => Math.random() - 0.5).slice(0, 5)
+  const trendingArticles = [...articles]
+    .sort((a, b) => {
+      const priorityA = Number(a.breaking || a.featured)
+      const priorityB = Number(b.breaking || b.featured)
+
+      if (priorityA !== priorityB) {
+        return priorityB - priorityA
+      }
+
+      return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+    })
+    .slice(0, 5)
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -568,29 +592,27 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Breaking News Ticker - Live updates */}
-      {breakingNews.length > 0 && (
-        <div className="bg-primary text-primary-foreground py-2 overflow-hidden">
-          <div className="flex items-center">
-            <div className="flex-shrink-0 px-4 flex items-center gap-2 font-semibold border-r border-primary-foreground/20">
-              <Zap className="h-4 w-4" />
-              <span className="hidden sm:inline">BREAKING</span>
-            </div>
-            <div className="flex-1 overflow-hidden">
-              <div className="animate-ticker flex whitespace-nowrap">
-                {[...breakingNews, ...breakingNews].map((item, i) => (
-                  <span key={`${item.id}-${i}`} className="mx-8 flex items-center gap-2 text-sm">
-                    <span className="font-medium">{item.title}</span>
-                    <span className="text-primary-foreground/70">
-                      {formatTimeAgo(item.timestamp)}
-                    </span>
-                    <span className="text-primary-foreground/40">|</span>
+      <div className="bg-primary text-primary-foreground py-2 overflow-hidden">
+        <div className="flex items-center">
+          <div className="flex-shrink-0 px-4 flex items-center gap-2 font-semibold border-r border-primary-foreground/20">
+            <Zap className="h-4 w-4" />
+            <span className="hidden sm:inline">BREAKING</span>
+          </div>
+          <div className="flex-1 overflow-hidden">
+            <div className="animate-ticker flex whitespace-nowrap">
+              {[...breakingNews, ...breakingNews].map((item, i) => (
+                <span key={`${item.id}-${i}`} className="mx-8 flex items-center gap-2 text-sm">
+                  <span className="font-medium">{item.title}</span>
+                  <span className="text-primary-foreground/70">
+                    {formatTimeAgo(item.timestamp)}
                   </span>
-                ))}
-              </div>
+                  <span className="text-primary-foreground/40">|</span>
+                </span>
+              ))}
             </div>
           </div>
         </div>
-      )}
+      </div>
 
       {/* Navigation */}
       <header className={`sticky top-0 z-50 transition-all duration-300 border-b ${
@@ -802,6 +824,12 @@ export default function HomePage() {
         ))}
 
         {/* Hero Featured Article - Full Width (outside flex layout) */}
+        {loading && selectedCategory === "all" && (
+          <div className="mb-8">
+            <FeaturedArticleSkeleton />
+          </div>
+        )}
+
         {!loading && featuredArticles.length > 0 && selectedCategory === "all" && (
           <div className="mb-8">
             <div 
@@ -872,6 +900,8 @@ export default function HomePage() {
             {/* Clean section header */}
 
             {/* Hero Article Section - Top Story */}
+            {loading && !searchQuery && <HeroArticleSkeleton />}
+
             {!loading && heroArticle && !searchQuery && (
               <section className="mb-6">
                 <div className="flex items-center gap-2 mb-3">
@@ -968,6 +998,8 @@ export default function HomePage() {
             )}
 
             {/* Compact Newsletter CTA */}
+            {loading && <CompactNewsletterSkeleton />}
+
             {!loading && filteredArticles.length > 3 && (
               <div className="flex items-center gap-4 p-4 rounded-lg bg-primary/10 border border-primary/20 mb-6">
                 <Mail className="h-5 w-5 text-primary flex-shrink-0" />
@@ -1259,7 +1291,17 @@ export default function HomePage() {
               <AdBanner key={p.id} sponsor={p.sponsor} variant="sidebar" />
             ))}
 
+            {loading && (
+              <>
+                <SidebarCardSkeleton rows={5} />
+                <SidebarCardSkeleton rows={3} />
+                <MarketSnapshotSkeleton />
+                <SidebarCardSkeleton rows={2} />
+              </>
+            )}
+
             {/* Trending This Week */}
+            {!loading && (
             <Card className="border-0 shadow-sm">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
@@ -1285,8 +1327,10 @@ export default function HomePage() {
                 ))}
               </CardContent>
             </Card>
+            )}
 
             {/* Upcoming Events */}
+            {!loading && (
             <Card className="border-0 shadow-sm">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
@@ -1322,8 +1366,10 @@ export default function HomePage() {
                 </Button>
               </CardContent>
             </Card>
+            )}
 
             {/* Marketplace Metrics */}
+            {!loading && (
             <Card className="border-0 shadow-sm">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
@@ -1361,8 +1407,10 @@ export default function HomePage() {
                 </div>
               </CardContent>
             </Card>
+            )}
 
             {/* Newsletter Signup - Sticky */}
+            {!loading && (
             <Card className="border-0 shadow-sm bg-primary text-primary-foreground sticky top-32">
               <CardContent className="p-5">
                 <Mail className="h-8 w-8 mb-3" />
@@ -1384,8 +1432,10 @@ export default function HomePage() {
                 </form>
               </CardContent>
             </Card>
+            )}
 
             {/* Quick Tools Access */}
+            {!loading && (
             <Card className="border-0 shadow-sm">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
@@ -1409,6 +1459,7 @@ export default function HomePage() {
                 ))}
               </CardContent>
             </Card>
+            )}
 
             {/* Solutions CTA - Coming Soon */}
           </aside>
