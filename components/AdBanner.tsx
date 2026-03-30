@@ -7,6 +7,7 @@ import { ArrowRight, CheckCircle2, X } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { SponsorLogo } from '@/components/SponsorLogo'
 import { getModuleTypeLabel, type SponsorConfig, type SponsorZone } from '@/lib/sponsors'
 
 interface AdBannerProps {
@@ -139,11 +140,12 @@ export function AdBanner({ sponsor, variant, dismissible = false }: AdBannerProp
               <div className="relative z-[1] space-y-5">
                 <SponsorHeader sponsor={sponsor} />
                 <div className="flex items-center gap-3">
-                  {sponsor.logoUrl && (
-                    <div className="relative h-11 w-11 overflow-hidden rounded-xl border bg-white shadow-sm">
-                      <Image src={sponsor.logoUrl} alt={sponsor.name} fill className="object-contain p-2" sizes="44px" />
-                    </div>
-                  )}
+                  <SponsorLogo
+                    name={sponsor.name}
+                    logoUrl={sponsor.logoUrl}
+                    sizes="44px"
+                    className="h-11 w-11 rounded-xl shadow-sm"
+                  />
                   <div>
                     <p className="text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">{sponsor.badge}</p>
                     <p className="text-sm font-medium text-foreground/80">{sponsor.trustLabel}</p>
@@ -188,11 +190,12 @@ export function AdBanner({ sponsor, variant, dismissible = false }: AdBannerProp
           <div className="space-y-4 p-5 md:p-6">
             <SponsorHeader sponsor={sponsor} />
             <div className="flex items-center gap-3">
-              {sponsor.logoUrl && (
-                <div className="relative h-10 w-10 overflow-hidden rounded-lg border bg-white">
-                  <Image src={sponsor.logoUrl} alt={sponsor.name} fill className="object-contain p-2" sizes="40px" />
-                </div>
-              )}
+              <SponsorLogo
+                name={sponsor.name}
+                logoUrl={sponsor.logoUrl}
+                sizes="40px"
+                className="h-10 w-10"
+              />
               <div>
                 <p className="text-sm font-semibold">{sponsor.name}</p>
                 <p className="text-xs text-muted-foreground">{sponsor.badge}</p>
@@ -233,11 +236,12 @@ export function AdBanner({ sponsor, variant, dismissible = false }: AdBannerProp
         <CardContent className="space-y-4 p-4">
           <SponsorHeader sponsor={sponsor} />
           <div className="flex items-center gap-3">
-            {sponsor.logoUrl && (
-              <div className="relative h-10 w-10 overflow-hidden rounded-lg border bg-white">
-                <Image src={sponsor.logoUrl} alt={sponsor.name} fill className="object-contain p-2" sizes="40px" />
-              </div>
-            )}
+            <SponsorLogo
+              name={sponsor.name}
+              logoUrl={sponsor.logoUrl}
+              sizes="40px"
+              className="h-10 w-10"
+            />
             <div>
               <h4 className="text-sm font-bold">{sponsor.name}</h4>
               <p className="text-xs text-muted-foreground">{sponsor.partnerType}</p>
@@ -275,11 +279,12 @@ export function AdBanner({ sponsor, variant, dismissible = false }: AdBannerProp
       <DismissButton dismissible={dismissible} sponsor={sponsor} onDismiss={() => setDismissed(true)} />
       <CardContent className="flex flex-col gap-4 p-5 lg:flex-row lg:items-center">
         <div className="flex items-center gap-3">
-          {sponsor.logoUrl && (
-            <div className="relative h-10 w-10 overflow-hidden rounded-lg border bg-white">
-              <Image src={sponsor.logoUrl} alt={sponsor.name} fill className="object-contain p-2" sizes="40px" />
-            </div>
-          )}
+          <SponsorLogo
+            name={sponsor.name}
+            logoUrl={sponsor.logoUrl}
+            sizes="40px"
+            className="h-10 w-10"
+          />
           <div>
             <p className="text-sm font-semibold">{sponsor.name}</p>
             <p className="text-xs text-muted-foreground">{getModuleTypeLabel(sponsor.moduleType)} · {sponsor.trustLabel}</p>

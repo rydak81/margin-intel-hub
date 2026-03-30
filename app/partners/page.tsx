@@ -1,6 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { ArrowRight, Building2, CheckCircle2, Handshake, Layers3, Target, Users } from "lucide-react"
+import { SponsorLogo } from "@/components/SponsorLogo"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -148,11 +149,20 @@ export default function PartnersPage() {
                       <Badge variant="secondary">{sponsor.badge}</Badge>
                       <Badge variant="outline">{sponsor.partnerType}</Badge>
                     </div>
-                    <div>
+                    <div className="flex items-center gap-3">
+                      <SponsorLogo
+                        name={sponsor.name}
+                        logoUrl={sponsor.logoUrl}
+                        sizes="56px"
+                        className="h-14 w-14 rounded-xl"
+                        fallbackClassName="text-sm"
+                      />
                       <CardHeader className="p-0">
                         <CardTitle className="text-2xl">{sponsor.name}</CardTitle>
                       </CardHeader>
-                      <p className="mt-2 text-lg font-semibold text-balance">{sponsor.tagline}</p>
+                    </div>
+                    <div>
+                      <p className="text-lg font-semibold text-balance">{sponsor.tagline}</p>
                       <p className="mt-3 text-sm leading-7 text-muted-foreground">{sponsor.description}</p>
                     </div>
                     <div className="grid gap-3">

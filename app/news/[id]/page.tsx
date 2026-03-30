@@ -1,79 +1,37 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import DOMPurify from "isomorphic-dompurify"
 import Image from "next/image"
 import Link from "next/link"
-import { useParams } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { getArticleFallbackImage } from "@/lib/article-images"
-import { AdBanner } from "@/components/AdBanner"
-import { getActivePlacements } from "@/lib/sponsors"
+import { notFound } from "next/navigation"
 import {
   ArrowLeft,
-  Clock,
+  ArrowRight,
+  BookOpen,
   Calendar,
-  Share2,
-  Bookmark,
+  ChevronRight,
+  Clock,
   ExternalLink,
   Globe,
-  TrendingUp,
-  Loader2,
-  Twitter,
-  Linkedin,
-  Facebook,
-  Link2,
-  Sparkles,
-  AlertTriangle,
-  Target,
-  Users,
-  BarChart3,
-  ArrowRight,
   Mail,
-  ChevronRight,
-  Zap,
-  BookOpen,
-  Lightbulb,
+  Sparkles,
+  Target,
+  TrendingUp,
+  Users,
 } from "lucide-react"
-
-interface Article {
-  id: string
-  title: string
-  summary: string
-  fullContent?: string
-  aiSummary?: string
-  ourTake?: string
-  whatThisMeans?: string
-  keyTakeaways?: string[]
-  relatedContext?: string
-  bottomLine?: string
-  category: string
-  sourceName: string
-  sourceUrl: string
-  publishedAt: string
-  imageUrl?: string
-  hasRealImage?: boolean
-  platforms?: string[]
-  isBreaking?: boolean
-  relevanceScore?: number
-  audience?: string[]
-  impactLevel?: 'high' | 'medium' | 'low'
-  impactDetail?: string
-  actionItem?: string
-  keyStat?: string | null
-  tier?: number
-}
+import { AdBanner } from "@/components/AdBanner"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
+import { getArticleFallbackImage, getArticleImageUrl } from "@/lib/article-images"
+import type { ClassifiedArticle } from "@/lib/ai-classifier"
+import { getArticleById, getRelatedArticles } from "@/lib/article-store"
+import { getActivePlacements } from "@/lib/sponsors"
 
 function formatDate(dateString: string): string {
-  const date = new Date(dateString)
-  return date.toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
+  return new Date(dateString).toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   })
 }
 
@@ -88,702 +46,272 @@ function formatTimeAgo(dateString: string): string {
   return `${Math.floor(diffInHours / 24)}d ago`
 }
 
+function formatCategoryLabel(category: string): string {
+  return category.replace(/[_-]/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())
+}
+
+function formatAudience(tag: string): string {
+  return tag.replace(/[_-]/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())
+}
+
 function getReadTime(content: string): number {
   const wordCount = content.split(/\s+/).length
   return Math.max(2, Math.ceil(wordCount / 200))
 }
 
-const CATEGORY_COLORS: Record<string, string> = {
-  // Primary categories (current classify route output)
-  breaking: 'bg-red-500',
-  platform_updates: 'bg-blue-500',
-  market_metrics: 'bg-teal-500',
-  profitability: 'bg-emerald-500',
-  mergers_acquisitions: 'bg-purple-500',
-  tools_technology: 'bg-cyan-500',
-  advertising: 'bg-orange-500',
-  logistics: 'bg-slate-500',
-  events: 'bg-pink-500',
-  tactics: 'bg-yellow-600',
-  compliance_policy: 'bg-violet-500',
-  // Legacy / alternate categories (from older classify runs)
-  seller_tools: 'bg-cyan-500',
-  market_trends: 'bg-teal-500',
-  consumer_trends: 'bg-teal-600',
-  policy_regulatory: 'bg-violet-500',
-  logistics_supply_chain: 'bg-slate-500',
-  advertising_marketing: 'bg-orange-500',
-  ai_technology: 'bg-cyan-600',
-  international: 'bg-sky-500',
-  ma_deal_flow: 'bg-purple-500',
-  seller_profitability: 'bg-emerald-500',
-  // Source-level categories
-  ecommerce: 'bg-blue-500',
-  amazon: 'bg-blue-600',
-  industry: 'bg-teal-500',
+function stripHtml(html: string | undefined): string {
+  if (!html) return ""
+  return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim()
 }
 
-function formatCategoryLabel(category: string): string {
-  return category
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, c => c.toUpperCase())
+function paragraphize(content: string | undefined): string[] {
+  const plainText = stripHtml(content)
+  if (!plainText) return []
+
+  return plainText
+    .split(/\s{2,}|\n+/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean)
 }
 
-/**
- * Clean and format article HTML content for safe rendering.
- */
-function cleanArticleHTML(html: string): string {
-  if (!html) return ''
-  return DOMPurify.sanitize(html, {
-    ALLOWED_TAGS: [
-      'p', 'br', 'strong', 'b', 'em', 'i', 'a', 'ul', 'ol', 'li',
-      'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'img',
-      'figure', 'figcaption', 'table', 'thead', 'tbody', 'tr', 'th', 'td',
-      'pre', 'code', 'span', 'div', 'section', 'article', 'aside',
-      'details', 'summary', 'mark', 'small', 'sub', 'sup', 'hr'
-    ],
-    ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class', 'id', 'width', 'height', 'target', 'rel'],
-    ALLOW_DATA_ATTR: false,
-  })
+function resolveArticleImage(article: Pick<ClassifiedArticle, "imageUrl" | "title" | "category" | "platforms" | "fullContent">): string {
+  return getArticleImageUrl(
+    article.imageUrl,
+    article.title,
+    article.category,
+    article.platforms || [],
+    article.fullContent
+  )
 }
 
-/**
- * Strip HTML tags to get plain text length.
- */
-function getPlainTextLength(html: string): number {
-  if (!html) return 0
-  return html.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().length
-}
-
-/**
- * Calculate similarity between two strings (percentage).
- * Simple length-based heuristic: if one string is significantly shorter, they differ.
- */
-function calculateStringSimilarity(str1: string, str2: string): number {
-  if (!str1 || !str2) return 0
-  const len1 = str1.length
-  const len2 = str2.length
-  const minLen = Math.min(len1, len2)
-  const maxLen = Math.max(len1, len2)
-  return maxLen === 0 ? 1 : minLen / maxLen
-}
-
-export default function ArticlePage() {
-  const params = useParams()
-  const articleId = Array.isArray(params.id) ? params.id[0] : params.id
-  const [article, setArticle] = useState<Article | null>(null)
-  const [relatedArticles, setRelatedArticles] = useState<Article[]>([])
-  const [loading, setLoading] = useState(true)
-  const [copied, setCopied] = useState(false)
-  const [linkedinPost, setLinkedinPost] = useState<string | null>(null)
-  const [generatingPost, setGeneratingPost] = useState(false)
-
-  useEffect(() => {
-    const fetchArticle = async () => {
-      setLoading(true)
-
-      try {
-        // Try dedicated article detail endpoint first
-        try {
-          const detailResponse = await fetch(`/api/articles/${articleId}`)
-          const detailData = await detailResponse.json()
-
-          if (detailData.success && detailData.article) {
-            setArticle(detailData.article)
-            if (detailData.relatedArticles) {
-              setRelatedArticles(detailData.relatedArticles)
-            }
-            setLoading(false)
-            return
-          }
-        } catch (e) {
-          console.error("Failed to fetch from /api/articles/[id]:", e)
-        }
-
-        // Fallback: search in the main articles list
-        let foundArticle = null
-        let allArticles: Article[] = []
-
-        try {
-          const articlesResponse = await fetch('/api/articles?limit=100')
-          const articlesData = await articlesResponse.json()
-
-          if (articlesData.success && articlesData.articles) {
-            allArticles = articlesData.articles
-            foundArticle = articlesData.articles.find((a: Article) => a.id === articleId)
-          }
-        } catch (e) {
-          console.error("Failed to fetch from /api/articles:", e)
-        }
-
-        if (foundArticle) {
-          setArticle(foundArticle)
-          const related = allArticles
-            .filter((a: Article) => a.id !== articleId && a.category === foundArticle.category)
-            .slice(0, 4)
-          setRelatedArticles(related)
-        }
-      } catch (error) {
-        console.error("Failed to fetch article:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    if (articleId) {
-      fetchArticle()
-    }
-  }, [articleId])
-
-  const generateLinkedInPost = async () => {
-    if (!article) return
-    setGeneratingPost(true)
-    try {
-      const response = await fetch('/api/linkedin/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: article.title,
-          aiSummary: article.aiSummary,
-          ourTake: article.ourTake,
-          keyTakeaways: article.keyTakeaways,
-          bottomLine: article.bottomLine,
-          keyStat: article.keyStat,
-          category: article.category,
-          platforms: article.platforms,
-          articleUrl: `https://marketplacebeta.com/news/${article.id}`
-        })
-      })
-      const data = await response.json()
-      setLinkedinPost(data.post)
-    } catch (error) {
-      console.error('Failed to generate LinkedIn post:', error)
-    } finally {
-      setGeneratingPost(false)
-    }
-  }
-
-  const articleSideBanners = getActivePlacements('article', 'sidebar')
-  const articleInlineBanners = getActivePlacements('article', 'inline')
-  const articleFooterBanners = getActivePlacements('article', 'footer')
-
-  const handleShare = async (platform: string) => {
-    const url = window.location.href
-    const title = article?.title || ""
-
-    switch (platform) {
-      case "twitter":
-        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`, "_blank")
-        break
-      case "linkedin":
-        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, "_blank")
-        break
-      case "facebook":
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, "_blank")
-        break
-      case "copy":
-        await navigator.clipboard.writeText(url)
-        setCopied(true)
-        setTimeout(() => setCopied(false), 2000)
-        break
-    }
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-muted-foreground">Loading article...</p>
-        </div>
-      </div>
-    )
-  }
+export default async function ArticlePage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
+  const { id } = await params
+  const article = await getArticleById(id)
 
   if (!article) {
-    return (
-      <div className="min-h-screen bg-background">
-        <div className="max-w-4xl mx-auto px-4 py-16 text-center">
-          <h1 className="text-2xl font-bold mb-4">Article Not Found</h1>
-          <p className="text-muted-foreground mb-8">The article you&apos;re looking for doesn&apos;t exist or has been removed.</p>
-          <Button asChild>
-            <Link href="/">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Home
-            </Link>
-          </Button>
-        </div>
-      </div>
-    )
+    notFound()
   }
 
-  const allContent = [article.fullContent, article.aiSummary, article.summary].filter(Boolean).join(' ')
-  const readTime = getReadTime(allContent)
-  const hasRichContent = getPlainTextLength(article.fullContent || '') > 300
-  const hasAISummary = !!(article.aiSummary && article.aiSummary.length > 10 && article.aiSummary !== article.summary)
-  const hasOurTake = !!(article.ourTake && article.ourTake.length > 10)
-  const hasKeyTakeaways = !!(article.keyTakeaways && article.keyTakeaways.length > 0)
-  const hasBottomLine = !!(article.bottomLine && article.bottomLine.length > 10)
-  const hasKeyStat = !!(article.keyStat && article.keyStat.length > 2)
-  const hasWhatThisMeans = !!(article.whatThisMeans && article.whatThisMeans.length > 10)
-  const hasAudience = !!(article.audience && article.audience.length > 0)
-  const hasAnyInsight = hasAISummary || hasOurTake || hasKeyTakeaways || hasBottomLine || hasKeyStat || hasWhatThisMeans
-  const formatAudience = (tag: string) => tag.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
-
-  // For !hasRichContent branch: check if article.summary differs significantly from aiSummary
-  const summaryDiffersSignificantly = () => {
-    if (!hasAISummary || !article.summary) return false
-    const similarity = calculateStringSimilarity(article.summary, article.aiSummary!)
-    return similarity < 0.5 // length difference > 50%
-  }
+  const relatedArticles = await getRelatedArticles(id, article.category, 4)
+  const articleImage = resolveArticleImage(article)
+  const contentText = stripHtml(article.fullContent || article.summary || article.aiSummary || "")
+  const paragraphs = paragraphize(article.fullContent || article.summary || article.aiSummary)
+  const readTime = getReadTime(contentText)
+  const articleSideBanners = getActivePlacements("article", "sidebar", {
+    topic: article.category,
+    audiences: article.audience || [],
+  })
+  const articleInlineBanners = getActivePlacements("article", "inline", {
+    topic: article.category,
+    audiences: article.audience || [],
+  })
+  const articleFooterBanners = getActivePlacements("article", "footer", {
+    topic: article.category,
+    audiences: article.audience || [],
+  })
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back
-              </Link>
-            </Button>
-            <Separator orientation="vertical" className="h-6" />
-            <Link href="/" className="flex items-center gap-2">
-              <Image src="/brand-icon.png" alt="MarketplaceBeta logo" width={28} height={28} className="h-7 w-7 rounded-lg object-cover" />
-              <span className="font-bold text-lg hidden sm:block">MarketplaceBeta</span>
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back
             </Link>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <Bookmark className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleShare("copy")}>
-              {copied ? <Link2 className="h-4 w-4 text-green-500" /> : <Share2 className="h-4 w-4" />}
-            </Button>
-          </div>
+          </Button>
+          <Link href="/" className="flex items-center gap-2">
+            <Image src="/brand-icon.png" alt="MarketplaceBeta logo" width={28} height={28} className="h-7 w-7 rounded-lg object-cover" />
+            <span className="font-bold text-lg hidden sm:block">MarketplaceBeta</span>
+          </Link>
+          <div className="w-24 sm:w-32" />
         </div>
       </header>
 
-      {/* Hero Image */}
-      {article.imageUrl && (
-        <div className="relative w-full aspect-[21/9] md:aspect-[3/1] max-h-[450px]">
-          <Image
-            src={article.imageUrl}
-            alt={article.title}
-            fill
-            className="object-cover"
-            priority
-            onError={(e) => {
-              const target = e.currentTarget as HTMLImageElement
-              const fallback = getArticleFallbackImage(
-                article.title,
-                article.category,
-                article.platforms || []
-              )
-              if (target.src !== fallback) {
-                target.src = fallback
-              }
-            }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
-        </div>
-      )}
-
-      {/* Article Content */}
       <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-3 gap-12">
-          {/* Main Content */}
-          <article className="lg:col-span-2">
-            {/* Article Header */}
-            <header className="mb-8">
-              <div className="flex flex-wrap items-center gap-2 mb-4">
-                <Badge className={`${CATEGORY_COLORS[article.category] || 'bg-primary'} text-white border-0`}>
-                  {formatCategoryLabel(article.category)}
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <article className="min-w-0">
+            <div className="mb-6 flex flex-wrap items-center gap-3">
+              <Badge>{formatCategoryLabel(article.category)}</Badge>
+              <span className="inline-flex items-center gap-1 text-sm text-muted-foreground">
+                <Calendar className="h-4 w-4" />
+                {formatDate(article.publishedAt)}
+              </span>
+              <span className="inline-flex items-center gap-1 text-sm text-muted-foreground">
+                <Clock className="h-4 w-4" />
+                {readTime} min read
+              </span>
+            </div>
+
+            <h1 className="text-balance text-3xl font-bold tracking-tight md:text-5xl">{article.title}</h1>
+
+            <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+              <span className="inline-flex items-center gap-1">
+                <Globe className="h-4 w-4" />
+                {article.sourceName}
+              </span>
+              <span>{formatTimeAgo(article.publishedAt)}</span>
+              {article.platforms?.slice(0, 3).map((platform) => (
+                <Badge key={platform} variant="outline" className="capitalize">
+                  {platform.replace(/_/g, " ")}
                 </Badge>
-                {article.isBreaking && (
-                  <Badge className="bg-red-500 text-white border-0">Breaking</Badge>
-                )}
-                {article.impactLevel && (
-                  <Badge
-                    variant="outline"
-                    className={`${
-                      article.impactLevel === 'high'
-                        ? 'border-red-500/50 text-red-600 bg-red-500/10'
-                        : article.impactLevel === 'medium'
-                        ? 'border-amber-500/50 text-amber-600 bg-amber-500/10'
-                        : 'border-green-500/50 text-green-600 bg-green-500/10'
-                    }`}
-                  >
-                    <span className={`mr-1 ${
-                      article.impactLevel === 'high' ? 'text-red-500'
-                      : article.impactLevel === 'medium' ? 'text-amber-500'
-                      : 'text-green-500'
-                    }`}>&#9679;</span>
-                    {article.impactLevel.charAt(0).toUpperCase() + article.impactLevel.slice(1)} Impact
-                  </Badge>
-                )}
-                {article.platforms?.map((platform) => (
-                  <Badge key={platform} variant="outline" className="text-xs capitalize">
-                    {platform.replace(/_/g, ' ')}
-                  </Badge>
-                ))}
-              </div>
+              ))}
+            </div>
 
-              <h1 className="text-3xl md:text-4xl font-bold mb-6 text-balance leading-tight">
-                {article.title}
-              </h1>
+            <div className="relative mt-8 aspect-[16/9] overflow-hidden rounded-2xl border bg-muted">
+              <Image
+                src={articleImage}
+                alt={article.title}
+                fill
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 960px"
+                priority
+              />
+            </div>
 
-              <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                <span className="flex items-center gap-1.5">
-                  <Globe className="h-4 w-4" />
-                  {article.sourceName}
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <Calendar className="h-4 w-4" />
-                  {formatDate(article.publishedAt)}
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <Clock className="h-4 w-4" />
-                  {readTime} min read
-                </span>
-                {hasAnyInsight && (
-                  <Badge variant="outline" className="border-primary/30 text-primary bg-primary/5">
-                    <Sparkles className="h-3 w-3 mr-1" />
-                    AI Enhanced
-                  </Badge>
-                )}
-              </div>
-            </header>
-
-            {/* ========================================================= */}
-            {/* AI INTELLIGENCE BRIEF — The star of the page               */}
-            {/* ========================================================= */}
-            {hasAnyInsight && (
-              <div className="bg-primary/5 rounded-xl p-6 md:p-8 mb-8 border border-primary/20">
-                <div className="flex items-center gap-2 mb-5">
-                  <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Sparkles className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <h2 className="font-bold text-lg text-primary">AI Intelligence Brief</h2>
-                    <p className="text-xs text-muted-foreground">Automated analysis by MarketplaceBeta</p>
-                  </div>
-                </div>
-
-                {/* THE SIGNAL — ai_summary */}
-                {hasAISummary && (
-                  <div className="mb-6">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">The Signal</span>
+            <div className="mt-8 grid gap-4 md:grid-cols-2">
+              {article.aiSummary ? (
+                <Card className="border-0 shadow-sm">
+                  <CardContent className="p-5">
+                    <div className="mb-3 flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-semibold uppercase tracking-[0.16em] text-primary">AI Summary</span>
                     </div>
-                    <div className="space-y-3">
-                      {article.aiSummary!.split('\n\n').map((paragraph, i) => (
-                        <p key={i} className="text-base md:text-lg leading-relaxed font-medium">
-                          {paragraph}
-                        </p>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* THE OPERATOR'S EDGE — our_take */}
-                {hasOurTake && (
-                  <div className="bg-background rounded-lg p-5 border mb-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Lightbulb className="h-4 w-4 text-amber-500" />
-                      <span className="text-sm font-semibold">The Operator&apos;s Edge</span>
-                    </div>
-                    <p className="text-sm leading-relaxed">{article.ourTake}</p>
-                  </div>
-                )}
-
-                {/* MOVES TO MAKE — key_takeaways */}
-                {hasKeyTakeaways && (
-                  <div className="bg-background rounded-lg p-5 border mb-4">
-                    <div className="flex items-center gap-2 mb-3">
+                    <p className="text-sm leading-7 text-muted-foreground">{article.aiSummary}</p>
+                  </CardContent>
+                </Card>
+              ) : null}
+              {article.whatThisMeans ? (
+                <Card className="border-0 shadow-sm">
+                  <CardContent className="p-5">
+                    <div className="mb-3 flex items-center gap-2">
                       <Target className="h-4 w-4 text-primary" />
-                      <span className="text-sm font-semibold">Moves to Make</span>
+                      <span className="text-sm font-semibold uppercase tracking-[0.16em] text-primary">What This Means</span>
                     </div>
-                    <ul className="space-y-2">
-                      {article.keyTakeaways!.map((point, i) => (
-                        <li key={i} className="flex items-start gap-2 text-sm">
-                          <ChevronRight className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
-                          <span>{point}</span>
-                        </li>
-                      ))}
-                    </ul>
+                    <p className="text-sm leading-7 text-muted-foreground">{article.whatThisMeans}</p>
+                  </CardContent>
+                </Card>
+              ) : null}
+            </div>
+
+            {article.ourTake ? (
+              <Card className="mt-6 border-0 shadow-sm bg-primary/[0.04]">
+                <CardContent className="p-6">
+                  <div className="mb-3 flex items-center gap-2">
+                    <TrendingUp className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-semibold uppercase tracking-[0.16em] text-primary">Operator Take</span>
                   </div>
-                )}
+                  <p className="text-base leading-8 text-foreground/90">{article.ourTake}</p>
+                </CardContent>
+              </Card>
+            ) : null}
 
-                {/* THE BOTTOM LINE — quotable one-liner */}
-                {hasBottomLine && (
-                  <div className="border-l-4 border-primary pl-5 py-3 mb-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Zap className="h-4 w-4 text-primary" />
-                      <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">The Bottom Line</span>
-                    </div>
-                    <p className="text-base md:text-lg font-semibold leading-snug">{article.bottomLine}</p>
+            {article.audience && article.audience.length > 0 ? (
+              <Card className="mt-6 border-0 shadow-sm">
+                <CardContent className="p-5">
+                  <div className="mb-3 flex items-center gap-2">
+                    <Users className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-semibold uppercase tracking-[0.16em] text-primary">Relevant For</span>
                   </div>
-                )}
-
-                <div className="grid sm:grid-cols-2 gap-4">
-                  {/* Key Stat */}
-                  {hasKeyStat && (
-                    <div className="bg-background rounded-lg p-4 border">
-                      <div className="flex items-center gap-2 mb-2">
-                        <TrendingUp className="h-4 w-4 text-blue-500" />
-                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Key Stat</span>
-                      </div>
-                      <p className="font-bold text-lg">{article.keyStat}</p>
-                    </div>
-                  )}
-
-              {/* STRATEGIC CONTEXT */}
-              {hasWhatThisMeans && (
-                <div className="bg-background rounded-lg p-5 border mb-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <BarChart3 className="h-4 w-4 text-indigo-500" />
-                    <span className="text-sm font-semibold">Strategic Context</span>
+                  <div className="flex flex-wrap gap-2">
+                    {article.audience.map((audience) => (
+                      <Badge key={audience} variant="secondary">
+                        {formatAudience(audience)}
+                      </Badge>
+                    ))}
                   </div>
-                  <p className="text-sm leading-relaxed">{article.whatThisMeans}</p>
-                </div>
-              )}
-
-                  {/* Impact Level */}
-                  {article.impactLevel && (
-                    <div className="bg-background rounded-lg p-4 border">
-                      <div className="flex items-center gap-2 mb-2">
-                        <AlertTriangle className={`h-4 w-4 ${
-                          article.impactLevel === 'high' ? 'text-red-500'
-                          : article.impactLevel === 'medium' ? 'text-amber-500'
-                          : 'text-green-500'
-                        }`} />
-                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Impact</span>
-                      </div>
-                      <p className={`font-bold ${
-                        article.impactLevel === 'high' ? 'text-red-600'
-                        : article.impactLevel === 'medium' ? 'text-amber-600'
-                        : 'text-green-600'
-                      }`}>
-                        {article.impactLevel.charAt(0).toUpperCase() + article.impactLevel.slice(1)} Impact
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Audience */}
-                  {hasAudience && (
-                    <div className="bg-background rounded-lg p-4 border sm:col-span-2">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Users className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Relevant For</span>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {article.audience!.map(aud => (
-                          <Badge key={aud} variant="secondary">
-                            {formatAudience(aud)}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            <div className="border-t border-gray-200 my-8" />
-
-            {/* Inline Ad Banners */}
-            {articleInlineBanners.map(p => (
-              <AdBanner key={p.id} sponsor={p.sponsor} variant="inline" dismissible={p.dismissible} />
-            ))}
-
-            {/* ========================================================= */}
-            {/* ARTICLE BODY — Rich content or expanded summary             */}
-            {/* ========================================================= */}
-            {hasRichContent ? (
-              <>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2">
-                  <BookOpen className="h-5 w-5" />
-                  Full Coverage
-                </h2>
-                <div className="max-w-2xl mx-auto">
-                  <div
-                    className="article-body prose prose-lg max-w-none dark:prose-invert
-                      prose-headings:font-bold prose-headings:tracking-tight
-                      prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4
-                      prose-h3:text-xl prose-h3:font-semibold prose-h3:mt-8 prose-h3:mb-4
-                      prose-p:text-lg prose-p:leading-relaxed prose-p:mb-6 prose-p:text-gray-700 dark:prose-p:text-gray-300
-                      prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-6
-                      prose-blockquote:italic prose-blockquote:bg-muted/30 prose-blockquote:py-4
-                      prose-blockquote:pr-4 prose-blockquote:rounded-r-lg
-                      prose-ul:my-6 prose-li:my-2
-                      prose-strong:text-foreground
-                      prose-a:text-primary prose-a:no-underline hover:prose-a:underline
-                      prose-img:rounded-lg"
-                    dangerouslySetInnerHTML={{ __html: cleanArticleHTML(article.fullContent || '') }}
-                  />
-                </div>
-              </>
-            ) : (
-              <div className="space-y-8">
-                {/* When there's no full RSS content and article doesn't have AI enrichment,
-                    show the summary so users see something useful. */}
-                {!hasAnyInsight && (
-                  <div>
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2">
-                      <BookOpen className="h-5 w-5" />
-                      Summary
-                    </h2>
-                    <div className="max-w-2xl mx-auto">
-                      {article.summary.split('\n\n').map((paragraph, i) => (
-                        <p key={i} className={`text-lg leading-relaxed text-gray-700 dark:text-gray-300 mb-6 ${
-                          i === 0 ? 'first-letter:text-5xl first-letter:font-bold first-letter:float-left first-letter:mr-3 first-letter:mt-1 first-letter:text-gray-900 dark:first-letter:text-gray-100' : ''
-                        }`}>
-                          {paragraph}
-                        </p>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* If hasAnyInsight AND the raw summary differs significantly from AI summary,
-                    show it as additional detail. Otherwise skip to avoid duplication. */}
-                {hasAnyInsight && summaryDiffersSignificantly() && (
-                  <div>
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2">
-                      <BookOpen className="h-5 w-5" />
-                      Additional Context
-                    </h2>
-                    <div className="max-w-2xl mx-auto">
-                      {article.summary.split('\n\n').map((paragraph, i) => (
-                        <p key={i} className={`text-lg leading-relaxed text-gray-700 dark:text-gray-300 mb-6 ${
-                          i === 0 ? 'first-letter:text-5xl first-letter:font-bold first-letter:float-left first-letter:mr-3 first-letter:mt-1 first-letter:text-gray-900 dark:first-letter:text-gray-100' : ''
-                        }`}>
-                          {paragraph}
-                        </p>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
+                </CardContent>
+              </Card>
+            ) : null}
 
             <Separator className="my-8" />
 
-            {/* Source Attribution — small, non-distracting */}
-            {article.sourceUrl && article.sourceUrl !== '#' && (
-              <div className="flex items-center gap-3 text-sm text-muted-foreground mb-8">
-                <Globe className="h-4 w-4 flex-shrink-0" />
-                <span>
-                  Source: {article.sourceName}
-                  {' · '}
-                  <a
-                    href={article.sourceUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:underline inline-flex items-center gap-1"
-                  >
-                    View original
-                    <ExternalLink className="h-3 w-3" />
-                  </a>
-                </span>
-              </div>
-            )}
-
-            {/* Share */}
-            <Card className="border-0 bg-muted/30 mb-8">
-              <CardContent className="p-6">
-                <h3 className="font-semibold mb-4">Share this article</h3>
-                <div className="flex gap-3">
-                  <Button variant="outline" size="icon" onClick={() => handleShare("twitter")}>
-                    <Twitter className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" size="icon" onClick={() => handleShare("linkedin")}>
-                    <Linkedin className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" size="icon" onClick={() => handleShare("facebook")}>
-                    <Facebook className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" onClick={() => handleShare("copy")}>
-                    <Link2 className="h-4 w-4 mr-2" />
-                    {copied ? "Copied!" : "Copy Link"}
-                  </Button>
-                </div>
-
-                {/* LinkedIn Post Generator */}
-                <div className="mt-6 border-t pt-6">
-                  <h3 className="text-lg font-semibold mb-3">Share on LinkedIn</h3>
-                  {!linkedinPost ? (
-                    <button
-                      onClick={generateLinkedInPost}
-                      disabled={generatingPost}
-                      className="w-full bg-[#0A66C2] hover:bg-[#004182] text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
-                    >
-                      {generatingPost ? (
-                        <>
-                          <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" opacity="0.25" />
-                            <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" opacity="0.75" />
-                          </svg>
-                          Generating Post...
-                        </>
-                      ) : (
-                        <>
-                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
-                          Generate LinkedIn Post
-                        </>
-                      )}
-                    </button>
-                  ) : (
-                    <div className="space-y-3">
-                      <textarea
-                        readOnly
-                        value={linkedinPost}
-                        className="w-full h-48 p-3 border rounded-lg bg-muted/50 text-sm resize-none"
-                      />
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => { navigator.clipboard.writeText(linkedinPost); }}
-                          className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-2 px-4 rounded-lg"
-                        >
-                          Copy to Clipboard
-                        </button>
-                        <button
-                          onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`https://marketplacebeta.com/news/${article.id}`)}`, '_blank')}
-                          className="flex-1 bg-[#0A66C2] hover:bg-[#004182] text-white font-medium py-2 px-4 rounded-lg"
-                        >
-                          Open LinkedIn
-                        </button>
-                        <button
-                          onClick={() => setLinkedinPost(null)}
-                          className="px-4 py-2 border rounded-lg hover:bg-muted"
-                        >
-                          Regenerate
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </article>
-
-          {/* Sidebar */}
-          <aside className="space-y-6">
-            {/* Sidebar Ad Banners */}
-            {articleSideBanners.map(p => (
-              <AdBanner key={p.id} sponsor={p.sponsor} variant="sidebar" dismissible={p.dismissible} />
+            {articleInlineBanners.map((placement) => (
+              <AdBanner
+                key={placement.id}
+                sponsor={placement.sponsor}
+                variant="inline"
+                dismissible={placement.dismissible}
+              />
             ))}
 
-            {/* Newsletter CTA */}
+            <section className="mt-8">
+              <div className="mb-5 flex items-center gap-2">
+                <BookOpen className="h-5 w-5 text-primary" />
+                <h2 className="text-2xl font-bold">Full Coverage</h2>
+              </div>
+              <div className="space-y-6">
+                {paragraphs.length > 0 ? (
+                  paragraphs.map((paragraph, index) => (
+                    <p
+                      key={`${article.id}-paragraph-${index}`}
+                      className={`text-lg leading-8 text-muted-foreground ${
+                        index === 0
+                          ? "first-letter:text-5xl first-letter:font-bold first-letter:float-left first-letter:mr-3 first-letter:mt-1 first-letter:text-foreground"
+                          : ""
+                      }`}
+                    >
+                      {paragraph}
+                    </p>
+                  ))
+                ) : (
+                  <p className="text-lg leading-8 text-muted-foreground">{article.summary}</p>
+                )}
+              </div>
+            </section>
+
+            {article.keyTakeaways && article.keyTakeaways.length > 0 ? (
+              <Card className="mt-8 border-0 shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-lg">Key Takeaways</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {article.keyTakeaways.map((takeaway) => (
+                    <div key={takeaway} className="flex gap-3">
+                      <ChevronRight className="mt-1 h-4 w-4 flex-shrink-0 text-primary" />
+                      <p className="text-sm leading-7 text-muted-foreground">{takeaway}</p>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            ) : null}
+
+            {article.sourceUrl ? (
+              <div className="mt-8 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                <span>Source: {article.sourceName}</span>
+                <a
+                  href={article.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-primary hover:underline"
+                >
+                  View original
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+              </div>
+            ) : null}
+          </article>
+
+          <aside className="space-y-6">
+            {articleSideBanners.map((placement) => (
+              <AdBanner
+                key={placement.id}
+                sponsor={placement.sponsor}
+                variant="sidebar"
+                dismissible={placement.dismissible}
+              />
+            ))}
+
             <Card className="bg-primary text-primary-foreground border-0">
               <CardContent className="p-6">
                 <Mail className="h-6 w-6 mb-3" />
                 <h3 className="font-bold text-lg mb-2">Daily Marketplace Brief</h3>
                 <p className="text-primary-foreground/80 text-sm mb-4">
-                  Get the most important e-commerce news delivered to your inbox daily.
+                  Get the most important marketplace news delivered to your inbox daily.
                 </p>
                 <Button variant="secondary" className="w-full" asChild>
                   <Link href="/newsletter">Subscribe Free</Link>
@@ -791,74 +319,46 @@ export default function ArticlePage() {
               </CardContent>
             </Card>
 
-            {/* Related Articles */}
-            {relatedArticles.length > 0 && (
+            {relatedArticles.length > 0 ? (
               <div>
                 <h3 className="font-bold text-base mb-4">Related Articles</h3>
                 <div className="space-y-4">
-                  {relatedArticles.map((related) => (
-                    <Link key={related.id} href={`/news/${related.id}`}>
-                      <Card className="overflow-hidden group cursor-pointer hover:shadow-md transition-all border-0 mb-4">
-                        {related.imageUrl && (
+                  {relatedArticles.map((related) => {
+                    const relatedImage = related.imageUrl
+                      ? resolveArticleImage(related)
+                      : getArticleFallbackImage(related.title, related.category, related.platforms || [])
+
+                    return (
+                      <Link key={related.id} href={`/news/${related.id}`}>
+                        <Card className="overflow-hidden group cursor-pointer hover:shadow-md transition-all border-0 mb-4">
                           <div className="aspect-video relative overflow-hidden">
                             <Image
-                              src={related.imageUrl}
+                              src={relatedImage}
                               alt={related.title}
                               fill
                               className="object-cover group-hover:scale-105 transition-transform duration-300"
-                              sizes="300px"
-                              onError={(e) => {
-                                const target = e.currentTarget as HTMLImageElement
-                                const fallback = getArticleFallbackImage(
-                                  related.title,
-                                  related.category,
-                                  related.platforms || []
-                                )
-                                if (target.src !== fallback) {
-                                  target.src = fallback
-                                }
-                              }}
+                              sizes="320px"
                             />
                           </div>
-                        )}
-                        <CardContent className="p-4">
-                          <Badge variant="outline" className="text-xs mb-2">
-                            {formatCategoryLabel(related.category)}
-                          </Badge>
-                          <h4 className="font-semibold text-sm group-hover:text-primary transition-colors line-clamp-2">
-                            {related.title}
-                          </h4>
-                          <p className="text-xs text-muted-foreground mt-2">
-                            {related.sourceName} &middot; {formatTimeAgo(related.publishedAt)}
-                          </p>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  ))}
+                          <CardContent className="p-4">
+                            <Badge variant="outline" className="text-xs mb-2">
+                              {formatCategoryLabel(related.category)}
+                            </Badge>
+                            <h4 className="font-semibold text-sm group-hover:text-primary transition-colors line-clamp-2">
+                              {related.title}
+                            </h4>
+                            <p className="text-xs text-muted-foreground mt-2">
+                              {related.sourceName} · {formatTimeAgo(related.publishedAt)}
+                            </p>
+                          </CardContent>
+                        </Card>
+                      </Link>
+                    )
+                  })}
                 </div>
               </div>
-            )}
+            ) : null}
 
-            {/* Tools CTA */}
-            <Card className="border-0 shadow-sm">
-              <CardContent className="p-5">
-                <h3 className="font-bold text-sm mb-3">Seller Tools</h3>
-                <div className="space-y-2">
-                  {[
-                    { name: "Profit Calculator", href: "/tools#calculator" },
-                    { name: "Listing Optimizer", href: "/tools#listing" },
-                    { name: "Keyword Research", href: "/tools#keywords" },
-                  ].map((tool) => (
-                    <Link key={tool.name} href={tool.href} className="flex items-center justify-between p-2 rounded hover:bg-muted transition-colors text-sm">
-                      {tool.name}
-                      <ChevronRight className="h-3 w-3 text-muted-foreground" />
-                    </Link>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Back to Home */}
             <Button variant="outline" className="w-full" asChild>
               <Link href="/">
                 <ArrowLeft className="h-4 w-4 mr-2" />
@@ -869,14 +369,17 @@ export default function ArticlePage() {
         </div>
       </main>
 
-      {/* Footer Ad Banners */}
       <div className="max-w-7xl mx-auto px-4">
-        {articleFooterBanners.map(p => (
-          <AdBanner key={p.id} sponsor={p.sponsor} variant="footer" dismissible={p.dismissible} />
+        {articleFooterBanners.map((placement) => (
+          <AdBanner
+            key={placement.id}
+            sponsor={placement.sponsor}
+            variant="footer"
+            dismissible={placement.dismissible}
+          />
         ))}
       </div>
 
-      {/* Footer */}
       <footer className="border-t bg-muted/30 mt-16">
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
