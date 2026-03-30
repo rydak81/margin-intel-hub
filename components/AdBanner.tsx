@@ -174,8 +174,8 @@ function SponsorVisualScene({
             sponsor={sponsor}
             variant={variant}
             className="absolute inset-0 rounded-[28px]"
-            imageClassName="object-contain object-right-bottom p-5 drop-shadow-[0_22px_48px_rgba(2,6,23,0.6)]"
-            scrimClassName="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.1),transparent_32%),linear-gradient(180deg,rgba(2,6,23,0.08),rgba(2,6,23,0.2)_52%,rgba(2,6,23,0.44))]"
+            imageClassName="object-cover scale-[1.1] drop-shadow-[0_22px_48px_rgba(2,6,23,0.6)]"
+            scrimClassName="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.1),transparent_32%),linear-gradient(180deg,rgba(2,6,23,0.05),rgba(2,6,23,0.14)_48%,rgba(2,6,23,0.38))]"
           />
         </div>
       )}
