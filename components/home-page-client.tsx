@@ -358,6 +358,29 @@ export default function HomePageClient({
   const sideBanners = getActivePlacements('home', 'sidebar', sponsorContext)
   const inlineBanners = getActivePlacements('home', 'inline', sponsorContext)
   const footerBanners = getActivePlacements('home', 'footer', sponsorContext)
+  const sourceCount = new Set(articles.map((article) => article.source).filter(Boolean)).size
+  const freshStoryCount = articles.filter((article) => {
+    const publishedAt = new Date(article.publishedAt).getTime()
+    const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000
+    return publishedAt >= oneDayAgo
+  }).length
+  const heroSignals = [
+    {
+      label: "Fresh stories",
+      value: `${freshStoryCount || articles.length}+`,
+      icon: Sparkles,
+    },
+    {
+      label: "Sources tracked",
+      value: `${sourceCount || 25}+`,
+      icon: LineChart,
+    },
+    {
+      label: "Operator focus",
+      value: "Seller to SaaS",
+      icon: Target,
+    },
+  ]
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -399,7 +422,11 @@ export default function HomePageClient({
   const isDark = resolvedTheme === "dark"
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.08),transparent_24%),radial-gradient(circle_at_top_right,rgba(20,184,166,0.08),transparent_22%),linear-gradient(180deg,rgba(248,250,252,0.7),transparent_30%)] bg-background">
+    <div className={`min-h-screen bg-background ${
+      isDark
+        ? 'bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.14),transparent_22%),radial-gradient(circle_at_top_right,rgba(217,70,239,0.14),transparent_20%),radial-gradient(circle_at_50%_12%,rgba(99,102,241,0.12),transparent_24%),linear-gradient(180deg,rgba(2,6,23,0.88),rgba(2,6,23,0.56)_18%,transparent_40%)]'
+        : 'bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.16),transparent_20%),radial-gradient(circle_at_top_right,rgba(217,70,239,0.14),transparent_18%),radial-gradient(circle_at_50%_12%,rgba(99,102,241,0.08),transparent_24%),linear-gradient(180deg,rgba(248,250,252,0.92),rgba(255,255,255,0.76)_18%,transparent_34%)]'
+    }`}>
       {/* Breaking News Ticker - Live updates */}
       <div className="bg-primary text-primary-foreground py-2 overflow-hidden">
         <div className="flex items-center">
@@ -426,17 +453,20 @@ export default function HomePageClient({
       {/* Navigation */}
       <header className={`sticky top-0 z-50 transition-all duration-300 border-b relative ${
         isScrolled 
-          ? 'bg-background/84 backdrop-blur-xl shadow-[0_20px_60px_-40px_rgba(15,23,42,0.55)]' 
-          : 'bg-[linear-gradient(180deg,rgba(255,255,255,0.97),rgba(248,250,252,0.94))] backdrop-blur-sm'
+          ? 'bg-background/80 backdrop-blur-2xl shadow-[0_24px_70px_-42px_rgba(15,23,42,0.55)]' 
+          : isDark
+            ? 'bg-[linear-gradient(180deg,rgba(2,6,23,0.9),rgba(15,23,42,0.82))] backdrop-blur-xl'
+            : 'bg-[linear-gradient(180deg,rgba(255,255,255,0.94),rgba(248,250,252,0.88))] backdrop-blur-xl'
       }`}>
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-fuchsia-400/40 to-transparent" />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-fuchsia-400/45 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-sky-400/55 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 top-0 bg-[radial-gradient(circle_at_left_top,rgba(56,189,248,0.08),transparent_18%),radial-gradient(circle_at_right_top,rgba(217,70,239,0.08),transparent_18%)] pointer-events-none" />
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-14">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-3">
               <div className="relative">
-                <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-sky-400/20 via-cyan-300/10 to-fuchsia-400/20 blur-sm" />
+                <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-sky-400/28 via-cyan-300/14 to-fuchsia-400/24 blur-sm" />
                 <Image 
                   src="/brand-icon.png"
                   alt="MarketplaceBeta logo" 
@@ -445,9 +475,12 @@ export default function HomePageClient({
                   className="relative h-8 w-8 rounded-lg object-cover ring-1 ring-sky-400/20"
                 />
               </div>
-              <span className="font-bold text-lg hidden sm:block">
-                MarketplaceBeta
-              </span>
+              <div className="hidden sm:block">
+                <span className="block font-bold text-lg leading-none">MarketplaceBeta</span>
+                <span className="block text-[10px] font-semibold uppercase tracking-[0.24em] text-muted-foreground/85">
+                  Operator Intelligence Desk
+                </span>
+              </div>
             </Link>
 
             {/* Desktop Nav */}
@@ -504,7 +537,7 @@ export default function HomePageClient({
                         onBlur={() => {
                           if (!searchQuery) setSearchExpanded(false)
                         }}
-                        className="pl-9 pr-8 h-9 text-sm"
+                        className="h-9 border-white/40 bg-white/70 pl-9 pr-8 text-sm shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/50"
                         autoFocus
                       />
                       <button 
@@ -522,7 +555,7 @@ export default function HomePageClient({
                       variant="ghost"
                       size="icon"
                       onClick={() => setSearchExpanded(true)}
-                      className="h-9 w-9"
+                      className="h-9 w-9 rounded-full border border-white/40 bg-white/70 shadow-sm backdrop-blur hover:bg-white dark:border-white/10 dark:bg-slate-950/50 dark:hover:bg-slate-900"
                     >
                       <Search className="h-4 w-4" />
                     </Button>
@@ -533,17 +566,17 @@ export default function HomePageClient({
                 variant="ghost"
                 size="icon"
                 onClick={() => setTheme(isDark ? "light" : "dark")}
-                className="h-9 w-9"
+                className="h-9 w-9 rounded-full border border-white/40 bg-white/70 shadow-sm backdrop-blur hover:bg-white dark:border-white/10 dark:bg-slate-950/50 dark:hover:bg-slate-900"
               >
                 {themeMounted && isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </Button>
-              <Button asChild size="sm" className="hidden sm:flex text-sm">
+              <Button asChild size="sm" className="hidden sm:flex border border-sky-400/20 bg-[linear-gradient(135deg,#0f3f96,#2563eb_62%,#4f46e5)] text-sm text-white shadow-[0_18px_40px_-24px_rgba(37,99,235,0.75)] hover:opacity-95">
                 <Link href="/newsletter">Subscribe</Link>
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
-                className="lg:hidden h-9 w-9"
+                className="lg:hidden h-9 w-9 rounded-full border border-white/40 bg-white/70 shadow-sm backdrop-blur hover:bg-white dark:border-white/10 dark:bg-slate-950/50 dark:hover:bg-slate-900"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
                 {mobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
@@ -577,43 +610,120 @@ export default function HomePageClient({
 
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-grid-pattern">
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent" />
-        <div className="relative max-w-7xl mx-auto px-4 py-12 md:py-20">
-          <div className="max-w-3xl">
-            {/* Live Counter Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 mb-6 rounded-full bg-primary/10 border border-primary/20 text-sm">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-              </span>
-              <span className="text-muted-foreground">
-                Tracking <span className="font-semibold text-foreground">6 platforms</span> 
-                {" "}from <span className="font-semibold text-foreground">25+ sources</span>
-                {" "}updated hourly
-              </span>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.1),transparent_24%),radial-gradient(circle_at_top_right,rgba(217,70,239,0.12),transparent_18%),linear-gradient(180deg,rgba(37,99,235,0.05),transparent_44%)]" />
+        <div className="absolute left-1/2 top-16 h-64 w-64 -translate-x-1/2 rounded-full bg-sky-400/10 blur-3xl" />
+        <div className="relative max-w-7xl mx-auto px-4 py-12 md:py-16 lg:py-20">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_380px] lg:items-stretch">
+            <div className="max-w-4xl">
+              <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/15 bg-white/70 px-3 py-1.5 text-sm shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-500 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-500"></span>
+                </span>
+                <span className="text-muted-foreground">
+                  Live operator desk tracking <span className="font-semibold text-foreground">marketplace shifts, tools, and deal flow</span>
+                </span>
+              </div>
+
+              <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-fuchsia-400/15 bg-[linear-gradient(135deg,rgba(255,255,255,0.78),rgba(248,250,252,0.68))] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-600 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45 dark:text-slate-200">
+                <Sparkles className="h-3.5 w-3.5 text-fuchsia-500" />
+                Premium Intelligence for Marketplace Teams
+              </div>
+
+              <h1 className="mt-5 text-4xl font-black tracking-tight text-balance md:text-6xl lg:text-7xl">
+                The intelligence hub for{" "}
+                <span className="bg-[linear-gradient(135deg,#0f3f96_0%,#2563eb_38%,#7c3aed_72%,#d946ef_100%)] bg-clip-text text-transparent">
+                  marketplace commerce
+                </span>
+              </h1>
+
+              <p className={`mt-6 max-w-3xl text-lg md:text-xl md:leading-8 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                Breaking news, platform updates, M&amp;A activity, and operator-grade analysis for Amazon sellers,
+                agencies, SaaS providers, and commerce teams who need signal instead of noise.
+              </p>
+
+              <div className="mt-8 flex flex-col gap-4 sm:flex-row">
+                <Button size="lg" asChild className="border border-sky-400/20 bg-[linear-gradient(135deg,#0f3f96,#2563eb_62%,#4f46e5)] text-white shadow-[0_22px_44px_-24px_rgba(37,99,235,0.8)] hover:opacity-95">
+                  <a href="#briefing">
+                    Read Today&apos;s Briefing
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </a>
+                </Button>
+                <Button size="lg" variant="outline" asChild className="border-slate-200 bg-white/75 shadow-sm backdrop-blur hover:bg-white dark:border-white/10 dark:bg-slate-950/45 dark:hover:bg-slate-900">
+                  <Link href="/newsletter">
+                    Get the Daily Brief
+                    <Mail className="ml-2 h-5 w-5" />
+                  </Link>
+                </Button>
+              </div>
+
+              <div className="mt-8 grid gap-3 sm:grid-cols-3">
+                {heroSignals.map((signal) => (
+                  <div
+                    key={signal.label}
+                    className="rounded-2xl border border-white/70 bg-white/72 p-4 shadow-[0_16px_40px_-28px_rgba(15,23,42,0.24)] backdrop-blur dark:border-white/10 dark:bg-slate-950/45"
+                  >
+                    <div className={`flex items-center gap-2 ${isDark ? 'text-slate-300' : 'text-slate-500'}`}>
+                      <signal.icon className="h-4 w-4 text-sky-600" />
+                      <span className="text-[11px] font-semibold uppercase tracking-[0.18em]">{signal.label}</span>
+                    </div>
+                    <p className={`mt-3 text-lg font-bold ${isDark ? 'text-white' : 'text-slate-950'}`}>{signal.value}</p>
+                  </div>
+                ))}
+              </div>
             </div>
-            
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 text-balance">
-              The Intelligence Hub for{" "}
-              <span className="text-primary">Marketplace Commerce</span>
-            </h1>
-            <p className="text-lg md:text-xl text-muted-foreground mb-8 text-pretty">
-              Breaking news, platform updates, M&A activity, and actionable insights for Amazon sellers, 
-              agencies, SaaS providers, and e-commerce operators — all in one place.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button size="lg" asChild>
-                <a href="#briefing">
-                  Read Today&apos;s Briefing
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </a>
-              </Button>
-              <Button size="lg" variant="outline" asChild>
-                <Link href="/newsletter">
-                  Get the Daily Brief
-                  <Mail className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
+
+            <div className="relative">
+              <div className="absolute inset-0 rounded-[28px] bg-[linear-gradient(135deg,rgba(15,23,42,0.96),rgba(15,23,42,0.92)_42%,rgba(49,46,129,0.92)_100%)] shadow-[0_30px_80px_-34px_rgba(15,23,42,0.78)]" />
+              <div className="absolute -left-4 top-10 h-24 w-24 rounded-full bg-sky-400/20 blur-3xl" />
+              <div className="absolute right-0 top-16 h-28 w-28 rounded-full bg-fuchsia-500/18 blur-3xl" />
+              <div className="relative h-full rounded-[28px] border border-white/10 p-6 text-white">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/55">Today&apos;s Intelligence Brief</p>
+                    <p className="mt-2 text-xl font-bold leading-tight text-balance">
+                      {heroArticle?.title || "Marketplace shifts and operator signals worth watching today"}
+                    </p>
+                  </div>
+                  <div className="rounded-full border border-white/10 bg-white/8 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/70">
+                    Updated hourly
+                  </div>
+                </div>
+
+                <div className="mt-6 space-y-3">
+                  <div className="rounded-2xl border border-white/10 bg-white/6 p-4 backdrop-blur">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/55">Why it matters</p>
+                    <p className="mt-2 text-sm leading-6 text-white/86">
+                      {heroArticle?.aiSummary || heroArticle?.excerpt || "See the stories shaping seller margins, platform risk, partner opportunities, and where operators should pay attention next."}
+                    </p>
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                    <div className="rounded-2xl border border-white/10 bg-slate-950/28 p-4">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/55">What teams are watching</p>
+                      <p className="mt-2 text-sm font-medium text-white/86">
+                        {selectedCategory === "all" ? "Platform shifts, tools, profitability, and M&A" : `${selectedCategory.replace(/[-_]/g, ' ')} developments and operator impact`}
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-white/10 bg-slate-950/28 p-4">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/55">Lead source angle</p>
+                      <p className="mt-2 text-sm font-medium text-white/86">
+                        Turn the daily brief into outreach, partner conversations, and executive-ready talking points.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 flex items-center justify-between gap-4 border-t border-white/10 pt-4 text-sm text-white/72">
+                  <div>
+                    <p className="font-semibold text-white">{heroArticle?.source || "MarketplaceBeta Desk"}</p>
+                    <p>{heroArticle ? formatTimeAgo(heroArticle.publishedAt) : "Monitoring in real time"}</p>
+                  </div>
+                  <Link href="/newsletter" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white px-4 py-2 font-semibold text-slate-950 shadow-[0_18px_40px_-24px_rgba(255,255,255,0.75)] transition-transform hover:-translate-y-0.5">
+                    Join the Brief
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
         </div>
