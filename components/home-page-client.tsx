@@ -453,10 +453,8 @@ export default function HomePageClient({
       {/* Navigation */}
       <header className={`sticky top-0 z-50 transition-all duration-300 border-b relative ${
         isScrolled 
-          ? 'bg-background/80 backdrop-blur-2xl shadow-[0_24px_70px_-42px_rgba(15,23,42,0.55)]' 
-          : isDark
-            ? 'bg-[linear-gradient(180deg,rgba(2,6,23,0.9),rgba(15,23,42,0.82))] backdrop-blur-xl'
-            : 'bg-[linear-gradient(180deg,rgba(255,255,255,0.94),rgba(248,250,252,0.88))] backdrop-blur-xl'
+          ? 'bg-[linear-gradient(180deg,rgba(15,23,42,0.88),rgba(15,23,42,0.82))] backdrop-blur-2xl shadow-[0_24px_70px_-42px_rgba(15,23,42,0.62)]' 
+          : 'bg-[linear-gradient(180deg,rgba(15,23,42,0.82),rgba(30,41,59,0.7))] backdrop-blur-2xl'
       }`}>
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-fuchsia-400/45 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-sky-400/55 to-transparent" />
@@ -476,8 +474,8 @@ export default function HomePageClient({
                 />
               </div>
               <div className="hidden sm:block">
-                <span className="block font-bold text-lg leading-none">MarketplaceBeta</span>
-                <span className="block text-[10px] font-semibold uppercase tracking-[0.24em] text-muted-foreground/85">
+                <span className="block text-lg font-bold leading-none text-white">MarketplaceBeta</span>
+                <span className="block text-[10px] font-semibold uppercase tracking-[0.24em] text-white/55">
                   Operator Intelligence Desk
                 </span>
               </div>
@@ -485,11 +483,11 @@ export default function HomePageClient({
 
             {/* Desktop Nav */}
             <nav className="hidden lg:flex items-center gap-6">
-              <Link href="/" className="text-sm font-semibold hover:text-primary transition-colors">
+              <Link href="/" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
                 Home
               </Link>
               <DropdownMenu>
-                <DropdownMenuTrigger className="text-sm font-semibold hover:text-primary transition-colors flex items-center gap-1">
+                <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-semibold text-white/82 transition-colors hover:text-white">
                   Categories <ChevronDown className="h-3 w-3" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-56">
@@ -501,20 +499,20 @@ export default function HomePageClient({
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
-              <Link href="/articles" className="text-sm font-semibold hover:text-primary transition-colors">
+              <Link href="/articles" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
                 Articles
               </Link>
-              <Link href="/partners" className="text-sm font-semibold hover:text-primary transition-colors">
+              <Link href="/partners" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
                 Partners
               </Link>
-              <Link href="/tools" className="text-sm font-semibold hover:text-primary transition-colors">
+              <Link href="/tools" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
                 Tools
               </Link>
               {/* Solutions and Community hidden - coming soon */}
-              <Link href="/events" className="text-sm font-semibold hover:text-primary transition-colors">
+              <Link href="/events" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
                 Events
               </Link>
-              <Link href="/newsletter" className="text-sm font-semibold hover:text-primary transition-colors">
+              <Link href="/newsletter" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
                 Newsletter
               </Link>
             </nav>
@@ -528,7 +526,7 @@ export default function HomePageClient({
                 }`}>
                   {searchExpanded ? (
                     <div className="relative w-full">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/50" />
                       <Input
                         ref={searchInputRef}
                         placeholder="Search news..."
@@ -537,7 +535,7 @@ export default function HomePageClient({
                         onBlur={() => {
                           if (!searchQuery) setSearchExpanded(false)
                         }}
-                        className="h-9 border-white/40 bg-white/70 pl-9 pr-8 text-sm shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/50"
+                        className="h-9 border-white/10 bg-white/10 pl-9 pr-8 text-sm text-white shadow-sm backdrop-blur placeholder:text-white/45"
                         autoFocus
                       />
                       <button 
@@ -545,7 +543,7 @@ export default function HomePageClient({
                           setSearchQuery('')
                           setSearchExpanded(false)
                         }}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 text-white/55 hover:text-white"
                       >
                         <X className="h-4 w-4" />
                       </button>
@@ -555,7 +553,7 @@ export default function HomePageClient({
                       variant="ghost"
                       size="icon"
                       onClick={() => setSearchExpanded(true)}
-                      className="h-9 w-9 rounded-full border border-white/40 bg-white/70 shadow-sm backdrop-blur hover:bg-white dark:border-white/10 dark:bg-slate-950/50 dark:hover:bg-slate-900"
+                      className="h-9 w-9 rounded-full border border-white/10 bg-white/10 text-white shadow-sm backdrop-blur hover:bg-white/16"
                     >
                       <Search className="h-4 w-4" />
                     </Button>
@@ -566,17 +564,17 @@ export default function HomePageClient({
                 variant="ghost"
                 size="icon"
                 onClick={() => setTheme(isDark ? "light" : "dark")}
-                className="h-9 w-9 rounded-full border border-white/40 bg-white/70 shadow-sm backdrop-blur hover:bg-white dark:border-white/10 dark:bg-slate-950/50 dark:hover:bg-slate-900"
+                className="h-9 w-9 rounded-full border border-white/10 bg-white/10 text-white shadow-sm backdrop-blur hover:bg-white/16"
               >
                 {themeMounted && isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </Button>
-              <Button asChild size="sm" className="hidden sm:flex border border-sky-400/20 bg-[linear-gradient(135deg,#0f3f96,#2563eb_62%,#4f46e5)] text-sm text-white shadow-[0_18px_40px_-24px_rgba(37,99,235,0.75)] hover:opacity-95">
+              <Button asChild size="sm" className="hidden sm:flex border border-white/10 bg-[linear-gradient(135deg,#2563eb,#4f46e5_72%,#7c3aed)] text-sm text-white shadow-[0_18px_40px_-24px_rgba(79,70,229,0.72)] hover:opacity-95">
                 <Link href="/newsletter">Subscribe</Link>
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
-                className="lg:hidden h-9 w-9 rounded-full border border-white/40 bg-white/70 shadow-sm backdrop-blur hover:bg-white dark:border-white/10 dark:bg-slate-950/50 dark:hover:bg-slate-900"
+                className="lg:hidden h-9 w-9 rounded-full border border-white/10 bg-white/10 text-white shadow-sm backdrop-blur hover:bg-white/16"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
                 {mobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
@@ -586,20 +584,21 @@ export default function HomePageClient({
 
           {/* Mobile Menu */}
           {mobileMenuOpen && (
-            <div className="lg:hidden py-4 border-t">
+            <div className="border-t border-white/10 py-4 lg:hidden">
               <nav className="flex flex-col gap-2">
-                <Link href="/" className="px-4 py-2 rounded-md hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>Home</Link>
-                <Link href="/articles" className="px-4 py-2 rounded-md hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>Articles</Link>
-                <Link href="/partners" className="px-4 py-2 rounded-md hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>Partners</Link>
-                <Link href="/tools" className="px-4 py-2 rounded-md hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>Tools</Link>
+                <Link href="/" className="rounded-md px-4 py-2 text-white/82 hover:bg-white/10" onClick={() => setMobileMenuOpen(false)}>Home</Link>
+                <Link href="/articles" className="rounded-md px-4 py-2 text-white/82 hover:bg-white/10" onClick={() => setMobileMenuOpen(false)}>Articles</Link>
+                <Link href="/partners" className="rounded-md px-4 py-2 text-white/82 hover:bg-white/10" onClick={() => setMobileMenuOpen(false)}>Partners</Link>
+                <Link href="/tools" className="rounded-md px-4 py-2 text-white/82 hover:bg-white/10" onClick={() => setMobileMenuOpen(false)}>Tools</Link>
                 {/* Solutions and Community hidden - coming soon */}
-                <Link href="/events" className="px-4 py-2 rounded-md hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>Events</Link>
-                <Link href="/newsletter" className="px-4 py-2 rounded-md hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>Newsletter</Link>
+                <Link href="/events" className="rounded-md px-4 py-2 text-white/82 hover:bg-white/10" onClick={() => setMobileMenuOpen(false)}>Events</Link>
+                <Link href="/newsletter" className="rounded-md px-4 py-2 text-white/82 hover:bg-white/10" onClick={() => setMobileMenuOpen(false)}>Newsletter</Link>
                 <div className="px-4 py-2">
                   <Input
                     placeholder="Search news..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
+                    className="border-white/10 bg-white/10 text-white placeholder:text-white/45"
                   />
                 </div>
               </nav>
@@ -613,8 +612,7 @@ export default function HomePageClient({
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.1),transparent_24%),radial-gradient(circle_at_top_right,rgba(217,70,239,0.12),transparent_18%),linear-gradient(180deg,rgba(37,99,235,0.05),transparent_44%)]" />
         <div className="absolute left-1/2 top-16 h-64 w-64 -translate-x-1/2 rounded-full bg-sky-400/10 blur-3xl" />
         <div className="relative max-w-7xl mx-auto px-4 py-12 md:py-16 lg:py-20">
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_380px] lg:items-stretch">
-            <div className="max-w-4xl">
+          <div className="max-w-5xl">
               <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/15 bg-white/70 px-3 py-1.5 text-sm shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-500 opacity-75"></span>
@@ -671,60 +669,6 @@ export default function HomePageClient({
                   </div>
                 ))}
               </div>
-            </div>
-
-            <div className="relative">
-              <div className="absolute inset-0 rounded-[28px] bg-[linear-gradient(135deg,rgba(15,23,42,0.96),rgba(15,23,42,0.92)_42%,rgba(49,46,129,0.92)_100%)] shadow-[0_30px_80px_-34px_rgba(15,23,42,0.78)]" />
-              <div className="absolute -left-4 top-10 h-24 w-24 rounded-full bg-sky-400/20 blur-3xl" />
-              <div className="absolute right-0 top-16 h-28 w-28 rounded-full bg-fuchsia-500/18 blur-3xl" />
-              <div className="relative h-full rounded-[28px] border border-white/10 p-6 text-white">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/55">Today&apos;s Intelligence Brief</p>
-                    <p className="mt-2 text-xl font-bold leading-tight text-balance">
-                      {heroArticle?.title || "Marketplace shifts and operator signals worth watching today"}
-                    </p>
-                  </div>
-                  <div className="rounded-full border border-white/10 bg-white/8 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/70">
-                    Updated hourly
-                  </div>
-                </div>
-
-                <div className="mt-6 space-y-3">
-                  <div className="rounded-2xl border border-white/10 bg-white/6 p-4 backdrop-blur">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/55">Why it matters</p>
-                    <p className="mt-2 text-sm leading-6 text-white/86">
-                      {heroArticle?.aiSummary || heroArticle?.excerpt || "See the stories shaping seller margins, platform risk, partner opportunities, and where operators should pay attention next."}
-                    </p>
-                  </div>
-                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-                    <div className="rounded-2xl border border-white/10 bg-slate-950/28 p-4">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/55">What teams are watching</p>
-                      <p className="mt-2 text-sm font-medium text-white/86">
-                        {selectedCategory === "all" ? "Platform shifts, tools, profitability, and M&A" : `${selectedCategory.replace(/[-_]/g, ' ')} developments and operator impact`}
-                      </p>
-                    </div>
-                    <div className="rounded-2xl border border-white/10 bg-slate-950/28 p-4">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/55">Lead source angle</p>
-                      <p className="mt-2 text-sm font-medium text-white/86">
-                        Turn the daily brief into outreach, partner conversations, and executive-ready talking points.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-6 flex items-center justify-between gap-4 border-t border-white/10 pt-4 text-sm text-white/72">
-                  <div>
-                    <p className="font-semibold text-white">{heroArticle?.source || "MarketplaceBeta Desk"}</p>
-                    <p>{heroArticle ? formatTimeAgo(heroArticle.publishedAt) : "Monitoring in real time"}</p>
-                  </div>
-                  <Link href="/newsletter" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white px-4 py-2 font-semibold text-slate-950 shadow-[0_18px_40px_-24px_rgba(255,255,255,0.75)] transition-transform hover:-translate-y-0.5">
-                    Join the Brief
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
