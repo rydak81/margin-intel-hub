@@ -70,6 +70,15 @@ export default function PartnersPage() {
                   ) : null}
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/55 to-transparent" />
                   <div className="absolute inset-x-0 bottom-0 space-y-2 p-5">
+                    {featuredSponsor.id === "threecolts" ? (
+                      <Image
+                        src="/sponsors/threecolts-logo-white.svg"
+                        alt="Threecolts"
+                        width={177}
+                        height={44}
+                        className="mb-3 h-6 w-auto object-contain"
+                      />
+                    ) : null}
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70">Featured Partner</p>
                     <h2 className="text-2xl font-bold">{featuredSponsor.name}</h2>
                     <p className="text-sm text-white/80">{featuredSponsor.proofPoint}</p>
@@ -121,9 +130,9 @@ export default function PartnersPage() {
 
           <div className="grid gap-6 lg:grid-cols-2">
             {ALL_SPONSORS.map((sponsor) => (
-              <Card key={sponsor.id} className="overflow-hidden border shadow-sm">
+              <Card key={sponsor.id} className="overflow-hidden border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.16),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(168,85,247,0.12),transparent_24%),linear-gradient(180deg,rgba(2,6,23,0.98),rgba(15,23,42,0.98))] text-white shadow-[0_24px_70px_-34px_rgba(2,6,23,0.9)]">
                 <CardContent className="grid gap-0 p-0 md:grid-cols-[0.95fr_1.05fr]">
-                  <div className="relative min-h-[240px] border-b bg-slate-100 md:border-b-0 md:border-r">
+                  <div className="relative min-h-[240px] border-b border-white/10 bg-slate-100 md:border-b-0 md:border-r">
                     {sponsor.bannerImageUrl ? (
                       <Image
                         src={sponsor.bannerImageUrl}
@@ -146,15 +155,16 @@ export default function PartnersPage() {
                   </div>
                   <div className="space-y-4 p-5">
                     <div className="flex flex-wrap items-center gap-2">
-                      <Badge variant="secondary">{sponsor.badge}</Badge>
-                      <Badge variant="outline">{sponsor.partnerType}</Badge>
+                      <Badge variant="secondary" className="border border-white/10 bg-white/10 text-white">{sponsor.badge}</Badge>
+                      <Badge variant="outline" className="border-white/15 bg-white/5 text-white">{sponsor.partnerType}</Badge>
                     </div>
                     <div className="flex items-center gap-3">
                       <SponsorLogo
                         name={sponsor.name}
                         logoUrl={sponsor.logoUrl}
                         sizes="56px"
-                        className="h-14 w-14 rounded-xl"
+                        className={sponsor.id === "threecolts" ? "h-14 w-40 rounded-full border-white/15 bg-white px-3" : "h-14 w-14 rounded-xl border-white/15 bg-white"}
+                        imageClassName={sponsor.id === "threecolts" ? "p-3" : "p-2"}
                         fallbackClassName="text-sm"
                       />
                       <CardHeader className="p-0">
@@ -163,37 +173,37 @@ export default function PartnersPage() {
                     </div>
                     <div>
                       <p className="text-lg font-semibold text-balance">{sponsor.tagline}</p>
-                      <p className="mt-3 text-sm leading-7 text-muted-foreground">{sponsor.description}</p>
+                      <p className="mt-3 text-sm leading-7 text-white/72">{sponsor.description}</p>
                     </div>
                     <div className="grid gap-3">
-                      <div className="rounded-xl border bg-muted/30 p-3">
-                        <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Proof Point</p>
-                        <p className="text-sm font-medium">{sponsor.proofPoint}</p>
+                      <div className="rounded-xl border border-white/10 bg-white/8 p-3">
+                        <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/60">Proof Point</p>
+                        <p className="text-sm font-medium text-white">{sponsor.proofPoint}</p>
                       </div>
-                      <div className="rounded-xl border bg-muted/30 p-3">
-                        <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Use Case</p>
-                        <p className="text-sm font-medium">{sponsor.useCase}</p>
+                      <div className="rounded-xl border border-white/10 bg-white/8 p-3">
+                        <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/60">Use Case</p>
+                        <p className="text-sm font-medium text-white">{sponsor.useCase}</p>
                       </div>
-                      <div className="rounded-xl border bg-muted/30 p-3">
-                        <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Why This Sponsor Is Relevant</p>
-                        <p className="text-sm font-medium">{sponsor.whyRelevant}</p>
+                      <div className="rounded-xl border border-white/10 bg-white/8 p-3">
+                        <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/60">Why This Sponsor Is Relevant</p>
+                        <p className="text-sm font-medium text-white">{sponsor.whyRelevant}</p>
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {sponsor.highlights.map((highlight) => (
-                        <Badge key={highlight} variant="outline" className="rounded-full">
+                        <Badge key={highlight} variant="outline" className="rounded-full border-white/15 bg-white/5 text-white">
                           {highlight}
                         </Badge>
                       ))}
                     </div>
                     <div className="flex flex-col gap-2 sm:flex-row">
-                      <Button asChild>
+                      <Button asChild className="border border-white/10 bg-white text-slate-950 hover:bg-white/90">
                         <a href={sponsor.ctaUrl} target="_blank" rel="noopener noreferrer sponsored">
                           {sponsor.ctaText}
                           <ArrowRight className="ml-2 h-4 w-4" />
                         </a>
                       </Button>
-                      <Button asChild variant="outline">
+                      <Button asChild variant="outline" className="border-white/15 bg-white/5 text-white hover:bg-white/10 hover:text-white">
                         <Link href="/solutions">Request Intro</Link>
                       </Button>
                     </div>

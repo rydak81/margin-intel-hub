@@ -115,8 +115,10 @@ export default async function ArticlePage({
   })
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.08),transparent_24%),radial-gradient(circle_at_top_right,rgba(20,184,166,0.08),transparent_22%),linear-gradient(180deg,rgba(248,250,252,0.7),transparent_30%)] bg-background">
+      <header className="sticky top-0 z-40 border-b relative bg-[linear-gradient(180deg,rgba(255,255,255,0.97),rgba(248,250,252,0.94))] backdrop-blur-sm supports-[backdrop-filter]:bg-background/80">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-fuchsia-400/35 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-sky-400/55 to-transparent" />
         <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
           <Button variant="ghost" size="sm" asChild>
             <Link href="/">
@@ -125,7 +127,10 @@ export default async function ArticlePage({
             </Link>
           </Button>
           <Link href="/" className="flex items-center gap-2">
-            <Image src="/brand-icon.png" alt="MarketplaceBeta logo" width={28} height={28} className="h-7 w-7 rounded-lg object-cover" />
+            <div className="relative">
+              <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-sky-400/20 via-cyan-300/10 to-fuchsia-400/20 blur-sm" />
+              <Image src="/brand-icon.png" alt="MarketplaceBeta logo" width={28} height={28} className="relative h-7 w-7 rounded-lg object-cover ring-1 ring-sky-400/20" />
+            </div>
             <span className="font-bold text-lg hidden sm:block">MarketplaceBeta</span>
           </Link>
           <div className="w-24 sm:w-32" />
@@ -380,20 +385,21 @@ export default async function ArticlePage({
         ))}
       </div>
 
-      <footer className="border-t bg-muted/30 mt-16">
+      <footer className="relative overflow-hidden border-t border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.22),transparent_24%),radial-gradient(circle_at_top_right,rgba(168,85,247,0.18),transparent_22%),radial-gradient(circle_at_bottom,rgba(20,184,166,0.1),transparent_20%),linear-gradient(180deg,rgba(2,6,23,0.98),rgba(15,23,42,1))] text-white mt-16">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/45 to-transparent" />
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <Link href="/" className="flex items-center gap-2">
               <Image src="/brand-icon.png" alt="MarketplaceBeta logo" width={28} height={28} className="h-7 w-7 rounded-lg object-cover" />
               <span className="font-bold">MarketplaceBeta</span>
             </Link>
-            <div className="flex items-center gap-6 text-sm text-muted-foreground">
-              <Link href="/" className="hover:text-foreground transition-colors">Home</Link>
-              <Link href="/articles" className="hover:text-foreground transition-colors">Articles</Link>
-              <Link href="/tools" className="hover:text-foreground transition-colors">Tools</Link>
-              <Link href="/partners" className="hover:text-foreground transition-colors">Partners</Link>
-              <Link href="/events" className="hover:text-foreground transition-colors">Events</Link>
-              <Link href="/newsletter" className="hover:text-foreground transition-colors">Newsletter</Link>
+            <div className="flex items-center gap-6 text-sm text-white/60">
+              <Link href="/" className="hover:text-white transition-colors">Home</Link>
+              <Link href="/articles" className="hover:text-white transition-colors">Articles</Link>
+              <Link href="/tools" className="hover:text-white transition-colors">Tools</Link>
+              <Link href="/partners" className="hover:text-white transition-colors">Partners</Link>
+              <Link href="/events" className="hover:text-white transition-colors">Events</Link>
+              <Link href="/newsletter" className="hover:text-white transition-colors">Newsletter</Link>
             </div>
           </div>
         </div>

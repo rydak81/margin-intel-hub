@@ -399,7 +399,7 @@ export default function HomePageClient({
   const isDark = resolvedTheme === "dark"
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.08),transparent_24%),radial-gradient(circle_at_top_right,rgba(20,184,166,0.08),transparent_22%),linear-gradient(180deg,rgba(248,250,252,0.7),transparent_30%)] bg-background">
       {/* Breaking News Ticker - Live updates */}
       <div className="bg-primary text-primary-foreground py-2 overflow-hidden">
         <div className="flex items-center">
@@ -424,22 +424,27 @@ export default function HomePageClient({
       </div>
 
       {/* Navigation */}
-      <header className={`sticky top-0 z-50 transition-all duration-300 border-b ${
+      <header className={`sticky top-0 z-50 transition-all duration-300 border-b relative ${
         isScrolled 
-          ? 'bg-background/80 backdrop-blur-md shadow-sm' 
-          : 'bg-background/95 backdrop-blur-sm'
+          ? 'bg-background/84 backdrop-blur-xl shadow-[0_20px_60px_-40px_rgba(15,23,42,0.55)]' 
+          : 'bg-[linear-gradient(180deg,rgba(255,255,255,0.97),rgba(248,250,252,0.94))] backdrop-blur-sm'
       }`}>
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-fuchsia-400/40 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-sky-400/55 to-transparent" />
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-14">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2">
-              <Image 
-                src="/brand-icon.png"
-                alt="MarketplaceBeta logo" 
-                width={32} 
-                height={32} 
-                className="h-8 w-8 rounded-lg object-cover"
-              />
+              <div className="relative">
+                <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-sky-400/20 via-cyan-300/10 to-fuchsia-400/20 blur-sm" />
+                <Image 
+                  src="/brand-icon.png"
+                  alt="MarketplaceBeta logo" 
+                  width={32} 
+                  height={32} 
+                  className="relative h-8 w-8 rounded-lg object-cover ring-1 ring-sky-400/20"
+                />
+              </div>
               <span className="font-bold text-lg hidden sm:block">
                 MarketplaceBeta
               </span>
@@ -1286,7 +1291,8 @@ export default function HomePageClient({
       </div>
 
       {/* Footer */}
-      <footer className="bg-card border-t">
+      <footer className="relative overflow-hidden border-t border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.22),transparent_24%),radial-gradient(circle_at_top_right,rgba(168,85,247,0.18),transparent_22%),radial-gradient(circle_at_bottom,rgba(20,184,166,0.1),transparent_20%),linear-gradient(180deg,rgba(2,6,23,0.98),rgba(15,23,42,1))] text-white">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/45 to-transparent" />
         <div className="max-w-7xl mx-auto px-4 py-12">
           <div className="grid md:grid-cols-4 gap-8">
             {/* Brand */}
@@ -1295,17 +1301,17 @@ export default function HomePageClient({
                 <Image src="/brand-icon.png" alt="MarketplaceBeta logo" width={36} height={36} className="h-9 w-9 rounded-lg object-cover" />
                 <span className="font-bold text-xl">MarketplaceBeta</span>
               </div>
-              <p className="text-sm text-muted-foreground mb-4">
+              <p className="text-sm text-white/70 mb-4">
                 The intelligence hub for marketplace commerce. News, tools, and insights for e-commerce professionals.
               </p>
               <div className="flex gap-3">
-                <Button variant="outline" size="icon" className="h-9 w-9">
+                <Button variant="outline" size="icon" className="h-9 w-9 border-white/15 bg-white/5 text-white hover:bg-white/10 hover:text-white">
                   <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
                 </Button>
-                <Button variant="outline" size="icon" className="h-9 w-9">
+                <Button variant="outline" size="icon" className="h-9 w-9 border-white/15 bg-white/5 text-white hover:bg-white/10 hover:text-white">
                   <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
                 </Button>
-                <Button variant="outline" size="icon" className="h-9 w-9">
+                <Button variant="outline" size="icon" className="h-9 w-9 border-white/15 bg-white/5 text-white hover:bg-white/10 hover:text-white">
                   <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
                 </Button>
               </div>
@@ -1314,7 +1320,7 @@ export default function HomePageClient({
             {/* Categories */}
             <div>
               <h4 className="font-semibold mb-4">Categories</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
+              <ul className="space-y-2 text-sm text-white/70">
                 {CATEGORIES.slice(1, 7).map((cat) => (
                   <li key={cat.id}>
                     <button
@@ -1322,7 +1328,7 @@ export default function HomePageClient({
                         setSelectedCategory(cat.id)
                         window.scrollTo({ top: 0, behavior: 'smooth' })
                       }}
-                      className="hover:text-foreground transition-colors"
+                      className="hover:text-white transition-colors"
                     >
                       {cat.label}
                     </button>
@@ -1334,21 +1340,21 @@ export default function HomePageClient({
             {/* Company */}
             <div>
               <h4 className="font-semibold mb-4">Company</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="/about" className="hover:text-foreground transition-colors">About</Link></li>
-                <li><Link href="/contact" className="hover:text-foreground transition-colors">Contact</Link></li>
-                <li><Link href="/advertise" className="hover:text-foreground transition-colors">Advertise</Link></li>
-                <li><Link href="/partners" className="hover:text-foreground transition-colors">Partner Marketplace</Link></li>
-                <li><Link href="/submit" className="hover:text-foreground transition-colors">Submit a Tip</Link></li>
-                <li><Link href="/tools" className="hover:text-foreground transition-colors">Seller Tools</Link></li>
-                <li><Link href="/articles" className="hover:text-foreground transition-colors">Search Articles</Link></li>
+              <ul className="space-y-2 text-sm text-white/70">
+                <li><Link href="/about" className="hover:text-white transition-colors">About</Link></li>
+                <li><Link href="/contact" className="hover:text-white transition-colors">Contact</Link></li>
+                <li><Link href="/advertise" className="hover:text-white transition-colors">Advertise</Link></li>
+                <li><Link href="/partners" className="hover:text-white transition-colors">Partner Marketplace</Link></li>
+                <li><Link href="/submit" className="hover:text-white transition-colors">Submit a Tip</Link></li>
+                <li><Link href="/tools" className="hover:text-white transition-colors">Seller Tools</Link></li>
+                <li><Link href="/articles" className="hover:text-white transition-colors">Search Articles</Link></li>
               </ul>
             </div>
 
             {/* Newsletter */}
             <div>
               <h4 className="font-semibold mb-4">Newsletter</h4>
-              <p className="text-sm text-muted-foreground mb-4">
+              <p className="text-sm text-white/70 mb-4">
                 Get the daily brief delivered to your inbox every morning.
               </p>
               <form onSubmit={handleSubscribe} className="flex gap-2">
@@ -1357,18 +1363,18 @@ export default function HomePageClient({
                   placeholder="Your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="flex-1"
+                  className="flex-1 border-white/10 bg-white/8 text-white placeholder:text-white/45"
                 />
-                <Button type="submit" disabled={isSubscribing || subscribed}>
+                <Button type="submit" disabled={isSubscribing || subscribed} className="bg-white text-slate-950 hover:bg-white/90">
                   {subscribed ? "Done" : "Go"}
                 </Button>
               </form>
             </div>
           </div>
 
-          <Separator className="my-8" />
+          <Separator className="my-8 bg-white/10" />
 
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-white/60">
             <div className="flex flex-col items-center md:items-start gap-2">
               <p>2026 MarketplaceBeta. All rights reserved.</p>
               <p className="text-xs italic">Built for the marketplace commerce community</p>
@@ -1379,7 +1385,7 @@ export default function HomePageClient({
                   href="https://twitter.com/ecomintel" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="hover:text-foreground transition-colors"
+                  className="hover:text-white transition-colors"
                   aria-label="Twitter"
                 >
                   <Twitter className="h-4 w-4" />
@@ -1388,19 +1394,19 @@ export default function HomePageClient({
                   href="https://linkedin.com/company/ecom-intel-hub" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="hover:text-foreground transition-colors"
+                  className="hover:text-white transition-colors"
                   aria-label="LinkedIn"
                 >
                   <Linkedin className="h-4 w-4" />
                 </a>
               </div>
               <div className="flex gap-6">
-                <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
-                <Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link>
+                <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
+                <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
               </div>
             </div>
           </div>
-<div className="mt-4 text-center text-xs text-muted-foreground/70">
+          <div className="mt-4 text-center text-xs text-white/45">
             News updates throughout the day
           </div>
         </div>
