@@ -190,34 +190,34 @@ function SponsorVisualScene({
           <div className="absolute bottom-0 left-10 h-36 w-36 rounded-full bg-violet-500/12 blur-3xl" />
           <div className="absolute left-0 top-0 h-full w-full bg-[radial-gradient(circle_at_left_center,rgba(34,211,238,0.14),transparent_26%),radial-gradient(circle_at_right_center,rgba(217,70,239,0.14),transparent_28%)]" />
 
-          <div className={`relative flex h-full flex-col justify-between ${isTopBanner ? 'items-center px-7 py-7 text-center' : 'px-6 py-6'}`}>
-            <div className={`space-y-4 ${isTopBanner ? 'flex max-w-[320px] flex-col items-center' : ''}`}>
+          <div className={`relative flex h-full flex-col justify-between ${isTopBanner ? 'items-center px-8 py-7 text-center' : 'px-6 py-6'}`}>
+            <div className={`space-y-4 ${isTopBanner ? 'flex w-full max-w-[360px] flex-col items-center' : ''}`}>
               <div className="inline-flex rounded-full border border-white/12 bg-white/6 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/70 backdrop-blur">
                 Strategic Partner
               </div>
-              <div className={`${isTopBanner ? 'max-w-[300px]' : 'max-w-[260px]'} space-y-1`}>
-                <p className={`${isTopBanner ? 'text-[clamp(2.5rem,4.8vw,4.6rem)]' : 'text-[clamp(2.1rem,3.8vw,4rem)]'} font-black leading-[0.88] tracking-[-0.07em]`}>
-                  <span className="block bg-[linear-gradient(135deg,#56d4ff_5%,#9da8ff_48%,#f15df5_100%)] bg-clip-text text-transparent">
+              <div className={`${isTopBanner ? 'w-full max-w-[360px]' : 'max-w-[260px]'} space-y-1`}>
+                <p className={`${isTopBanner ? 'text-[clamp(2rem,3.6vw,3.7rem)]' : 'text-[clamp(2.1rem,3.8vw,4rem)]'} font-black leading-[0.9] tracking-[-0.07em]`}>
+                  <span className="block whitespace-nowrap bg-[linear-gradient(135deg,#56d4ff_5%,#9da8ff_48%,#f15df5_100%)] bg-clip-text text-transparent">
                     Keep more.
                   </span>
                 </p>
-                <p className={`${isTopBanner ? 'text-[clamp(2.5rem,4.8vw,4.6rem)]' : 'text-[clamp(2.1rem,3.8vw,4rem)]'} font-black leading-[0.88] tracking-[-0.07em]`}>
-                  <span className="block bg-[linear-gradient(135deg,#78c8ff_0%,#b287ff_52%,#f155ff_100%)] bg-clip-text text-transparent">
+                <p className={`${isTopBanner ? 'text-[clamp(2rem,3.6vw,3.7rem)]' : 'text-[clamp(2.1rem,3.8vw,4rem)]'} font-black leading-[0.9] tracking-[-0.07em]`}>
+                  <span className="block whitespace-nowrap bg-[linear-gradient(135deg,#78c8ff_0%,#b287ff_52%,#f155ff_100%)] bg-clip-text text-transparent">
                     Sell more.
                   </span>
                 </p>
-                <p className={`${isTopBanner ? 'text-[clamp(2.5rem,4.8vw,4.6rem)]' : 'text-[clamp(2.1rem,3.8vw,4rem)]'} font-black leading-[0.88] tracking-[-0.07em]`}>
-                  <span className="block bg-[linear-gradient(135deg,#8bb8ff_0%,#c97bff_44%,#ff6bd7_100%)] bg-clip-text text-transparent">
+                <p className={`${isTopBanner ? 'text-[clamp(2rem,3.6vw,3.7rem)]' : 'text-[clamp(2.1rem,3.8vw,4rem)]'} font-black leading-[0.9] tracking-[-0.07em]`}>
+                  <span className="block whitespace-nowrap bg-[linear-gradient(135deg,#8bb8ff_0%,#c97bff_44%,#ff6bd7_100%)] bg-clip-text text-transparent">
                     Scale faster.
                   </span>
                 </p>
               </div>
-              <p className={`${isTopBanner ? 'max-w-[290px]' : 'max-w-[28rem]'} text-sm font-medium leading-6 text-white/80`}>
+              <p className={`${isTopBanner ? 'max-w-[320px]' : 'max-w-[28rem]'} text-sm font-medium leading-6 text-white/80`}>
                 The operational infrastructure to simplify your commerce stack.
               </p>
             </div>
 
-            <div className={`flex ${isTopBanner ? 'w-full max-w-[320px] items-center justify-center gap-3' : 'items-end justify-between gap-4'}`}>
+            <div className={`flex ${isTopBanner ? 'w-full max-w-[360px] items-center justify-center gap-3' : 'items-end justify-between gap-4'}`}>
               <div className="inline-flex items-center rounded-full border border-white/10 bg-white px-4 py-2 text-sm font-semibold text-slate-950 shadow-[0_18px_40px_-24px_rgba(255,255,255,0.75)]">
                 Explore Threecolts
               </div>
