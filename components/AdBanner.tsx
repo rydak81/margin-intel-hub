@@ -66,10 +66,14 @@ function SponsorImage({
   sponsor,
   variant,
   className,
+  imageClassName,
+  scrimClassName,
 }: {
   sponsor: SponsorConfig
   variant: SponsorZone
   className?: string
+  imageClassName?: string
+  scrimClassName?: string
 }) {
   if (!sponsor.bannerImageUrl) return null
 
@@ -86,11 +90,11 @@ function SponsorImage({
               ? '(min-width: 1024px) 420px, 100vw'
               : '(min-width: 1024px) 560px, 100vw'
         }
-        className="object-cover"
+        className={imageClassName || 'object-cover'}
         style={{ objectPosition: sponsor.imageFocus?.[variant] || 'center center' }}
         priority={variant === 'top-banner'}
       />
-      <div className="absolute inset-0 bg-gradient-to-br from-black/10 via-transparent to-black/35" />
+      <div className={scrimClassName || 'absolute inset-0 bg-gradient-to-br from-black/10 via-transparent to-black/35'} />
     </div>
   )
 }
@@ -148,41 +152,39 @@ function SponsorActions({ sponsor, compact = false }: { sponsor: SponsorConfig; 
   )
 }
 
-function SponsorVisualPanel({
+function SponsorVisualScene({
   sponsor,
   variant,
 }: {
   sponsor: SponsorConfig
   variant: SponsorZone
 }) {
-  const logoWidthClass = sponsor.id === 'threecolts' ? 'w-36' : 'w-16'
-  const logoHeightClass = sponsor.id === 'threecolts' ? 'h-12' : 'h-16'
+  const supportingHighlight = sponsor.highlights[1] || sponsor.highlights[0]
 
   return (
-    <div className="absolute inset-0 z-[1] flex flex-col justify-between p-5">
-      <div className="space-y-4">
-        <div className="flex justify-start lg:justify-center">
-          <SponsorLogo
-            name={sponsor.name}
-            logoUrl={sponsor.logoUrl}
-            sizes={variant === 'top-banner' ? '144px' : '128px'}
-            className={`${logoHeightClass} ${logoWidthClass} rounded-full border-white/15 bg-white/95 px-4 shadow-[0_16px_40px_-24px_rgba(15,23,42,0.9)]`}
-            imageClassName={sponsor.id === 'threecolts' ? 'p-3' : 'p-3'}
-            fallbackClassName="text-sm"
+    <div className="absolute inset-0 z-[1] overflow-hidden">
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,42,0.1),rgba(2,6,23,0.18)_38%,rgba(2,6,23,0.72)_100%)]" />
+      <div className="absolute -right-10 top-8 h-36 w-36 rounded-full bg-cyan-400/12 blur-3xl" />
+      <div className="absolute -left-6 bottom-10 h-28 w-28 rounded-full bg-violet-400/10 blur-3xl" />
+
+      {sponsor.bannerImageUrl && (
+        <div className="absolute inset-x-4 top-4 bottom-4">
+          <div className="absolute inset-0 rounded-[28px] border border-white/8 bg-white/[0.03]" />
+          <SponsorImage
+            sponsor={sponsor}
+            variant={variant}
+            className="absolute inset-0 rounded-[28px]"
+            imageClassName="object-contain object-right-bottom p-5 drop-shadow-[0_22px_48px_rgba(2,6,23,0.6)]"
+            scrimClassName="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.1),transparent_32%),linear-gradient(180deg,rgba(2,6,23,0.08),rgba(2,6,23,0.2)_52%,rgba(2,6,23,0.44))]"
           />
         </div>
-        <div className="grid gap-2">
-          {sponsor.highlights.slice(0, 2).map((highlight) => (
-            <div
-              key={highlight}
-              className="rounded-2xl border border-white/10 bg-slate-950/55 px-3 py-2.5 text-xs font-medium text-white/85 backdrop-blur-sm shadow-[0_18px_40px_-32px_rgba(0,0,0,0.9)]"
-            >
-              {highlight}
-            </div>
-          ))}
-        </div>
+      )}
+
+      <div className="absolute right-5 top-5 max-w-[220px] rounded-full border border-white/12 bg-slate-950/55 px-4 py-2 text-xs font-medium text-white/88 shadow-[0_18px_40px_-32px_rgba(0,0,0,0.95)] backdrop-blur-md">
+        {supportingHighlight}
       </div>
-      <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-4 text-white shadow-[0_18px_40px_-28px_rgba(0,0,0,0.95)] backdrop-blur-sm">
+
+      <div className="absolute bottom-5 left-5 right-5 max-w-[340px] rounded-3xl border border-white/10 bg-slate-950/68 p-4 text-white shadow-[0_18px_40px_-28px_rgba(0,0,0,0.95)] backdrop-blur-md">
         <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/65">Operator Use Case</p>
         <p className="text-sm leading-6 text-white/90">{sponsor.useCase}</p>
       </div>
@@ -265,9 +267,8 @@ export function AdBanner({ sponsor, variant, dismissible = false }: AdBannerProp
               </div>
             </div>
             <div className="relative min-h-[260px] border-t border-white/10 lg:min-h-full lg:border-l lg:border-t-0">
-              <SponsorImage sponsor={sponsor} variant={variant} className="absolute inset-0" />
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_34%),linear-gradient(180deg,rgba(2,6,23,0.16),rgba(2,6,23,0.62))]" />
-              <SponsorVisualPanel sponsor={sponsor} variant={variant} />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_34%),linear-gradient(180deg,rgba(2,6,23,0.12),rgba(2,6,23,0.38))]" />
+              <SponsorVisualScene sponsor={sponsor} variant={variant} />
             </div>
           </div>
         </CardContent>
@@ -315,9 +316,8 @@ export function AdBanner({ sponsor, variant, dismissible = false }: AdBannerProp
             <SponsorActions sponsor={sponsor} />
           </div>
           <div className="relative min-h-[220px] border-t border-white/10 lg:border-l lg:border-t-0">
-            <SponsorImage sponsor={sponsor} variant={variant} className="absolute inset-0" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_34%),linear-gradient(180deg,rgba(2,6,23,0.16),rgba(2,6,23,0.62))]" />
-            <SponsorVisualPanel sponsor={sponsor} variant={variant} />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_34%),linear-gradient(180deg,rgba(2,6,23,0.12),rgba(2,6,23,0.38))]" />
+            <SponsorVisualScene sponsor={sponsor} variant={variant} />
           </div>
         </CardContent>
       </Card>
