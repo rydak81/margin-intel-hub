@@ -88,10 +88,8 @@ export async function sendBatchEmails(
       errors.push(`${subscriber.email}: ${result.error}`)
     }
 
-    // Small delay between sends to be respectful of rate limits
-    if (subscribers.length > 10) {
-      await new Promise(resolve => setTimeout(resolve, 100))
-    }
+    // Delay between sends to respect Resend rate limits (5 req/sec on free tier)
+    await new Promise(resolve => setTimeout(resolve, 300))
   }
 
   console.log(`[Email] Batch complete: ${sent} sent, ${failed} failed`)
