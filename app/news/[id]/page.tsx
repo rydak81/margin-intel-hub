@@ -170,6 +170,7 @@ function calculateStringSimilarity(str1: string, str2: string): number {
 
 export default function ArticlePage() {
   const params = useParams()
+  const articleId = Array.isArray(params.id) ? params.id[0] : params.id
   const [article, setArticle] = useState<Article | null>(null)
   const [relatedArticles, setRelatedArticles] = useState<Article[]>([])
   const [loading, setLoading] = useState(true)
@@ -184,7 +185,7 @@ export default function ArticlePage() {
       try {
         // Try dedicated article detail endpoint first
         try {
-          const detailResponse = await fetch(`/api/articles/${params.id}`)
+          const detailResponse = await fetch(`/api/articles/${articleId}`)
           const detailData = await detailResponse.json()
 
           if (detailData.success && detailData.article) {
@@ -209,7 +210,7 @@ export default function ArticlePage() {
 
           if (articlesData.success && articlesData.articles) {
             allArticles = articlesData.articles
-            foundArticle = articlesData.articles.find((a: Article) => a.id === params.id)
+            foundArticle = articlesData.articles.find((a: Article) => a.id === articleId)
           }
         } catch (e) {
           console.error("Failed to fetch from /api/articles:", e)
@@ -218,7 +219,7 @@ export default function ArticlePage() {
         if (foundArticle) {
           setArticle(foundArticle)
           const related = allArticles
-            .filter((a: Article) => a.id !== params.id && a.category === foundArticle.category)
+            .filter((a: Article) => a.id !== articleId && a.category === foundArticle.category)
             .slice(0, 4)
           setRelatedArticles(related)
         }
@@ -229,10 +230,10 @@ export default function ArticlePage() {
       }
     }
 
-    if (params.id) {
+    if (articleId) {
       fetchArticle()
     }
-  }, [params.id])
+  }, [articleId])
 
   const generateLinkedInPost = async () => {
     if (!article) return
@@ -262,13 +263,9 @@ export default function ArticlePage() {
     }
   }
 
-  const sponsorContext = {
-    topic: article?.category,
-    audiences: article?.audience || [],
-  }
-  const articleSideBanners = getActivePlacements('article', 'sidebar', sponsorContext)
-  const articleInlineBanners = getActivePlacements('article', 'inline', sponsorContext)
-  const articleFooterBanners = getActivePlacements('article', 'footer', sponsorContext)
+  const articleSideBanners = getActivePlacements('article', 'sidebar')
+  const articleInlineBanners = getActivePlacements('article', 'inline')
+  const articleFooterBanners = getActivePlacements('article', 'footer')
 
   const handleShare = async (platform: string) => {
     const url = window.location.href
