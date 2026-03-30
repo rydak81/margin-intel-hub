@@ -239,6 +239,7 @@ export default function SolutionsPage() {
             <nav className="hidden lg:flex items-center gap-6">
               <Link href="/" className="text-sm font-semibold hover:text-primary transition-colors">Home</Link>
               <Link href="/tools" className="text-sm font-semibold hover:text-primary transition-colors">Tools</Link>
+              <Link href="/partners" className="text-sm font-semibold hover:text-primary transition-colors">Partners</Link>
               <Link href="/solutions" className="text-sm font-semibold text-primary transition-colors">Solutions</Link>
               {/* Community hidden — launching later */}
               <Link href="/events" className="text-sm font-semibold hover:text-primary transition-colors">Events</Link>
@@ -265,6 +266,7 @@ export default function SolutionsPage() {
               <nav className="flex flex-col gap-2">
                 <Link href="/" className="px-4 py-2 hover:bg-muted rounded-md" onClick={() => setMobileMenuOpen(false)}>Home</Link>
                 <Link href="/tools" className="px-4 py-2 hover:bg-muted rounded-md" onClick={() => setMobileMenuOpen(false)}>Tools</Link>
+                <Link href="/partners" className="px-4 py-2 hover:bg-muted rounded-md" onClick={() => setMobileMenuOpen(false)}>Partners</Link>
                 <Link href="/solutions" className="px-4 py-2 hover:bg-muted rounded-md bg-muted" onClick={() => setMobileMenuOpen(false)}>Solutions</Link>
                 {/* Community hidden — launching later */}
                 <Link href="/events" className="px-4 py-2 hover:bg-muted rounded-md" onClick={() => setMobileMenuOpen(false)}>Events</Link>

@@ -31,6 +31,12 @@ const staticRoutes: MetadataRoute.Sitemap = [
     priority: 0.7,
   },
   {
+    url: `${siteUrl}/partners`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly',
+    priority: 0.7,
+  },
+  {
     url: `${siteUrl}/events`,
     lastModified: new Date(),
     changeFrequency: 'weekly',

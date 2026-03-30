@@ -262,9 +262,13 @@ export default function ArticlePage() {
     }
   }
 
-  const articleSideBanners = getActivePlacements('article', 'sidebar')
-  const articleInlineBanners = getActivePlacements('article', 'inline')
-  const articleFooterBanners = getActivePlacements('article', 'footer')
+  const sponsorContext = {
+    topic: article?.category,
+    audiences: article?.audience || [],
+  }
+  const articleSideBanners = getActivePlacements('article', 'sidebar', sponsorContext)
+  const articleInlineBanners = getActivePlacements('article', 'inline', sponsorContext)
+  const articleFooterBanners = getActivePlacements('article', 'footer', sponsorContext)
 
   const handleShare = async (platform: string) => {
     const url = window.location.href
@@ -595,7 +599,7 @@ export default function ArticlePage() {
 
             {/* Inline Ad Banners */}
             {articleInlineBanners.map(p => (
-              <AdBanner key={p.id} sponsor={p.sponsor} variant="inline" />
+              <AdBanner key={p.id} sponsor={p.sponsor} variant="inline" dismissible={p.dismissible} />
             ))}
 
             {/* ========================================================= */}
@@ -773,7 +777,7 @@ export default function ArticlePage() {
           <aside className="space-y-6">
             {/* Sidebar Ad Banners */}
             {articleSideBanners.map(p => (
-              <AdBanner key={p.id} sponsor={p.sponsor} variant="sidebar" />
+              <AdBanner key={p.id} sponsor={p.sponsor} variant="sidebar" dismissible={p.dismissible} />
             ))}
 
             {/* Newsletter CTA */}
@@ -871,7 +875,7 @@ export default function ArticlePage() {
       {/* Footer Ad Banners */}
       <div className="max-w-7xl mx-auto px-4">
         {articleFooterBanners.map(p => (
-          <AdBanner key={p.id} sponsor={p.sponsor} variant="footer" />
+          <AdBanner key={p.id} sponsor={p.sponsor} variant="footer" dismissible={p.dismissible} />
         ))}
       </div>
 
@@ -887,6 +891,7 @@ export default function ArticlePage() {
               <Link href="/" className="hover:text-foreground transition-colors">Home</Link>
               <Link href="/articles" className="hover:text-foreground transition-colors">Articles</Link>
               <Link href="/tools" className="hover:text-foreground transition-colors">Tools</Link>
+              <Link href="/partners" className="hover:text-foreground transition-colors">Partners</Link>
               <Link href="/events" className="hover:text-foreground transition-colors">Events</Link>
               <Link href="/newsletter" className="hover:text-foreground transition-colors">Newsletter</Link>
             </div>

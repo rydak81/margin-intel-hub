@@ -158,10 +158,6 @@ export default function HomePageClient({
   initialBreakingNews,
 }: HomePageClientProps) {
   const { resolvedTheme, setTheme } = useTheme()
-  const topBanners = getActivePlacements('home', 'top-banner')
-  const sideBanners = getActivePlacements('home', 'sidebar')
-  const inlineBanners = getActivePlacements('home', 'inline')
-  const footerBanners = getActivePlacements('home', 'footer')
 
   const [articles, setArticles] = useState<NewsArticle[]>(initialArticles)
   const [breakingNews, setBreakingNews] = useState<BreakingNews[]>(
@@ -354,6 +350,14 @@ export default function HomePageClient({
       return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
     })
     .slice(0, 5)
+  const sponsorContext = {
+    topic: selectedCategory !== "all" ? selectedCategory : heroArticle?.category,
+    audiences: heroArticle?.audience || [],
+  }
+  const topBanners = getActivePlacements('home', 'top-banner', sponsorContext)
+  const sideBanners = getActivePlacements('home', 'sidebar', sponsorContext)
+  const inlineBanners = getActivePlacements('home', 'inline', sponsorContext)
+  const footerBanners = getActivePlacements('home', 'footer', sponsorContext)
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -462,6 +466,9 @@ export default function HomePageClient({
               <Link href="/articles" className="text-sm font-semibold hover:text-primary transition-colors">
                 Articles
               </Link>
+              <Link href="/partners" className="text-sm font-semibold hover:text-primary transition-colors">
+                Partners
+              </Link>
               <Link href="/tools" className="text-sm font-semibold hover:text-primary transition-colors">
                 Tools
               </Link>
@@ -545,6 +552,7 @@ export default function HomePageClient({
               <nav className="flex flex-col gap-2">
                 <Link href="/" className="px-4 py-2 rounded-md hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>Home</Link>
                 <Link href="/articles" className="px-4 py-2 rounded-md hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>Articles</Link>
+                <Link href="/partners" className="px-4 py-2 rounded-md hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>Partners</Link>
                 <Link href="/tools" className="px-4 py-2 rounded-md hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>Tools</Link>
                 {/* Solutions and Community hidden - coming soon */}
                 <Link href="/events" className="px-4 py-2 rounded-md hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>Events</Link>
@@ -625,7 +633,7 @@ export default function HomePageClient({
       <main id="briefing" className="max-w-7xl mx-auto px-4 py-8">
         {/* Top Ad Banners */}
         {topBanners.map(p => (
-          <AdBanner key={p.id} sponsor={p.sponsor} variant="top-banner" />
+          <AdBanner key={p.id} sponsor={p.sponsor} variant="top-banner" dismissible={p.dismissible} />
         ))}
 
         {/* Hero Featured Article - Full Width (outside flex layout) */}
@@ -1033,13 +1041,13 @@ export default function HomePageClient({
                     {/* Inline Ad Banners after 6th article */}
                     {index === 5 && inlineBanners.length > 0 && (
                       <div key={`inline-ad-${index}`} className="md:col-span-2">
-                        <AdBanner sponsor={inlineBanners[0].sponsor} variant="inline" />
+                        <AdBanner sponsor={inlineBanners[0].sponsor} variant="inline" dismissible={inlineBanners[0].dismissible} />
                       </div>
                     )}
                     {/* Second inline ad after 12th article */}
                     {index === 11 && inlineBanners.length > 1 && (
                       <div key={`inline-ad-2-${index}`} className="md:col-span-2">
-                        <AdBanner sponsor={inlineBanners[1].sponsor} variant="inline" />
+                        <AdBanner sponsor={inlineBanners[1].sponsor} variant="inline" dismissible={inlineBanners[1].dismissible} />
                       </div>
                     )}
 
@@ -1093,7 +1101,7 @@ export default function HomePageClient({
           <aside className="w-full lg:w-80 space-y-6">
             {/* Sidebar Ad Banners */}
             {sideBanners.map(p => (
-              <AdBanner key={p.id} sponsor={p.sponsor} variant="sidebar" />
+              <AdBanner key={p.id} sponsor={p.sponsor} variant="sidebar" dismissible={p.dismissible} />
             ))}
 
             {loading && (
@@ -1273,7 +1281,7 @@ export default function HomePageClient({
       {/* Footer Ad Banners */}
       <div className="max-w-7xl mx-auto px-4">
         {footerBanners.map(p => (
-          <AdBanner key={p.id} sponsor={p.sponsor} variant="footer" />
+          <AdBanner key={p.id} sponsor={p.sponsor} variant="footer" dismissible={p.dismissible} />
         ))}
       </div>
 
@@ -1330,6 +1338,7 @@ export default function HomePageClient({
                 <li><Link href="/about" className="hover:text-foreground transition-colors">About</Link></li>
                 <li><Link href="/contact" className="hover:text-foreground transition-colors">Contact</Link></li>
                 <li><Link href="/advertise" className="hover:text-foreground transition-colors">Advertise</Link></li>
+                <li><Link href="/partners" className="hover:text-foreground transition-colors">Partner Marketplace</Link></li>
                 <li><Link href="/submit" className="hover:text-foreground transition-colors">Submit a Tip</Link></li>
                 <li><Link href="/tools" className="hover:text-foreground transition-colors">Seller Tools</Link></li>
                 <li><Link href="/articles" className="hover:text-foreground transition-colors">Search Articles</Link></li>
