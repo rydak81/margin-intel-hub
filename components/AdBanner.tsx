@@ -148,6 +148,48 @@ function SponsorActions({ sponsor, compact = false }: { sponsor: SponsorConfig; 
   )
 }
 
+function SponsorVisualPanel({
+  sponsor,
+  variant,
+}: {
+  sponsor: SponsorConfig
+  variant: SponsorZone
+}) {
+  const logoWidthClass = sponsor.id === 'threecolts' ? 'w-36' : 'w-16'
+  const logoHeightClass = sponsor.id === 'threecolts' ? 'h-12' : 'h-16'
+
+  return (
+    <div className="absolute inset-0 z-[1] flex flex-col justify-between p-5">
+      <div className="space-y-4">
+        <div className="flex justify-start lg:justify-center">
+          <SponsorLogo
+            name={sponsor.name}
+            logoUrl={sponsor.logoUrl}
+            sizes={variant === 'top-banner' ? '144px' : '128px'}
+            className={`${logoHeightClass} ${logoWidthClass} rounded-full border-white/15 bg-white/95 px-4 shadow-[0_16px_40px_-24px_rgba(15,23,42,0.9)]`}
+            imageClassName={sponsor.id === 'threecolts' ? 'p-3' : 'p-3'}
+            fallbackClassName="text-sm"
+          />
+        </div>
+        <div className="grid gap-2">
+          {sponsor.highlights.slice(0, 2).map((highlight) => (
+            <div
+              key={highlight}
+              className="rounded-2xl border border-white/10 bg-slate-950/55 px-3 py-2.5 text-xs font-medium text-white/85 backdrop-blur-sm shadow-[0_18px_40px_-32px_rgba(0,0,0,0.9)]"
+            >
+              {highlight}
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-4 text-white shadow-[0_18px_40px_-28px_rgba(0,0,0,0.95)] backdrop-blur-sm">
+        <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/65">Operator Use Case</p>
+        <p className="text-sm leading-6 text-white/90">{sponsor.useCase}</p>
+      </div>
+    </div>
+  )
+}
+
 function DismissButton({
   dismissible,
   sponsor,
@@ -224,10 +266,8 @@ export function AdBanner({ sponsor, variant, dismissible = false }: AdBannerProp
             </div>
             <div className="relative min-h-[260px] border-t border-white/10 lg:min-h-full lg:border-l lg:border-t-0">
               <SponsorImage sponsor={sponsor} variant={variant} className="absolute inset-0" />
-              <div className="absolute inset-x-0 bottom-0 z-[1] space-y-2 bg-gradient-to-t from-slate-950/85 via-slate-950/40 to-transparent p-5 text-white">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/70">Use Case</p>
-                <p className="max-w-md text-sm leading-6 text-white/90">{sponsor.useCase}</p>
-              </div>
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_34%),linear-gradient(180deg,rgba(2,6,23,0.16),rgba(2,6,23,0.62))]" />
+              <SponsorVisualPanel sponsor={sponsor} variant={variant} />
             </div>
           </div>
         </CardContent>
@@ -276,10 +316,8 @@ export function AdBanner({ sponsor, variant, dismissible = false }: AdBannerProp
           </div>
           <div className="relative min-h-[220px] border-t border-white/10 lg:border-l lg:border-t-0">
             <SponsorImage sponsor={sponsor} variant={variant} className="absolute inset-0" />
-            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/90 via-slate-950/45 to-transparent p-4 text-white">
-              <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/70">Operator Use Case</p>
-              <p className="text-sm leading-6 text-white/90">{sponsor.useCase}</p>
-            </div>
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_34%),linear-gradient(180deg,rgba(2,6,23,0.16),rgba(2,6,23,0.62))]" />
+            <SponsorVisualPanel sponsor={sponsor} variant={variant} />
           </div>
         </CardContent>
       </Card>
