@@ -160,6 +160,7 @@ function SponsorVisualScene({
   variant: SponsorZone
 }) {
   const supportingHighlight = sponsor.highlights[1] || sponsor.highlights[0]
+  const isThreecolts = sponsor.id === 'threecolts'
 
   return (
     <div className="absolute inset-0 z-[1] overflow-hidden">
@@ -167,7 +168,7 @@ function SponsorVisualScene({
       <div className="absolute -right-10 top-8 h-36 w-36 rounded-full bg-cyan-400/12 blur-3xl" />
       <div className="absolute -left-6 bottom-10 h-28 w-28 rounded-full bg-violet-400/10 blur-3xl" />
 
-      {sponsor.bannerImageUrl && (
+      {sponsor.bannerImageUrl && !isThreecolts && (
         <div className="absolute inset-x-4 top-4 bottom-4">
           <div className="absolute inset-0 rounded-[28px] border border-white/8 bg-white/[0.03]" />
           <SponsorImage
@@ -180,14 +181,65 @@ function SponsorVisualScene({
         </div>
       )}
 
-      <div className="absolute right-5 top-5 max-w-[220px] rounded-full border border-white/12 bg-slate-950/55 px-4 py-2 text-xs font-medium text-white/88 shadow-[0_18px_40px_-32px_rgba(0,0,0,0.95)] backdrop-blur-md">
-        {supportingHighlight}
-      </div>
+      {isThreecolts && (
+        <div className="absolute inset-x-5 top-5 bottom-5">
+          <div className="absolute inset-0 rounded-[30px] border border-white/8 bg-[linear-gradient(145deg,rgba(15,23,42,0.3),rgba(2,6,23,0.08))]" />
+          <div className="absolute -left-14 top-8 h-40 w-40 rounded-full bg-cyan-400/20 blur-3xl" />
+          <div className="absolute right-0 top-20 h-44 w-44 rounded-full bg-fuchsia-500/18 blur-3xl" />
+          <div className="absolute bottom-0 left-10 h-36 w-36 rounded-full bg-violet-500/12 blur-3xl" />
+          <div className="absolute left-0 top-0 h-full w-full bg-[radial-gradient(circle_at_left_center,rgba(34,211,238,0.14),transparent_26%),radial-gradient(circle_at_right_center,rgba(217,70,239,0.14),transparent_28%)]" />
 
-      <div className="absolute bottom-5 left-5 right-5 max-w-[340px] rounded-3xl border border-white/10 bg-slate-950/68 p-4 text-white shadow-[0_18px_40px_-28px_rgba(0,0,0,0.95)] backdrop-blur-md">
-        <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/65">Operator Use Case</p>
-        <p className="text-sm leading-6 text-white/90">{sponsor.useCase}</p>
-      </div>
+          <div className="relative flex h-full flex-col justify-between px-6 py-6">
+            <div className="space-y-4">
+              <div className="inline-flex rounded-full border border-white/12 bg-white/6 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/70 backdrop-blur">
+                Strategic Partner
+              </div>
+              <div className="space-y-1">
+                <p className="text-[clamp(2rem,4vw,4rem)] font-black leading-[0.9] tracking-[-0.06em]">
+                  <span className="bg-[linear-gradient(135deg,#56d4ff_5%,#9da8ff_48%,#f15df5_100%)] bg-clip-text text-transparent">
+                    Keep more.
+                  </span>
+                </p>
+                <p className="text-[clamp(2rem,4vw,4rem)] font-black leading-[0.9] tracking-[-0.06em]">
+                  <span className="bg-[linear-gradient(135deg,#78c8ff_0%,#b287ff_52%,#f155ff_100%)] bg-clip-text text-transparent">
+                    Sell more.
+                  </span>
+                </p>
+                <p className="text-[clamp(2rem,4vw,4rem)] font-black leading-[0.9] tracking-[-0.06em]">
+                  <span className="bg-[linear-gradient(135deg,#8bb8ff_0%,#c97bff_44%,#ff6bd7_100%)] bg-clip-text text-transparent">
+                    Scale faster.
+                  </span>
+                </p>
+              </div>
+              <p className="max-w-[28rem] text-sm font-medium leading-6 text-white/80">
+                The operational infrastructure to simplify your commerce stack.
+              </p>
+            </div>
+
+            <div className="flex items-end justify-between gap-4">
+              <div className="inline-flex items-center rounded-full border border-white/10 bg-white px-4 py-2 text-sm font-semibold text-slate-950 shadow-[0_18px_40px_-24px_rgba(255,255,255,0.75)]">
+                Explore Threecolts
+              </div>
+              <div className="max-w-[220px] rounded-2xl border border-white/10 bg-slate-950/62 px-4 py-3 text-xs font-medium leading-5 text-white/84 backdrop-blur-md">
+                {supportingHighlight}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {!isThreecolts && (
+        <div className="absolute right-5 top-5 max-w-[220px] rounded-full border border-white/12 bg-slate-950/55 px-4 py-2 text-xs font-medium text-white/88 shadow-[0_18px_40px_-32px_rgba(0,0,0,0.95)] backdrop-blur-md">
+          {supportingHighlight}
+        </div>
+      )}
+
+      {!isThreecolts && (
+        <div className="absolute bottom-5 left-5 right-5 max-w-[340px] rounded-3xl border border-white/10 bg-slate-950/68 p-4 text-white shadow-[0_18px_40px_-28px_rgba(0,0,0,0.95)] backdrop-blur-md">
+          <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/65">Operator Use Case</p>
+          <p className="text-sm leading-6 text-white/90">{sponsor.useCase}</p>
+        </div>
+      )}
     </div>
   )
 }
