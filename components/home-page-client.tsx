@@ -731,12 +731,15 @@ export default function HomePageClient({
 
       {/* Active Filter Indicator — only shows when a filter is active */}
       {selectedCategory !== "all" && (
-        <div className="bg-muted/50 border-b">
-          <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between">
+        <div className="border-b border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.78),rgba(248,250,252,0.72))] backdrop-blur dark:bg-[linear-gradient(180deg,rgba(2,6,23,0.72),rgba(15,23,42,0.68))]">
+          <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-3">
             <span className="text-sm text-muted-foreground">
-              Filtered by: <Badge variant="secondary" className="ml-1">{getCategoryConfig(selectedCategory).label}</Badge>
+              Filtered by:
+              <Badge variant="secondary" className="ml-2 rounded-full border border-sky-400/15 bg-white/75 px-3 py-1 dark:border-white/10 dark:bg-slate-950/45">
+                {getCategoryConfig(selectedCategory).label}
+              </Badge>
             </span>
-            <Button variant="ghost" size="sm" onClick={() => setSelectedCategory("all")} className="text-xs h-7">
+            <Button variant="ghost" size="sm" onClick={() => setSelectedCategory("all")} className="h-8 rounded-full px-3 text-xs hover:bg-white/75 dark:hover:bg-slate-950/45">
               <X className="h-3 w-3 mr-1" />
               Clear
             </Button>
@@ -745,7 +748,7 @@ export default function HomePageClient({
       )}
 
       {/* Main Content */}
-      <main id="briefing" className="max-w-7xl mx-auto px-4 py-8">
+      <main id="briefing" className="max-w-7xl mx-auto px-4 py-10">
         {/* Top Ad Banners */}
         {topBanners.map(p => (
           <AdBanner key={p.id} sponsor={p.sponsor} variant="top-banner" dismissible={p.dismissible} />
@@ -767,7 +770,7 @@ export default function HomePageClient({
               }}
               className="cursor-pointer"
             >
-              <Card className="overflow-hidden group cursor-pointer hover:shadow-xl transition-all border-0">
+              <Card className="group cursor-pointer overflow-hidden border border-white/50 bg-white/85 shadow-[0_28px_70px_-42px_rgba(15,23,42,0.42)] transition-all hover:-translate-y-1 hover:shadow-[0_32px_90px_-44px_rgba(15,23,42,0.55)] dark:border-white/10 dark:bg-slate-950/45">
                 <div className="aspect-[16/9] md:aspect-[21/9] lg:aspect-[3/1] min-h-[350px] md:min-h-[400px] lg:min-h-[450px] relative overflow-hidden">
                   {featuredArticles[0]?.imageUrl ? (
                     <Image
@@ -784,6 +787,14 @@ export default function HomePageClient({
                   {/* Strong gradient overlay for text readability on any image */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/20" />
                   <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent" />
+                  <div className="absolute left-0 right-0 top-0 flex items-start justify-between p-6 md:p-8">
+                    <div className="rounded-full border border-white/15 bg-slate-950/40 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/88 backdrop-blur-md">
+                      Lead Briefing
+                    </div>
+                    <div className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/80 backdrop-blur-md">
+                      {featuredArticles[0].readTime} min read
+                    </div>
+                  </div>
                   <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 lg:p-12">
                     <div className="max-w-4xl">
                       <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-4">
@@ -832,15 +843,20 @@ export default function HomePageClient({
 
             {!loading && heroArticle && !searchQuery && (
               <section className="mb-6">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                  <span className="text-sm font-semibold text-primary uppercase tracking-wider">
-                    Top Story
-                  </span>
+                <div className="mb-4 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+                    <span className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">
+                      Top Story
+                    </span>
+                  </div>
+                  <div className="hidden rounded-full border border-sky-400/15 bg-white/75 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45 dark:text-slate-200 md:inline-flex">
+                    Editor&apos;s pick
+                  </div>
                 </div>
                 
                 <div 
-                  className="relative rounded-xl overflow-hidden cursor-pointer group"
+                  className="group relative overflow-hidden rounded-[28px] border border-white/50 bg-white/85 shadow-[0_24px_70px_-40px_rgba(15,23,42,0.42)] dark:border-white/10 dark:bg-slate-950/45"
                   onClick={() => {
                     setSelectedArticle(heroArticle)
                     setArticleModalOpen(true)
@@ -929,34 +945,51 @@ export default function HomePageClient({
             {loading && <CompactNewsletterSkeleton />}
 
             {!loading && filteredArticles.length > 3 && (
-              <div className="flex items-center gap-4 p-4 rounded-lg bg-primary/10 border border-primary/20 mb-6">
-                <Mail className="h-5 w-5 text-primary flex-shrink-0" />
-                <span className="text-sm text-muted-foreground flex-1">
-                  <span className="font-medium text-foreground">Daily Marketplace Brief</span> — Join 5,000+ pros
-                </span>
-                <form onSubmit={handleSubscribe} className="flex gap-2">
+              <div className="mb-6 overflow-hidden rounded-[24px] border border-white/60 bg-[linear-gradient(135deg,rgba(255,255,255,0.92),rgba(248,250,252,0.82)_50%,rgba(239,246,255,0.84)_100%)] p-4 shadow-[0_22px_60px_-38px_rgba(15,23,42,0.34)] dark:border-white/10 dark:bg-[linear-gradient(135deg,rgba(15,23,42,0.82),rgba(15,23,42,0.74)_50%,rgba(30,41,59,0.84)_100%)]">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                  <div className="flex items-center gap-4 flex-1">
+                    <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#0f3f96,#2563eb_62%,#7c3aed)] text-white shadow-[0_18px_40px_-24px_rgba(37,99,235,0.6)]">
+                      <Mail className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-300">Daily Marketplace Brief</p>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        Join <span className="font-semibold text-foreground">5,000+ operators, sellers, and partners</span> getting the sharpest signal in five minutes or less.
+                      </p>
+                    </div>
+                  </div>
+                  <form onSubmit={handleSubscribe} className="flex gap-2">
                   <Input
                     type="email"
                     placeholder="Email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="h-8 w-40 text-sm"
+                    className="h-10 w-44 border-white/40 bg-white/85 text-sm shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45"
                   />
-                  <Button type="submit" size="sm" className="h-8" disabled={isSubscribing || subscribed}>
+                  <Button type="submit" size="sm" className="h-10 border border-sky-400/20 bg-[linear-gradient(135deg,#0f3f96,#2563eb_62%,#4f46e5)] text-white shadow-[0_16px_36px_-24px_rgba(37,99,235,0.7)]" disabled={isSubscribing || subscribed}>
                     {subscribed ? "Done" : isSubscribing ? <Loader2 className="h-3 w-3 animate-spin" /> : "Subscribe"}
                   </Button>
-                </form>
+                  </form>
+                </div>
               </div>
             )}
 
             {/* Regular Articles Grid */}
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold">
-                {searchQuery ? `Search Results` : 'Latest News'}
-              </h2>
-              <span className="text-sm text-muted-foreground">
+            <div className="mb-6 flex items-end justify-between gap-4 border-b border-white/40 pb-4 dark:border-white/10">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-300">
+                  News Feed
+                </p>
+                <h2 className="mt-2 text-2xl font-bold">
+                  {searchQuery ? `Search Results` : 'Latest News'}
+                </h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Curated for operators, sellers, agencies, and marketplace tech teams.
+                </p>
+              </div>
+              <div className="rounded-full border border-white/60 bg-white/80 px-4 py-2 text-sm text-muted-foreground shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
                 {loading ? '' : `${feedArticles.length} article${feedArticles.length !== 1 ? 's' : ''}`}
-              </span>
+              </div>
             </div>
             
             {/* Loading State with Skeletons */}
@@ -1012,8 +1045,8 @@ export default function HomePageClient({
                 {regularArticles.slice(0, visibleArticleCount).map((article, index) => (
                   <Fragment key={article.id}>
                     <div onClick={(e) => handleArticleClick(article, e)}>
-                      <Card className="overflow-hidden group cursor-pointer hover:shadow-md transition-all border-0 h-full">
-                        <div className="aspect-video relative overflow-hidden bg-muted">
+                      <Card className="group h-full cursor-pointer overflow-hidden rounded-[24px] border border-white/60 bg-white/82 shadow-[0_22px_54px_-34px_rgba(15,23,42,0.28)] transition-all hover:-translate-y-1 hover:shadow-[0_26px_70px_-36px_rgba(15,23,42,0.42)] dark:border-white/10 dark:bg-slate-950/45">
+                        <div className="relative aspect-video overflow-hidden bg-muted">
                           <img
                             src={getArticleImageUrl(article)}
                             alt={article.title}
@@ -1032,14 +1065,17 @@ export default function HomePageClient({
                               }
                             }}
                           />
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/25 via-transparent to-transparent opacity-80" />
+                          <div className="absolute left-4 top-4 flex items-center gap-2">
+                            <span className="rounded-full border border-white/20 bg-slate-950/48 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white backdrop-blur">
+                              {article.category.replace(/[-_]/g, ' ')}
+                            </span>
+                          </div>
                         </div>
                         <CardContent className="p-5">
-                          <div className="flex items-center gap-2 mb-3 flex-wrap">
-                            <Badge variant="outline" className="text-xs">
-                              {article.category}
-                            </Badge>
+                          <div className="mb-3 flex items-center gap-2 flex-wrap">
                             {article.platforms?.slice(0, 2).map((p) => (
-                              <Badge key={p} variant="secondary" className="text-xs">
+                              <Badge key={p} variant="secondary" className="rounded-full border border-sky-400/10 bg-sky-500/8 text-xs">
                                 {p}
                               </Badge>
                             ))}
@@ -1063,7 +1099,7 @@ export default function HomePageClient({
                                 {article.impactLevel.charAt(0).toUpperCase() + article.impactLevel.slice(1)} Impact
                               </Badge>
                             )}
-                            <span className="text-xs text-muted-foreground flex items-center gap-1 ml-auto">
+                            <span className="ml-auto flex items-center gap-1 text-xs text-muted-foreground">
                               <Clock className="h-3 w-3" />
                               {formatTimeAgo(article.publishedAt)}
                             </span>
@@ -1075,10 +1111,10 @@ export default function HomePageClient({
                               <span className="text-[10px] text-primary font-medium">AI Enhanced</span>
                             </div>
                           )}
-                          <h3 className="font-semibold mb-2 group-hover:text-primary transition-colors line-clamp-2 text-balance">
+                          <h3 className="mb-2 text-lg font-semibold leading-7 group-hover:text-primary transition-colors line-clamp-2 text-balance">
                             {article.title}
                           </h3>
-                          <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                          <p className="mb-4 text-sm text-muted-foreground line-clamp-3 leading-6">
                             {article.aiSummary || article.excerpt}
                           </p>
                           {/* Audience pills */}
@@ -1095,7 +1131,7 @@ export default function HomePageClient({
                               ))}
                             </div>
                           )}
-                          <div className="flex items-center justify-between">
+                          <div className="flex items-center justify-between border-t border-white/50 pt-3 dark:border-white/10">
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
                               {article.tier === 1 ? (
                                 <span className="flex items-center gap-1">
@@ -1111,7 +1147,7 @@ export default function HomePageClient({
                               <span className="mx-1">|</span>
                               <span>{article.readTime} min read</span>
                             </div>
-                            <span className="text-xs text-primary font-medium flex items-center gap-1">
+                            <span className="text-xs font-semibold text-primary flex items-center gap-1">
                               Read more
                               <ArrowRight className="h-3 w-3" />
                             </span>
@@ -1123,16 +1159,16 @@ export default function HomePageClient({
                     {/* Inline Newsletter CTA after every 6th article */}
                     {(index + 1) % 6 === 0 && index < regularArticles.length - 1 && (
                       <div key={`newsletter-cta-${index}`} className="md:col-span-2">
-                        <Card className="border-0 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent overflow-hidden">
+                        <Card className="overflow-hidden rounded-[24px] border border-white/60 bg-[linear-gradient(135deg,rgba(15,23,42,0.92),rgba(37,99,235,0.86)_58%,rgba(79,70,229,0.82))] text-white shadow-[0_26px_64px_-36px_rgba(15,23,42,0.62)] dark:border-white/10">
                           <CardContent className="p-6">
                             <div className="flex flex-col sm:flex-row items-center gap-4">
                               <div className="flex items-center gap-3 flex-1">
-                                <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                                  <Mail className="h-5 w-5 text-primary" />
+                                <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-white/12 backdrop-blur">
+                                  <Mail className="h-5 w-5 text-white" />
                                 </div>
                                 <div>
-                                  <p className="font-semibold text-sm">Getting value from these insights?</p>
-                                  <p className="text-xs text-muted-foreground">Get them delivered to your inbox daily.</p>
+                                  <p className="text-sm font-semibold uppercase tracking-[0.18em] text-white/70">Operator Brief</p>
+                                  <p className="mt-1 text-sm text-white/90">Getting value from these insights? Get the sharpest stories delivered every morning.</p>
                                 </div>
                               </div>
                               <form onSubmit={handleSubscribe} className="flex gap-2 w-full sm:w-auto">
@@ -1141,9 +1177,9 @@ export default function HomePageClient({
                                   placeholder="Enter your email"
                                   value={email}
                                   onChange={(e) => setEmail(e.target.value)}
-                                  className="w-full sm:w-48 h-9"
+                                  className="h-10 w-full border-white/15 bg-white text-slate-950 placeholder:text-slate-500 sm:w-48"
                                 />
-                                <Button type="submit" size="sm" disabled={isSubscribing || subscribed}>
+                                <Button type="submit" size="sm" className="h-10 bg-slate-950 text-white hover:bg-slate-900" disabled={isSubscribing || subscribed}>
                                   {subscribed ? "Subscribed!" : isSubscribing ? <Loader2 className="h-4 w-4 animate-spin" /> : "Subscribe"}
                                 </Button>
                               </form>
@@ -1169,7 +1205,7 @@ export default function HomePageClient({
                     {/* MarginPro CTA - shows in Seller Profitability category after every 8th article */}
                     {selectedCategory === "profitability" && (index + 1) % 8 === 0 && index < regularArticles.length - 1 && (
                       <div key={`marginpro-cta-${index}`} className="md:col-span-2">
-                        <Card className="border-0 bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-transparent overflow-hidden">
+                        <Card className="overflow-hidden rounded-[24px] border border-emerald-500/20 bg-[linear-gradient(135deg,rgba(255,255,255,0.94),rgba(236,253,245,0.94)_55%,rgba(209,250,229,0.9))] shadow-[0_22px_60px_-38px_rgba(5,150,105,0.28)] dark:border-emerald-500/15 dark:bg-[linear-gradient(135deg,rgba(6,78,59,0.28),rgba(4,47,46,0.34)_55%,rgba(6,95,70,0.24))]">
                           <CardContent className="p-6">
                             <div className="flex flex-col sm:flex-row items-center gap-4">
                               <div className="flex items-center gap-3 flex-1">
@@ -1182,7 +1218,7 @@ export default function HomePageClient({
                                 </div>
                               </div>
                               <Link href="/solutions">
-                                <Button variant="outline" size="sm" className="border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10 whitespace-nowrap">
+                                <Button variant="outline" size="sm" className="whitespace-nowrap border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10 dark:text-emerald-300">
                                   Get a Free Audit
                                   <ArrowRight className="h-3 w-3 ml-1" />
                                 </Button>
@@ -1203,6 +1239,7 @@ export default function HomePageClient({
                 <Button
                   variant="outline"
                   size="lg"
+                  className="rounded-full border-sky-400/20 bg-white/80 px-6 shadow-sm backdrop-blur hover:bg-white dark:border-white/10 dark:bg-slate-950/45 dark:hover:bg-slate-900"
                   onClick={() => setVisibleArticleCount(prev => prev + 12)}
                 >
                   Load More Articles ({regularArticles.length - visibleArticleCount} remaining)
@@ -1230,7 +1267,7 @@ export default function HomePageClient({
 
             {/* Trending This Week */}
             {!loading && (
-            <Card className="border-0 shadow-sm">
+            <Card className="overflow-hidden rounded-[24px] border border-white/60 bg-white/82 shadow-[0_18px_48px_-34px_rgba(15,23,42,0.24)] dark:border-white/10 dark:bg-slate-950/45">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-primary" />
@@ -1239,7 +1276,7 @@ export default function HomePageClient({
               </CardHeader>
               <CardContent className="space-y-4">
                 {trendingArticles.map((article, i) => (
-                  <Link key={article.id} href={`/news/${article.id}`} className="flex gap-3 group cursor-pointer">
+                  <Link key={article.id} href={`/news/${article.id}`} className="group flex gap-3 rounded-2xl border border-transparent p-2 transition-colors hover:border-sky-400/15 hover:bg-sky-500/5">
                     <span className="text-2xl font-bold text-muted-foreground/50 group-hover:text-primary transition-colors">
                       {String(i + 1).padStart(2, "0")}
                     </span>
@@ -1259,7 +1296,7 @@ export default function HomePageClient({
 
             {/* Upcoming Events */}
             {!loading && (
-            <Card className="border-0 shadow-sm">
+            <Card className="overflow-hidden rounded-[24px] border border-white/60 bg-white/82 shadow-[0_18px_48px_-34px_rgba(15,23,42,0.24)] dark:border-white/10 dark:bg-slate-950/45">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-primary" />
@@ -1272,8 +1309,8 @@ export default function HomePageClient({
                   { name: "Prosper Show", date: "May 8-10", location: "Las Vegas, NV" },
                   { name: "eTail West", date: "Jun 12-14", location: "Palm Springs, CA" },
                 ].map((event) => (
-                  <div key={event.name} className="flex items-start gap-3 group cursor-pointer">
-                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <div key={event.name} className="group flex items-start gap-3 rounded-2xl border border-transparent p-2 transition-colors hover:border-sky-400/15 hover:bg-sky-500/5">
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-primary/10">
                       <Calendar className="h-5 w-5 text-primary" />
                     </div>
                     <div>
@@ -1286,7 +1323,7 @@ export default function HomePageClient({
                     </div>
                   </div>
                 ))}
-                <Button variant="outline" size="sm" className="w-full" asChild>
+                <Button variant="outline" size="sm" className="w-full rounded-full border-sky-400/15 bg-white/75 shadow-sm backdrop-blur hover:bg-white dark:border-white/10 dark:bg-slate-950/45 dark:hover:bg-slate-900" asChild>
                   <Link href="/events">
                     View All Events
                     <ChevronRight className="h-4 w-4 ml-1" />
@@ -1298,7 +1335,7 @@ export default function HomePageClient({
 
             {/* Marketplace Metrics */}
             {!loading && (
-            <Card className="border-0 shadow-sm">
+            <Card className="overflow-hidden rounded-[24px] border border-white/60 bg-white/82 shadow-[0_18px_48px_-34px_rgba(15,23,42,0.24)] dark:border-white/10 dark:bg-slate-950/45">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
                   <BarChart3 className="h-4 w-4 text-primary" />
@@ -1315,7 +1352,7 @@ export default function HomePageClient({
                   { label: "TikTok Shop GMV", value: "$10.5B", change: "+185%", positive: true },
                   { label: "Walmart Marketplace", value: "$75B", change: "+28%", positive: true },
                 ].map((metric) => (
-                  <div key={metric.label} className="flex items-center justify-between py-2 border-b last:border-0">
+                  <div key={metric.label} className="flex items-center justify-between border-b border-white/50 py-2 last:border-0 dark:border-white/10">
                     <span className="text-sm text-muted-foreground">{metric.label}</span>
                     <div className="text-right">
                       <span className="font-semibold">{metric.value}</span>
@@ -1339,11 +1376,11 @@ export default function HomePageClient({
 
             {/* Newsletter Signup - Sticky */}
             {!loading && (
-            <Card className="border-0 shadow-sm bg-primary text-primary-foreground sticky top-32">
+            <Card className="sticky top-32 overflow-hidden rounded-[24px] border border-white/10 bg-[linear-gradient(135deg,rgba(15,23,42,0.98),rgba(37,99,235,0.94)_58%,rgba(79,70,229,0.92))] text-primary-foreground shadow-[0_26px_70px_-36px_rgba(15,23,42,0.72)]">
               <CardContent className="p-5">
-                <Mail className="h-8 w-8 mb-3" />
-                <h3 className="font-bold mb-2">Daily Marketplace Brief</h3>
-                <p className="text-sm text-primary-foreground/80 mb-4">
+                <Mail className="mb-3 h-8 w-8" />
+                <h3 className="mb-2 font-bold">Daily Marketplace Brief</h3>
+                <p className="mb-4 text-sm text-primary-foreground/80">
                   The most important news in 5 minutes or less. Free.
                 </p>
                 <form onSubmit={handleSubscribe} className="space-y-2">
@@ -1352,9 +1389,9 @@ export default function HomePageClient({
                     placeholder="Your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="bg-primary-foreground text-foreground"
+                    className="border-white/15 bg-white text-foreground placeholder:text-slate-500"
                   />
-                  <Button type="submit" variant="secondary" className="w-full" disabled={isSubscribing || subscribed}>
+                  <Button type="submit" variant="secondary" className="w-full bg-slate-950 text-white hover:bg-slate-900" disabled={isSubscribing || subscribed}>
                     {subscribed ? "You're In!" : isSubscribing ? <Loader2 className="h-4 w-4 animate-spin" /> : "Subscribe Free"}
                   </Button>
                 </form>
@@ -1364,7 +1401,7 @@ export default function HomePageClient({
 
             {/* Quick Tools Access */}
             {!loading && (
-            <Card className="border-0 shadow-sm">
+            <Card className="overflow-hidden rounded-[24px] border border-white/60 bg-white/82 shadow-[0_18px_48px_-34px_rgba(15,23,42,0.24)] dark:border-white/10 dark:bg-slate-950/45">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
                   <Wrench className="h-4 w-4 text-primary" />
@@ -1378,7 +1415,7 @@ export default function HomePageClient({
                   { name: "Listing Optimizer", icon: Target, href: "/tools#listing" },
                   { name: "Keyword Research", icon: LineChart, href: "/tools#keywords" },
                 ].map((tool) => (
-                  <Button key={tool.name} variant="outline" size="sm" className="h-auto py-3 flex-col gap-1" asChild>
+                  <Button key={tool.name} variant="outline" size="sm" className="h-auto rounded-2xl border-white/60 bg-white/78 py-3 shadow-sm backdrop-blur hover:bg-white dark:border-white/10 dark:bg-slate-950/45 dark:hover:bg-slate-900" asChild>
                     <Link href={tool.href}>
                       <tool.icon className="h-4 w-4" />
                       <span className="text-xs">{tool.name}</span>
