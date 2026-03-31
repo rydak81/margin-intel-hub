@@ -162,6 +162,8 @@ function SponsorVisualScene({
   const supportingHighlight = sponsor.highlights[1] || sponsor.highlights[0]
   const isThreecolts = sponsor.id === 'threecolts'
   const isMarketplacePulse = sponsor.id === 'marketplacepulse'
+  const isMarginPro = sponsor.id === 'marginpro'
+  const isCedCommerce = sponsor.id === 'cedcommerce'
   const isTopBanner = variant === 'top-banner'
   const textPanelWidthClass = isTopBanner ? 'w-full max-w-[380px]' : 'w-full max-w-[320px]'
   const headlineSizeClass = isTopBanner
@@ -178,7 +180,7 @@ function SponsorVisualScene({
       <div className="absolute -right-10 top-8 h-36 w-36 rounded-full bg-cyan-400/12 blur-3xl" />
       <div className="absolute -left-6 bottom-10 h-28 w-28 rounded-full bg-violet-400/10 blur-3xl" />
 
-      {sponsor.bannerImageUrl && !isThreecolts && !isMarketplacePulse && (
+      {sponsor.bannerImageUrl && !isThreecolts && !isMarketplacePulse && !isMarginPro && !isCedCommerce && (
         <div className="absolute inset-x-4 top-4 bottom-4">
           <div className="absolute inset-0 rounded-[28px] border border-white/8 bg-white/[0.03]" />
           <SponsorImage
@@ -238,6 +240,98 @@ function SponsorVisualScene({
         </div>
       )}
 
+      {isMarginPro && (
+        <div className="absolute inset-x-5 top-5 bottom-5">
+          <div className="absolute inset-0 rounded-[30px] border border-white/8 bg-[linear-gradient(145deg,rgba(20,184,166,0.1),rgba(2,6,23,0.08))]" />
+          <div className="absolute -right-8 top-8 h-32 w-32 rounded-full bg-teal-300/18 blur-3xl" />
+          <div className="absolute -left-10 bottom-6 h-28 w-28 rounded-full bg-sky-400/10 blur-3xl" />
+
+          <div className={`relative flex h-full flex-col justify-between ${isTopBanner ? 'px-8 py-7' : 'px-6 py-6'}`}>
+            <div className="space-y-4">
+              <div className="inline-flex rounded-full border border-white/12 bg-white/6 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/70 backdrop-blur">
+                Recommended Tool
+              </div>
+              <div className="space-y-1">
+                <p className="text-[clamp(1.6rem,2.7vw,2.8rem)] font-extrabold leading-[0.95] tracking-[-0.05em] text-white">
+                  Know your
+                </p>
+                <p className="text-[clamp(1.6rem,2.7vw,2.8rem)] font-extrabold leading-[0.95] tracking-[-0.05em] text-teal-300">
+                  true margins.
+                </p>
+                <p className="text-[clamp(1.6rem,2.7vw,2.8rem)] font-extrabold leading-[0.95] tracking-[-0.05em] text-white/88">
+                  Recover profit.
+                </p>
+              </div>
+              <p className="max-w-[300px] text-sm font-medium leading-6 text-white/80">
+                Track fees, reimbursements, ad spend, and profit leaks with a cleaner Amazon margin command center.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex flex-wrap gap-2">
+                {['Fees', 'Reimbursements', 'Profit'].map((item) => (
+                  <div
+                    key={item}
+                    className="rounded-full border border-white/10 bg-white/6 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/82"
+                  >
+                    {item}
+                  </div>
+                ))}
+              </div>
+              <div className="max-w-[280px] rounded-2xl border border-white/10 bg-slate-950/62 px-4 py-3 text-xs font-medium leading-5 text-white/84 backdrop-blur-md">
+                {supportingHighlight}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isCedCommerce && (
+        <div className="absolute inset-x-5 top-5 bottom-5">
+          <div className="absolute inset-0 rounded-[30px] border border-white/8 bg-[linear-gradient(145deg,rgba(99,102,241,0.14),rgba(2,6,23,0.08))]" />
+          <div className="absolute -right-10 top-8 h-34 w-34 rounded-full bg-indigo-400/16 blur-3xl" />
+          <div className="absolute left-4 bottom-2 h-28 w-28 rounded-full bg-violet-500/12 blur-3xl" />
+
+          <div className={`relative flex h-full flex-col justify-between ${isTopBanner ? 'px-8 py-7' : 'px-6 py-6'}`}>
+            <div className="space-y-4">
+              <div className="inline-flex rounded-full border border-white/12 bg-white/6 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/70 backdrop-blur">
+                Integration Partner
+              </div>
+              <div className="space-y-1">
+                <p className="text-[clamp(1.5rem,2.5vw,2.65rem)] font-extrabold leading-[0.95] tracking-[-0.05em] text-white">
+                  Connect more
+                </p>
+                <p className="text-[clamp(1.5rem,2.5vw,2.65rem)] font-extrabold leading-[0.95] tracking-[-0.05em] text-indigo-300">
+                  channels.
+                </p>
+                <p className="text-[clamp(1.5rem,2.5vw,2.65rem)] font-extrabold leading-[0.95] tracking-[-0.05em] text-white/88">
+                  Scale cleanly.
+                </p>
+              </div>
+              <p className="max-w-[300px] text-sm font-medium leading-6 text-white/80">
+                Multi-channel operations support for catalog, orders, and inventory across fast-growing marketplace stacks.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex flex-wrap gap-2">
+                {['Amazon', 'Walmart', 'TikTok Shop'].map((item) => (
+                  <div
+                    key={item}
+                    className="rounded-full border border-white/10 bg-white/6 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/82"
+                  >
+                    {item}
+                  </div>
+                ))}
+              </div>
+              <div className="max-w-[280px] rounded-2xl border border-white/10 bg-slate-950/62 px-4 py-3 text-xs font-medium leading-5 text-white/84 backdrop-blur-md">
+                {supportingHighlight}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {isMarketplacePulse && (
         <div className="absolute inset-x-5 top-5 bottom-5">
           <div className="absolute inset-0 rounded-[30px] border border-white/8 bg-[linear-gradient(145deg,rgba(15,23,42,0.22),rgba(2,6,23,0.06))]" />
@@ -285,13 +379,13 @@ function SponsorVisualScene({
         </div>
       )}
 
-      {!isThreecolts && !isMarketplacePulse && (
+      {!isThreecolts && !isMarketplacePulse && !isMarginPro && !isCedCommerce && (
         <div className="absolute right-5 top-5 max-w-[220px] rounded-full border border-white/12 bg-slate-950/55 px-4 py-2 text-xs font-medium text-white/88 shadow-[0_18px_40px_-32px_rgba(0,0,0,0.95)] backdrop-blur-md">
           {supportingHighlight}
         </div>
       )}
 
-      {!isThreecolts && !isMarketplacePulse && (
+      {!isThreecolts && !isMarketplacePulse && !isMarginPro && !isCedCommerce && (
         <div className="absolute bottom-5 left-5 right-5 max-w-[340px] rounded-3xl border border-white/10 bg-slate-950/68 p-4 text-white shadow-[0_18px_40px_-28px_rgba(0,0,0,0.95)] backdrop-blur-md">
           <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/65">Operator Use Case</p>
           <p className="text-sm leading-6 text-white/90">{sponsor.useCase}</p>
@@ -325,6 +419,11 @@ function DismissButton({
 
 export function AdBanner({ sponsor, variant, dismissible = false }: AdBannerProps) {
   const [dismissed, setDismissed] = useState(false)
+  const isCustomMiniVisual =
+    sponsor.id === 'threecolts' ||
+    sponsor.id === 'marketplacepulse' ||
+    sponsor.id === 'marginpro' ||
+    sponsor.id === 'cedcommerce'
 
   if (dismissed) return null
 
@@ -455,7 +554,7 @@ export function AdBanner({ sponsor, variant, dismissible = false }: AdBannerProp
               <p className="text-xs text-white/65">{sponsor.partnerType}</p>
             </div>
           </div>
-          {(sponsor.bannerImageUrl || sponsor.id === 'marketplacepulse') && (
+          {(sponsor.bannerImageUrl || isCustomMiniVisual) && (
             <div className="relative h-36 overflow-hidden rounded-xl border border-white/10 bg-slate-100/5">
               {sponsor.id === 'marketplacepulse' ? (
                 <div className="absolute inset-0 overflow-hidden rounded-xl bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.18),transparent_28%),linear-gradient(180deg,rgba(2,6,23,0.98),rgba(15,23,42,0.95))] p-4">
@@ -464,6 +563,48 @@ export function AdBanner({ sponsor, variant, dismissible = false }: AdBannerProp
                     <div>
                       <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/60">Research Partner</p>
                       <p className="mt-2 text-lg font-black leading-5 text-white">We have data.</p>
+                    </div>
+                    <div className="rounded-xl border border-white/10 bg-white/6 p-3 text-xs font-medium leading-5 text-white/82">
+                      {sponsor.highlights[0]}
+                    </div>
+                  </div>
+                </div>
+              ) : sponsor.id === 'threecolts' ? (
+                <div className="absolute inset-0 overflow-hidden rounded-xl bg-[radial-gradient(circle_at_top_left,rgba(87,169,247,0.2),transparent_26%),radial-gradient(circle_at_bottom_right,rgba(189,82,249,0.16),transparent_22%),linear-gradient(180deg,rgba(2,6,23,0.98),rgba(15,23,42,0.96))] p-4">
+                  <div className="absolute -right-8 top-2 h-24 w-24 rounded-full bg-fuchsia-400/12 blur-3xl" />
+                  <div className="relative flex h-full flex-col justify-between">
+                    <div>
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/60">Strategic Partner</p>
+                      <p className="mt-2 text-lg font-black leading-5 text-white">Keep more.</p>
+                      <p className="text-lg font-black leading-5 text-sky-300">Sell more.</p>
+                    </div>
+                    <div className="rounded-xl border border-white/10 bg-white/6 p-3 text-xs font-medium leading-5 text-white/82">
+                      {sponsor.highlights[0]}
+                    </div>
+                  </div>
+                </div>
+              ) : sponsor.id === 'marginpro' ? (
+                <div className="absolute inset-0 overflow-hidden rounded-xl bg-[radial-gradient(circle_at_top_left,rgba(45,212,191,0.18),transparent_28%),linear-gradient(180deg,rgba(2,6,23,0.98),rgba(15,23,42,0.95))] p-4">
+                  <div className="absolute -right-8 top-2 h-24 w-24 rounded-full bg-teal-300/12 blur-3xl" />
+                  <div className="relative flex h-full flex-col justify-between">
+                    <div>
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/60">Recommended Tool</p>
+                      <p className="mt-2 text-lg font-black leading-5 text-white">True margins.</p>
+                      <p className="text-lg font-black leading-5 text-teal-300">Recover profit.</p>
+                    </div>
+                    <div className="rounded-xl border border-white/10 bg-white/6 p-3 text-xs font-medium leading-5 text-white/82">
+                      {sponsor.highlights[1] || sponsor.highlights[0]}
+                    </div>
+                  </div>
+                </div>
+              ) : sponsor.id === 'cedcommerce' ? (
+                <div className="absolute inset-0 overflow-hidden rounded-xl bg-[radial-gradient(circle_at_top_left,rgba(129,140,248,0.18),transparent_28%),linear-gradient(180deg,rgba(2,6,23,0.98),rgba(15,23,42,0.95))] p-4">
+                  <div className="absolute -right-8 top-2 h-24 w-24 rounded-full bg-indigo-300/12 blur-3xl" />
+                  <div className="relative flex h-full flex-col justify-between">
+                    <div>
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/60">Integration Partner</p>
+                      <p className="mt-2 text-lg font-black leading-5 text-white">Connect more.</p>
+                      <p className="text-lg font-black leading-5 text-indigo-300">Scale cleanly.</p>
                     </div>
                     <div className="rounded-xl border border-white/10 bg-white/6 p-3 text-xs font-medium leading-5 text-white/82">
                       {sponsor.highlights[0]}
