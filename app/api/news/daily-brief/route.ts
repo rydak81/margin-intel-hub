@@ -6,6 +6,29 @@ import { generateDailyBriefEmail } from '@/lib/email-templates'
 
 export const maxDuration = 60
 
+function getEasternSendWindow(date = new Date()) {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York',
+    hour12: false,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+    .formatToParts(date)
+    .reduce<Record<string, string>>((acc, part) => {
+      if (part.type !== 'literal') acc[part.type] = part.value
+      return acc
+    }, {})
+
+  return {
+    hour: Number(parts.hour),
+    minute: Number(parts.minute),
+    display: `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute} ET`,
+  }
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let _supabase: any = null
 function getSupabase() {
@@ -20,11 +43,25 @@ function getSupabase() {
 
 export async function GET(request: Request) {
   try {
+    const url = new URL(request.url)
+    const forceSend = url.searchParams.get('force') === '1'
+
     // Verify cron authorization
     const authHeader = request.headers.get('authorization')
     const cronSecret = process.env.CRON_SECRET
     if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const easternWindow = getEasternSendWindow()
+    if (!forceSend && easternWindow.hour !== 7) {
+      console.log(`[DailyBrief] Skipping send at ${easternWindow.display} — waiting for 7:00 AM ET window`)
+      return NextResponse.json({
+        success: true,
+        skipped: true,
+        reason: 'Outside 7:00 AM ET send window',
+        sendWindow: easternWindow.display,
+      })
     }
 
     // ── Step 1: Get top articles from the last 24 hours ──
