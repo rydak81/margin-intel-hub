@@ -1,12 +1,12 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import Link from "next/link"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Separator } from "@/components/ui/separator"
 import {
   Select,
   SelectContent,
@@ -15,645 +15,564 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import {
-  BarChart3,
-  Calendar,
-  MapPin,
-  ExternalLink,
   ArrowLeft,
-  Search,
-  Users,
-  Globe,
-  Video,
+  ArrowRight,
+  BarChart3,
+  CalendarDays,
+  ExternalLink,
   Filter,
+  Globe,
   Mail,
-  ShoppingBag,
-  Truck,
-  Sparkles,
-  Store,
+  MapPin,
   Megaphone,
-  TrendingUp,
   Package,
   Presentation,
-  Building2,
+  Search,
+  Sparkles,
+  Store,
+  TrendingUp,
+  Users,
 } from "lucide-react"
-import Image from "next/image"
+import {
+  EVENTS,
+  EVENT_VISUALS,
+  getCountdownLabel,
+  isPastEvent,
+  sortEvents,
+  type MarketplaceEvent,
+} from "@/lib/events"
 
-interface Event {
-  id: string
-  name: string
-  dates: string
-  startDate: string
-  location: string
-  type: "Conference" | "Webinar" | "Workshop" | "Networking" | "Trade Show" | "Pitch Event"
-  platforms: string[]
-  description: string
-  registrationUrl: string
-  featured: boolean
-  price?: string
-  imageUrl?: string
-  brandColor?: string
-  brandIcon?: string
+const ICONS = {
+  sparkles: Sparkles,
+  package: Package,
+  "trending-up": TrendingUp,
+  store: Store,
+  megaphone: Megaphone,
+  globe: Globe,
+  users: Users,
+  presentation: Presentation,
+  calendar: CalendarDays,
+  "bar-chart": BarChart3,
 }
 
-// Event brand colors and visual configuration
-const EVENT_VISUALS: Record<string, { color: string, gradient: string, icon: string, imageUrl: string }> = {
-  "shoptalk-2026": {
-    color: "#FF6B35",
-    gradient: "from-orange-500 to-red-500",
-    icon: "sparkles",
-    imageUrl: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&h=400&fit=crop&q=80"
-  },
-  "amazon-accelerate-2026": {
-    color: "#FF9900",
-    gradient: "from-amber-500 to-orange-600",
-    icon: "package",
-    imageUrl: "https://images.unsplash.com/photo-1523474253046-8cd2748b5fd2?w=600&h=400&fit=crop&q=80"
-  },
-  "prosper-show-2026": {
-    color: "#00A8E1",
-    gradient: "from-cyan-500 to-blue-600",
-    icon: "trending-up",
-    imageUrl: "https://images.unsplash.com/photo-1591115765373-5207764f72e7?w=600&h=400&fit=crop&q=80"
-  },
-  "etail-west-2026": {
-    color: "#6366F1",
-    gradient: "from-indigo-500 to-purple-600",
-    icon: "store",
-    imageUrl: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=600&h=400&fit=crop&q=80"
-  },
-  "walmart-open-call-2026": {
-    color: "#0071CE",
-    gradient: "from-blue-500 to-blue-700",
-    icon: "megaphone",
-    imageUrl: "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?w=600&h=400&fit=crop&q=80"
-  },
-  "irce-2026": {
-    color: "#059669",
-    gradient: "from-emerald-500 to-teal-600",
-    icon: "globe",
-    imageUrl: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=600&h=400&fit=crop&q=80"
-  },
-  "seller-summit-2026": {
-    color: "#8B5CF6",
-    gradient: "from-violet-500 to-purple-600",
-    icon: "users",
-    imageUrl: "https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=600&h=400&fit=crop&q=80"
-  },
-  "white-label-world-expo-2026": {
-    color: "#EC4899",
-    gradient: "from-pink-500 to-rose-600",
-    icon: "building",
-    imageUrl: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=400&fit=crop&q=80"
-  },
-  "tiktok-shop-summit-2026": {
-    color: "#000000",
-    gradient: "from-gray-900 to-black",
-    icon: "video",
-    imageUrl: "https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=600&h=400&fit=crop&q=80"
-  },
+const sortedEvents = sortEvents(EVENTS)
+const eventTypes = ["All", ...new Set(EVENTS.map((event) => event.eventType))]
+const platforms = ["All", ...new Set(EVENTS.flatMap((event) => event.platforms))]
+
+function getEventVisual(eventId: string) {
+  return (
+    EVENT_VISUALS[eventId] || {
+      accent: "text-sky-300",
+      badge: "border-sky-400/16 bg-sky-400/10 text-sky-100",
+      gradient: "from-sky-400/18 via-violet-400/10 to-transparent",
+      glow: "bg-sky-400/16",
+      icon: "calendar" as const,
+    }
+  )
 }
 
-// Get visual config for an event
-const getEventVisuals = (eventId: string) => {
-  return EVENT_VISUALS[eventId] || {
-    color: "#6366F1",
-    gradient: "from-primary to-primary/80",
-    icon: "calendar",
-    imageUrl: "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=600&h=400&fit=crop&q=80"
-  }
+function EventFeatureCard({ event }: { event: MarketplaceEvent }) {
+  const visual = getEventVisual(event.id)
+  const EventIcon = ICONS[visual.icon]
+  const countdown = getCountdownLabel(event)
+
+  return (
+    <Card className="group overflow-hidden rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(2,6,23,0.98),rgba(15,23,42,0.96))] text-white shadow-[0_30px_80px_-38px_rgba(15,23,42,0.68)]">
+      <CardContent className="relative flex h-full flex-col p-6">
+        <div className={`absolute inset-0 bg-gradient-to-br ${visual.gradient}`} />
+        <div className={`absolute -right-10 top-6 h-32 w-32 rounded-full ${visual.glow} blur-3xl`} />
+        <div className="relative flex h-full flex-col">
+          <div className="flex items-start justify-between gap-3">
+            <div className="space-y-3">
+              <Badge className={`border ${visual.badge}`}>{event.eventType}</Badge>
+              <div className="flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/10">
+                  <EventIcon className={`h-5 w-5 ${visual.accent}`} />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/52">Verified Event Page</p>
+                  <p className="text-sm font-medium text-white/82">{event.location}</p>
+                </div>
+              </div>
+            </div>
+            {countdown ? (
+              <Badge className={countdown.urgent ? "border-0 bg-rose-500 text-white" : "border-0 bg-white/14 text-white"}>
+                {countdown.text}
+              </Badge>
+            ) : null}
+          </div>
+
+          <div className="mt-6">
+            <h2 className="text-2xl font-black tracking-tight text-balance">{event.name}</h2>
+            <p className="mt-3 text-sm leading-7 text-white/72">{event.description}</p>
+          </div>
+
+          <div className="mt-6 grid gap-3 sm:grid-cols-2">
+            <div className="rounded-2xl border border-white/10 bg-white/6 p-4 backdrop-blur">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/48">Dates</p>
+              <p className="mt-2 text-base font-semibold text-white">{event.dates}</p>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/6 p-4 backdrop-blur">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/48">Who It Fits</p>
+              <p className="mt-2 text-base font-semibold text-white">{event.platforms.join(" • ")}</p>
+            </div>
+          </div>
+
+          <div className="mt-5 flex flex-wrap gap-2">
+            {event.platforms.map((platform) => (
+              <Badge key={platform} variant="outline" className="border-white/12 bg-white/6 text-white/76">
+                {platform}
+              </Badge>
+            ))}
+          </div>
+
+          <div className="mt-6 flex items-center justify-between gap-3">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/48">Ticket Status</p>
+              <p className="mt-1 text-sm font-medium text-white/86">{event.price || "See official page"}</p>
+            </div>
+            <Button
+              asChild
+              className="border border-white/10 bg-white text-slate-950 shadow-[0_18px_40px_-24px_rgba(255,255,255,0.6)] hover:bg-white/92"
+            >
+              <a href={event.registrationUrl} target="_blank" rel="noopener noreferrer">
+                View Event
+                <ExternalLink className="ml-2 h-4 w-4" />
+              </a>
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
 }
 
-// Get icon component based on event
-const getEventIcon = (iconName: string) => {
-  const icons: Record<string, typeof Calendar> = {
-    sparkles: Sparkles,
-    package: Package,
-    "trending-up": TrendingUp,
-    store: Store,
-    megaphone: Megaphone,
-    globe: Globe,
-    users: Users,
-    building: Building2,
-    video: Video,
-    calendar: Calendar,
-    presentation: Presentation,
-    truck: Truck,
-    "shopping-bag": ShoppingBag,
-  }
-  return icons[iconName] || Calendar
+function EventListCard({ event }: { event: MarketplaceEvent }) {
+  const visual = getEventVisual(event.id)
+  const EventIcon = ICONS[visual.icon]
+  const countdown = getCountdownLabel(event)
+
+  return (
+    <Card className="overflow-hidden rounded-[26px] border border-white/60 bg-white/84 shadow-[0_24px_70px_-38px_rgba(15,23,42,0.26)] backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+      <CardContent className="p-0">
+        <div className="flex h-full flex-col md:flex-row">
+          <div className="relative flex min-h-[172px] items-end overflow-hidden border-b border-white/10 bg-[linear-gradient(180deg,rgba(2,6,23,0.98),rgba(15,23,42,0.96))] p-5 text-white md:min-h-0 md:w-[220px] md:border-b-0 md:border-r">
+            <div className={`absolute inset-0 bg-gradient-to-br ${visual.gradient}`} />
+            <div className={`absolute left-6 top-6 h-24 w-24 rounded-full ${visual.glow} blur-3xl`} />
+            <div className="relative flex h-full flex-col justify-between">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/10">
+                  <EventIcon className={`h-5 w-5 ${visual.accent}`} />
+                </div>
+                {countdown ? (
+                  <Badge className={countdown.urgent ? "border-0 bg-rose-500 text-white" : "border-0 bg-white/14 text-white"}>
+                    {countdown.text}
+                  </Badge>
+                ) : null}
+              </div>
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/52">{event.eventType}</p>
+                <p className="mt-2 text-lg font-bold text-white">{event.dates}</p>
+                <p className="mt-1 text-sm text-white/72">{event.location}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-1 flex-col justify-between p-5 md:p-6">
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                {event.platforms.map((platform) => (
+                  <Badge key={platform} variant="outline" className="border-slate-200 bg-white/70 text-slate-600 dark:border-white/10 dark:bg-white/6 dark:text-white/72">
+                    {platform}
+                  </Badge>
+                ))}
+              </div>
+              <h3 className="mt-4 text-2xl font-bold tracking-tight text-slate-950 dark:text-white">{event.name}</h3>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600 dark:text-slate-300">{event.description}</p>
+            </div>
+
+            <div className="mt-5 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-2xl border border-slate-200 bg-white/70 px-4 py-3 text-sm shadow-sm dark:border-white/10 dark:bg-white/6">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-white/48">Official Link</p>
+                  <p className="mt-2 font-semibold text-slate-900 dark:text-white">{new URL(event.registrationUrl).hostname.replace("www.", "")}</p>
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-white/70 px-4 py-3 text-sm shadow-sm dark:border-white/10 dark:bg-white/6">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-white/48">Ticket Status</p>
+                  <p className="mt-2 font-semibold text-slate-900 dark:text-white">{event.price || "See event page"}</p>
+                </div>
+              </div>
+
+              <Button
+                asChild
+                className="border border-white/10 bg-[linear-gradient(135deg,#0f172a,#1e293b_55%,#312e81)] text-white shadow-[0_18px_40px_-24px_rgba(15,23,42,0.56)] hover:opacity-95"
+              >
+                <a href={event.registrationUrl} target="_blank" rel="noopener noreferrer">
+                  Visit official event page
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </a>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
 }
-
-// Helper function to calculate days until event
-function getDaysUntil(dateString: string): number {
-  const eventDate = new Date(dateString)
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const diffTime = eventDate.getTime() - today.getTime()
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-}
-
-// Helper function to check if event is past
-function isPastEvent(dateString: string): boolean {
-  return getDaysUntil(dateString) < 0
-}
-
-const EVENTS: Event[] = [
-  {
-    id: "shoptalk-2026",
-    name: "Shoptalk 2026",
-    dates: "March 23-26, 2026",
-    startDate: "2026-03-23",
-    location: "Las Vegas, NV",
-    type: "Conference",
-    platforms: ["Multi-Platform"],
-    description: "The world's largest retail and e-commerce event, featuring the biggest brands, startups, investors, and tech providers.",
-    registrationUrl: "https://shoptalk.com",
-    featured: true,
-    price: "$3,200+"
-  },
-  {
-    id: "amazon-accelerate-2026",
-    name: "Amazon Accelerate 2026",
-    dates: "April 15-17, 2026",
-    startDate: "2026-04-15",
-    location: "Seattle, WA",
-    type: "Conference",
-    platforms: ["Amazon"],
-    description: "Amazon's annual conference for third-party sellers featuring product announcements, educational sessions, and networking opportunities with Amazon leadership.",
-    registrationUrl: "https://sell.amazon.com/accelerate",
-    featured: true,
-    price: "Free"
-  },
-  {
-    id: "prosper-show-2026",
-    name: "Prosper Show 2026",
-    dates: "May 8-10, 2026",
-    startDate: "2026-05-08",
-    location: "Las Vegas, NV",
-    type: "Conference",
-    platforms: ["Amazon", "Multi-Platform"],
-    description: "The premier conference for Amazon sellers with tactical sessions, solution provider exhibits, and elite networking events.",
-    registrationUrl: "https://prospershow.com",
-    featured: true,
-    price: "$999+"
-  },
-  {
-    id: "etail-west-2026",
-    name: "eTail West 2026",
-    dates: "June 12-14, 2026",
-    startDate: "2026-06-12",
-    location: "Palm Springs, CA",
-    type: "Conference",
-    platforms: ["Multi-Platform"],
-    description: "The largest e-commerce and omnichannel retail conference in North America, bringing together 1500+ retail leaders.",
-    registrationUrl: "https://etailwest.wbresearch.com",
-    featured: false,
-    price: "$2,499+"
-  },
-  {
-    id: "walmart-open-call-2026",
-    name: "Walmart Open Call 2026",
-    dates: "June 25-26, 2026",
-    startDate: "2026-06-25",
-    location: "Bentonville, AR",
-    type: "Pitch Event",
-    platforms: ["Walmart"],
-    description: "Annual event where entrepreneurs pitch products directly to Walmart buyers for a chance to get on shelves nationwide.",
-    registrationUrl: "https://corporate.walmart.com/open-call",
-    featured: false,
-    price: "Free"
-  },
-  {
-    id: "irce-2026",
-    name: "IRCE 2026",
-    dates: "July 15-17, 2026",
-    startDate: "2026-07-15",
-    location: "Chicago, IL",
-    type: "Conference",
-    platforms: ["Multi-Platform"],
-    description: "Internet Retailer Conference + Exhibition - leading e-commerce event with expert-led sessions and expo hall.",
-    registrationUrl: "https://irce.com",
-    featured: false,
-    price: "$1,495+"
-  },
-  {
-    id: "seller-summit-2026",
-    name: "Seller Summit 2026",
-    dates: "August 5-7, 2026",
-    startDate: "2026-08-05",
-    location: "Fort Lauderdale, FL",
-    type: "Conference",
-    platforms: ["Amazon", "Multi-Platform"],
-    description: "Intimate gathering of successful Amazon and e-commerce sellers sharing advanced strategies and tactics.",
-    registrationUrl: "https://sellersummit.com",
-    featured: false,
-    price: "$1,297+"
-  },
-  {
-    id: "white-label-world-expo-2026",
-    name: "White Label World Expo",
-    dates: "September 18-19, 2026",
-    startDate: "2026-09-18",
-    location: "Las Vegas, NV",
-    type: "Trade Show",
-    platforms: ["Multi-Platform"],
-    description: "North America's leading white label, private label, and contract manufacturing trade show for retailers.",
-    registrationUrl: "https://www.whitelabelworldexpo.com/en/las-vegas.html",
-    featured: false,
-    price: "Free"
-  },
-  {
-    id: "tiktok-shop-summit-2026",
-    name: "TikTok Shop Seller Summit",
-    dates: "November 12-13, 2026",
-    startDate: "2026-11-12",
-    location: "Los Angeles, CA",
-    type: "Conference",
-    platforms: ["TikTok Shop"],
-    description: "Annual gathering for TikTok Shop sellers featuring platform updates, creator partnerships, and live commerce strategies.",
-    registrationUrl: "https://seller-us.tiktok.com",
-    featured: false,
-    price: "Free"
-  },
-]
-
-// Sort events by start date (soonest first), with past events at the end
-const sortedEvents = [...EVENTS].sort((a, b) => {
-  const aIsPast = isPastEvent(a.startDate)
-  const bIsPast = isPastEvent(b.startDate)
-  if (aIsPast && !bIsPast) return 1
-  if (!aIsPast && bIsPast) return -1
-  return new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
-})
-
-const EVENT_TYPES = ["All", "Conference", "Webinar", "Workshop", "Networking", "Trade Show", "Pitch Event"]
-const PLATFORMS = ["All", "Amazon", "Walmart", "TikTok Shop", "Multi-Platform"]
 
 export default function EventsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [typeFilter, setTypeFilter] = useState("All")
   const [platformFilter, setPlatformFilter] = useState("All")
 
-  const filteredEvents = sortedEvents.filter(event => {
-    if (searchQuery && !event.name.toLowerCase().includes(searchQuery.toLowerCase())) return false
-    if (typeFilter !== "All" && event.type !== typeFilter) return false
+  const filteredEvents = sortedEvents.filter((event) => {
+    const query = searchQuery.trim().toLowerCase()
+    if (
+      query &&
+      ![event.name, event.location, event.description, event.platforms.join(" ")]
+        .join(" ")
+        .toLowerCase()
+        .includes(query)
+    ) {
+      return false
+    }
+    if (typeFilter !== "All" && event.eventType !== typeFilter) return false
     if (platformFilter !== "All" && !event.platforms.includes(platformFilter)) return false
     return true
   })
 
-  const upcomingEvents = filteredEvents.filter(e => !isPastEvent(e.startDate))
-  const pastEvents = filteredEvents.filter(e => isPastEvent(e.startDate))
-  const featuredEvents = upcomingEvents.filter(e => e.featured)
-  const otherEvents = upcomingEvents.filter(e => !e.featured)
-
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case "Conference": return Users
-      case "Webinar": return Video
-      case "Workshop": return Calendar
-      case "Networking": return Globe
-      case "Trade Show": return Globe
-      case "Pitch Event": return Users
-      default: return Calendar
-    }
-  }
-
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case "Conference": return "bg-blue-500"
-      case "Webinar": return "bg-purple-500"
-      case "Workshop": return "bg-emerald-500"
-      case "Networking": return "bg-orange-500"
-      case "Trade Show": return "bg-cyan-500"
-      case "Pitch Event": return "bg-amber-500"
-      default: return "bg-primary"
-    }
-  }
-
-  // Get countdown badge for events within 14 days
-  const getCountdownBadge = (startDate: string) => {
-    const daysUntil = getDaysUntil(startDate)
-    if (daysUntil <= 0) return null
-    if (daysUntil <= 7) return { text: `${daysUntil} day${daysUntil === 1 ? '' : 's'} away`, urgent: true }
-    if (daysUntil <= 14) return { text: `${daysUntil} days away`, urgent: false }
-    return null
-  }
+  const upcomingEvents = filteredEvents.filter((event) => !isPastEvent(event))
+  const pastEvents = filteredEvents.filter((event) => isPastEvent(event)).reverse()
+  const featuredEvents = upcomingEvents.filter((event) => event.featured).slice(0, 3)
+  const remainingEvents = upcomingEvents.filter((event) => !featuredEvents.some((featured) => featured.id === event.id))
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-background/95 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            <Link href="/" className="flex items-center gap-2">
-              <Image src="/brand-icon.png" alt="MarketplaceBeta logo" width={36} height={36} className="h-9 w-9 rounded-lg object-cover" />
-              <span className="font-bold text-xl hidden sm:block">MarketplaceBeta</span>
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.14),transparent_18%),radial-gradient(circle_at_top_right,rgba(217,70,239,0.12),transparent_16%),linear-gradient(180deg,rgba(248,250,252,0.92),rgba(255,255,255,0.84)_18%,transparent_34%)] bg-background">
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.88),rgba(30,41,59,0.76))] backdrop-blur-2xl">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-fuchsia-400/45 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-sky-400/55 to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_left_top,rgba(56,189,248,0.08),transparent_18%),radial-gradient(circle_at_right_top,rgba(217,70,239,0.08),transparent_18%)] pointer-events-none" />
+        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-4 px-4">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              asChild
+              className="hidden border border-white/10 bg-white/10 text-white hover:bg-white/16 hover:text-white sm:inline-flex"
+            >
+              <Link href="/">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back
+              </Link>
+            </Button>
+            <Link href="/" className="flex items-center gap-3">
+              <div className="relative">
+                <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-sky-400/28 via-cyan-300/14 to-fuchsia-400/24 blur-sm" />
+                <Image
+                  src="/brand-icon.png"
+                  alt="MarketplaceBeta logo"
+                  width={32}
+                  height={32}
+                  className="relative h-8 w-8 rounded-lg object-cover ring-1 ring-sky-400/20"
+                />
+              </div>
+              <div className="hidden sm:block">
+                <span className="block text-lg font-bold leading-none text-white">MarketplaceBeta</span>
+                <span className="block text-[10px] font-semibold uppercase tracking-[0.24em] text-white/55">
+                  Events Desk
+                </span>
+              </div>
             </Link>
-            <nav className="hidden md:flex items-center gap-8">
-              <Link href="/" className="text-base font-semibold hover:text-primary transition-colors">
-                Home
-              </Link>
-              <Link href="/tools" className="text-base font-semibold hover:text-primary transition-colors">
-                Tools
-              </Link>
-              <Link href="/events" className="text-base font-semibold text-primary">
-                Events
-              </Link>
-              <Link href="/newsletter" className="text-base font-semibold hover:text-primary transition-colors">
-                Newsletter
-              </Link>
-            </nav>
-            <div className="flex items-center gap-3">
-              <Button asChild className="hidden sm:flex">
-                <Link href="/newsletter">Subscribe</Link>
-              </Button>
-            </div>
           </div>
+
+          <nav className="hidden items-center gap-6 lg:flex">
+            <Link href="/" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
+              Home
+            </Link>
+            <Link href="/articles" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
+              Articles
+            </Link>
+            <Link href="/partners" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
+              Partners
+            </Link>
+            <Link href="/tools" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
+              Tools
+            </Link>
+            <Link href="/events" className="text-sm font-semibold text-white">
+              Events
+            </Link>
+            <Link href="/newsletter" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
+              Newsletter
+            </Link>
+          </nav>
+
+          <Button
+            asChild
+            size="sm"
+            className="hidden border border-white/10 bg-[linear-gradient(135deg,#2563eb,#4f46e5_72%,#7c3aed)] text-sm text-white shadow-[0_18px_40px_-24px_rgba(79,70,229,0.72)] hover:opacity-95 sm:flex"
+          >
+            <Link href="/newsletter">Subscribe</Link>
+          </Button>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-12">
-        {/* Page Header */}
-        <div className="mb-10">
-          <Badge variant="outline" className="mb-4">
-            <Calendar className="h-3 w-3 mr-1" />
-            Events Calendar
-          </Badge>
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
-            Industry Events & Conferences
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl">
-            Stay connected with the e-commerce community. Find upcoming conferences, 
-            webinars, workshops, and networking events.
-          </p>
-        </div>
+      <main className="mx-auto max-w-7xl px-4 py-10">
+        <section className="rounded-[32px] border border-white/60 bg-[linear-gradient(135deg,rgba(255,255,255,0.94),rgba(248,250,252,0.84)_48%,rgba(239,246,255,0.82))] p-6 shadow-[0_30px_80px_-42px_rgba(15,23,42,0.34)] backdrop-blur dark:border-white/10 dark:bg-[linear-gradient(135deg,rgba(15,23,42,0.84),rgba(15,23,42,0.78)_48%,rgba(30,41,59,0.82))] md:p-8">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-end">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/15 bg-white/76 px-3 py-1.5 text-sm shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+                <CalendarDays className="h-4 w-4 text-sky-600" />
+                <span className="text-muted-foreground">
+                  Official-event calendar for <span className="font-semibold text-foreground">marketplace operators, sellers, agencies, and SaaS teams</span>
+                </span>
+              </div>
 
-        {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-8">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search events..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
-            />
+              <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-fuchsia-400/15 bg-[linear-gradient(135deg,rgba(255,255,255,0.78),rgba(248,250,252,0.68))] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-600 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45 dark:text-slate-200">
+                <Sparkles className="h-3.5 w-3.5 text-fuchsia-500" />
+                Premium Event Calendar for Commerce Teams
+              </div>
+
+              <h1 className="mt-5 text-4xl font-black tracking-tight text-balance md:text-5xl lg:text-6xl">
+                Track the{" "}
+                <span className="bg-[linear-gradient(135deg,#0f3f96_0%,#2563eb_38%,#7c3aed_72%,#d946ef_100%)] bg-clip-text text-transparent">
+                  ecommerce and marketplace events
+                </span>{" "}
+                that actually matter
+              </h1>
+
+              <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-600 dark:text-slate-300">
+                We trimmed out stale listings, fixed broken links, and moved completed events into archive mode so this page stays useful for operator planning instead of feeling like a dead conference graveyard.
+              </p>
+
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Button
+                  asChild
+                  className="border border-white/10 bg-[linear-gradient(135deg,#2563eb,#4f46e5_72%,#7c3aed)] text-white shadow-[0_18px_40px_-24px_rgba(79,70,229,0.72)] hover:opacity-95"
+                >
+                  <Link href="/newsletter">Get The Daily Brief</Link>
+                </Button>
+                <Button
+                  variant="outline"
+                  asChild
+                  className="border-slate-200 bg-white/72 text-slate-800 hover:bg-white dark:border-white/10 dark:bg-slate-950/45 dark:text-white dark:hover:bg-slate-950/55"
+                >
+                  <a href="mailto:hello@marketplacebeta.com?subject=Submit%20an%20event%20to%20MarketplaceBeta">
+                    Submit an Event
+                    <Mail className="ml-2 h-4 w-4" />
+                  </a>
+                </Button>
+              </div>
+
+              <div className="mt-8 grid gap-3 sm:grid-cols-3">
+                <div className="rounded-2xl border border-white/70 bg-white/78 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-white/52">Upcoming</p>
+                  <p className="mt-3 text-2xl font-bold text-slate-950 dark:text-white">{sortedEvents.filter((event) => !isPastEvent(event)).length}</p>
+                </div>
+                <div className="rounded-2xl border border-white/70 bg-white/78 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-white/52">Official Links</p>
+                  <p className="mt-3 text-2xl font-bold text-slate-950 dark:text-white">{EVENTS.length}</p>
+                </div>
+                <div className="rounded-2xl border border-white/70 bg-white/78 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-white/52">Verified</p>
+                  <p className="mt-3 text-2xl font-bold text-slate-950 dark:text-white">Mar 31</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-[30px] border border-white/10 bg-[linear-gradient(180deg,rgba(2,6,23,0.98),rgba(15,23,42,0.96))] p-6 text-white shadow-[0_30px_80px_-38px_rgba(15,23,42,0.68)]">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/48">Calendar Standard</p>
+              <h2 className="mt-4 text-2xl font-bold tracking-tight">Only active events stay in the upcoming feed.</h2>
+              <div className="mt-5 space-y-3">
+                {[
+                  "Past events move into archive mode automatically after their end date.",
+                  "Broken or weak links were replaced with official event pages only.",
+                  "The page now favors higher-signal ecommerce, retail, and marketplace events.",
+                ].map((item) => (
+                  <div key={item} className="rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-sm leading-6 text-white/78">
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-          <div className="flex gap-2">
+        </section>
+
+        <section className="mt-8 rounded-[28px] border border-white/60 bg-white/82 p-5 shadow-[0_24px_70px_-38px_rgba(15,23,42,0.26)] backdrop-blur dark:border-white/10 dark:bg-slate-950/45 md:p-6">
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_220px_220px]">
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <Input
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder="Search by event, location, platform, or description..."
+                className="h-12 rounded-2xl border-slate-200 bg-white/80 pl-11 dark:border-white/10 dark:bg-white/6"
+              />
+            </div>
             <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="w-36">
-                <Filter className="h-4 w-4 mr-2" />
-                <SelectValue placeholder="Type" />
+              <SelectTrigger className="h-12 rounded-2xl border-slate-200 bg-white/80 dark:border-white/10 dark:bg-white/6">
+                <Filter className="mr-2 h-4 w-4 text-slate-400" />
+                <SelectValue placeholder="Filter by type" />
               </SelectTrigger>
               <SelectContent>
-                {EVENT_TYPES.map(type => (
-                  <SelectItem key={type} value={type}>{type}</SelectItem>
+                {eventTypes.map((type) => (
+                  <SelectItem key={type} value={type}>
+                    {type}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <Select value={platformFilter} onValueChange={setPlatformFilter}>
-              <SelectTrigger className="w-40">
-                <Globe className="h-4 w-4 mr-2" />
-                <SelectValue placeholder="Platform" />
+              <SelectTrigger className="h-12 rounded-2xl border-slate-200 bg-white/80 dark:border-white/10 dark:bg-white/6">
+                <Globe className="mr-2 h-4 w-4 text-slate-400" />
+                <SelectValue placeholder="Filter by platform" />
               </SelectTrigger>
               <SelectContent>
-                {PLATFORMS.map(platform => (
-                  <SelectItem key={platform} value={platform}>{platform}</SelectItem>
+                {platforms.map((platform) => (
+                  <SelectItem key={platform} value={platform}>
+                    {platform}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
-        </div>
+        </section>
 
-        {/* Featured Events */}
-        {featuredEvents.length > 0 && (
-          <div className="mb-12">
-            <h2 className="text-xl font-semibold mb-6">Featured Events</h2>
-            <div className="grid md:grid-cols-3 gap-6">
-              {featuredEvents.map(event => {
-                const visuals = getEventVisuals(event.id)
-                const EventIcon = getEventIcon(visuals.icon)
-                const countdown = getCountdownBadge(event.startDate)
-                return (
-                  <Card key={event.id} className="overflow-hidden border-0 shadow-md hover:shadow-xl transition-all group">
-                    {/* Event Image */}
-                    <div className="relative h-40 overflow-hidden">
-                      <Image
-                        src={visuals.imageUrl}
-                        alt={event.name}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        sizes="(max-width: 768px) 100vw, 33vw"
-                      />
-                      <div className={`absolute inset-0 bg-gradient-to-t ${visuals.gradient} opacity-60`} />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                      {/* Event Icon Badge */}
-                      <div 
-                        className="absolute top-3 left-3 h-10 w-10 rounded-lg flex items-center justify-center shadow-lg"
-                        style={{ backgroundColor: visuals.color }}
-                      >
-                        <EventIcon className="h-5 w-5 text-white" />
+        {featuredEvents.length > 0 ? (
+          <section className="mt-10">
+            <div className="mb-5 flex items-end justify-between gap-4">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">Featured Now</p>
+                <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 dark:text-white">High-signal upcoming events</h2>
+              </div>
+              <p className="hidden max-w-md text-right text-sm leading-6 text-slate-500 dark:text-slate-400 md:block">
+                These are the events most likely to matter if you are tracking marketplace strategy, operator workflow, or growth channels this year.
+              </p>
+            </div>
+            <div className="grid gap-6 xl:grid-cols-3">
+              {featuredEvents.map((event) => (
+                <EventFeatureCard key={event.id} event={event} />
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        <section className="mt-10">
+          <div className="mb-5 flex items-end justify-between gap-4">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">Upcoming Schedule</p>
+              <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 dark:text-white">
+                {upcomingEvents.length > 0 ? "Plan around what is actually ahead" : "No upcoming events match those filters"}
+              </h2>
+            </div>
+            {upcomingEvents.length > 0 ? (
+              <p className="hidden text-sm text-slate-500 dark:text-slate-400 md:block">{upcomingEvents.length} verified event{upcomingEvents.length === 1 ? "" : "s"} in view</p>
+            ) : null}
+          </div>
+
+          {upcomingEvents.length > 0 ? (
+            <div className="space-y-5">
+              {(remainingEvents.length > 0 ? remainingEvents : upcomingEvents).map((event) => (
+                <EventListCard key={event.id} event={event} />
+              ))}
+            </div>
+          ) : (
+            <Card className="rounded-[28px] border border-white/60 bg-white/82 shadow-[0_24px_70px_-38px_rgba(15,23,42,0.26)] backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+              <CardContent className="p-8 text-center">
+                <p className="text-lg font-semibold text-slate-950 dark:text-white">No events match the current filters.</p>
+                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                  Try clearing the search, switching the platform, or choosing a broader event type.
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </section>
+
+        {pastEvents.length > 0 ? (
+          <section className="mt-12">
+            <div className="mb-5">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">Archive</p>
+              <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 dark:text-white">Completed events</h2>
+            </div>
+
+            <div className="grid gap-4 lg:grid-cols-3">
+              {pastEvents.map((event) => (
+                <Card
+                  key={event.id}
+                  className="rounded-[26px] border border-white/10 bg-[linear-gradient(180deg,rgba(2,6,23,0.98),rgba(15,23,42,0.94))] text-white shadow-[0_28px_70px_-38px_rgba(15,23,42,0.72)]"
+                >
+                  <CardContent className="relative overflow-hidden p-5">
+                    <div className={`absolute inset-0 bg-gradient-to-br ${getEventVisual(event.id).gradient}`} />
+                    <div className="relative">
+                      <Badge className="border-white/10 bg-white/8 text-white">Completed</Badge>
+                      <h3 className="mt-4 text-xl font-bold tracking-tight">{event.name}</h3>
+                      <p className="mt-2 text-sm leading-6 text-white/72">{event.dates}</p>
+                      <div className="mt-1 flex items-center gap-2 text-sm text-white/62">
+                        <MapPin className="h-4 w-4" />
+                        {event.location}
                       </div>
-                      {/* Countdown Badge */}
-                      {countdown && (
-                        <Badge 
-                          className={`absolute top-3 right-3 ${countdown.urgent ? 'bg-red-500 text-white' : 'bg-amber-500 text-white'} shadow-lg`}
-                        >
-                          {countdown.text}
-                        </Badge>
-                      )}
-                      {/* Event Type */}
-                      <Badge variant="secondary" className="absolute bottom-3 left-3 bg-white/90 text-foreground shadow">
-                        {event.type}
-                      </Badge>
-                    </div>
-                    <CardContent className="p-5">
-                      <h3 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors line-clamp-1">
-                        {event.name}
-                      </h3>
-                      <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                        {event.description}
-                      </p>
-                      <div className="space-y-2 mb-4">
-                        <div className="flex items-center gap-2 text-sm">
-                          <Calendar className="h-4 w-4 text-muted-foreground" />
-                          <span>{event.dates}</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm">
-                          <MapPin className="h-4 w-4 text-muted-foreground" />
-                          <span>{event.location}</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-1 flex-wrap">
-                          {event.platforms.map(platform => (
-                            <Badge key={platform} variant="outline" className="text-xs">
-                              {platform}
-                            </Badge>
-                          ))}
-                        </div>
-                        {event.price && (
-                          <span className="text-sm font-semibold" style={{ color: visuals.color }}>{event.price}</span>
-                        )}
-                      </div>
-                      <Button 
-                        className="w-full text-white" 
-                        style={{ backgroundColor: visuals.color }}
-                        asChild
-                      >
+                      <p className="mt-4 text-sm leading-6 text-white/74">{event.description}</p>
+                      <Button asChild variant="outline" className="mt-5 border-white/12 bg-white/6 text-white hover:bg-white/10 hover:text-white">
                         <a href={event.registrationUrl} target="_blank" rel="noopener noreferrer">
-                          Register Now
-                          <ExternalLink className="h-4 w-4 ml-2" />
+                          Review Event Page
+                          <ExternalLink className="ml-2 h-4 w-4" />
                         </a>
                       </Button>
-                    </CardContent>
-                  </Card>
-                )
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* All Events */}
-        <div>
-          <h2 className="text-xl font-semibold mb-6">
-            {featuredEvents.length > 0 ? "More Events" : "All Events"}
-            <span className="text-muted-foreground font-normal ml-2">
-              ({otherEvents.length})
-            </span>
-          </h2>
-          <div className="space-y-4">
-            {otherEvents.map(event => {
-              const visuals = getEventVisuals(event.id)
-              const EventIcon = getEventIcon(visuals.icon)
-              const countdown = getCountdownBadge(event.startDate)
-              return (
-                <Card key={event.id} className="border-0 shadow-sm hover:shadow-md transition-all overflow-hidden">
-                  <CardContent className="p-0">
-                    <div className="flex flex-col sm:flex-row">
-                      {/* Left side - Image/Icon section */}
-                      <div 
-                        className={`relative w-full sm:w-24 h-24 sm:h-auto flex-shrink-0 bg-gradient-to-br ${visuals.gradient} flex items-center justify-center`}
-                      >
-                        <EventIcon className="h-8 w-8 text-white" />
-                        {countdown && (
-                          <Badge 
-                            className={`absolute top-2 right-2 sm:hidden ${countdown.urgent ? 'bg-red-500' : 'bg-amber-500'} text-white text-xs`}
-                          >
-                            {countdown.text}
-                          </Badge>
-                        )}
-                      </div>
-                      {/* Right side - Content */}
-                      <div className="flex-1 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-2 mb-1">
-                            <h3 className="font-semibold truncate">{event.name}</h3>
-                            <div className="hidden sm:flex items-center gap-2 flex-shrink-0">
-                              {countdown && (
-                                <Badge 
-                                  className={`${countdown.urgent ? 'bg-red-500' : 'bg-amber-500'} text-white text-xs`}
-                                >
-                                  {countdown.text}
-                                </Badge>
-                              )}
-                              <Badge variant="outline">{event.type}</Badge>
-                            </div>
-                          </div>
-                          <p className="text-sm text-muted-foreground mb-2 line-clamp-1">
-                            {event.description}
-                          </p>
-                          <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                            <span className="flex items-center gap-1">
-                              <Calendar className="h-3.5 w-3.5" />
-                              {event.dates}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <MapPin className="h-3.5 w-3.5" />
-                              {event.location}
-                            </span>
-                            <div className="flex items-center gap-1">
-                              {event.platforms.map(platform => (
-                                <Badge key={platform} variant="secondary" className="text-xs">
-                                  {platform}
-                                </Badge>
-                              ))}
-                            </div>
-                            {event.price && (
-                              <span className="font-medium" style={{ color: visuals.color }}>{event.price}</span>
-                            )}
-                          </div>
-                        </div>
-                        <Button 
-                          variant="outline" 
-                          asChild 
-                          className="flex-shrink-0 border-2 hover:text-white transition-colors"
-                          style={{ borderColor: visuals.color, color: visuals.color }}
-                        >
-                          <a href={event.registrationUrl} target="_blank" rel="noopener noreferrer">
-                            Register
-                            <ExternalLink className="h-4 w-4 ml-2" />
-                          </a>
-                        </Button>
-                      </div>
                     </div>
                   </CardContent>
                 </Card>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* Past Events Archive */}
-        {pastEvents.length > 0 && (
-          <div className="mt-12">
-            <h2 className="text-xl font-semibold mb-6 text-muted-foreground">
-              Past Events
-              <span className="font-normal ml-2">({pastEvents.length})</span>
-            </h2>
-            <div className="space-y-3 opacity-60">
-              {pastEvents.map(event => (
-                <div key={event.id} className="flex items-center justify-between p-4 rounded-lg bg-muted/30">
-                  <div>
-                    <p className="font-medium">{event.name}</p>
-                    <p className="text-sm text-muted-foreground">{event.dates} - {event.location}</p>
-                  </div>
-                  <Badge variant="outline" className="text-xs">Completed</Badge>
-                </div>
               ))}
             </div>
-          </div>
-        )}
+          </section>
+        ) : null}
 
-        {/* Submit Event CTA */}
-        <Card className="mt-12 border-0 bg-muted/50">
-          <CardContent className="p-8 text-center">
-            <Calendar className="h-10 w-10 mx-auto mb-4 text-muted-foreground" />
-            <h3 className="text-xl font-semibold mb-2">Have an Event to Share?</h3>
-            <p className="text-muted-foreground mb-4 max-w-md mx-auto">
-              Submit your e-commerce event to be featured in our calendar and reach thousands of industry professionals.
-            </p>
-            <Button variant="outline">
-              <Mail className="h-4 w-4 mr-2" />
-              Submit an Event
-            </Button>
-          </CardContent>
-        </Card>
+        <section className="mt-12">
+          <Card className="overflow-hidden rounded-[30px] border border-white/10 bg-[linear-gradient(135deg,rgba(15,23,42,0.98),rgba(30,41,59,0.94),rgba(49,46,129,0.92))] text-white shadow-[0_30px_80px_-38px_rgba(15,23,42,0.7)]">
+            <CardContent className="grid gap-6 p-8 md:grid-cols-[minmax(0,1fr)_220px] md:items-end">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/48">Need an event featured?</p>
+                <h2 className="mt-3 text-3xl font-black tracking-tight">Submit a marketplace or ecommerce event for review.</h2>
+                <p className="mt-4 max-w-2xl text-sm leading-7 text-white/72">
+                  If it serves sellers, operators, agencies, or commerce software teams, send it over. We are prioritizing events with official landing pages, useful operator value, and credible ecommerce relevance.
+                </p>
+              </div>
+              <div className="flex flex-col gap-3">
+                <Button asChild className="bg-white text-slate-950 hover:bg-white/92">
+                  <a href="mailto:hello@marketplacebeta.com?subject=Submit%20an%20event%20to%20MarketplaceBeta">
+                    Submit by email
+                    <Mail className="ml-2 h-4 w-4" />
+                  </a>
+                </Button>
+                <Button asChild variant="outline" className="border-white/12 bg-white/6 text-white hover:bg-white/10 hover:text-white">
+                  <Link href="/newsletter">Subscribe for event updates</Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t mt-16">
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <Image src="/brand-icon.png" alt="MarketplaceBeta logo" width={24} height={24} className="h-6 w-6 rounded object-cover" />
-              <span>MarketplaceBeta</span>
+      <footer className="mt-16 border-t border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.98),rgba(2,6,23,1))]">
+        <div className="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-8 text-sm text-white/62 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-3">
+            <Image src="/brand-icon.png" alt="MarketplaceBeta logo" width={24} height={24} className="h-6 w-6 rounded object-cover" />
+            <div>
+              <p className="font-semibold text-white">MarketplaceBeta</p>
+              <p className="text-xs uppercase tracking-[0.22em] text-white/40">Operator Events Desk</p>
             </div>
-            <div className="flex gap-6">
-              <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
-              <Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link>
-              <Link href="/about" className="hover:text-foreground transition-colors">About</Link>
-            </div>
+          </div>
+          <div className="flex flex-wrap gap-5">
+            <Link href="/articles" className="transition-colors hover:text-white">
+              Articles
+            </Link>
+            <Link href="/partners" className="transition-colors hover:text-white">
+              Partners
+            </Link>
+            <Link href="/tools" className="transition-colors hover:text-white">
+              Tools
+            </Link>
+            <Link href="/newsletter" className="transition-colors hover:text-white">
+              Newsletter
+            </Link>
           </div>
         </div>
       </footer>
