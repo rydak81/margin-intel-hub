@@ -514,7 +514,9 @@ export default function HomePageClient({
               <Link href="/tools" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
                 Tools
               </Link>
-              {/* Solutions and Community hidden - coming soon */}
+              <Link href="/community" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
+                Community
+              </Link>
               <Link href="/events" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
                 Events
               </Link>
@@ -596,7 +598,7 @@ export default function HomePageClient({
                 <Link href="/articles" className="rounded-md px-4 py-2 text-white/82 hover:bg-white/10" onClick={() => setMobileMenuOpen(false)}>Articles</Link>
                 <Link href="/partners" className="rounded-md px-4 py-2 text-white/82 hover:bg-white/10" onClick={() => setMobileMenuOpen(false)}>Partners</Link>
                 <Link href="/tools" className="rounded-md px-4 py-2 text-white/82 hover:bg-white/10" onClick={() => setMobileMenuOpen(false)}>Tools</Link>
-                {/* Solutions and Community hidden - coming soon */}
+                <Link href="/community" className="rounded-md px-4 py-2 text-white/82 hover:bg-white/10" onClick={() => setMobileMenuOpen(false)}>Community</Link>
                 <Link href="/events" className="rounded-md px-4 py-2 text-white/82 hover:bg-white/10" onClick={() => setMobileMenuOpen(false)}>Events</Link>
                 <Link href="/newsletter" className="rounded-md px-4 py-2 text-white/82 hover:bg-white/10" onClick={() => setMobileMenuOpen(false)}>Newsletter</Link>
                 <div className="px-4 py-2">
@@ -1438,6 +1440,7 @@ export default function HomePageClient({
                 <li><Link href="/contact" className="hover:text-white transition-colors">Contact</Link></li>
                 <li><Link href="/advertise" className="hover:text-white transition-colors">Advertise</Link></li>
                 <li><Link href="/partners" className="hover:text-white transition-colors">Partner Marketplace</Link></li>
+                <li><Link href="/community" className="hover:text-white transition-colors">Operator Network</Link></li>
                 <li><Link href="/submit" className="hover:text-white transition-colors">Submit a Tip</Link></li>
                 <li><Link href="/tools" className="hover:text-white transition-colors">Seller Tools</Link></li>
                 <li><Link href="/articles" className="hover:text-white transition-colors">Search Articles</Link></li>

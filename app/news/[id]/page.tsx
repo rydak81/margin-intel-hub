@@ -398,6 +398,7 @@ export default async function ArticlePage({
               <Link href="/articles" className="hover:text-white transition-colors">Articles</Link>
               <Link href="/tools" className="hover:text-white transition-colors">Tools</Link>
               <Link href="/partners" className="hover:text-white transition-colors">Partners</Link>
+              <Link href="/community" className="hover:text-white transition-colors">Community</Link>
               <Link href="/events" className="hover:text-white transition-colors">Events</Link>
               <Link href="/newsletter" className="hover:text-white transition-colors">Newsletter</Link>
             </div>

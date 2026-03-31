@@ -116,6 +116,9 @@ export default function ToolsPage() {
               <Link href="/tools" className="text-sm font-semibold text-white">
                 Tools
               </Link>
+              <Link href="/community" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
+                Community
+              </Link>
               <Link href="/events" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
                 Events
               </Link>

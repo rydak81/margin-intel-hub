@@ -184,6 +184,9 @@ export default function NewsletterPage() {
             <Link href="/tools" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
               Tools
             </Link>
+            <Link href="/community" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
+              Community
+            </Link>
             <Link href="/events" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
               Events
             </Link>
@@ -568,6 +571,9 @@ export default function NewsletterPage() {
             </Link>
             <Link href="/tools" className="transition-colors hover:text-white">
               Tools
+            </Link>
+            <Link href="/community" className="transition-colors hover:text-white">
+              Community
             </Link>
             <Link href="/events" className="transition-colors hover:text-white">
               Events

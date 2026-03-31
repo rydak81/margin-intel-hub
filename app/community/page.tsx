@@ -1352,6 +1352,9 @@ export default function CommunityPage() {
             <Link href="/tools" className="transition-colors hover:text-white">
               Tools
             </Link>
+            <Link href="/community" className="transition-colors hover:text-white">
+              Community
+            </Link>
             <Link href="/newsletter" className="transition-colors hover:text-white">
               Newsletter
             </Link>

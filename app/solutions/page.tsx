@@ -241,7 +241,7 @@ export default function SolutionsPage() {
               <Link href="/tools" className="text-sm font-semibold hover:text-primary transition-colors">Tools</Link>
               <Link href="/partners" className="text-sm font-semibold hover:text-primary transition-colors">Partners</Link>
               <Link href="/solutions" className="text-sm font-semibold text-primary transition-colors">Solutions</Link>
-              {/* Community hidden — launching later */}
+              <Link href="/community" className="text-sm font-semibold hover:text-primary transition-colors">Community</Link>
               <Link href="/events" className="text-sm font-semibold hover:text-primary transition-colors">Events</Link>
               <Link href="/newsletter" className="text-sm font-semibold hover:text-primary transition-colors">Newsletter</Link>
             </nav>
@@ -268,7 +268,7 @@ export default function SolutionsPage() {
                 <Link href="/tools" className="px-4 py-2 hover:bg-muted rounded-md" onClick={() => setMobileMenuOpen(false)}>Tools</Link>
                 <Link href="/partners" className="px-4 py-2 hover:bg-muted rounded-md" onClick={() => setMobileMenuOpen(false)}>Partners</Link>
                 <Link href="/solutions" className="px-4 py-2 hover:bg-muted rounded-md bg-muted" onClick={() => setMobileMenuOpen(false)}>Solutions</Link>
-                {/* Community hidden — launching later */}
+                <Link href="/community" className="px-4 py-2 hover:bg-muted rounded-md" onClick={() => setMobileMenuOpen(false)}>Community</Link>
                 <Link href="/events" className="px-4 py-2 hover:bg-muted rounded-md" onClick={() => setMobileMenuOpen(false)}>Events</Link>
                 <Link href="/newsletter" className="px-4 py-2 hover:bg-muted rounded-md" onClick={() => setMobileMenuOpen(false)}>Newsletter</Link>
               </nav>
