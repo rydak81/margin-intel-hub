@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator"
 import { ArticleDetailModal } from "@/components/article-detail-modal"
 import { BackToTop } from "@/components/back-to-top"
 import { getArticleFallbackImage } from "@/lib/article-images"
+import { EVENTS, isPastEvent, sortEvents } from "@/lib/events"
 import {
   buildBreakingNews,
   createFallbackBreakingNews,
@@ -118,6 +119,10 @@ function formatTimeAgo(dateString: string): string {
 function getCategoryConfig(categoryId: string) {
   return CATEGORIES.find(c => c.id === categoryId.toLowerCase()) || CATEGORIES[0]
 }
+
+const HOMEPAGE_EVENTS = sortEvents(EVENTS)
+  .filter((event) => !isPastEvent(event))
+  .slice(0, 3)
 
 // Get article image URL - the API already enriches with stock fallbacks
 function getArticleImageUrl(article: NewsArticle): string {
@@ -1249,11 +1254,7 @@ export default function HomePageClient({
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {[
-                  { name: "Amazon Accelerate 2026", date: "Apr 15-17", location: "Seattle, WA" },
-                  { name: "Prosper Show", date: "May 8-10", location: "Las Vegas, NV" },
-                  { name: "eTail West", date: "Jun 12-14", location: "Palm Springs, CA" },
-                ].map((event) => (
+                {HOMEPAGE_EVENTS.map((event) => (
                   <div key={event.name} className="group flex items-start gap-3 rounded-2xl border border-transparent p-2 transition-colors hover:border-sky-400/15 hover:bg-sky-500/5">
                     <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-primary/10">
                       <Calendar className="h-5 w-5 text-primary" />
@@ -1263,7 +1264,7 @@ export default function HomePageClient({
                         {event.name}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {event.date} | {event.location}
+                        {event.dates} | {event.location}
                       </p>
                     </div>
                   </div>
