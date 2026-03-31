@@ -41,6 +41,18 @@ function getModuleBackground(sponsor: SponsorConfig): string {
 function getLogoFrameClasses(sponsor: SponsorConfig, variant: SponsorZone): string {
   const isWideWordmark = sponsor.id === 'threecolts' || sponsor.id === 'marketplacepulse'
 
+  if (sponsor.id === 'threecolts') {
+    if (variant === 'top-banner') {
+      return 'h-12 w-36 rounded-full border-white/15 bg-white px-4 shadow-sm'
+    }
+
+    if (variant === 'inline') {
+      return 'h-11 w-32 rounded-full border-white/15 bg-white px-4'
+    }
+
+    return 'h-11 w-32 rounded-full border-white/15 bg-white px-4'
+  }
+
   if (variant === 'top-banner') {
     return isWideWordmark
       ? 'h-11 w-32 rounded-full border-white/15 bg-white px-3 shadow-sm'
@@ -59,7 +71,8 @@ function getLogoFrameClasses(sponsor: SponsorConfig, variant: SponsorZone): stri
 }
 
 function getLogoImageClasses(sponsor: SponsorConfig): string {
-  return sponsor.id === 'threecolts' || sponsor.id === 'marketplacepulse' ? 'p-3' : 'p-2'
+  if (sponsor.id === 'threecolts') return 'p-2.5'
+  return sponsor.id === 'marketplacepulse' ? 'p-3' : 'p-2'
 }
 
 function SponsorImage({
@@ -201,11 +214,14 @@ function SponsorVisualScene({
           <div className="absolute bottom-0 left-10 h-36 w-36 rounded-full bg-violet-500/12 blur-3xl" />
           <div className="absolute left-0 top-0 h-full w-full bg-[radial-gradient(circle_at_left_center,rgba(34,211,238,0.14),transparent_26%),radial-gradient(circle_at_right_center,rgba(217,70,239,0.14),transparent_28%)]" />
 
-          <div className={`relative flex h-full flex-col items-center justify-center ${isTopBanner ? 'px-8 py-7 text-center' : 'px-6 py-6 text-center'}`}>
-            <div className={`flex flex-col items-center ${textPanelWidthClass} ${isTopBanner ? 'gap-4' : 'gap-3'}`}>
+          <div className={`relative flex h-full flex-col ${isTopBanner ? 'px-8 py-6 text-center' : 'px-6 py-6 text-center'}`}>
+            <div className="flex justify-center">
               <div className="inline-flex rounded-full border border-white/12 bg-white/6 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/70 backdrop-blur">
                 Strategic Partner
               </div>
+            </div>
+
+            <div className={`flex flex-1 flex-col items-center justify-center ${textPanelWidthClass} mx-auto ${isTopBanner ? 'gap-4' : 'gap-3'}`}>
               <div className={`${textPanelWidthClass} space-y-1`}>
                 <p className={`${headlineSizeClass} font-extrabold leading-[0.94] tracking-[-0.055em]`}>
                   <span className="block whitespace-nowrap bg-[linear-gradient(135deg,#56d4ff_5%,#9da8ff_48%,#f15df5_100%)] bg-clip-text text-transparent">
@@ -228,12 +244,14 @@ function SponsorVisualScene({
               </p>
             </div>
 
-            <div className={`mt-6 flex ${actionsWidthClass} items-center ${actionJustifyClass} gap-3`}>
-              <div className="inline-flex items-center rounded-full border border-white/10 bg-white px-4 py-2 text-sm font-semibold text-slate-950 shadow-[0_18px_40px_-24px_rgba(255,255,255,0.75)]">
-                Explore Threecolts
-              </div>
-              <div className={`${actionHighlightWidthClass} rounded-2xl border border-white/10 bg-slate-950/62 px-4 py-3 text-xs font-medium leading-5 text-white/84 backdrop-blur-md`}>
-                {supportingHighlight}
+            <div className="flex justify-center pt-3">
+              <div className={`flex ${actionsWidthClass} items-center ${actionJustifyClass} gap-3`}>
+                <div className="inline-flex items-center rounded-full border border-white/10 bg-white px-4 py-2 text-sm font-semibold text-slate-950 shadow-[0_18px_40px_-24px_rgba(255,255,255,0.75)]">
+                  Explore Threecolts
+                </div>
+                <div className={`${actionHighlightWidthClass} rounded-2xl border border-white/10 bg-slate-950/62 px-4 py-3 text-xs font-medium leading-5 text-white/84 backdrop-blur-md`}>
+                  {supportingHighlight}
+                </div>
               </div>
             </div>
           </div>
