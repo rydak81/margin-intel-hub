@@ -242,6 +242,41 @@ function SponsorVisualScene({
               <p className={`${bodyWidthClass} text-sm font-medium leading-6 text-white/80`}>
                 The operational infrastructure to simplify your commerce stack.
               </p>
+              {isTopBanner && (
+                <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+                  <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/6 px-3 py-1.5 backdrop-blur">
+                    <SponsorLogo
+                      name="Seller 365"
+                      sizes="28px"
+                      className="h-7 w-7 rounded-full border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.18),rgba(255,255,255,0.08))]"
+                      fallbackClassName="text-[9px] tracking-[0.14em] text-white"
+                    />
+                    <span className="text-xs font-semibold uppercase tracking-[0.16em] text-white/82">Seller 365</span>
+                  </div>
+                  <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/6 px-3 py-1.5 backdrop-blur">
+                    <SponsorLogo
+                      name="MarginPro"
+                      logoUrl="/sponsors/marginpro-logo.svg"
+                      sizes="28px"
+                      className="h-7 w-7 rounded-full border-white/10 bg-white"
+                      imageClassName="p-1.5"
+                      fallbackClassName="text-[9px]"
+                    />
+                    <span className="text-xs font-semibold uppercase tracking-[0.16em] text-white/82">MarginPro</span>
+                  </div>
+                  <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/6 px-3 py-1.5 backdrop-blur">
+                    <SponsorLogo
+                      name="CedCommerce"
+                      logoUrl="/sponsors/cedcommerce-logo.svg"
+                      sizes="28px"
+                      className="h-7 w-7 rounded-full border-white/10 bg-white"
+                      imageClassName="p-1.5"
+                      fallbackClassName="text-[9px]"
+                    />
+                    <span className="text-xs font-semibold uppercase tracking-[0.16em] text-white/82">CedCommerce</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="flex justify-center pt-3">

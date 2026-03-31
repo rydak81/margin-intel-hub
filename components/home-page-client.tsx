@@ -428,21 +428,22 @@ export default function HomePageClient({
         : 'bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.16),transparent_20%),radial-gradient(circle_at_top_right,rgba(217,70,239,0.14),transparent_18%),radial-gradient(circle_at_50%_12%,rgba(99,102,241,0.08),transparent_24%),linear-gradient(180deg,rgba(248,250,252,0.92),rgba(255,255,255,0.76)_18%,transparent_34%)]'
     }`}>
       {/* Breaking News Ticker - Live updates */}
-      <div className="bg-primary text-primary-foreground py-2 overflow-hidden">
-        <div className="flex items-center">
-          <div className="flex-shrink-0 px-4 flex items-center gap-2 font-semibold border-r border-primary-foreground/20">
-            <Zap className="h-4 w-4" />
-            <span className="hidden sm:inline">BREAKING</span>
+      <div className="relative overflow-hidden border-b border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.94),rgba(30,41,59,0.88))] text-white">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-fuchsia-400/40 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-sky-400/45 to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_left_top,rgba(56,189,248,0.09),transparent_16%),radial-gradient(circle_at_right_top,rgba(217,70,239,0.08),transparent_18%)] pointer-events-none" />
+        <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-2.5">
+          <div className="flex shrink-0 items-center gap-2 rounded-full border border-white/10 bg-white/8 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/88 backdrop-blur">
+            <Zap className="h-3.5 w-3.5 text-sky-300" />
+            <span>Live Signal</span>
           </div>
-          <div className="flex-1 overflow-hidden">
+          <div className="min-w-0 flex-1 overflow-hidden">
             <div className="animate-ticker flex whitespace-nowrap">
               {[...breakingNews, ...breakingNews].map((item, i) => (
-                <span key={`${item.id}-${i}`} className="mx-8 flex items-center gap-2 text-sm">
-                  <span className="font-medium">{item.title}</span>
-                  <span className="text-primary-foreground/70">
-                    {formatTimeAgo(item.timestamp)}
-                  </span>
-                  <span className="text-primary-foreground/40">|</span>
+                <span key={`${item.id}-${i}`} className="mx-8 flex items-center gap-3 text-sm text-white/84">
+                  <span className="inline-flex h-1.5 w-1.5 rounded-full bg-sky-300" />
+                  <span className="font-medium text-white">{item.title}</span>
+                  <span className="text-white/52">{formatTimeAgo(item.timestamp)}</span>
                 </span>
               ))}
             </div>
