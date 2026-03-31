@@ -19,6 +19,160 @@ import { Card, CardContent } from "@/components/ui/card"
 import { ALL_SPONSORS, getModuleTypeLabel, type SponsorConfig } from "@/lib/sponsors"
 
 function PartnerVisual({ sponsor }: { sponsor: SponsorConfig }) {
+  if (sponsor.id === "threecolts") {
+    return (
+      <div className="relative h-full min-h-[240px] overflow-hidden rounded-[26px] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(87,169,247,0.22),transparent_24%),radial-gradient(circle_at_bottom_right,rgba(189,82,249,0.18),transparent_22%),linear-gradient(180deg,rgba(2,6,23,0.98),rgba(15,23,42,0.96))] p-5 text-white">
+        <div className="absolute -left-10 top-10 h-32 w-32 rounded-full bg-cyan-400/16 blur-3xl" />
+        <div className="absolute right-0 top-16 h-40 w-40 rounded-full bg-fuchsia-500/16 blur-3xl" />
+        <div className="absolute bottom-0 left-10 h-28 w-28 rounded-full bg-violet-500/12 blur-3xl" />
+        <div className="relative flex h-full flex-col justify-between">
+          <div>
+            <SponsorLogo
+              name={sponsor.name}
+              logoUrl={sponsor.logoUrl}
+              sizes="160px"
+              className="h-12 w-40 rounded-full border-white/15 bg-white px-3"
+              imageClassName="p-3"
+              fallbackClassName="text-sm"
+            />
+            <div className="mt-5 space-y-1">
+              <p className="text-[clamp(1.65rem,2.8vw,2.8rem)] font-black leading-[0.94] tracking-[-0.05em] text-sky-300">
+                Keep more.
+              </p>
+              <p className="text-[clamp(1.65rem,2.8vw,2.8rem)] font-black leading-[0.94] tracking-[-0.05em] text-white">
+                Sell more.
+              </p>
+              <p className="text-[clamp(1.65rem,2.8vw,2.8rem)] font-black leading-[0.94] tracking-[-0.05em] text-fuchsia-300">
+                Scale faster.
+              </p>
+            </div>
+            <p className="mt-4 max-w-sm text-sm leading-6 text-white/74">
+              The operating system for marketplace teams that need profitability, automation, and operational visibility in one stack.
+            </p>
+          </div>
+          <div className="space-y-3">
+            <div className="flex flex-wrap gap-2">
+              {["Operator stack", "Agency fit", "Partner growth"].map((item) => (
+                <div
+                  key={item}
+                  className="rounded-full border border-white/10 bg-white/6 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-white/78"
+                >
+                  {item}
+                </div>
+              ))}
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/8 p-4 backdrop-blur">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/55">Featured Angle</p>
+              <p className="mt-2 text-sm font-medium leading-6 text-white">{sponsor.highlights[0]}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (sponsor.id === "marginpro") {
+    return (
+      <div className="relative h-full min-h-[240px] overflow-hidden rounded-[26px] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(45,212,191,0.18),transparent_24%),radial-gradient(circle_at_bottom_right,rgba(96,165,250,0.16),transparent_22%),linear-gradient(180deg,rgba(2,6,23,0.98),rgba(15,23,42,0.96))] p-5 text-white">
+        <div className="absolute -right-8 top-6 h-28 w-28 rounded-full bg-teal-300/14 blur-3xl" />
+        <div className="absolute -left-8 bottom-6 h-28 w-28 rounded-full bg-sky-400/10 blur-3xl" />
+        <div className="relative flex h-full flex-col justify-between">
+          <div>
+            <SponsorLogo
+              name={sponsor.name}
+              logoUrl={sponsor.logoUrl}
+              sizes="96px"
+              className="h-12 w-12 rounded-2xl border-white/15 bg-white"
+              imageClassName="p-2"
+              fallbackClassName="text-sm"
+            />
+            <div className="mt-5 space-y-1">
+              <p className="text-[clamp(1.55rem,2.5vw,2.55rem)] font-black leading-[0.94] tracking-[-0.05em] text-white">
+                Know your
+              </p>
+              <p className="text-[clamp(1.55rem,2.5vw,2.55rem)] font-black leading-[0.94] tracking-[-0.05em] text-teal-300">
+                true margins.
+              </p>
+              <p className="text-[clamp(1.55rem,2.5vw,2.55rem)] font-black leading-[0.94] tracking-[-0.05em] text-white/88">
+                Recover profit.
+              </p>
+            </div>
+            <p className="mt-4 max-w-sm text-sm leading-6 text-white/74">
+              A profitability command center for Amazon operators tracking fees, reimbursements, ad spend, and hidden margin leaks.
+            </p>
+          </div>
+          <div className="space-y-3">
+            <div className="flex flex-wrap gap-2">
+              {["Fees", "Reimbursements", "Profit"].map((item) => (
+                <div
+                  key={item}
+                  className="rounded-full border border-white/10 bg-white/6 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-white/78"
+                >
+                  {item}
+                </div>
+              ))}
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/8 p-4 backdrop-blur">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/55">Featured Angle</p>
+              <p className="mt-2 text-sm font-medium leading-6 text-white">{sponsor.highlights[1]}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (sponsor.id === "cedcommerce") {
+    return (
+      <div className="relative h-full min-h-[240px] overflow-hidden rounded-[26px] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(129,140,248,0.2),transparent_26%),radial-gradient(circle_at_bottom_right,rgba(99,102,241,0.16),transparent_24%),linear-gradient(180deg,rgba(2,6,23,0.98),rgba(15,23,42,0.96))] p-5 text-white">
+        <div className="absolute -right-10 top-8 h-32 w-32 rounded-full bg-indigo-400/16 blur-3xl" />
+        <div className="absolute left-6 bottom-0 h-24 w-24 rounded-full bg-violet-400/12 blur-3xl" />
+        <div className="relative flex h-full flex-col justify-between">
+          <div>
+            <SponsorLogo
+              name={sponsor.name}
+              logoUrl={sponsor.logoUrl}
+              sizes="96px"
+              className="h-12 w-12 rounded-2xl border-white/15 bg-white"
+              imageClassName="p-2"
+              fallbackClassName="text-sm"
+            />
+            <div className="mt-5 space-y-1">
+              <p className="text-[clamp(1.5rem,2.45vw,2.45rem)] font-black leading-[0.94] tracking-[-0.05em] text-white">
+                Connect more
+              </p>
+              <p className="text-[clamp(1.5rem,2.45vw,2.45rem)] font-black leading-[0.94] tracking-[-0.05em] text-indigo-300">
+                channels.
+              </p>
+              <p className="text-[clamp(1.5rem,2.45vw,2.45rem)] font-black leading-[0.94] tracking-[-0.05em] text-white/88">
+                Scale cleanly.
+              </p>
+            </div>
+            <p className="mt-4 max-w-sm text-sm leading-6 text-white/74">
+              A multi-channel operations layer for syncing catalog, inventory, and orders across marketplaces without adding chaos.
+            </p>
+          </div>
+          <div className="space-y-3">
+            <div className="flex flex-wrap gap-2">
+              {["Amazon", "Walmart", "TikTok Shop"].map((item) => (
+                <div
+                  key={item}
+                  className="rounded-full border border-white/10 bg-white/6 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-white/78"
+                >
+                  {item}
+                </div>
+              ))}
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/8 p-4 backdrop-blur">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/55">Featured Angle</p>
+              <p className="mt-2 text-sm font-medium leading-6 text-white">{sponsor.highlights[0]}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   if (sponsor.id === "marketplacepulse") {
     return (
       <div className="relative h-full min-h-[240px] overflow-hidden rounded-[26px] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(96,165,250,0.18),transparent_26%),radial-gradient(circle_at_bottom_right,rgba(148,163,184,0.16),transparent_24%),linear-gradient(180deg,rgba(2,6,23,0.98),rgba(15,23,42,0.95))] p-5 text-white">
