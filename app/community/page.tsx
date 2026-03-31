@@ -31,6 +31,7 @@ import {
   X,
   Search,
   Plus,
+  Check,
   MessageSquare,
   ArrowBigUp,
   ArrowBigDown,
