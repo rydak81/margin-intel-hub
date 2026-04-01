@@ -30,6 +30,7 @@ import {
   Lightbulb,
 } from "lucide-react"
 import { getArticleFallbackImage } from "@/lib/article-images"
+import { LinkedInPostGenerator } from "@/components/linkedin-post-generator"
 
 interface NewsArticle {
   id: string
@@ -391,6 +392,22 @@ export function ArticleDetailModal({
                 Copy Link
               </Button>
             </div>
+          </div>
+
+          <div className="mb-8">
+            <LinkedInPostGenerator
+              article={{
+                id: article.id,
+                title: article.title,
+                aiSummary: article.aiSummary,
+                ourTake: article.ourTake,
+                keyTakeaways: article.keyTakeaways,
+                bottomLine: article.bottomLine,
+                keyStat: article.keyStat,
+                category: article.category,
+                platforms: article.platforms,
+              }}
+            />
           </div>
 
           <Separator className="my-8" />

@@ -44,6 +44,10 @@ interface SearchResponse {
   }
 }
 
+interface ArticlesPageProps {
+  mode?: "articles" | "news"
+}
+
 const CATEGORY_COLORS: Record<string, string> = {
   breaking: 'bg-red-500',
   platform_updates: 'bg-blue-500',
@@ -72,7 +76,17 @@ function formatCategoryLabel(category: string): string {
   return category.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
 }
 
-export default function ArticlesPage() {
+export default function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
+  const isNewsDesk = mode === "news"
+  const deskLabel = isNewsDesk ? "News Desk" : "Articles Desk"
+  const heroPillCopy = isNewsDesk
+    ? "Search, sort, and filter the full MarketplaceBeta news desk"
+    : "Search, sort, and filter the full MarketplaceBeta reporting archive"
+  const heroHeadlineAccent = isNewsDesk ? "marketplace news desk" : "marketplace intelligence archive"
+  const heroDescription = isNewsDesk
+    ? "Track the latest MarketplaceBeta reporting by topic, platform, and impact level so operators, agencies, and SaaS teams can stay current without losing the premium desk experience."
+    : "Explore every MarketplaceBeta story by topic, platform, and impact level so operators, agencies, and SaaS teams can find the exact signal they need fast."
+
   const [query, setQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([])
@@ -148,7 +162,7 @@ export default function ArticlesPage() {
               </div>
               <div className="hidden sm:block">
                 <span className="block text-lg font-bold leading-none text-white">MarketplaceBeta</span>
-                <span className="block text-[10px] font-semibold uppercase tracking-[0.24em] text-white/55">Articles Desk</span>
+                <span className="block text-[10px] font-semibold uppercase tracking-[0.24em] text-white/55">{deskLabel}</span>
               </div>
             </Link>
           </div>
@@ -157,8 +171,11 @@ export default function ArticlesPage() {
             <Link href="/" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
               Home
             </Link>
-            <Link href="/articles" className="text-sm font-semibold text-white">
+            <Link href="/articles" className={`text-sm font-semibold transition-colors hover:text-white ${isNewsDesk ? "text-white/82" : "text-white"}`}>
               Articles
+            </Link>
+            <Link href="/news" className={`text-sm font-semibold transition-colors hover:text-white ${isNewsDesk ? "text-white" : "text-white/82"}`}>
+              News
             </Link>
             <Link href="/partners" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
               Partners
@@ -196,18 +213,17 @@ export default function ArticlesPage() {
                 <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/15 bg-white/76 px-3 py-1.5 text-sm shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
                   <Search className="h-4 w-4 text-sky-600" />
                   <span className="text-muted-foreground">
-                    Search, sort, and filter the full MarketplaceBeta reporting archive
+                    {heroPillCopy}
                   </span>
                 </div>
                 <h1 className="mt-5 text-4xl font-black tracking-tight text-balance md:text-5xl lg:text-6xl">
                   Search the{" "}
                   <span className="bg-[linear-gradient(135deg,#0f3f96_0%,#2563eb_38%,#7c3aed_72%,#d946ef_100%)] bg-clip-text text-transparent">
-                    marketplace intelligence archive
+                    {heroHeadlineAccent}
                   </span>
                 </h1>
                 <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-600 dark:text-slate-300">
-                  Explore every MarketplaceBeta story by topic, platform, and impact level so operators, agencies,
-                  and SaaS teams can find the exact signal they need fast.
+                  {heroDescription}
                 </p>
               </div>
 

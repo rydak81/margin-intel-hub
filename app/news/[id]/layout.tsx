@@ -32,6 +32,9 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   return {
     title: `${article.title} | MarketplaceBeta`,
     description: truncatedDesc,
+    alternates: {
+      canonical: articleUrl,
+    },
     openGraph: {
       title: article.title,
       description: truncatedDesc,

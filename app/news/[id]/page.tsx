@@ -1,5 +1,6 @@
 import Image from "next/image"
 import Link from "next/link"
+import Script from "next/script"
 import { notFound } from "next/navigation"
 import {
   ArrowLeft,
@@ -25,6 +26,7 @@ import { getArticleFallbackImage, getArticleImageUrl } from "@/lib/article-image
 import type { ClassifiedArticle } from "@/lib/ai-classifier"
 import { getArticleById, getRelatedArticles } from "@/lib/article-store"
 import { getActivePlacements } from "@/lib/sponsors"
+import { LinkedInPostGenerator } from "@/components/linkedin-post-generator"
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString("en-US", {
@@ -113,9 +115,39 @@ export default async function ArticlePage({
     topic: article.category,
     audiences: article.audience || [],
   })
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://marketplacebeta.com"
+  const articleUrl = `${siteUrl}/news/${article.id}`
+  const articleDescription = article.aiSummary || article.summary || "Read the full analysis on MarketplaceBeta"
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    headline: article.title,
+    description: articleDescription,
+    datePublished: article.publishedAt,
+    dateModified: article.publishedAt,
+    image: [articleImage],
+    mainEntityOfPage: articleUrl,
+    publisher: {
+      "@type": "Organization",
+      name: "MarketplaceBeta",
+      logo: {
+        "@type": "ImageObject",
+        url: `${siteUrl}/brand-icon.png`,
+      },
+    },
+    author: {
+      "@type": "Organization",
+      name: article.sourceName || "MarketplaceBeta",
+    },
+  }
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.08),transparent_24%),radial-gradient(circle_at_top_right,rgba(20,184,166,0.08),transparent_22%),linear-gradient(180deg,rgba(248,250,252,0.7),transparent_30%)] bg-background">
+      <Script
+        id={`news-article-jsonld-${article.id}`}
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
       <header className="sticky top-0 z-40 border-b relative bg-[linear-gradient(180deg,rgba(255,255,255,0.97),rgba(248,250,252,0.94))] backdrop-blur-sm supports-[backdrop-filter]:bg-background/80">
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-fuchsia-400/35 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-sky-400/55 to-transparent" />
@@ -299,6 +331,22 @@ export default async function ArticlePage({
                 </a>
               </div>
             ) : null}
+
+            <div className="mt-8">
+              <LinkedInPostGenerator
+                article={{
+                  id: article.id,
+                  title: article.title,
+                  aiSummary: article.aiSummary,
+                  ourTake: article.ourTake,
+                  keyTakeaways: article.keyTakeaways,
+                  bottomLine: article.bottomLine,
+                  keyStat: article.keyStat,
+                  category: article.category,
+                  platforms: article.platforms,
+                }}
+              />
+            </div>
           </article>
 
           <aside className="space-y-6">
