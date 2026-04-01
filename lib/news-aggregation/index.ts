@@ -251,6 +251,7 @@ export const DEFAULT_RSS_SOURCES: Omit<NewsSource, 'id' | 'last_fetched_at'>[] =
 ]
 
 export const DEEMPHASIZED_SOURCE_SLUGS = [
+  'shopify-dev-changelog',
   'techcrunch-ecommerce',
   'retail-dive',
   'chain-store-age',

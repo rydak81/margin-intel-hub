@@ -30,6 +30,100 @@ function stripHTML(html: string): string {
     .trim()
 }
 
+function countMatches(text: string, patterns: RegExp[]): number {
+  return patterns.reduce((count, pattern) => count + (pattern.test(text) ? 1 : 0), 0)
+}
+
+function evaluateOperatorValue(article: any, classified: {
+  aiSummary: string
+  ourTake: string
+  keyTakeaways: string[]
+  bottomLine: string
+  whatThisMeans: string | null
+  category: string
+  platforms: string[]
+  audience: string[]
+  impactLevel: string
+  keyStat: string | null
+  relevanceScore: number
+  unsplashQuery: string
+}) {
+  const sourceName = String(article.source_name || '')
+  const combinedText = [
+    article.title || '',
+    article.summary || '',
+    article.full_content || '',
+    classified.aiSummary || '',
+    classified.ourTake || '',
+    (classified.keyTakeaways || []).join(' '),
+    classified.whatThisMeans || '',
+  ].join(' ').toLowerCase()
+
+  const developerSignals = countMatches(combinedText, [
+    /\bapi\b/,
+    /\bgraphql\b/,
+    /\bwebhook\b/,
+    /\bmutation\b/,
+    /\bquery\b/,
+    /\bsdk\b/,
+    /\bdeveloper\b/,
+    /\bextension\b/,
+    /\bmetafield\b/,
+    /\bmetaobject\b/,
+    /\bversion\b/,
+    /\bendpoint\b/,
+    /\badmin api\b/,
+  ])
+
+  const operatorSignals = countMatches(combinedText, [
+    /\bseller\b/,
+    /\bmerchant\b/,
+    /\bbrand\b/,
+    /\bagency\b/,
+    /\bcheckout\b/,
+    /\bpayments?\b/,
+    /\bconversion\b/,
+    /\borders?\b/,
+    /\breturns?\b/,
+    /\brefunds?\b/,
+    /\bshipping\b/,
+    /\bfulfillment\b/,
+    /\bfees?\b/,
+    /\bpolicy\b/,
+    /\benforcement\b/,
+    /\baccount health\b/,
+    /\badvertising\b/,
+    /\bprofit(?:ability)?\b/,
+    /\bmarketplace\b/,
+    /\bmerchant impact\b/,
+  ])
+
+  const isShopifyDevChangelog = sourceName.toLowerCase().includes('shopify developer changelog')
+  const isLowValueTechnical = isShopifyDevChangelog && developerSignals >= 2 && operatorSignals < 2
+
+  if (!isLowValueTechnical) {
+    return {
+      ...classified,
+      relevant: (classified.relevanceScore || 0) >= 0.4,
+      rejectionReason: null as string | null,
+    }
+  }
+
+  return {
+    ...classified,
+    category: 'tools_technology',
+    impactLevel: 'low',
+    relevanceScore: Math.min(classified.relevanceScore || 0.2, 0.18),
+    aiSummary: 'Technical Shopify developer update with limited immediate impact for most marketplace sellers or operators.',
+    ourTake: 'Unless this touches your checkout, orders, payments, or fulfillment stack directly, this is low-priority reading for most commerce teams.',
+    keyTakeaways: ['Skip unless your development team confirms it affects live merchant workflows or customer operations.'],
+    bottomLine: 'Developer note, not operator signal.',
+    whatThisMeans: 'Useful for app developers, but not strong front-page intelligence for seller or agency audiences.',
+    relevant: false,
+    rejectionReason: 'low_operator_value_technical_changelog',
+  }
+}
+
 /**
  * Extract keywords from text using simple NLP heuristics.
  */
@@ -99,7 +193,11 @@ Published: ${article.published_at || 'Recent'}
 Summary: ${article.summary || ''}
 ${article.full_content ? `Full Content: ${article.full_content.substring(0, 4000)}` : ''}
 
-RELEVANCE FILTER: Rate 0.0-1.0 how relevant this is to someone who sells on Amazon/Walmart/Target, runs an ecommerce agency, or manages marketplace brands. Score below 0.3 if the article is about general retail/tech news with no direct seller impact. Score 0.7+ only if it directly affects seller fees, policies, operations, advertising, or profitability.
+RELEVANCE FILTER: Rate 0.0-1.0 how relevant this is to someone who sells on Amazon/Walmart/Target, runs an ecommerce agency, or manages marketplace brands. Score below 0.3 if the article is about general retail/tech news with no direct seller impact. Score 0.7+ only if it directly affects seller fees, policies, operations, advertising, profitability, or customer-facing commerce workflows.
+
+IMPORTANT FILTERING RULE:
+- Pure developer changelogs, API updates, SDK notes, webhooks, and GraphQL changes should score below 0.25 UNLESS they clearly affect merchant operations, checkout, fulfillment, payments, subscriptions, customer experience, or agency execution in the next 30 days.
+- If the article is primarily for app developers and not for sellers/operators, classify it as low relevance and low impact.
 
 Respond with ONLY valid JSON (no markdown, no code blocks):
 {
@@ -303,7 +401,7 @@ export async function POST(request: NextRequest) {
       await Promise.all(
         batch.map(async (article: any) => {
           try {
-            const classified = await classifyArticle(article)
+            const classified = evaluateOperatorValue(article, await classifyArticle(article))
             const cleanSummary = stripHTML(article.summary || '')
             const keywords = extractKeywords(`${article.title} ${classified.aiSummary} ${cleanSummary}`)
 
@@ -314,7 +412,9 @@ export async function POST(request: NextRequest) {
               platforms: classified.platforms,
               audience: classified.audience,
               impact_level: classified.impactLevel,
+              relevant: classified.relevant,
               relevance_score: Math.round(classified.relevanceScore > 1 ? classified.relevanceScore : (classified.relevanceScore || 0) * 100),
+              rejection_reason: classified.rejectionReason,
               classified_at: new Date().toISOString()
             }
 

@@ -23,6 +23,21 @@ function isSupabaseConfigured(): boolean {
   return !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY)
 }
 
+function getArticleDeskScore(article: any): number {
+  const relevance = Number(article.relevanceScore || 0)
+  const impactBonus =
+    article.impactLevel === 'high' ? 28 :
+    article.impactLevel === 'medium' ? 14 :
+    0
+  const breakingBonus = article.isBreaking ? 20 : 0
+  const sourceBonus = article.sourceType === 'community_pulse' ? 8 : 0
+  const publishedAt = article.publishedAt ? new Date(article.publishedAt).getTime() : 0
+  const ageHours = Math.max(0, (Date.now() - publishedAt) / (1000 * 60 * 60))
+  const freshnessBonus = Math.max(0, 18 - ageHours * 0.6)
+
+  return relevance + impactBonus + breakingBonus + sourceBonus + freshnessBonus
+}
+
 /**
  * Save articles to Supabase (upsert — won't duplicate)
  */
@@ -92,7 +107,7 @@ export async function loadArticlesFromDB(options?: {
       .from('articles')
       .select('*')
       .eq('relevant', true)
-      .gte('relevance_score', 30)
+      .gte('relevance_score', 40)
       .order('published_at', { ascending: false })
       .limit(options?.limit || 200)
 
@@ -119,7 +134,9 @@ export async function loadArticlesFromDB(options?: {
       return []
     }
 
-    return (data || []).map(dbRowToArticle)
+    return (data || [])
+      .map(dbRowToArticle)
+      .sort((a, b) => getArticleDeskScore(b) - getArticleDeskScore(a))
   } catch (err) {
     console.warn('[ArticleStore] Failed to load from Supabase:', err)
     return []

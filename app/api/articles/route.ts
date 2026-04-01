@@ -16,6 +16,21 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+function getArticleDeskScore(article: any): number {
+  const relevance = Number(article.relevanceScore || 0)
+  const impactBonus =
+    article.impactLevel === 'high' ? 28 :
+    article.impactLevel === 'medium' ? 14 :
+    0
+  const breakingBonus = article.isBreaking ? 20 : 0
+  const sourceBonus = article.sourceType === 'community_pulse' ? 8 : 0
+  const publishedAt = article.publishedAt ? new Date(article.publishedAt).getTime() : 0
+  const ageHours = Math.max(0, (Date.now() - publishedAt) / (1000 * 60 * 60))
+  const freshnessBonus = Math.max(0, 18 - ageHours * 0.6)
+
+  return relevance + impactBonus + breakingBonus + sourceBonus + freshnessBonus
+}
+
 // ============================================================================
 // API ROUTE HANDLER — Serves articles from Supabase only (no RSS fetching)
 // Aggregation is handled by /api/news/aggregate via Vercel cron
@@ -44,7 +59,7 @@ export async function GET(request: Request) {
         .from('articles')
         .select('*')
         .eq('relevant', true)
-        .gte('relevance_score', 30)
+        .gte('relevance_score', 40)
         .order('published_at', { ascending: false })
         .limit(200)
 
@@ -78,6 +93,8 @@ export async function GET(request: Request) {
     if (impactLevel) {
       articles = articles.filter(a => a.impactLevel === impactLevel)
     }
+
+    articles.sort((a, b) => getArticleDeskScore(b) - getArticleDeskScore(a))
 
     // Calculate breakdown stats
     const byCategory: Record<string, number> = {}
