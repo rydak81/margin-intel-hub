@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { syncMarketplaceFirstSourceStrategy } from '@/lib/news-aggregation'
 
 export const maxDuration = 60 // Allow up to 60s for aggregation
 
@@ -8,12 +9,9 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-// Competitor domains to block (especially from Google News feeds)
-const BLOCKED_DOMAINS = [
-  'carbon6.io',
-  'feedvisor.com',
-  'tinuiti.com',
-]
+// MarketplaceBeta now leans into best-available operator intelligence,
+// including agencies and partner ecosystems when the content is useful.
+const BLOCKED_DOMAINS: string[] = []
 
 function isBlockedSource(url: string): boolean {
   return BLOCKED_DOMAINS.some(domain => url.includes(domain))
@@ -87,6 +85,8 @@ export async function POST(request: Request) {
 async function runAggregationFromDB() {
   const startTime = Date.now()
   const MAX_RUNTIME_MS = 50000 // Stop at 50s to leave buffer for DB writes
+
+  await syncMarketplaceFirstSourceStrategy()
 
   // 1. Fetch active sources from the news_sources table
   const { data: sources, error: sourcesError } = await supabaseAdmin
@@ -240,18 +240,18 @@ async function fetchFromNewsAPI(): Promise<any[]> {
   if (!apiKey) return []
 
   const queries = [
-    'amazon marketplace seller fees',
-    'walmart marketplace ecommerce seller',
-    'shopify seller store ecommerce',
-    'tiktok shop ecommerce seller',
-    'ecommerce tariffs import trade',
-    'amazon FBA fulfillment logistics',
-    'amazon prime day seller',
-    'ecommerce AI tools automation',
-    'amazon advertising PPC strategy',
-    'ecommerce mergers acquisitions funding',
-    'marketplace policy compliance seller',
-    'amazon seller account suspension',
+    'Amazon Seller Central seller fees reimbursement policy FBA',
+    'Amazon seller forum policy change account health reimbursement',
+    'Walmart Marketplace seller policy WFS Walmart Connect repricer',
+    'Walmart Marketplace Learn seller guide policy update',
+    'Shopify merchant update Editions policy app checkout',
+    'Shopify developer changelog action required merchant impact',
+    'TikTok Shop seller policy enforcement listing intellectual property',
+    'TikTok Shop seller center update logistics returns',
+    'eBay seller announcement promoted listings policy managed shipping',
+    'Target Plus marketplace seller brand partner update',
+    'marketplace seller profitability fees reimbursement refund operations',
+    'marketplace agency seller strategy Amazon Walmart Shopify TikTok',
   ]
 
   const articles: any[] = []

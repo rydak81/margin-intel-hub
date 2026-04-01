@@ -8,6 +8,44 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+const OFFICIAL_COMMUNITY_QUERIES = [
+  {
+    query: 'site:sellercentral.amazon.com/seller-forums FBA fees OR reimbursement OR policy OR account health',
+    sourcePlatform: 'sellercentral_amazon',
+    author: 'Amazon Seller Forums',
+  },
+  {
+    query: 'site:marketplacelearn.walmart.com/forum OR site:marketplacelearn.walmart.com/guides walmart marketplace seller policy',
+    sourcePlatform: 'walmart_marketplacelearn',
+    author: 'Walmart Marketplace Learn',
+  },
+  {
+    query: 'site:community.shopify.com Shopify merchant issue OR update OR support OR checkout',
+    sourcePlatform: 'shopify_community',
+    author: 'Shopify Community',
+  },
+  {
+    query: 'site:shopify.dev/changelog Shopify action required OR changelog merchant platform',
+    sourcePlatform: 'shopify_changelog',
+    author: 'Shopify Developer Changelog',
+  },
+  {
+    query: 'site:seller-us.tiktok.com/university TikTok Shop policy OR seller enforcement OR listing policy',
+    sourcePlatform: 'tiktok_shop_policy',
+    author: 'TikTok Shop Academy',
+  },
+  {
+    query: 'site:community.ebay.com "Seller News" OR announcements seller',
+    sourcePlatform: 'ebay_community',
+    author: 'eBay Community',
+  },
+  {
+    query: 'site:plus.target.com OR site:corp.target.com "Target Plus" marketplace seller',
+    sourcePlatform: 'target_plus',
+    author: 'Target Plus',
+  },
+]
+
 export async function GET(request: Request) {
   try {
     const authHeader = request.headers.get('authorization')
@@ -27,6 +65,7 @@ export async function GET(request: Request) {
       { name: 'FulfillmentByAmazon', platform: 'reddit_fba' },
       { name: 'AmazonSeller', platform: 'reddit_amzseller' },
       { name: 'ecommerce', platform: 'reddit_ecommerce' },
+      { name: 'shopify', platform: 'reddit_shopify' },
     ]
 
     for (const sub of subreddits) {
@@ -100,24 +139,23 @@ export async function GET(request: Request) {
         const googleCx = process.env.GOOGLE_SEARCH_CX
 
         if (googleApiKey && googleCx) {
-          const queries = [
-            'site:sellercentral.amazon.com/seller-forums FBA fees 2026',
-            'site:sellercentral.amazon.com/seller-forums account suspended',
-            'site:sellercentral.amazon.com/seller-forums listing optimization',
-            'site:sellercentral.amazon.com/seller-forums policy change',
+          // Use 2 rotating official-platform queries per run to stay within quota
+          // while broadening coverage beyond Amazon.
+          const queryIndex = Math.floor(Date.now() / (6 * 60 * 60 * 1000)) % OFFICIAL_COMMUNITY_QUERIES.length
+          const selectedQueries = [
+            OFFICIAL_COMMUNITY_QUERIES[queryIndex],
+            OFFICIAL_COMMUNITY_QUERIES[(queryIndex + 1) % OFFICIAL_COMMUNITY_QUERIES.length],
           ]
 
-          // Use 1 query per run to conserve API quota (100/day free)
-          const queryIndex = Math.floor(Date.now() / (6 * 60 * 60 * 1000)) % queries.length
-          const query = queries[queryIndex]
+          for (const definition of selectedQueries) {
+            const searchUrl = `https://www.googleapis.com/customsearch/v1?key=${googleApiKey}&cx=${googleCx}&q=${encodeURIComponent(definition.query)}&dateRestrict=m1&num=10`
 
-          const searchUrl = `https://www.googleapis.com/customsearch/v1?key=${googleApiKey}&cx=${googleCx}&q=${encodeURIComponent(query)}&dateRestrict=m1&num=10`
+            const response = await fetch(searchUrl, {
+              signal: AbortSignal.timeout(8000)
+            })
 
-          const response = await fetch(searchUrl, {
-            signal: AbortSignal.timeout(8000)
-          })
+            if (!response.ok) continue
 
-          if (response.ok) {
             const data = await response.json()
             for (const item of (data.items || [])) {
               const id = 'ct_sc_' + generateShortId(item.link)
@@ -125,9 +163,9 @@ export async function GET(request: Request) {
                 id,
                 title: cleanText(item.title),
                 body_snippet: cleanText((item.snippet || '').substring(0, 500)),
-                source_platform: 'sellercentral_google',
+                source_platform: definition.sourcePlatform,
                 source_url: item.link,
-                author: 'Seller Central Forum',
+                author: definition.author,
                 upvotes: 0,
                 comment_count: 0,
                 published_at: new Date().toISOString(),

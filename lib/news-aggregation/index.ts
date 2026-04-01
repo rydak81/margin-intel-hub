@@ -50,127 +50,21 @@ export interface Article {
   content_hash: string
 }
 
-// RSS Feed Sources - E-commerce focused (verified working feeds)
+// RSS Feed Sources - Marketplace-first and operator-focused.
+// These are the sources we actively want synced into Supabase for the live cron.
 export const DEFAULT_RSS_SOURCES: Omit<NewsSource, 'id' | 'last_fetched_at'>[] = [
   {
-    name: 'eCommerce Bytes',
-    slug: 'ecommerce-bytes',
+    name: 'Amazon Seller Central News',
+    slug: 'amazon-seller-central',
     source_type: 'rss',
-    url: 'https://www.ecommercebytes.com',
-    feed_url: 'https://www.ecommercebytes.com/feed/',
-    category: 'ecommerce',
-    platform: ['amazon', 'ebay', 'etsy'],
+    url: 'https://sellercentral.amazon.com/gp/headlines.html',
+    feed_url: 'https://sellercentral.amazon.com/gp/headlines.html/ref=xx_headlines_rss_feed',
+    category: 'amazon',
+    platform: ['amazon'],
     is_active: true,
-    priority_score: 85,
+    priority_score: 100,
     fetch_frequency_minutes: 60,
-    metadata: {}
-  },
-  {
-    name: 'Modern Retail',
-    slug: 'modern-retail',
-    source_type: 'rss',
-    url: 'https://www.modernretail.co',
-    feed_url: 'https://www.modernretail.co/feed/',
-    category: 'ecommerce',
-    platform: ['amazon', 'walmart', 'target'],
-    is_active: true,
-    priority_score: 85,
-    fetch_frequency_minutes: 60,
-    metadata: {}
-  },
-  // Jungle Scout removed — domain is in BLOCKED_DOMAINS (competitor)
-  {
-    name: 'TechCrunch E-commerce',
-    slug: 'techcrunch-ecommerce',
-    source_type: 'rss',
-    url: 'https://techcrunch.com/tag/e-commerce/',
-    feed_url: 'https://techcrunch.com/tag/e-commerce/feed/',
-    category: 'industry',
-    platform: ['general'],
-    is_active: true,
-    priority_score: 75,
-    fetch_frequency_minutes: 60,
-    metadata: {}
-  },
-  {
-    name: 'Retail Dive',
-    slug: 'retail-dive',
-    source_type: 'rss',
-    url: 'https://www.retaildive.com',
-    feed_url: 'https://www.retaildive.com/feeds/news/',
-    category: 'industry',
-    platform: ['general'],
-    is_active: true,
-    priority_score: 80,
-    fetch_frequency_minutes: 60,
-    metadata: {}
-  },
-  {
-    name: 'Supply Chain Dive',
-    slug: 'supply-chain-dive',
-    source_type: 'rss',
-    url: 'https://www.supplychaindive.com',
-    feed_url: 'https://www.supplychaindive.com/feeds/news/',
-    category: 'logistics',
-    platform: ['general'],
-    is_active: true,
-    priority_score: 75,
-    fetch_frequency_minutes: 120,
-    metadata: {}
-  },
-  {
-    name: 'Digital Commerce 360',
-    slug: 'digital-commerce-360',
-    source_type: 'rss',
-    url: 'https://www.digitalcommerce360.com',
-    feed_url: 'https://www.digitalcommerce360.com/feed/',
-    category: 'ecommerce',
-    platform: ['amazon', 'general'],
-    is_active: true,
-    priority_score: 80,
-    fetch_frequency_minutes: 60,
-    metadata: {}
-  },
-  {
-    name: 'Chain Store Age',
-    slug: 'chain-store-age',
-    source_type: 'rss',
-    url: 'https://chainstoreage.com',
-    feed_url: 'https://chainstoreage.com/rss.xml',
-    category: 'industry',
-    platform: ['general'],
-    is_active: true,
-    priority_score: 70,
-    fetch_frequency_minutes: 120,
-    metadata: {}
-  },
-  {
-    name: 'Practical Commerce',
-    slug: 'practical-commerce',
-    source_type: 'rss',
-    url: 'https://practicalcommerce.com',
-    feed_url: 'https://practicalcommerce.com/feed',
-    category: 'ecommerce',
-    platform: ['general'],
-    is_active: true,
-    priority_score: 75,
-    fetch_frequency_minutes: 120,
-    metadata: {}
-  },
-  // Helium 10 removed — domain is in BLOCKED_DOMAINS (competitor)
-  // Carbon6 removed — domain is in BLOCKED_DOMAINS (competitor)
-  {
-    name: 'EcomCrew',
-    slug: 'ecomcrew',
-    source_type: 'rss',
-    url: 'https://ecomcrew.com',
-    feed_url: 'https://ecomcrew.com/feed/',
-    category: 'ecommerce',
-    platform: ['amazon', 'general'],
-    is_active: true,
-    priority_score: 75,
-    fetch_frequency_minutes: 120,
-    metadata: {}
+    metadata: { lane: 'official_platform', audience: ['sellers', 'agencies', 'saas'] }
   },
   {
     name: 'About Amazon',
@@ -181,13 +75,49 @@ export const DEFAULT_RSS_SOURCES: Omit<NewsSource, 'id' | 'last_fetched_at'>[] =
     category: 'amazon',
     platform: ['amazon'],
     is_active: true,
-    priority_score: 80,
+    priority_score: 82,
     fetch_frequency_minutes: 60,
-    metadata: {}
+    metadata: { lane: 'official_platform' }
   },
-  // Tinuiti removed — domain is in BLOCKED_DOMAINS (competitor)
-
-  // ── Expanded sources (marketplace intelligence, fees, policy, M&A, AI) ──
+  {
+    name: 'Walmart Corporate News',
+    slug: 'walmart-corporate',
+    source_type: 'rss',
+    url: 'https://corporate.walmart.com/news',
+    feed_url: 'https://corporate.walmart.com/content/corporate/en_us/news.rss.xml',
+    category: 'ecommerce',
+    platform: ['walmart'],
+    is_active: true,
+    priority_score: 92,
+    fetch_frequency_minutes: 120,
+    metadata: { lane: 'official_platform' }
+  },
+  {
+    name: 'Shopify Developer Changelog',
+    slug: 'shopify-dev-changelog',
+    source_type: 'rss',
+    url: 'https://shopify.dev/changelog',
+    feed_url: 'https://shopify.dev/changelog/feed.xml',
+    category: 'tools',
+    platform: ['shopify'],
+    is_active: true,
+    priority_score: 94,
+    fetch_frequency_minutes: 120,
+    metadata: { lane: 'official_platform', audience: ['developers', 'merchants', 'agencies'] }
+  },
+  {
+    name: 'Shopify Blog',
+    slug: 'shopify-blog',
+    source_type: 'rss',
+    url: 'https://www.shopify.com/blog',
+    feed_url: 'https://www.shopify.com/blog/feed',
+    category: 'ecommerce',
+    platform: ['shopify'],
+    is_active: true,
+    priority_score: 88,
+    fetch_frequency_minutes: 120,
+    metadata: { lane: 'official_platform' }
+  },
   {
     name: 'Marketplace Pulse',
     slug: 'marketplace-pulse',
@@ -199,59 +129,33 @@ export const DEFAULT_RSS_SOURCES: Omit<NewsSource, 'id' | 'last_fetched_at'>[] =
     is_active: true,
     priority_score: 95,
     fetch_frequency_minutes: 60,
-    metadata: {}
+    metadata: { lane: 'analyst_intelligence' }
   },
   {
-    name: 'Seller Snap Blog',
-    slug: 'seller-snap',
+    name: 'eCommerce Bytes',
+    slug: 'ecommerce-bytes',
     source_type: 'rss',
-    url: 'https://www.sellersnap.io/blog',
-    feed_url: 'https://www.sellersnap.io/blog/feed/',
-    category: 'amazon',
-    platform: ['amazon'],
-    is_active: true,
-    priority_score: 70,
-    fetch_frequency_minutes: 120,
-    metadata: {}
-  },
-  {
-    name: 'Walmart Corporate News',
-    slug: 'walmart-corporate',
-    source_type: 'rss',
-    url: 'https://corporate.walmart.com/news',
-    feed_url: 'https://corporate.walmart.com/content/corporate/en_us/news.rss.xml',
+    url: 'https://www.ecommercebytes.com',
+    feed_url: 'https://www.ecommercebytes.com/feed/',
     category: 'ecommerce',
-    platform: ['walmart'],
+    platform: ['amazon', 'ebay', 'etsy'],
     is_active: true,
-    priority_score: 85,
-    fetch_frequency_minutes: 120,
-    metadata: {}
-  },
-  {
-    name: 'Shopify Blog',
-    slug: 'shopify-blog',
-    source_type: 'rss',
-    url: 'https://www.shopify.com/blog',
-    feed_url: 'https://www.shopify.com/blog/feed',
-    category: 'ecommerce',
-    platform: ['shopify'],
-    is_active: true,
-    priority_score: 80,
-    fetch_frequency_minutes: 120,
-    metadata: {}
-  },
-  {
-    name: 'Amazon Seller Central News',
-    slug: 'amazon-seller-central',
-    source_type: 'rss',
-    url: 'https://sellercentral.amazon.com/gp/headlines.html',
-    feed_url: 'https://sellercentral.amazon.com/gp/headlines.html/ref=xx_headlines_rss_feed',
-    category: 'amazon',
-    platform: ['amazon'],
-    is_active: true,
-    priority_score: 95,
+    priority_score: 90,
     fetch_frequency_minutes: 60,
-    metadata: {}
+    metadata: { lane: 'seller_intelligence' }
+  },
+  {
+    name: 'Digital Commerce 360',
+    slug: 'digital-commerce-360',
+    source_type: 'rss',
+    url: 'https://www.digitalcommerce360.com',
+    feed_url: 'https://www.digitalcommerce360.com/feed/',
+    category: 'ecommerce',
+    platform: ['amazon', 'walmart', 'shopify', 'general'],
+    is_active: true,
+    priority_score: 86,
+    fetch_frequency_minutes: 60,
+    metadata: { lane: 'seller_intelligence' }
   },
   {
     name: 'Internet Retailer',
@@ -262,9 +166,61 @@ export const DEFAULT_RSS_SOURCES: Omit<NewsSource, 'id' | 'last_fetched_at'>[] =
     category: 'ecommerce',
     platform: ['amazon', 'general'],
     is_active: true,
-    priority_score: 80,
+    priority_score: 84,
     fetch_frequency_minutes: 120,
-    metadata: {}
+    metadata: { lane: 'seller_intelligence' }
+  },
+  {
+    name: 'Modern Retail',
+    slug: 'modern-retail',
+    source_type: 'rss',
+    url: 'https://www.modernretail.co',
+    feed_url: 'https://www.modernretail.co/feed/',
+    category: 'ecommerce',
+    platform: ['amazon', 'walmart', 'target', 'shopify'],
+    is_active: true,
+    priority_score: 82,
+    fetch_frequency_minutes: 60,
+    metadata: { lane: 'industry_context' }
+  },
+  {
+    name: 'Practical Commerce',
+    slug: 'practical-commerce',
+    source_type: 'rss',
+    url: 'https://practicalcommerce.com',
+    feed_url: 'https://practicalcommerce.com/feed',
+    category: 'ecommerce',
+    platform: ['amazon', 'shopify', 'general'],
+    is_active: true,
+    priority_score: 78,
+    fetch_frequency_minutes: 120,
+    metadata: { lane: 'operator_tactics' }
+  },
+  {
+    name: 'Seller Snap Blog',
+    slug: 'seller-snap',
+    source_type: 'rss',
+    url: 'https://www.sellersnap.io/blog',
+    feed_url: 'https://www.sellersnap.io/blog/feed/',
+    category: 'amazon',
+    platform: ['amazon'],
+    is_active: true,
+    priority_score: 76,
+    fetch_frequency_minutes: 120,
+    metadata: { lane: 'operator_tactics' }
+  },
+  {
+    name: 'EcomCrew',
+    slug: 'ecomcrew',
+    source_type: 'rss',
+    url: 'https://ecomcrew.com',
+    feed_url: 'https://ecomcrew.com/feed/',
+    category: 'ecommerce',
+    platform: ['amazon', 'shopify', 'general'],
+    is_active: true,
+    priority_score: 74,
+    fetch_frequency_minutes: 120,
+    metadata: { lane: 'operator_tactics' }
   },
   {
     name: 'Search Engine Journal - E-commerce',
@@ -275,9 +231,9 @@ export const DEFAULT_RSS_SOURCES: Omit<NewsSource, 'id' | 'last_fetched_at'>[] =
     category: 'advertising',
     platform: ['shopify', 'amazon', 'general'],
     is_active: true,
-    priority_score: 70,
+    priority_score: 72,
     fetch_frequency_minutes: 120,
-    metadata: {}
+    metadata: { lane: 'growth' }
   },
   {
     name: 'Freightwaves',
@@ -288,75 +244,21 @@ export const DEFAULT_RSS_SOURCES: Omit<NewsSource, 'id' | 'last_fetched_at'>[] =
     category: 'logistics',
     platform: ['general'],
     is_active: true,
-    priority_score: 75,
+    priority_score: 74,
     fetch_frequency_minutes: 120,
-    metadata: {}
+    metadata: { lane: 'logistics' }
   },
-  {
-    name: 'Crunchbase News',
-    slug: 'crunchbase-news',
-    source_type: 'rss',
-    url: 'https://news.crunchbase.com',
-    feed_url: 'https://news.crunchbase.com/feed/',
-    category: 'industry',
-    platform: ['general'],
-    is_active: true,
-    priority_score: 75,
-    fetch_frequency_minutes: 120,
-    metadata: {}
-  },
-  {
-    name: 'The Verge - Tech',
-    slug: 'verge-tech',
-    source_type: 'rss',
-    url: 'https://www.theverge.com/tech',
-    feed_url: 'https://www.theverge.com/rss/index.xml',
-    category: 'industry',
-    platform: ['general'],
-    is_active: true,
-    priority_score: 65,
-    fetch_frequency_minutes: 120,
-    metadata: {}
-  },
-  {
-    name: 'CNBC Retail',
-    slug: 'cnbc-retail',
-    source_type: 'rss',
-    url: 'https://www.cnbc.com/retail/',
-    feed_url: 'https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=10000116',
-    category: 'industry',
-    platform: ['amazon', 'walmart', 'general'],
-    is_active: true,
-    priority_score: 85,
-    fetch_frequency_minutes: 60,
-    metadata: {}
-  },
-  {
-    name: 'Yahoo Finance - E-commerce',
-    slug: 'yahoo-finance-ecom',
-    source_type: 'rss',
-    url: 'https://finance.yahoo.com',
-    feed_url: 'https://finance.yahoo.com/news/rssindex',
-    category: 'industry',
-    platform: ['general'],
-    is_active: true,
-    priority_score: 80,
-    fetch_frequency_minutes: 60,
-    metadata: {}
-  },
-  {
-    name: 'Mashable - Business',
-    slug: 'mashable-business',
-    source_type: 'rss',
-    url: 'https://mashable.com/category/business',
-    feed_url: 'https://mashable.com/feeds/rss/all',
-    category: 'industry',
-    platform: ['general'],
-    is_active: true,
-    priority_score: 65,
-    fetch_frequency_minutes: 120,
-    metadata: {}
-  },
+]
+
+export const DEEMPHASIZED_SOURCE_SLUGS = [
+  'techcrunch-ecommerce',
+  'retail-dive',
+  'chain-store-age',
+  'crunchbase-news',
+  'verge-tech',
+  'cnbc-retail',
+  'yahoo-finance-ecom',
+  'mashable-business',
 ]
 
 // AI Classification Schema
@@ -638,6 +540,34 @@ export async function initializeSources(): Promise<void> {
 
     if (error) {
       console.error(`Error upserting source ${source.name}:`, error)
+    }
+  }
+}
+
+export async function syncMarketplaceFirstSourceStrategy(): Promise<void> {
+  const supabase = createAdminClient()
+
+  for (const source of DEFAULT_RSS_SOURCES) {
+    const { error } = await supabase
+      .from('news_sources')
+      .upsert(source, { onConflict: 'slug' })
+
+    if (error) {
+      console.error(`Error syncing source ${source.name}:`, error)
+    }
+  }
+
+  if (DEEMPHASIZED_SOURCE_SLUGS.length > 0) {
+    const { error } = await supabase
+      .from('news_sources')
+      .update({
+        is_active: false,
+        fetch_frequency_minutes: 240,
+      })
+      .in('slug', DEEMPHASIZED_SOURCE_SLUGS)
+
+    if (error) {
+      console.error('Error de-emphasizing legacy sources:', error)
     }
   }
 }
