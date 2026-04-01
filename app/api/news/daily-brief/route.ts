@@ -6,6 +6,27 @@ import { generateDailyBriefEmail } from '@/lib/email-templates'
 
 export const maxDuration = 60
 
+function getEasternCalendarDate(date = new Date()) {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York',
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
+    .formatToParts(date)
+    .reduce<Record<string, string>>((acc, part) => {
+      if (part.type !== 'literal') acc[part.type] = part.value
+      return acc
+    }, {})
+
+  return {
+    long: `${parts.weekday}, ${parts.month} ${parts.day}, ${parts.year}`,
+    short: `${parts.month} ${parts.day}`,
+    iso: `${parts.year}-${parts.month}-${parts.day}`,
+  }
+}
+
 function getEasternSendWindow(date = new Date()) {
   const parts = new Intl.DateTimeFormat('en-US', {
     timeZone: 'America/New_York',
@@ -163,18 +184,14 @@ ${topArticles.map((a: any, i: number) => `${i + 1}. "${a.title}" (${a.source_nam
       })
     }
 
-    const today = new Date().toLocaleDateString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-    })
+    const today = getEasternCalendarDate()
 
     const emailResult = await sendBatchEmails(
       subscribers,
-      `Daily Marketplace Brief — ${today}`,
+      `Daily Marketplace Brief — ${today.short}`,
       (subscriber) => generateDailyBriefEmail({
         briefContent: response.text,
-        date: new Date().toISOString(),
+        date: today.long,
         articleCount: topArticles.length,
         subscriberName: subscriber.first_name,
       })

@@ -20,6 +20,49 @@ const BRAND = {
   panel: '#f8fafc',
 }
 
+function sanitizeBriefText(briefText: string, formattedDate: string): string {
+  const lines = briefText.split('\n')
+  const cleaned: string[] = []
+  let skippedLeadingMeta = false
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim()
+
+    if (!line && !skippedLeadingMeta) {
+      continue
+    }
+
+    const normalized = line
+      .replace(/^#+\s*/, '')
+      .replace(/\*\*/g, '')
+      .trim()
+
+    const isRedundantHeader =
+      /daily marketplace brief/i.test(normalized) ||
+      /marketplace intelligence brief/i.test(normalized) ||
+      /your daily .*edge/i.test(normalized) ||
+      /\[date\]/i.test(normalized)
+
+    const isDateLine =
+      /^(monday|tuesday|wednesday|thursday|friday|saturday|sunday),?\s/i.test(normalized) ||
+      /^(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec|january|february|march|april|may|june|july|august|september|october|november|december)\s/i.test(normalized)
+
+    const isDivider = /^[-_]{3,}$/.test(normalized)
+
+    if (!skippedLeadingMeta && (isRedundantHeader || isDateLine || isDivider)) {
+      continue
+    }
+
+    skippedLeadingMeta = true
+    cleaned.push(rawLine)
+  }
+
+  return cleaned
+    .join('\n')
+    .replace(/\[Date\]/gi, formattedDate)
+    .trim()
+}
+
 /**
  * Convert the AI-generated brief (plain text with markdown-like formatting)
  * into clean HTML paragraphs for the email.
@@ -72,14 +115,16 @@ export function generateDailyBriefEmail(data: DailyBriefData): string {
     ? `Good morning, ${data.subscriberName}`
     : 'Good morning'
 
-  const formattedDate = new Date(data.date).toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
+  const formattedDate = /^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),/i.test(data.date)
+    ? data.date
+    : new Date(data.date).toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      })
 
-  const briefHtml = briefToHtml(data.briefContent)
+  const briefHtml = briefToHtml(sanitizeBriefText(data.briefContent, formattedDate))
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -98,11 +143,11 @@ export function generateDailyBriefEmail(data: DailyBriefData): string {
 
           <!-- Header -->
           <tr>
-            <td style="background: linear-gradient(135deg, ${BRAND.navy} 0%, ${BRAND.navySoft} 58%, #312e81 100%); padding: 28px 32px 24px;">
+            <td style="background: linear-gradient(135deg, ${BRAND.navy} 0%, ${BRAND.navySoft} 58%, #312e81 100%); padding: 28px 32px 24px; text-align: center;">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                 <tr>
-                  <td style="padding-bottom: 18px;">
-                    <table role="presentation" cellpadding="0" cellspacing="0">
+                  <td style="padding-bottom: 18px;" align="center">
+                    <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
                       <tr>
                         <td width="44" valign="middle">
                           <img src="${BRAND.logoUrl}" alt="MarketplaceBeta" width="40" height="40" style="display: block; border-radius: 10px;" />
@@ -121,9 +166,6 @@ export function generateDailyBriefEmail(data: DailyBriefData): string {
                 </tr>
                 <tr>
                   <td>
-                    <p style="color: #cbd5e1; font-size: 11px; font-weight: 700; letter-spacing: 0.22em; margin: 0 0 10px 0; text-transform: uppercase;">
-                      Daily Marketplace Brief
-                    </p>
                     <h1 style="color: #ffffff; font-size: 24px; font-weight: 700; margin: 0 0 6px 0;">
                       The Daily Marketplace Brief
                     </h1>
