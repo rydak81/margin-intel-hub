@@ -12,6 +12,7 @@
 
 import { createAdminClient } from '@/lib/supabase/admin'
 import type { ClassifiedArticle } from '@/lib/ai-classifier'
+import { getArticleDeskScore } from '@/lib/source-intelligence'
 
 // In-memory cache (fast reads, populated from Supabase on startup)
 let articlesCache: ClassifiedArticle[] = []
@@ -21,21 +22,6 @@ const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
 // Check if Supabase is configured
 function isSupabaseConfigured(): boolean {
   return !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY)
-}
-
-function getArticleDeskScore(article: any): number {
-  const relevance = Number(article.relevanceScore || 0)
-  const impactBonus =
-    article.impactLevel === 'high' ? 28 :
-    article.impactLevel === 'medium' ? 14 :
-    0
-  const breakingBonus = article.isBreaking ? 20 : 0
-  const sourceBonus = article.sourceType === 'community_pulse' ? 8 : 0
-  const publishedAt = article.publishedAt ? new Date(article.publishedAt).getTime() : 0
-  const ageHours = Math.max(0, (Date.now() - publishedAt) / (1000 * 60 * 60))
-  const freshnessBonus = Math.max(0, 18 - ageHours * 0.6)
-
-  return relevance + impactBonus + breakingBonus + sourceBonus + freshnessBonus
 }
 
 /**

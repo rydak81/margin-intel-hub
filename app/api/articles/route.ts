@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 import { getArticleImageUrl, isGoodArticleImage } from "@/lib/article-images"
+import { getArticleDeskScore } from "@/lib/source-intelligence"
 import {
   getArticlesCache,
   setArticlesCache,
@@ -15,21 +16,6 @@ const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
-
-function getArticleDeskScore(article: any): number {
-  const relevance = Number(article.relevanceScore || 0)
-  const impactBonus =
-    article.impactLevel === 'high' ? 28 :
-    article.impactLevel === 'medium' ? 14 :
-    0
-  const breakingBonus = article.isBreaking ? 20 : 0
-  const sourceBonus = article.sourceType === 'community_pulse' ? 8 : 0
-  const publishedAt = article.publishedAt ? new Date(article.publishedAt).getTime() : 0
-  const ageHours = Math.max(0, (Date.now() - publishedAt) / (1000 * 60 * 60))
-  const freshnessBonus = Math.max(0, 18 - ageHours * 0.6)
-
-  return relevance + impactBonus + breakingBonus + sourceBonus + freshnessBonus
-}
 
 // ============================================================================
 // API ROUTE HANDLER — Serves articles from Supabase only (no RSS fetching)

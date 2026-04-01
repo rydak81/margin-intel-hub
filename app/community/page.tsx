@@ -859,6 +859,17 @@ export default function CommunityPage() {
                 >
                   <Link href="/articles">Read operator coverage</Link>
                 </Button>
+
+                <Button
+                  variant="outline"
+                  asChild
+                  className="border-slate-200 bg-white/72 text-slate-800 hover:bg-white dark:border-white/10 dark:bg-slate-950/45 dark:text-white dark:hover:bg-slate-950/55"
+                >
+                  <Link href="/community/pulse">
+                    View operator pulse
+                    <ChevronRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
               </div>
 
               <div className="mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">

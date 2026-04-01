@@ -25,8 +25,6 @@ import {
 } from "@/components/ui/select"
 import {
   BarChart3,
-  Menu,
-  X,
   DollarSign,
   Globe,
   Layers,
@@ -44,6 +42,8 @@ import {
   ChevronDown,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { PremiumSiteFooter } from "@/components/premium-site-footer"
+import { PremiumSiteHeader } from "@/components/premium-site-header"
 
 // Marketplace platform logos (using text placeholders for now)
 const MARKETPLACE_LOGOS = [
@@ -103,7 +103,6 @@ const SERVICE_TYPES = [
 ]
 
 export default function SolutionsPage() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [leadModalOpen, setLeadModalOpen] = useState(false)
   const [leadModalStep, setLeadModalStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -226,56 +225,8 @@ export default function SolutionsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Navigation */}
-      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-between h-14">
-            <Link href="/" className="flex items-center gap-2">
-              <Image src="/brand-icon.png" alt="MarketplaceBeta logo" width={32} height={32} className="h-8 w-8 rounded-lg object-cover" />
-              <span className="font-bold text-lg hidden sm:block">MarketplaceBeta</span>
-            </Link>
-
-            <nav className="hidden lg:flex items-center gap-6">
-              <Link href="/" className="text-sm font-semibold hover:text-primary transition-colors">Home</Link>
-              <Link href="/tools" className="text-sm font-semibold hover:text-primary transition-colors">Tools</Link>
-              <Link href="/partners" className="text-sm font-semibold hover:text-primary transition-colors">Partners</Link>
-              <Link href="/solutions" className="text-sm font-semibold text-primary transition-colors">Solutions</Link>
-              <Link href="/community" className="text-sm font-semibold hover:text-primary transition-colors">Community</Link>
-              <Link href="/events" className="text-sm font-semibold hover:text-primary transition-colors">Events</Link>
-              <Link href="/newsletter" className="text-sm font-semibold hover:text-primary transition-colors">Newsletter</Link>
-            </nav>
-
-            <div className="flex items-center gap-2">
-              <Button asChild size="sm" className="hidden sm:flex">
-                <Link href="/newsletter">Subscribe</Link>
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="lg:hidden"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              >
-                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-              </Button>
-            </div>
-          </div>
-
-          {mobileMenuOpen && (
-            <div className="lg:hidden py-4 border-t">
-              <nav className="flex flex-col gap-2">
-                <Link href="/" className="px-4 py-2 hover:bg-muted rounded-md" onClick={() => setMobileMenuOpen(false)}>Home</Link>
-                <Link href="/tools" className="px-4 py-2 hover:bg-muted rounded-md" onClick={() => setMobileMenuOpen(false)}>Tools</Link>
-                <Link href="/partners" className="px-4 py-2 hover:bg-muted rounded-md" onClick={() => setMobileMenuOpen(false)}>Partners</Link>
-                <Link href="/solutions" className="px-4 py-2 hover:bg-muted rounded-md bg-muted" onClick={() => setMobileMenuOpen(false)}>Solutions</Link>
-                <Link href="/community" className="px-4 py-2 hover:bg-muted rounded-md" onClick={() => setMobileMenuOpen(false)}>Community</Link>
-                <Link href="/events" className="px-4 py-2 hover:bg-muted rounded-md" onClick={() => setMobileMenuOpen(false)}>Events</Link>
-                <Link href="/newsletter" className="px-4 py-2 hover:bg-muted rounded-md" onClick={() => setMobileMenuOpen(false)}>Newsletter</Link>
-              </nav>
-            </div>
-          )}
-        </div>
-      </header>
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.14),transparent_18%),radial-gradient(circle_at_top_right,rgba(217,70,239,0.12),transparent_16%),linear-gradient(180deg,rgba(248,250,252,0.92),rgba(255,255,255,0.84)_18%,transparent_32%)] bg-background">
+      <PremiumSiteHeader active="solutions" deskLabel="Solutions Desk" />
 
       {/* Hero Section */}
       <section className="py-16 md:py-24 bg-gradient-to-b from-muted/50 to-background">
@@ -861,6 +812,8 @@ export default function SolutionsPage() {
           )}
         </DialogContent>
       </Dialog>
+
+      <PremiumSiteFooter />
     </div>
   )
 }

@@ -19,6 +19,12 @@ const staticRoutes: MetadataRoute.Sitemap = [
     priority: 0.9,
   },
   {
+    url: `${siteUrl}/news`,
+    lastModified: new Date(),
+    changeFrequency: 'daily',
+    priority: 0.9,
+  },
+  {
     url: `${siteUrl}/newsletter`,
     lastModified: new Date(),
     changeFrequency: 'monthly',
@@ -44,6 +50,12 @@ const staticRoutes: MetadataRoute.Sitemap = [
   },
   {
     url: `${siteUrl}/community`,
+    lastModified: new Date(),
+    changeFrequency: 'daily',
+    priority: 0.7,
+  },
+  {
+    url: `${siteUrl}/community/pulse`,
     lastModified: new Date(),
     changeFrequency: 'daily',
     priority: 0.7,
@@ -75,7 +87,7 @@ async function getArticleRoutes(): Promise<MetadataRoute.Sitemap> {
       .from('articles')
       .select('id, published_at')
       .eq('relevant', true)
-      .gte('relevance_score', 30)
+      .gte('relevance_score', 40)
       .order('published_at', { ascending: false })
       .limit(1000)
 

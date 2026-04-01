@@ -3,7 +3,6 @@ import Link from "next/link"
 import Script from "next/script"
 import { notFound } from "next/navigation"
 import {
-  ArrowLeft,
   ArrowRight,
   BookOpen,
   Calendar,
@@ -16,15 +15,20 @@ import {
   Target,
   TrendingUp,
   Users,
+  Waves,
 } from "lucide-react"
 import { AdBanner } from "@/components/AdBanner"
+import { PremiumSiteFooter } from "@/components/premium-site-footer"
+import { PremiumSiteHeader } from "@/components/premium-site-header"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { getArticleFallbackImage, getArticleImageUrl } from "@/lib/article-images"
 import type { ClassifiedArticle } from "@/lib/ai-classifier"
+import { getLatestPulseArticles, getRelevantCommunityTopics } from "@/lib/community-intelligence"
 import { getArticleById, getRelatedArticles } from "@/lib/article-store"
+import { getSourceIntelligence } from "@/lib/source-intelligence"
 import { getActivePlacements } from "@/lib/sponsors"
 import { LinkedInPostGenerator } from "@/components/linkedin-post-generator"
 
@@ -115,6 +119,12 @@ export default async function ArticlePage({
     topic: article.category,
     audiences: article.audience || [],
   })
+  const sourceIntelligence = getSourceIntelligence(article.sourceName, article.sourceType)
+  const [operatorNotes, pulseArticles] = await Promise.all([
+    getRelevantCommunityTopics(article, 3),
+    getLatestPulseArticles(2),
+  ])
+  const latestPulse = pulseArticles.find((pulse) => pulse.id !== article.id)
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://marketplacebeta.com"
   const articleUrl = `${siteUrl}/news/${article.id}`
   const articleDescription = article.aiSummary || article.summary || "Read the full analysis on MarketplaceBeta"
@@ -148,32 +158,14 @@ export default async function ArticlePage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
       />
-      <header className="sticky top-0 z-40 border-b relative bg-[linear-gradient(180deg,rgba(255,255,255,0.97),rgba(248,250,252,0.94))] backdrop-blur-sm supports-[backdrop-filter]:bg-background/80">
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-fuchsia-400/35 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-sky-400/55 to-transparent" />
-        <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
-            </Link>
-          </Button>
-          <Link href="/" className="flex items-center gap-2">
-            <div className="relative">
-              <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-sky-400/20 via-cyan-300/10 to-fuchsia-400/20 blur-sm" />
-              <Image src="/brand-icon.png" alt="MarketplaceBeta logo" width={28} height={28} className="relative h-7 w-7 rounded-lg object-cover ring-1 ring-sky-400/20" />
-            </div>
-            <span className="font-bold text-lg hidden sm:block">MarketplaceBeta</span>
-          </Link>
-          <div className="w-24 sm:w-32" />
-        </div>
-      </header>
+      <PremiumSiteHeader active="news" deskLabel="Intelligence Brief" backHref="/news" backLabel="News Desk" />
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
           <article className="min-w-0">
             <div className="mb-6 flex flex-wrap items-center gap-3">
               <Badge>{formatCategoryLabel(article.category)}</Badge>
+              <Badge variant="secondary">{sourceIntelligence.label}</Badge>
               <span className="inline-flex items-center gap-1 text-sm text-muted-foreground">
                 <Calendar className="h-4 w-4" />
                 {formatDate(article.publishedAt)}
@@ -246,6 +238,30 @@ export default async function ArticlePage({
                 </CardContent>
               </Card>
             ) : null}
+
+            <Card className="mt-6 border-0 shadow-sm">
+              <CardContent className="grid gap-4 p-6 md:grid-cols-3">
+                <div className="rounded-2xl border border-white/70 bg-white/80 p-4 dark:border-white/10 dark:bg-slate-950/45">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Source Lens</p>
+                  <p className="mt-2 text-sm font-semibold">{sourceIntelligence.label}</p>
+                  <p className="mt-2 text-sm leading-7 text-muted-foreground">{sourceIntelligence.description}</p>
+                </div>
+                <div className="rounded-2xl border border-white/70 bg-white/80 p-4 dark:border-white/10 dark:bg-slate-950/45">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Impact Level</p>
+                  <p className="mt-2 text-sm font-semibold capitalize">{article.impactLevel || "medium"}</p>
+                  <p className="mt-2 text-sm leading-7 text-muted-foreground">
+                    {article.bottomLine || "Use this briefing to decide whether your team needs an immediate workflow, policy, or reporting change."}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-white/70 bg-white/80 p-4 dark:border-white/10 dark:bg-slate-950/45">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Key Stat / Trigger</p>
+                  <p className="mt-2 text-sm font-semibold">{article.keyStat || "No single quantitative trigger surfaced in this report."}</p>
+                  <p className="mt-2 text-sm leading-7 text-muted-foreground">
+                    Focus on the operational implication, not just the headline.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
 
             {article.audience && article.audience.length > 0 ? (
               <Card className="mt-6 border-0 shadow-sm">
@@ -359,6 +375,64 @@ export default async function ArticlePage({
               />
             ))}
 
+            <Card className="border-white/70 bg-white/82 dark:border-white/10 dark:bg-slate-950/45">
+              <CardHeader>
+                <CardTitle className="text-base">Source Intelligence</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Badge variant="secondary">{sourceIntelligence.label}</Badge>
+                <p className="text-sm leading-7 text-muted-foreground">{sourceIntelligence.description}</p>
+                <div className="rounded-2xl border border-white/70 bg-white/76 p-4 text-sm dark:border-white/10 dark:bg-white/5">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Why it matters</p>
+                  <p className="mt-2 leading-7 text-muted-foreground">
+                    MarketplaceBeta uses source quality to separate direct platform changes from community chatter and general industry context.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {operatorNotes.length > 0 ? (
+              <Card className="border-white/70 bg-white/82 dark:border-white/10 dark:bg-slate-950/45">
+                <CardHeader>
+                  <CardTitle className="text-base">Operator Notes</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {operatorNotes.map((note) => (
+                    <div key={note.id} className="rounded-2xl border border-white/70 bg-white/76 p-4 dark:border-white/10 dark:bg-white/5">
+                      <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+                        <Waves className="h-4 w-4 text-sky-600" />
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.18em]">
+                          {note.sourcePlatform.replace(/_/g, " ")}
+                        </span>
+                      </div>
+                      <p className="mt-3 text-sm font-semibold leading-6">{note.title}</p>
+                      {note.bodySnippet ? (
+                        <p className="mt-2 text-sm leading-7 text-muted-foreground">{note.bodySnippet}</p>
+                      ) : null}
+                      <div className="mt-3 flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
+                        <span>{note.upvotes} upvotes</span>
+                        <span>{note.commentCount} comments</span>
+                        <span>{formatTimeAgo(note.publishedAt)}</span>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            ) : null}
+
+            {latestPulse ? (
+              <Card className="border-white/70 bg-[linear-gradient(135deg,rgba(15,23,42,0.96),rgba(30,41,59,0.92))] text-white dark:border-white/10">
+                <CardContent className="p-6">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">Operator Pulse</p>
+                  <h3 className="mt-2 text-lg font-bold">{latestPulse.title}</h3>
+                  <p className="mt-3 text-sm leading-7 text-white/76">{latestPulse.summary}</p>
+                  <Button asChild variant="secondary" className="mt-4 w-full">
+                    <Link href={`/news/${latestPulse.id}`}>Read the pulse</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : null}
+
             <Card className="bg-primary text-primary-foreground border-0">
               <CardContent className="p-6">
                 <Mail className="h-6 w-6 mb-3" />
@@ -413,10 +487,7 @@ export default async function ArticlePage({
             ) : null}
 
             <Button variant="outline" className="w-full" asChild>
-              <Link href="/">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to All News
-              </Link>
+              <Link href="/news">Back to News Desk</Link>
             </Button>
           </aside>
         </div>
@@ -433,26 +504,7 @@ export default async function ArticlePage({
         ))}
       </div>
 
-      <footer className="relative overflow-hidden border-t border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.22),transparent_24%),radial-gradient(circle_at_top_right,rgba(168,85,247,0.18),transparent_22%),radial-gradient(circle_at_bottom,rgba(20,184,166,0.1),transparent_20%),linear-gradient(180deg,rgba(2,6,23,0.98),rgba(15,23,42,1))] text-white mt-16">
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/45 to-transparent" />
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <Link href="/" className="flex items-center gap-2">
-              <Image src="/brand-icon.png" alt="MarketplaceBeta logo" width={28} height={28} className="h-7 w-7 rounded-lg object-cover" />
-              <span className="font-bold">MarketplaceBeta</span>
-            </Link>
-            <div className="flex items-center gap-6 text-sm text-white/60">
-              <Link href="/" className="hover:text-white transition-colors">Home</Link>
-              <Link href="/articles" className="hover:text-white transition-colors">Articles</Link>
-              <Link href="/tools" className="hover:text-white transition-colors">Tools</Link>
-              <Link href="/partners" className="hover:text-white transition-colors">Partners</Link>
-              <Link href="/community" className="hover:text-white transition-colors">Community</Link>
-              <Link href="/events" className="hover:text-white transition-colors">Events</Link>
-              <Link href="/newsletter" className="hover:text-white transition-colors">Newsletter</Link>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <PremiumSiteFooter />
     </div>
   )
 }

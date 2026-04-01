@@ -1,14 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+let supabase: ReturnType<typeof createClient> | null = null
 
-if (!supabaseUrl || !supabaseServiceKey) {
-  throw new Error('Missing Supabase credentials')
+function getSupabase() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!supabaseUrl || !supabaseServiceKey) {
+    throw new Error('Missing Supabase credentials')
+  }
+
+  if (!supabase) {
+    supabase = createClient(supabaseUrl, supabaseServiceKey)
+  }
+
+  return supabase
 }
-
-const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 function parseList(str?: string): string[] {
   if (!str) return []
@@ -17,6 +25,7 @@ function parseList(str?: string): string[] {
 
 export async function GET(request: NextRequest) {
   try {
+    const supabase = getSupabase()
     const searchParams = request.nextUrl.searchParams
     const q = searchParams.get('q') || ''
     const category = searchParams.get('category')
@@ -30,6 +39,8 @@ export async function GET(request: NextRequest) {
     let query = supabase
       .from('articles')
       .select('id, title, summary, category, source_name, published_at, image_url, platforms, impact_level, relevance_score, audience', { count: 'exact' })
+      .eq('relevant', true)
+      .gte('relevance_score', 40)
 
     if (q.trim()) {
       query = query.or(`title.ilike.%${q}%,summary.ilike.%${q}%,ai_summary.ilike.%${q}%`)
@@ -55,15 +66,27 @@ export async function GET(request: NextRequest) {
     }
 
     // Facets
-    const { data: categoryData } = await supabase.from('articles').select('category')
+    const { data: categoryData } = await supabase
+      .from('articles')
+      .select('category')
+      .eq('relevant', true)
+      .gte('relevance_score', 40)
     const categoryFacets: Record<string, number> = {}
     categoryData?.forEach(item => { if (item.category) categoryFacets[item.category] = (categoryFacets[item.category] || 0) + 1 })
 
-    const { data: platformData } = await supabase.from('articles').select('platforms')
+    const { data: platformData } = await supabase
+      .from('articles')
+      .select('platforms')
+      .eq('relevant', true)
+      .gte('relevance_score', 40)
     const platformFacets: Record<string, number> = {}
     platformData?.forEach(item => { if (item.platforms && Array.isArray(item.platforms)) item.platforms.forEach((p: string) => { platformFacets[p] = (platformFacets[p] || 0) + 1 }) })
 
-    const { data: impactData } = await supabase.from('articles').select('impact_level')
+    const { data: impactData } = await supabase
+      .from('articles')
+      .select('impact_level')
+      .eq('relevant', true)
+      .gte('relevance_score', 40)
     const impactFacets: Record<string, number> = {}
     impactData?.forEach(item => { if (item.impact_level) impactFacets[item.impact_level] = (impactFacets[item.impact_level] || 0) + 1 })
 
