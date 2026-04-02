@@ -28,7 +28,6 @@ export function AuthModal({
           redirectTo={redirectTo}
           title={title}
           description={description}
-          onSent={() => onOpenChange(false)}
         />
       </DialogContent>
     </Dialog>

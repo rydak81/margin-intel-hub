@@ -1261,7 +1261,6 @@ export default function CommunityPage() {
             redirectTo="/community"
             title="Join the Operator Network"
             description="Create a real MarketplaceBeta account so the site can remember your role, content preferences, and community participation."
-            onSent={() => setJoinDialogOpen(false)}
           />
         </DialogContent>
       </Dialog>

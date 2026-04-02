@@ -38,6 +38,9 @@ export function AuthPanel({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [sent, setSent] = useState(false)
   const [error, setError] = useState("")
+  const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "")
+  const expectedOrigin = configuredSiteUrl || (typeof window !== "undefined" ? window.location.origin : "")
+  const expectedHost = expectedOrigin ? new URL(expectedOrigin).hostname.replace(/^www\./, "") : "marketplacebeta.com"
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
@@ -45,12 +48,12 @@ export function AuthPanel({
     setError("")
 
     try {
-      const origin = window.location.origin
-      const emailRedirectTo = `${origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`
+      const emailRedirectTo = `${expectedOrigin}/auth/callback?next=${encodeURIComponent(redirectTo)}`
       const { error: authError } = await supabase.auth.signInWithOtp({
         email,
         options: {
           emailRedirectTo,
+          shouldCreateUser: mode === "join",
           data: {
             display_name: displayName || undefined,
             role,
@@ -76,14 +79,32 @@ export function AuthPanel({
 
   if (sent) {
     return (
-      <div className="rounded-3xl border border-white/70 bg-white/82 p-6 text-center dark:border-white/10 dark:bg-slate-950/45">
+      <div className="rounded-3xl border border-white/70 bg-white/82 p-6 dark:border-white/10 dark:bg-slate-950/45">
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
           <Mail className="h-5 w-5 text-primary" />
         </div>
-        <h3 className="mt-4 text-lg font-bold">Check your email</h3>
-        <p className="mt-3 text-sm leading-7 text-muted-foreground">
-          We sent a secure sign-in link to <span className="font-semibold text-foreground">{email}</span>. Open it on this device to finish signing in.
+        <h3 className="mt-4 text-center text-lg font-bold">Check your email</h3>
+        <p className="mt-3 text-center text-sm leading-7 text-muted-foreground">
+          We sent a secure MarketplaceBeta sign-in link to <span className="font-semibold text-foreground">{email}</span>.
         </p>
+        <div className="mt-5 rounded-2xl border border-white/70 bg-white/76 p-4 text-sm dark:border-white/10 dark:bg-white/5">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+            What to expect
+          </p>
+          <ul className="mt-3 space-y-2 text-left leading-6 text-muted-foreground">
+            <li>Look for a sign-in or verification email connected to MarketplaceBeta. For now, the secure login provider may reference Supabase Auth.</li>
+            <li>The link should bring you back to <span className="font-semibold text-foreground">{expectedHost}</span> and finish at the MarketplaceBeta auth callback automatically.</li>
+            <li>Open the link on this same device/browser when possible, and check spam or promotions if it doesn&apos;t show up quickly.</li>
+          </ul>
+        </div>
+        <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+          <Button type="button" className="flex-1" onClick={() => setSent(false)}>
+            Send another link
+          </Button>
+          <Button type="button" variant="outline" className="flex-1" onClick={() => window.location.assign("/account")}>
+            Go to account help
+          </Button>
+        </div>
       </div>
     )
   }
@@ -194,7 +215,7 @@ export function AuthPanel({
         </Button>
 
         <p className="text-xs leading-6 text-muted-foreground">
-          We use passwordless email login. Once you sign in, MarketplaceBeta can remember your operator profile, content preferences, and community participation.
+          We use passwordless email login. The secure email link may reference Supabase Auth under the hood, but it will return you to MarketplaceBeta and unlock your profile, preferences, and community access.
         </p>
       </form>
     </div>
