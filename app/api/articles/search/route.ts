@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
+type CategoryFacetRow = { category: string | null }
+type PlatformFacetRow = { platforms: string[] | null }
+type ImpactFacetRow = { impact_level: string | null }
+
 let supabase: ReturnType<typeof createClient> | null = null
 
 function getSupabase() {
@@ -72,7 +76,9 @@ export async function GET(request: NextRequest) {
       .eq('relevant', true)
       .gte('relevance_score', 40)
     const categoryFacets: Record<string, number> = {}
-    categoryData?.forEach(item => { if (item.category) categoryFacets[item.category] = (categoryFacets[item.category] || 0) + 1 })
+    ;((categoryData as CategoryFacetRow[] | null) || []).forEach((item) => {
+      if (item.category) categoryFacets[item.category] = (categoryFacets[item.category] || 0) + 1
+    })
 
     const { data: platformData } = await supabase
       .from('articles')
@@ -80,7 +86,13 @@ export async function GET(request: NextRequest) {
       .eq('relevant', true)
       .gte('relevance_score', 40)
     const platformFacets: Record<string, number> = {}
-    platformData?.forEach(item => { if (item.platforms && Array.isArray(item.platforms)) item.platforms.forEach((p: string) => { platformFacets[p] = (platformFacets[p] || 0) + 1 }) })
+    ;((platformData as PlatformFacetRow[] | null) || []).forEach((item) => {
+      if (item.platforms && Array.isArray(item.platforms)) {
+        item.platforms.forEach((platform) => {
+          platformFacets[platform] = (platformFacets[platform] || 0) + 1
+        })
+      }
+    })
 
     const { data: impactData } = await supabase
       .from('articles')
@@ -88,7 +100,9 @@ export async function GET(request: NextRequest) {
       .eq('relevant', true)
       .gte('relevance_score', 40)
     const impactFacets: Record<string, number> = {}
-    impactData?.forEach(item => { if (item.impact_level) impactFacets[item.impact_level] = (impactFacets[item.impact_level] || 0) + 1 })
+    ;((impactData as ImpactFacetRow[] | null) || []).forEach((item) => {
+      if (item.impact_level) impactFacets[item.impact_level] = (impactFacets[item.impact_level] || 0) + 1
+    })
 
     const articles = data?.map(article => ({
       id: article.id,
