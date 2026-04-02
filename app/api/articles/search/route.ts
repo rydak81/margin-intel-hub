@@ -4,6 +4,19 @@ import { createClient } from '@supabase/supabase-js'
 type CategoryFacetRow = { category: string | null }
 type PlatformFacetRow = { platforms: string[] | null }
 type ImpactFacetRow = { impact_level: string | null }
+type SearchArticleRow = {
+  id: string
+  title: string
+  summary: string | null
+  category: string | null
+  source_name: string | null
+  published_at: string
+  image_url: string | null
+  platforms: string[] | null
+  impact_level: 'high' | 'medium' | 'low' | null
+  relevance_score: number | null
+  audience: string[] | null
+}
 
 let supabase: ReturnType<typeof createClient> | null = null
 
@@ -104,19 +117,19 @@ export async function GET(request: NextRequest) {
       if (item.impact_level) impactFacets[item.impact_level] = (impactFacets[item.impact_level] || 0) + 1
     })
 
-    const articles = data?.map(article => ({
+    const articles = (((data as SearchArticleRow[] | null) || []).map((article) => ({
       id: article.id,
       title: article.title,
-      summary: article.summary,
-      category: article.category,
-      sourceName: article.source_name,
+      summary: article.summary || "",
+      category: article.category || "general",
+      sourceName: article.source_name || "Unknown Source",
       publishedAt: article.published_at,
-      imageUrl: article.image_url,
+      imageUrl: article.image_url || undefined,
       platforms: article.platforms || [],
-      impactLevel: article.impact_level,
-      relevanceScore: article.relevance_score,
+      impactLevel: article.impact_level || undefined,
+      relevanceScore: article.relevance_score || 0,
       audience: article.audience || [],
-    })) || []
+    })))
 
     // Fix impact sort client-side since alphabetical != severity
     if (sort === 'impact') {
