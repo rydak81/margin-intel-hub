@@ -10,6 +10,8 @@ import {
   Clock,
   ExternalLink,
   Globe,
+  Lightbulb,
+  ListChecks,
   Mail,
   Sparkles,
   Target,
@@ -70,14 +72,44 @@ function stripHtml(html: string | undefined): string {
   return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim()
 }
 
-function paragraphize(content: string | undefined): string[] {
-  const plainText = stripHtml(content)
-  if (!plainText) return []
+type ContentBlock =
+  | { type: "paragraph"; content: string }
+  | { type: "list"; items: string[] }
 
-  return plainText
-    .split(/\s{2,}|\n+/)
-    .map((paragraph) => paragraph.trim())
+function paragraphize(content: string | undefined): ContentBlock[] {
+  if (!content) return []
+
+  const normalized = content
+    .replace(/<\/(p|div|section|article|h1|h2|h3|h4|blockquote)>/gi, "\n\n")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<li[^>]*>/gi, "• ")
+    .replace(/<\/li>/gi, "\n")
+    .replace(/<\/(ul|ol)>/gi, "\n\n")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .replace(/\s{2,}/g, " ")
+    .trim()
+
+  if (!normalized) return []
+
+  return normalized
+    .split(/\n{2,}/)
+    .map((block) => block.trim())
     .filter(Boolean)
+    .flatMap((block) => {
+      const lines = block
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean)
+
+      if (lines.length > 0 && lines.every((line) => line.startsWith("• "))) {
+        return [{ type: "list", items: lines.map((line) => line.replace(/^•\s*/, "").trim()) } satisfies ContentBlock]
+      }
+
+      return [{ type: "paragraph", content: block.replace(/\s+/g, " ").trim() } satisfies ContentBlock]
+    })
 }
 
 function resolveArticleImage(article: Pick<ClassifiedArticle, "imageUrl" | "title" | "category" | "platforms" | "fullContent">): string {
@@ -105,7 +137,7 @@ export default async function ArticlePage({
   const relatedArticles = await getRelatedArticles(id, article.category, 4)
   const articleImage = resolveArticleImage(article)
   const contentText = stripHtml(article.fullContent || article.summary || article.aiSummary || "")
-  const paragraphs = paragraphize(article.fullContent || article.summary || article.aiSummary)
+  const contentBlocks = paragraphize(article.fullContent || article.summary || article.aiSummary)
   const readTime = getReadTime(contentText)
   const articleSideBanners = getActivePlacements("article", "sidebar", {
     topic: article.category,
@@ -128,6 +160,38 @@ export default async function ArticlePage({
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://marketplacebeta.com"
   const articleUrl = `${siteUrl}/news/${article.id}`
   const articleDescription = article.aiSummary || article.summary || "Read the full analysis on MarketplaceBeta"
+  const standfirst = article.aiSummary || article.summary
+  const intelligenceHighlights = [
+    article.whatThisMeans
+      ? {
+          label: "Why It Matters",
+          icon: Target,
+          content: article.whatThisMeans,
+        }
+      : null,
+    article.ourTake
+      ? {
+          label: "Operator Take",
+          icon: Lightbulb,
+          content: article.ourTake,
+        }
+      : null,
+    article.actionItem
+      ? {
+          label: "What To Do Next",
+          icon: ListChecks,
+          content: article.actionItem,
+        }
+      : null,
+    article.relatedContext
+      ? {
+          label: "Context",
+          icon: BookOpen,
+          content: article.relatedContext,
+        }
+      : null,
+  ].filter(Boolean) as Array<{ label: string; icon: typeof Target; content: string }>
+
   const articleJsonLd = {
     "@context": "https://schema.org",
     "@type": "NewsArticle",
@@ -202,39 +266,53 @@ export default async function ArticlePage({
               />
             </div>
 
-            <div className="mt-8 grid gap-4 md:grid-cols-2">
-              {article.aiSummary ? (
-                <Card className="border-0 shadow-sm">
+            {standfirst ? (
+              <div className="mt-8 rounded-[28px] border border-white/70 bg-white/82 p-6 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+                <div className="flex items-center gap-2 text-primary">
+                  <Sparkles className="h-4 w-4" />
+                  <span className="text-sm font-semibold uppercase tracking-[0.16em]">Executive Summary</span>
+                </div>
+                <p className="mt-4 text-lg leading-8 text-foreground/90 md:text-xl md:leading-9">
+                  {standfirst}
+                </p>
+              </div>
+            ) : null}
+
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
+              {intelligenceHighlights.map((highlight) => (
+                <Card key={highlight.label} className="border-0 shadow-sm">
                   <CardContent className="p-5">
                     <div className="mb-3 flex items-center gap-2">
-                      <Sparkles className="h-4 w-4 text-primary" />
-                      <span className="text-sm font-semibold uppercase tracking-[0.16em] text-primary">AI Summary</span>
+                      <highlight.icon className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-semibold uppercase tracking-[0.16em] text-primary">{highlight.label}</span>
                     </div>
-                    <p className="text-sm leading-7 text-muted-foreground">{article.aiSummary}</p>
+                    <p className="text-sm leading-7 text-muted-foreground">{highlight.content}</p>
                   </CardContent>
                 </Card>
-              ) : null}
-              {article.whatThisMeans ? (
-                <Card className="border-0 shadow-sm">
-                  <CardContent className="p-5">
-                    <div className="mb-3 flex items-center gap-2">
-                      <Target className="h-4 w-4 text-primary" />
-                      <span className="text-sm font-semibold uppercase tracking-[0.16em] text-primary">What This Means</span>
-                    </div>
-                    <p className="text-sm leading-7 text-muted-foreground">{article.whatThisMeans}</p>
-                  </CardContent>
-                </Card>
-              ) : null}
+              ))}
             </div>
 
-            {article.ourTake ? (
+            {article.impactDetail || article.bottomLine ? (
               <Card className="mt-6 border-0 shadow-sm bg-primary/[0.04]">
                 <CardContent className="p-6">
                   <div className="mb-3 flex items-center gap-2">
                     <TrendingUp className="h-4 w-4 text-primary" />
-                    <span className="text-sm font-semibold uppercase tracking-[0.16em] text-primary">Operator Take</span>
+                    <span className="text-sm font-semibold uppercase tracking-[0.16em] text-primary">Decision Snapshot</span>
                   </div>
-                  <p className="text-base leading-8 text-foreground/90">{article.ourTake}</p>
+                  <div className="grid gap-5 md:grid-cols-2">
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Operational Impact</p>
+                      <p className="mt-3 text-base leading-8 text-foreground/90">
+                        {article.impactDetail || "This story may require teams to revisit workflows, monitoring, or platform assumptions."}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Bottom Line</p>
+                      <p className="mt-3 text-base leading-8 text-foreground/90">
+                        {article.bottomLine || "Treat this as an operator signal worth monitoring rather than a passive headline."}
+                      </p>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             ) : null}
@@ -297,23 +375,44 @@ export default async function ArticlePage({
                 <BookOpen className="h-5 w-5 text-primary" />
                 <h2 className="text-2xl font-bold">Full Coverage</h2>
               </div>
-              <div className="space-y-6">
-                {paragraphs.length > 0 ? (
-                  paragraphs.map((paragraph, index) => (
-                    <p
-                      key={`${article.id}-paragraph-${index}`}
-                      className={`text-lg leading-8 text-muted-foreground ${
-                        index === 0
-                          ? "first-letter:text-5xl first-letter:font-bold first-letter:float-left first-letter:mr-3 first-letter:mt-1 first-letter:text-foreground"
-                          : ""
-                      }`}
-                    >
-                      {paragraph}
-                    </p>
-                  ))
+              <div className="rounded-[28px] border border-white/70 bg-white/86 p-6 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45 md:p-8">
+                <div className="space-y-6">
+                  {contentBlocks.length > 0 ? (
+                    contentBlocks.map((block, index) =>
+                      block.type === "paragraph" ? (
+                        <p
+                          key={`${article.id}-paragraph-${index}`}
+                          className={`text-[1.05rem] leading-8 text-slate-700 dark:text-slate-200 ${
+                            index === 0
+                              ? "first-letter:text-5xl first-letter:font-bold first-letter:float-left first-letter:mr-3 first-letter:mt-1 first-letter:text-foreground"
+                              : ""
+                          }`}
+                        >
+                          {block.content}
+                        </p>
+                      ) : (
+                        <div
+                          key={`${article.id}-list-${index}`}
+                          className="rounded-2xl border border-white/70 bg-white/72 p-5 dark:border-white/10 dark:bg-white/5"
+                        >
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                            Key points from the source
+                          </p>
+                          <ul className="mt-4 space-y-3">
+                            {block.items.map((item) => (
+                              <li key={item} className="flex gap-3 text-[1.02rem] leading-8 text-slate-700 dark:text-slate-200">
+                                <ChevronRight className="mt-2 h-4 w-4 flex-shrink-0 text-primary" />
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )
+                    )
                 ) : (
-                  <p className="text-lg leading-8 text-muted-foreground">{article.summary}</p>
+                    <p className="text-[1.05rem] leading-8 text-slate-700 dark:text-slate-200">{article.summary}</p>
                 )}
+              </div>
               </div>
             </section>
 
@@ -334,18 +433,25 @@ export default async function ArticlePage({
             ) : null}
 
             {article.sourceUrl ? (
-              <div className="mt-8 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                <span>Source: {article.sourceName}</span>
-                <a
-                  href={article.sourceUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-primary hover:underline"
-                >
-                  View original
-                  <ExternalLink className="h-3 w-3" />
-                </a>
-              </div>
+              <Card className="mt-8 border-0 shadow-sm">
+                <CardContent className="flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between">
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Original Source</p>
+                    <p className="mt-2 text-sm leading-7 text-muted-foreground">
+                      This briefing is based on reporting from <span className="font-semibold text-foreground">{article.sourceName}</span>. Use the original post for full primary-source context.
+                    </p>
+                  </div>
+                  <a
+                    href={article.sourceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline"
+                  >
+                    View original
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </a>
+                </CardContent>
+              </Card>
             ) : null}
 
             <div className="mt-8">

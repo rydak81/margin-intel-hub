@@ -40,6 +40,30 @@ function parseList(str?: string): string[] {
   return str.split(',').map(s => s.trim()).filter(s => s.length > 0)
 }
 
+type SearchFilters = {
+  q: string
+  category?: string | null
+  platforms: string[]
+  impact?: string | null
+  audience?: string | null
+}
+
+function applyFilters<T>(query: T, filters: SearchFilters): T {
+  let next = (query as any)
+    .eq('relevant', true)
+    .gte('relevance_score', 40)
+
+  if (filters.q.trim()) {
+    next = next.or(`title.ilike.%${filters.q}%,summary.ilike.%${filters.q}%,ai_summary.ilike.%${filters.q}%`)
+  }
+  if (filters.category) next = next.eq('category', filters.category)
+  if (filters.platforms.length > 0) next = next.filter('platforms', 'cs', JSON.stringify(filters.platforms))
+  if (filters.impact) next = next.eq('impact_level', filters.impact)
+  if (filters.audience) next = next.filter('audience', 'cs', JSON.stringify([filters.audience]))
+
+  return next
+}
+
 export async function GET(request: NextRequest) {
   try {
     const supabase = getSupabase()
@@ -52,20 +76,14 @@ export async function GET(request: NextRequest) {
     const sort = (searchParams.get('sort') || 'newest') as 'newest' | 'oldest' | 'relevant' | 'impact'
     const limit = Math.min(parseInt(searchParams.get('limit') || '12'), 100)
     const offset = Math.max(0, parseInt(searchParams.get('offset') || '0'))
+    const filters: SearchFilters = { q, category, platforms, impact, audience }
 
-    let query = supabase
-      .from('articles')
-      .select('id, title, summary, category, source_name, published_at, image_url, platforms, impact_level, relevance_score, audience', { count: 'exact' })
-      .eq('relevant', true)
-      .gte('relevance_score', 40)
-
-    if (q.trim()) {
-      query = query.or(`title.ilike.%${q}%,summary.ilike.%${q}%,ai_summary.ilike.%${q}%`)
-    }
-    if (category) query = query.eq('category', category)
-    if (platforms.length > 0) query = query.filter('platforms', 'cs', JSON.stringify(platforms))
-    if (impact) query = query.eq('impact_level', impact)
-    if (audience) query = query.filter('audience', 'cs', JSON.stringify([audience]))
+    let query = applyFilters(
+      supabase
+        .from('articles')
+        .select('id, title, summary, category, source_name, published_at, image_url, platforms, impact_level, relevance_score, audience', { count: 'exact' }),
+      filters
+    )
 
     switch (sort) {
       case 'oldest': query = query.order('published_at', { ascending: true }); break
@@ -83,21 +101,23 @@ export async function GET(request: NextRequest) {
     }
 
     // Facets
-    const { data: categoryData } = await supabase
-      .from('articles')
-      .select('category')
-      .eq('relevant', true)
-      .gte('relevance_score', 40)
+    const { data: categoryData } = await applyFilters(
+      supabase
+        .from('articles')
+        .select('category'),
+      { q, platforms, impact, audience }
+    )
     const categoryFacets: Record<string, number> = {}
     ;((categoryData as CategoryFacetRow[] | null) || []).forEach((item) => {
       if (item.category) categoryFacets[item.category] = (categoryFacets[item.category] || 0) + 1
     })
 
-    const { data: platformData } = await supabase
-      .from('articles')
-      .select('platforms')
-      .eq('relevant', true)
-      .gte('relevance_score', 40)
+    const { data: platformData } = await applyFilters(
+      supabase
+        .from('articles')
+        .select('platforms'),
+      { q, category, impact, audience, platforms: [] }
+    )
     const platformFacets: Record<string, number> = {}
     ;((platformData as PlatformFacetRow[] | null) || []).forEach((item) => {
       if (item.platforms && Array.isArray(item.platforms)) {
@@ -107,11 +127,12 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    const { data: impactData } = await supabase
-      .from('articles')
-      .select('impact_level')
-      .eq('relevant', true)
-      .gte('relevance_score', 40)
+    const { data: impactData } = await applyFilters(
+      supabase
+        .from('articles')
+        .select('impact_level'),
+      { q, category, platforms, audience }
+    )
     const impactFacets: Record<string, number> = {}
     ;((impactData as ImpactFacetRow[] | null) || []).forEach((item) => {
       if (item.impact_level) impactFacets[item.impact_level] = (impactFacets[item.impact_level] || 0) + 1
@@ -144,7 +165,14 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true, articles, total: count || 0,
-      facets: { categories: categoryFacets, platforms: platformFacets, impactLevels: impactFacets }
+      facets: { categories: categoryFacets, platforms: platformFacets, impactLevels: impactFacets },
+      appliedFilters: {
+        query: q,
+        category: category || null,
+        platforms,
+        impact: impact || null,
+        audience: audience || null,
+      },
     })
   } catch (error) {
     console.error('Article search error:', error)
