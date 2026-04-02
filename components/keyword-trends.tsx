@@ -234,6 +234,22 @@ export function KeywordTrends() {
 
   return (
     <div className="space-y-6">
+      <Card className="border-amber-500/20 bg-amber-500/5">
+        <CardContent className="flex flex-col gap-2 py-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="border-amber-500/40 text-amber-600 dark:text-amber-300">
+                Beta Research Layer
+              </Badge>
+              <span className="text-sm font-medium">Keyword intelligence is currently modeled preview data</span>
+            </div>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              Use this workspace to pressure-test ideas and discover patterns. Live keyword volume and indexing integrations are planned, but not yet connected.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
       <Tabs defaultValue="research" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="research" className="flex items-center gap-2">

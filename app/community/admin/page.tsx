@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { AuthPanel } from "@/components/auth-panel"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -24,6 +25,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
+import { useAuthAccount } from "@/hooks/use-auth-account"
 import { createClient } from "@/lib/supabase/client"
 import {
   BarChart3,
@@ -117,119 +119,12 @@ function getRoleBadgeColor(role: string): string {
   }
 }
 
-// Sample data for demo
-const SAMPLE_POSTS: Post[] = [
-  {
-    id: '1',
-    title: 'Amazon just announced new FBA fees for 2026',
-    body: 'Just got the notification about the new fee structure...',
-    author_name: 'Sarah Chen',
-    author_role: 'brand_seller',
-    category: 'amazon',
-    created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    upvotes: 47,
-    reply_count: 23,
-    is_pinned: true,
-    is_approved: true,
-    is_reported: false,
-    view_count: 1250,
-  },
-  {
-    id: '2',
-    title: 'SPAM: Get rich quick selling on Amazon!',
-    body: 'Buy my course for only $999...',
-    author_name: 'Scammer123',
-    author_role: 'brand_seller',
-    category: 'general',
-    created_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
-    upvotes: 0,
-    reply_count: 1,
-    is_pinned: false,
-    is_approved: false,
-    is_reported: true,
-    view_count: 45,
-  },
-  {
-    id: '3',
-    title: 'TikTok Shop case study - $500k in 8 months',
-    body: 'After 8 months of experimentation...',
-    author_name: 'Jessica Williams',
-    author_role: 'agency',
-    category: 'other-marketplaces',
-    created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-    upvotes: 156,
-    reply_count: 67,
-    is_pinned: false,
-    is_approved: true,
-    is_reported: false,
-    view_count: 4520,
-  },
-]
-
-const SAMPLE_REPORTS: Report[] = [
-  {
-    id: '1',
-    reporter_id: '1',
-    post_id: '2',
-    reason: 'This is obvious spam/scam content promoting a course',
-    created_at: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-    is_resolved: false,
-    post: { title: 'SPAM: Get rich quick selling on Amazon!', author_name: 'Scammer123' },
-  },
-  {
-    id: '2',
-    reporter_id: '2',
-    reply_id: '5',
-    reason: 'Personal attack against another member',
-    created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    is_resolved: false,
-    reply: { body: 'You don\'t know what you\'re talking about...', author_name: 'AngryUser' },
-  },
-]
-
-const SAMPLE_USERS: CommunityUser[] = [
-  {
-    id: '1',
-    display_name: 'Sarah Chen',
-    email: 'sarah@example.com',
-    role: 'brand_seller',
-    company: 'Chen Brands LLC',
-    joined_at: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString(),
-    reputation_score: 2450,
-    post_count: 45,
-    is_verified: true,
-    is_admin: false,
-  },
-  {
-    id: '2',
-    display_name: 'Mike Johnson',
-    email: 'mike@agency.com',
-    role: 'agency',
-    company: 'Growth Agency',
-    joined_at: new Date(Date.now() - 120 * 24 * 60 * 60 * 1000).toISOString(),
-    reputation_score: 1890,
-    post_count: 32,
-    is_verified: true,
-    is_admin: false,
-  },
-  {
-    id: '3',
-    display_name: 'Scammer123',
-    email: 'scam@fake.com',
-    role: 'brand_seller',
-    joined_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-    reputation_score: -15,
-    post_count: 3,
-    is_verified: false,
-    is_admin: false,
-  },
-]
-
 export default function AdminDashboard() {
+  const { currentUser, loading: accountLoading } = useAuthAccount()
   const [activeTab, setActiveTab] = useState('overview')
-  const [posts, setPosts] = useState<Post[]>(SAMPLE_POSTS)
-  const [reports, setReports] = useState<Report[]>(SAMPLE_REPORTS)
-  const [users, setUsers] = useState<CommunityUser[]>(SAMPLE_USERS)
+  const [posts, setPosts] = useState<Post[]>([])
+  const [reports, setReports] = useState<Report[]>([])
+  const [users, setUsers] = useState<CommunityUser[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [loading, setLoading] = useState(false)
   const [selectedPost, setSelectedPost] = useState<Post | null>(null)
@@ -243,10 +138,13 @@ export default function AdminDashboard() {
 
   // Fetch data from database
   useEffect(() => {
-    fetchData()
-  }, [activeTab])
+    if (!accountLoading && currentUser?.is_admin) {
+      void fetchData()
+    }
+  }, [activeTab, accountLoading, currentUser?.is_admin])
 
   async function fetchData() {
+    if (!currentUser?.is_admin) return
     setLoading(true)
     try {
       if (activeTab === 'posts' || activeTab === 'overview') {
@@ -292,7 +190,7 @@ export default function AdminDashboard() {
   }
 
   async function handlePostAction() {
-    if (!selectedPost) return
+    if (!selectedPost || !currentUser?.is_admin) return
     setIsActioning(true)
 
     try {
@@ -326,6 +224,7 @@ export default function AdminDashboard() {
   }
 
   async function handleResolveReport(report: Report) {
+    if (!currentUser?.is_admin) return
     try {
       await supabase.from('reports').update({ is_resolved: true, resolved_at: new Date().toISOString() }).eq('id', report.id)
       setReports(prev => prev.map(r => r.id === report.id ? { ...r, is_resolved: true } : r))
@@ -335,6 +234,7 @@ export default function AdminDashboard() {
   }
 
   async function handleVerifyUser(userId: string, verify: boolean) {
+    if (!currentUser?.is_admin) return
     try {
       await supabase.from('community_users').update({ is_verified: verify }).eq('id', userId)
       setUsers(prev => prev.map(u => u.id === userId ? { ...u, is_verified: verify } : u))
@@ -368,6 +268,79 @@ export default function AdminDashboard() {
     pendingApproval: pendingApproval.length,
     postsToday: posts.filter(p => new Date(p.created_at).toDateString() === new Date().toDateString()).length,
     totalViews: posts.reduce((sum, p) => sum + p.view_count, 0),
+  }
+
+  if (accountLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <main className="mx-auto flex min-h-screen max-w-4xl items-center justify-center px-4 py-20">
+          <div className="rounded-3xl border border-white/10 bg-slate-950/55 px-8 py-10 text-center shadow-[0_24px_80px_-40px_rgba(15,23,42,0.68)] backdrop-blur-xl">
+            <Loader2 className="mx-auto h-8 w-8 animate-spin text-sky-400" />
+            <h1 className="mt-5 text-2xl font-bold text-white">Loading admin workspace</h1>
+            <p className="mt-3 max-w-md text-sm leading-7 text-slate-300">
+              Checking your MarketplaceBeta account and moderation permissions before loading community controls.
+            </p>
+          </div>
+        </main>
+      </div>
+    )
+  }
+
+  if (!currentUser) {
+    return (
+      <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.12),transparent_20%),radial-gradient(circle_at_top_right,rgba(217,70,239,0.11),transparent_18%),linear-gradient(180deg,rgba(15,23,42,0.96),rgba(15,23,42,0.9))]">
+        <main className="mx-auto flex min-h-screen max-w-4xl items-center justify-center px-4 py-16">
+          <div className="w-full rounded-[32px] border border-white/10 bg-slate-950/55 p-8 shadow-[0_40px_120px_-60px_rgba(15,23,42,0.85)] backdrop-blur-2xl md:p-10">
+            <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-amber-100">
+              <Shield className="h-3.5 w-3.5" />
+              Admin Access Required
+            </div>
+            <h1 className="mt-5 text-3xl font-black tracking-tight text-white md:text-4xl">
+              Sign in to reach the moderation desk
+            </h1>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 md:text-base">
+              MarketplaceBeta keeps moderation tools behind account checks so community operations, reports, and member data only load for authorized admins.
+            </p>
+            <div className="mt-8 rounded-[28px] border border-white/10 bg-white/6 p-6 backdrop-blur md:p-8">
+              <AuthPanel
+                redirectTo="/community/admin"
+                title="Admin sign-in"
+                description="Use your secure magic link to continue into the MarketplaceBeta moderation workspace."
+              />
+            </div>
+          </div>
+        </main>
+      </div>
+    )
+  }
+
+  if (!currentUser.is_admin) {
+    return (
+      <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.12),transparent_20%),radial-gradient(circle_at_top_right,rgba(217,70,239,0.11),transparent_18%),linear-gradient(180deg,rgba(15,23,42,0.96),rgba(15,23,42,0.9))]">
+        <main className="mx-auto flex min-h-screen max-w-4xl items-center justify-center px-4 py-16">
+          <div className="w-full rounded-[32px] border border-white/10 bg-slate-950/55 p-8 shadow-[0_40px_120px_-60px_rgba(15,23,42,0.85)] backdrop-blur-2xl md:p-10">
+            <div className="inline-flex items-center gap-2 rounded-full border border-rose-400/20 bg-rose-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-rose-100">
+              <Ban className="h-3.5 w-3.5" />
+              Restricted Workspace
+            </div>
+            <h1 className="mt-5 text-3xl font-black tracking-tight text-white md:text-4xl">
+              This moderation desk is limited to MarketplaceBeta admins
+            </h1>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 md:text-base">
+              Your account is signed in, but it does not currently have community moderation permissions. If you should have admin access, contact the site administrator.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Button asChild className="border border-white/10 bg-[linear-gradient(135deg,#2563eb,#4f46e5_72%,#7c3aed)] text-white hover:opacity-95">
+                <Link href="/community">Return to Community</Link>
+              </Button>
+              <Button asChild variant="outline" className="border-white/12 bg-white/8 text-white hover:bg-white/12 hover:text-white">
+                <Link href="/account">Open Account</Link>
+              </Button>
+            </div>
+          </div>
+        </main>
+      </div>
+    )
   }
 
   return (

@@ -22,6 +22,8 @@ export async function GET(request: NextRequest) {
     
     return NextResponse.json({
       success: true,
+      mode: 'simulated',
+      disclaimer: 'Search results are preview data until MarketplaceBeta connects live marketplace product APIs.',
       query,
       results,
       sources: ['Amazon', 'Google Shopping', 'eBay', 'AliExpress'],

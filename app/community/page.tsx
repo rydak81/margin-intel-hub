@@ -576,16 +576,18 @@ export default function CommunityPage() {
             </nav>
 
             <div className="flex items-center gap-3">
-              <Link href="/community/admin" className="hidden sm:block">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="border border-white/10 bg-white/10 text-white hover:bg-white/16 hover:text-white"
-                >
-                  <Shield className="mr-2 h-4 w-4" />
-                  Admin
-                </Button>
-              </Link>
+              {currentUser?.is_admin ? (
+                <Link href="/community/admin" className="hidden sm:block">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="border border-white/10 bg-white/10 text-white hover:bg-white/16 hover:text-white"
+                  >
+                    <Shield className="mr-2 h-4 w-4" />
+                    Admin
+                  </Button>
+                </Link>
+              ) : null}
 
               {currentUser ? (
                 <Link href="/account" className="flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-2.5 py-1.5 text-white transition-colors hover:bg-white/16">

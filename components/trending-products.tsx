@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useEffect, useCallback } from "react"
+import { type ReactNode, useState, useMemo, useEffect, useCallback } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -88,7 +88,7 @@ interface GoogleTrendItem {
 
 interface DataSource {
   name: string
-  icon: React.ReactNode
+  icon: ReactNode
   color: string
   enabled: boolean
 }
@@ -263,8 +263,11 @@ export function TrendingProducts() {
   const [trendsLastUpdated, setTrendsLastUpdated] = useState<Date | null>(null)
   const [refreshInterval, setRefreshInterval] = useState(300)
   const [autoRefresh, setAutoRefresh] = useState(true)
-  const [dataSource, setDataSource] = useState<'live' | 'simulated'>('simulated')
+  const [dataSource, setDataSource] = useState<'live' | 'simulated' | 'mixed'>('simulated')
   const [trendsSource, setTrendsSource] = useState<'google_trends' | 'simulated'>('simulated')
+  const [productDisclaimer, setProductDisclaimer] = useState("Preview product signals. Live marketplace catalog integrations are still being connected.")
+  const [searchDisclaimer, setSearchDisclaimer] = useState("Preview search results are modeled until live marketplace search integrations are connected.")
+  const [searchMode, setSearchMode] = useState<'live' | 'simulated'>('simulated')
   
   // Filter state
   const [searchQuery, setSearchQuery] = useState("")
@@ -311,18 +314,21 @@ export function TrendingProducts() {
       if (data.success && data.products?.length > 0) {
         setProducts(data.products)
         setLastUpdated(new Date())
-        setDataSource('live')
+        setDataSource(data.sourceMode === 'live' ? 'live' : data.sourceMode === 'mixed' ? 'mixed' : 'simulated')
+        setProductDisclaimer(data.disclaimer || "Preview product signals. Live marketplace catalog integrations are still being connected.")
       } else {
         // Use generated data
         setProducts(generateProducts())
         setLastUpdated(new Date())
         setDataSource('simulated')
+        setProductDisclaimer("Preview product signals. Live marketplace catalog integrations are still being connected.")
       }
     } catch {
       // Use generated data on error
       setProducts(generateProducts())
       setLastUpdated(new Date())
       setDataSource('simulated')
+      setProductDisclaimer("Preview product signals. Live marketplace catalog integrations are still being connected.")
     } finally {
       setIsLoading(false)
     }
@@ -339,6 +345,8 @@ export function TrendingProducts() {
       
       if (data.success) {
         setSearchResults(data.results)
+        setSearchMode(data.mode === 'live' ? 'live' : 'simulated')
+        setSearchDisclaimer(data.disclaimer || "Preview search results are modeled until live marketplace search integrations are connected.")
       }
     } catch {
       // Handle error silently
@@ -650,6 +658,14 @@ export function TrendingProducts() {
   }
 
   const hasActiveFilters = searchQuery || categoryFilter !== 'all' || priceRange[0] > 0 || priceRange[1] < 200 || minRevenue > 0 || competitionFilters.length < 3 || trendFilters.length < 3 || minOpportunity > 0 || sourceFilter !== 'all'
+  const statusLabel =
+    isLoading || isLoadingTrends
+      ? 'Updating signals...'
+      : dataSource === 'live' && trendsSource === 'google_trends'
+        ? 'Live marketplace signals'
+        : trendsSource === 'google_trends'
+          ? 'Mixed live + preview signals'
+          : 'Preview data mode'
 
   return (
     <div className="space-y-6">
@@ -661,7 +677,7 @@ export function TrendingProducts() {
               <div className="flex items-center gap-2">
                 <div className={`h-2 w-2 rounded-full ${isLoading || isLoadingTrends ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500'}`} />
                 <span className="text-sm font-medium">
-                  {isLoading || isLoadingTrends ? 'Updating...' : 'Live Data'}
+                  {statusLabel}
                 </span>
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -676,10 +692,15 @@ export function TrendingProducts() {
                     <CheckCircle2 className="h-3 w-3 mr-1" />
                     API Connected
                   </Badge>
+                ) : trendsSource === 'google_trends' ? (
+                  <Badge variant="outline" className="text-sky-500 border-sky-500">
+                    <Globe className="h-3 w-3 mr-1" />
+                    Live Trends + Preview Products
+                  </Badge>
                 ) : (
                   <Badge variant="outline" className="text-amber-500 border-amber-500">
                     <AlertCircle className="h-3 w-3 mr-1" />
-                    Demo Data
+                    Preview / Demo Data
                   </Badge>
                 )}
               </div>
@@ -726,6 +747,9 @@ export function TrendingProducts() {
               </Button>
             </div>
           </div>
+          <p className="mt-3 text-xs leading-6 text-muted-foreground">
+            {productDisclaimer}
+          </p>
         </CardContent>
       </Card>
 
@@ -755,6 +779,22 @@ export function TrendingProducts() {
 
         {/* Hot Products Tab - Now with Data Table */}
         <TabsContent value="discover" className="space-y-6 mt-6">
+          <Card className="border-amber-500/20 bg-amber-500/5">
+            <CardContent className="flex flex-col gap-2 py-4 md:flex-row md:items-center md:justify-between">
+              <div>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="border-amber-500/40 text-amber-600 dark:text-amber-300">
+                    Beta Signal Layer
+                  </Badge>
+                  <span className="text-sm font-medium">Product discovery is still in preview</span>
+                </div>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                  Use this tab for directional research and idea generation. MarketplaceBeta is still connecting live catalog, pricing, and search APIs for full operator-grade accuracy.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Stats Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Card>
@@ -1209,7 +1249,7 @@ export function TrendingProducts() {
             <CardHeader>
               <CardTitle>Data Source Configuration</CardTitle>
               <CardDescription>
-                Enable or disable data sources to customize your product discovery feed.
+                Preview the connectors MarketplaceBeta is modeling today. Source toggles do not yet represent direct live marketplace integrations for every listed platform.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -1536,6 +1576,15 @@ export function TrendingProducts() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
+            <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 px-4 py-3 text-sm leading-6 text-muted-foreground">
+              <div className="flex items-center gap-2 font-medium text-foreground">
+                <Badge variant="outline" className="border-amber-500/40 text-amber-600 dark:text-amber-300">
+                  {searchMode === 'live' ? 'Live Search' : 'Preview Search'}
+                </Badge>
+                Search quality note
+              </div>
+              <p className="mt-2">{searchDisclaimer}</p>
+            </div>
             <Input
               placeholder="Search..."
               value={searchModalQuery}

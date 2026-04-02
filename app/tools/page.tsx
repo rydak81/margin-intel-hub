@@ -219,6 +219,24 @@ export default function ToolsPage() {
                 </div>
               ))}
             </div>
+
+            <div className="mt-6 max-w-4xl rounded-3xl border border-amber-500/20 bg-amber-500/6 px-5 py-4 shadow-sm backdrop-blur">
+              <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="border-amber-500/40 text-amber-700 dark:text-amber-300">
+                      Preview Disclosure
+                    </Badge>
+                    <span className="text-sm font-semibold text-slate-900 dark:text-white">
+                      Some research tools are still in beta
+                    </span>
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                    Profit Calculator and Listing Optimizer are workflow-ready today. Keyword Research and Hot Products currently use modeled preview signals while live marketplace connectors are being added.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>

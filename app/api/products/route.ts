@@ -13,13 +13,16 @@ export async function GET(request: Request) {
     
     return NextResponse.json({
       success: true,
+      sourceMode: 'simulated',
+      disclaimer: 'Preview data only. MarketplaceBeta is not yet connected to live Amazon, TikTok Shop, or marketplace catalog APIs for this tool.',
       lastUpdated: new Date().toISOString(),
       refreshInterval: 300, // Recommend refresh every 5 minutes
       products,
       meta: {
         total: products.length,
         sources: ['Amazon Best Sellers', 'TikTok Shop', 'Google Trends', 'AliExpress Hot'],
-        categories: [...new Set(products.map(p => p.category))]
+        categories: [...new Set(products.map(p => p.category))],
+        preview: true,
       }
     })
   } catch {
