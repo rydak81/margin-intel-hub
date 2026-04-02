@@ -26,6 +26,8 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { createClient } from "@/lib/supabase/client"
+import { AuthPanel } from "@/components/auth-panel"
+import { useAuthAccount } from "@/hooks/use-auth-account"
 import {
   Menu,
   X,
@@ -331,7 +333,6 @@ export default function CommunityPage() {
   const [loading, setLoading] = useState(false)
   const [createPostOpen, setCreatePostOpen] = useState(false)
   const [joinDialogOpen, setJoinDialogOpen] = useState(false)
-  const [currentUser, setCurrentUser] = useState<CommunityUser | null>(null)
   const [newPost, setNewPost] = useState({
     title: "",
     body: "",
@@ -339,16 +340,10 @@ export default function CommunityPage() {
     post_type: "discussion",
     platform_tags: [] as string[],
   })
-  const [joinForm, setJoinForm] = useState({
-    display_name: "",
-    email: "",
-    role: "brand_seller",
-    company: "",
-    bio: "",
-  })
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const supabase = createClient()
+  const { currentUser, signOut } = useAuthAccount()
 
   useEffect(() => {
     fetchPosts()
@@ -384,38 +379,6 @@ export default function CommunityPage() {
       console.log("[v0] Error in fetchPosts")
     } finally {
       setLoading(false)
-    }
-  }
-
-  async function handleJoinCommunity(event: React.FormEvent) {
-    event.preventDefault()
-    setIsSubmitting(true)
-
-    try {
-      const { data, error } = await supabase
-        .from("community_users")
-        .insert({
-          display_name: joinForm.display_name,
-          email: joinForm.email,
-          role: joinForm.role,
-          company: joinForm.company || null,
-          bio: joinForm.bio || null,
-        })
-        .select()
-        .single()
-
-      if (error) {
-        console.log("[v0] Error creating user:", error)
-        alert("Error joining community. Email may already be registered.")
-      } else {
-        setCurrentUser(data)
-        setJoinDialogOpen(false)
-        setCreatePostOpen(true)
-      }
-    } catch {
-      console.log("[v0] Error in handleJoinCommunity")
-    } finally {
-      setIsSubmitting(false)
     }
   }
 
@@ -625,14 +588,14 @@ export default function CommunityPage() {
               </Link>
 
               {currentUser ? (
-                <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-2.5 py-1.5 text-white">
+                <Link href="/account" className="flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-2.5 py-1.5 text-white transition-colors hover:bg-white/16">
                   <Avatar className="h-7 w-7">
                     <AvatarFallback className="bg-white/14 text-xs text-white">
                       {getInitials(currentUser.display_name)}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="hidden text-sm font-medium sm:block">{currentUser.display_name}</span>
-                </div>
+                  <span className="hidden max-w-[140px] truncate text-sm font-medium sm:block">{currentUser.display_name}</span>
+                </Link>
               ) : (
                 <Button
                   onClick={() => setJoinDialogOpen(true)}
@@ -642,6 +605,17 @@ export default function CommunityPage() {
                   Join Network
                 </Button>
               )}
+
+              {currentUser ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => void signOut()}
+                  className="hidden border border-white/10 bg-white/10 text-white hover:bg-white/16 hover:text-white sm:inline-flex"
+                >
+                  Sign out
+                </Button>
+              ) : null}
 
               <Button
                 variant="ghost"
@@ -679,6 +653,19 @@ export default function CommunityPage() {
               <Link href="/newsletter" className="rounded-xl px-4 py-2 text-white/82 hover:bg-white/10">
                 Newsletter
               </Link>
+              {currentUser ? (
+                <Link href="/account" className="rounded-xl px-4 py-2 text-white/82 hover:bg-white/10">
+                  Account
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  className="rounded-xl px-4 py-2 text-left text-white/82 hover:bg-white/10"
+                  onClick={() => setJoinDialogOpen(true)}
+                >
+                  Sign In
+                </button>
+              )}
             </nav>
           </div>
         ) : null}
@@ -1268,79 +1255,12 @@ export default function CommunityPage() {
           <DialogHeader>
             <DialogTitle>Join the Operator Network</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleJoinCommunity} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="display_name">Display Name</Label>
-              <Input
-                id="display_name"
-                placeholder="How you want to be known"
-                value={joinForm.display_name}
-                onChange={(event) => setJoinForm({ ...joinForm, display_name: event.target.value })}
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="your@email.com"
-                value={joinForm.email}
-                onChange={(event) => setJoinForm({ ...joinForm, email: event.target.value })}
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="role">What describes you best?</Label>
-              <Select value={joinForm.role} onValueChange={(value) => setJoinForm({ ...joinForm, role: value })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {ROLES.map((role) => (
-                    <SelectItem key={role.id} value={role.id}>
-                      {role.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="company">Company (optional)</Label>
-              <Input
-                id="company"
-                placeholder="Your company name"
-                value={joinForm.company}
-                onChange={(event) => setJoinForm({ ...joinForm, company: event.target.value })}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="bio">Short Bio (optional)</Label>
-              <Textarea
-                id="bio"
-                placeholder="Tell the network a bit about what you do and what kind of conversations you care about"
-                value={joinForm.bio}
-                onChange={(event) => setJoinForm({ ...joinForm, bio: event.target.value.slice(0, 200) })}
-                className="resize-none"
-                maxLength={200}
-              />
-              <p className="text-right text-xs text-muted-foreground">{joinForm.bio.length}/200</p>
-            </div>
-
-            <div className="flex justify-end gap-2 pt-2">
-              <Button type="button" variant="outline" onClick={() => setJoinDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                Join network
-              </Button>
-            </div>
-          </form>
+          <AuthPanel
+            redirectTo="/community"
+            title="Join the Operator Network"
+            description="Create a real MarketplaceBeta account so the site can remember your role, content preferences, and community participation."
+            onSent={() => setJoinDialogOpen(false)}
+          />
         </DialogContent>
       </Dialog>
 

@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { ArticleDetailModal } from "@/components/article-detail-modal"
+import { AuthModal } from "@/components/auth-modal"
 import { BackToTop } from "@/components/back-to-top"
 import { getArticleFallbackImage } from "@/lib/article-images"
 import { EVENTS, isPastEvent, sortEvents } from "@/lib/events"
@@ -30,6 +31,7 @@ import {
 } from "@/components/article-skeleton"
 import { AdBanner } from "@/components/AdBanner"
 import { getActivePlacements } from "@/lib/sponsors"
+import { useAuthAccount } from "@/hooks/use-auth-account"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -163,6 +165,7 @@ export default function HomePageClient({
   initialBreakingNews,
 }: HomePageClientProps) {
   const { resolvedTheme, setTheme } = useTheme()
+  const { currentUser, loading: accountLoading } = useAuthAccount()
 
   const [articles, setArticles] = useState<NewsArticle[]>(initialArticles)
   const [breakingNews, setBreakingNews] = useState<BreakingNews[]>(
@@ -177,6 +180,7 @@ export default function HomePageClient({
   const [articleModalOpen, setArticleModalOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [visibleArticleCount, setVisibleArticleCount] = useState(12)
+  const [authDialogOpen, setAuthDialogOpen] = useState(false)
 
   // Reset pagination when filters or search change
   useEffect(() => {
@@ -576,9 +580,21 @@ export default function HomePageClient({
               >
                 {themeMounted && isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </Button>
-              <Button asChild size="sm" className="hidden sm:flex border border-white/10 bg-[linear-gradient(135deg,#2563eb,#4f46e5_72%,#7c3aed)] text-sm text-white shadow-[0_18px_40px_-24px_rgba(79,70,229,0.72)] hover:opacity-95">
-                <Link href="/newsletter">Subscribe</Link>
-              </Button>
+              {!accountLoading && currentUser ? (
+                <Button asChild size="sm" variant="outline" className="hidden sm:flex border border-white/10 bg-white/10 text-white hover:bg-white/16 hover:text-white">
+                  <Link href="/account" className="max-w-[160px] truncate">
+                    {currentUser.display_name}
+                  </Link>
+                </Button>
+              ) : (
+                <Button
+                  size="sm"
+                  onClick={() => setAuthDialogOpen(true)}
+                  className="hidden sm:flex border border-white/10 bg-[linear-gradient(135deg,#2563eb,#4f46e5_72%,#7c3aed)] text-sm text-white shadow-[0_18px_40px_-24px_rgba(79,70,229,0.72)] hover:opacity-95"
+                >
+                  Sign In
+                </Button>
+              )}
               <Button
                 variant="ghost"
                 size="icon"
@@ -601,6 +617,20 @@ export default function HomePageClient({
                 <Link href="/community" className="rounded-md px-4 py-2 text-white/82 hover:bg-white/10" onClick={() => setMobileMenuOpen(false)}>Community</Link>
                 <Link href="/events" className="rounded-md px-4 py-2 text-white/82 hover:bg-white/10" onClick={() => setMobileMenuOpen(false)}>Events</Link>
                 <Link href="/newsletter" className="rounded-md px-4 py-2 text-white/82 hover:bg-white/10" onClick={() => setMobileMenuOpen(false)}>Newsletter</Link>
+                {!accountLoading && currentUser ? (
+                  <Link href="/account" className="rounded-md px-4 py-2 text-white/82 hover:bg-white/10" onClick={() => setMobileMenuOpen(false)}>Account</Link>
+                ) : (
+                  <button
+                    type="button"
+                    className="rounded-md px-4 py-2 text-left text-white/82 hover:bg-white/10"
+                    onClick={() => {
+                      setMobileMenuOpen(false)
+                      setAuthDialogOpen(true)
+                    }}
+                  >
+                    Sign In
+                  </button>
+                )}
                 <div className="px-4 py-2">
                   <Input
                     placeholder="Search news..."
@@ -1514,6 +1544,14 @@ export default function HomePageClient({
         open={articleModalOpen}
         onOpenChange={setArticleModalOpen}
         allArticles={articles}
+      />
+
+      <AuthModal
+        open={authDialogOpen}
+        onOpenChange={setAuthDialogOpen}
+        redirectTo="/account"
+        title="Sign in to personalize MarketplaceBeta"
+        description="Create an account to unlock community participation, saved preferences, and a smarter digest over time."
       />
 
       {/* Back to Top Button */}
