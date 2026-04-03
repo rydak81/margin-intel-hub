@@ -7,15 +7,14 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { PremiumSiteHeader } from "@/components/premium-site-header"
 import { getArticleFallbackImage } from "@/lib/article-images"
 import { useAuthAccount } from "@/hooks/use-auth-account"
 import { buildUserPreferenceProfile, getNewsDeskDefaults, getPersonalizationLabel } from "@/lib/personalization"
 import {
   Search,
   X,
-  ChevronDown,
   Loader2,
-  ArrowLeft,
   BarChart3,
   TrendingUp,
   Sparkles,
@@ -165,73 +164,21 @@ export default function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.14),transparent_18%),radial-gradient(circle_at_top_right,rgba(217,70,239,0.12),transparent_16%),linear-gradient(180deg,rgba(248,250,252,0.92),rgba(255,255,255,0.84)_18%,transparent_32%)] bg-background">
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.88),rgba(30,41,59,0.76))] backdrop-blur-2xl">
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-fuchsia-400/45 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-sky-400/55 to-transparent" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_left_top,rgba(56,189,248,0.08),transparent_18%),radial-gradient(circle_at_right_top,rgba(217,70,239,0.08),transparent_18%)] pointer-events-none" />
-        <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex border border-white/10 bg-white/10 text-white hover:bg-white/16 hover:text-white">
-              <Link href="/"><ArrowLeft className="h-4 w-4 mr-2" />Back</Link>
-            </Button>
-            <Link href="/" className="flex items-center gap-3">
-              <div className="relative">
-                <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-sky-400/28 via-cyan-300/14 to-fuchsia-400/24 blur-sm" />
-                <Image src="/brand-icon.png" alt="MarketplaceBeta logo" width={32} height={32} className="relative h-8 w-8 rounded-lg object-cover ring-1 ring-sky-400/20" />
-              </div>
-              <div className="hidden sm:block">
-                <span className="block text-lg font-bold leading-none text-white">MarketplaceBeta</span>
-                <span className="block text-[10px] font-semibold uppercase tracking-[0.24em] text-white/55">{deskLabel}</span>
-              </div>
-            </Link>
-          </div>
-
-          <nav className="hidden lg:flex items-center gap-6">
-            <Link href="/" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-              Home
-            </Link>
-            <Link href="/articles" className={`text-sm font-semibold transition-colors hover:text-white ${isNewsDesk ? "text-white/82" : "text-white"}`}>
-              Articles
-            </Link>
-            <Link href="/news" className={`text-sm font-semibold transition-colors hover:text-white ${isNewsDesk ? "text-white" : "text-white/82"}`}>
-              News
-            </Link>
-            <Link href="/partners" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-              Partners
-            </Link>
-            <Link href="/tools" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-              Tools
-            </Link>
-            <Link href="/community" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-              Community
-            </Link>
-            <Link href="/events" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-              Events
-            </Link>
-            <Link href="/newsletter" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-              Newsletter
-            </Link>
-          </nav>
-
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" asChild className="sm:hidden border border-white/10 bg-white/10 text-white hover:bg-white/16 hover:text-white">
-              <Link href="/"><ArrowLeft className="h-4 w-4" /></Link>
-            </Button>
-            <Button asChild size="sm" className="hidden sm:flex border border-white/10 bg-[linear-gradient(135deg,#2563eb,#4f46e5_72%,#7c3aed)] text-sm text-white shadow-[0_18px_40px_-24px_rgba(79,70,229,0.72)] hover:opacity-95">
-              <Link href="/newsletter">Subscribe</Link>
-            </Button>
-          </div>
-        </div>
-      </header>
+      <PremiumSiteHeader
+        active={isNewsDesk ? "news" : "articles"}
+        deskLabel={deskLabel}
+        backHref="/"
+        backLabel="Home"
+      />
 
       <main className="max-w-7xl mx-auto px-4 py-10">
         <section className="mb-10">
           <div className="rounded-[32px] border border-white/60 bg-[linear-gradient(135deg,rgba(255,255,255,0.94),rgba(248,250,252,0.84)_48%,rgba(239,246,255,0.82))] p-6 shadow-[0_30px_80px_-42px_rgba(15,23,42,0.34)] backdrop-blur dark:border-white/10 dark:bg-[linear-gradient(135deg,rgba(15,23,42,0.82),rgba(15,23,42,0.72)_48%,rgba(30,41,59,0.8))] md:p-8">
             <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-end">
               <div>
-                <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/15 bg-white/76 px-3 py-1.5 text-sm shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+                <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/15 bg-white/76 px-3 py-1.5 text-sm shadow-sm backdrop-blur dark:border-sky-300/15 dark:bg-slate-950/60">
                   <Search className="h-4 w-4 text-sky-600" />
-                  <span className="text-muted-foreground">
+                  <span className="text-slate-600 dark:text-slate-200">
                     {heroPillCopy}
                   </span>
                 </div>
@@ -273,8 +220,8 @@ export default function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
 
             <div className="mt-8 rounded-[26px] border border-white/70 bg-white/76 p-5 shadow-[0_20px_50px_-34px_rgba(15,23,42,0.28)] backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
               {currentUser && personalizationLabel ? (
-                <div className="mb-5 rounded-2xl border border-sky-400/15 bg-sky-500/5 px-4 py-3 text-sm leading-6 text-muted-foreground">
-                  <span className="font-semibold text-foreground">Personalized desk:</span> {personalizationLabel}. MarketplaceBeta is preloading filters and ranking from your account preferences.
+                <div className="mb-5 rounded-2xl border border-sky-400/15 bg-sky-500/5 px-4 py-3 text-sm leading-6 text-slate-600 dark:border-sky-300/15 dark:bg-slate-950/55 dark:text-slate-200">
+                  <span className="font-semibold text-slate-950 dark:text-white">Personalized desk:</span> {personalizationLabel}. MarketplaceBeta is preloading filters and ranking from your account preferences.
                 </div>
               ) : null}
 
@@ -288,68 +235,121 @@ export default function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
                 />
               </div>
 
-              <div className="mb-4 flex flex-wrap items-center gap-2">
-            {/* Category Filter */}
-            <div className="relative group">
-              <button className="flex items-center gap-2 rounded-full border border-white/50 bg-white/78 px-3 py-2 transition-colors hover:bg-white dark:border-white/10 dark:bg-slate-950/45 dark:hover:bg-slate-900">
-                <span className="text-sm font-medium">Category</span><ChevronDown className="h-4 w-4" />
-              </button>
-              <div className="absolute top-full left-0 z-20 mt-1 hidden w-48 rounded-2xl border border-white/70 bg-white/92 p-2 shadow-xl backdrop-blur group-hover:block dark:border-white/10 dark:bg-slate-950/94">
-                <button onClick={() => setSelectedCategory(null)} className={`w-full text-left px-3 py-2 rounded text-sm ${!selectedCategory ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>All Categories</button>
-                {Object.entries(facets.categories).map(([cat, count]) => (
-                  <button key={cat} onClick={() => { setSelectedCategory(cat); setOffset(0) }} className={`w-full text-left px-3 py-2 rounded text-sm flex justify-between ${selectedCategory === cat ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>
-                    <span>{formatCategoryLabel(cat)}</span><span className="text-xs opacity-70">({count})</span>
-                  </button>
-                ))}
-              </div>
-            </div>
+              <div className="mb-4 grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_220px_auto]">
+                <label className="space-y-2">
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-300">
+                    Category
+                  </span>
+                  <select
+                    value={selectedCategory ?? ""}
+                    onChange={(e) => {
+                      setSelectedCategory(e.target.value || null)
+                      setOffset(0)
+                    }}
+                    className="h-11 w-full rounded-2xl border border-white/50 bg-white/80 px-4 text-sm font-medium text-slate-900 shadow-sm backdrop-blur outline-none transition focus:border-sky-400/30 dark:border-white/10 dark:bg-slate-950/45 dark:text-white"
+                  >
+                    <option value="">All Categories</option>
+                    {Object.entries(facets.categories).map(([cat, count]) => (
+                      <option key={cat} value={cat}>
+                        {formatCategoryLabel(cat)} ({count})
+                      </option>
+                    ))}
+                  </select>
+                </label>
 
-            {/* Platform Filter */}
-            <div className="relative group">
-              <button className="flex items-center gap-2 rounded-full border border-white/50 bg-white/78 px-3 py-2 transition-colors hover:bg-white dark:border-white/10 dark:bg-slate-950/45 dark:hover:bg-slate-900">
-                <span className="text-sm font-medium">Platforms</span>
-                {selectedPlatforms.length > 0 && <Badge variant="secondary" className="text-xs">{selectedPlatforms.length}</Badge>}
-                <ChevronDown className="h-4 w-4" />
-              </button>
-              <div className="absolute top-full left-0 z-20 mt-1 hidden w-48 rounded-2xl border border-white/70 bg-white/92 p-2 shadow-xl backdrop-blur group-hover:block dark:border-white/10 dark:bg-slate-950/94">
-                <button onClick={() => { setSelectedPlatforms([]); setOffset(0) }} className={`w-full text-left px-3 py-2 rounded text-sm ${selectedPlatforms.length === 0 ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>All Platforms</button>
-                {Object.entries(facets.platforms).map(([platform, count]) => (
-                  <button key={platform} onClick={() => togglePlatform(platform)} className={`w-full text-left px-3 py-2 rounded text-sm flex justify-between ${selectedPlatforms.includes(platform) ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>
-                    <span>{platform.replace(/_/g, " ")}</span><span className="text-xs opacity-70">({count})</span>
-                  </button>
-                ))}
-              </div>
-            </div>
+                <label className="space-y-2">
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-300">
+                    Impact
+                  </span>
+                  <select
+                    value={selectedImpact ?? ""}
+                    onChange={(e) => {
+                      setSelectedImpact(e.target.value || null)
+                      setOffset(0)
+                    }}
+                    className="h-11 w-full rounded-2xl border border-white/50 bg-white/80 px-4 text-sm font-medium text-slate-900 shadow-sm backdrop-blur outline-none transition focus:border-sky-400/30 dark:border-white/10 dark:bg-slate-950/45 dark:text-white"
+                  >
+                    <option value="">All Levels</option>
+                    {Object.entries(facets.impactLevels).map(([level, count]) => (
+                      <option key={level} value={level}>
+                        {level.charAt(0).toUpperCase() + level.slice(1)} ({count})
+                      </option>
+                    ))}
+                  </select>
+                </label>
 
-            {/* Impact Filter */}
-            <div className="relative group">
-              <button className="flex items-center gap-2 rounded-full border border-white/50 bg-white/78 px-3 py-2 transition-colors hover:bg-white dark:border-white/10 dark:bg-slate-950/45 dark:hover:bg-slate-900">
-                <span className="text-sm font-medium">Impact</span><ChevronDown className="h-4 w-4" />
-              </button>
-              <div className="absolute top-full left-0 z-20 mt-1 hidden w-40 rounded-2xl border border-white/70 bg-white/92 p-2 shadow-xl backdrop-blur group-hover:block dark:border-white/10 dark:bg-slate-950/94">
-                <button onClick={() => { setSelectedImpact(null); setOffset(0) }} className={`w-full text-left px-3 py-2 rounded text-sm ${!selectedImpact ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>All Levels</button>
-                {Object.entries(facets.impactLevels).map(([level, count]) => (
-                  <button key={level} onClick={() => { setSelectedImpact(level); setOffset(0) }} className={`w-full text-left px-3 py-2 rounded text-sm flex justify-between ${selectedImpact === level ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>
-                    <span>{level.charAt(0).toUpperCase() + level.slice(1)}</span><span className="text-xs opacity-70">({count})</span>
-                  </button>
-                ))}
-              </div>
-            </div>
+                <label className="space-y-2">
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-300">
+                    Sort
+                  </span>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => {
+                      setSortBy(e.target.value as "newest" | "oldest" | "relevant" | "impact")
+                      setOffset(0)
+                    }}
+                    className="h-11 w-full rounded-2xl border border-white/50 bg-white/80 px-4 text-sm font-medium text-slate-900 shadow-sm backdrop-blur outline-none transition focus:border-sky-400/30 dark:border-white/10 dark:bg-slate-950/45 dark:text-white"
+                  >
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="relevant">Most Relevant</option>
+                    <option value="impact">Highest Impact</option>
+                  </select>
+                </label>
 
-            {/* Sort */}
-            <div className="relative group ml-auto">
-              <button className="flex items-center gap-2 rounded-full border border-white/50 bg-white/78 px-3 py-2 transition-colors hover:bg-white dark:border-white/10 dark:bg-slate-950/45 dark:hover:bg-slate-900">
-                <span className="text-sm font-medium">Sort</span><ChevronDown className="h-4 w-4" />
-              </button>
-              <div className="absolute top-full right-0 z-20 mt-1 hidden w-40 rounded-2xl border border-white/70 bg-white/92 p-2 shadow-xl backdrop-blur group-hover:block dark:border-white/10 dark:bg-slate-950/94">
-                {[{ value: "newest", label: "Newest First" }, { value: "oldest", label: "Oldest First" }, { value: "relevant", label: "Most Relevant" }, { value: "impact", label: "Highest Impact" }].map(option => (
-                  <button key={option.value} onClick={() => { setSortBy(option.value as "newest" | "oldest" | "relevant" | "impact"); setOffset(0) }} className={`w-full text-left px-3 py-2 rounded text-sm ${sortBy === option.value ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>{option.label}</button>
-                ))}
+                {activeFilters > 0 ? (
+                  <div className="flex items-end">
+                    <Button variant="ghost" size="sm" onClick={clearFilters} className="h-11 rounded-2xl px-4">
+                      <X className="mr-1 h-4 w-4" />
+                      Clear ({activeFilters})
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="hidden lg:block" />
+                )}
               </div>
-            </div>
 
-                {activeFilters > 0 && <Button variant="ghost" size="sm" onClick={clearFilters} className="ml-2 rounded-full"><X className="h-4 w-4 mr-1" />Clear ({activeFilters})</Button>}
-              </div>
+              {Object.keys(facets.platforms).length > 0 ? (
+                <div className="mb-4 space-y-2">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-300">
+                      Platforms
+                    </span>
+                    {selectedPlatforms.length > 0 ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedPlatforms([])
+                          setOffset(0)
+                        }}
+                        className="text-xs font-medium text-sky-700 hover:text-sky-800 dark:text-sky-300 dark:hover:text-sky-200"
+                      >
+                        Reset platforms
+                      </button>
+                    ) : null}
+                  </div>
+                  <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+                    {Object.entries(facets.platforms).map(([platform, count]) => {
+                      const selected = selectedPlatforms.includes(platform)
+                      return (
+                        <button
+                          key={platform}
+                          type="button"
+                          onClick={() => togglePlatform(platform)}
+                          className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-2 text-sm font-medium transition ${
+                            selected
+                              ? "border-sky-400/25 bg-sky-500/10 text-sky-700 dark:border-sky-300/20 dark:bg-sky-400/10 dark:text-sky-200"
+                              : "border-white/50 bg-white/78 text-slate-700 hover:bg-white dark:border-white/10 dark:bg-slate-950/45 dark:text-slate-200 dark:hover:bg-slate-900"
+                          }`}
+                        >
+                          <span>{platform.replace(/_/g, " ")}</span>
+                          <span className="text-xs opacity-70">{count}</span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              ) : null}
 
               <p className="text-sm text-muted-foreground">
                 {totalCount > 0 ? `Showing ${Math.min(offset + limit, totalCount)} of ${totalCount} articles` : "No articles found"}

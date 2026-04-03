@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, CheckCircle2, X } from 'lucide-react'
+import { ArrowRight, X } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -128,11 +128,11 @@ function SponsorHeader({ sponsor }: { sponsor: SponsorConfig }) {
 
 function SponsorHighlights({ sponsor }: { sponsor: SponsorConfig }) {
   return (
-    <div className="grid gap-2 sm:grid-cols-3">
-      {sponsor.highlights.slice(0, 3).map((highlight) => (
+    <div className="flex flex-wrap gap-2">
+      {sponsor.highlights.slice(0, 2).map((highlight) => (
         <div
           key={highlight}
-          className="rounded-xl border border-white/10 bg-white/8 px-3 py-2 text-xs font-medium text-white/85 backdrop-blur"
+          className="rounded-full border border-white/10 bg-white/6 px-3 py-1.5 text-[11px] font-semibold tracking-[0.14em] text-white/82 backdrop-blur"
         >
           {highlight}
         </div>
@@ -279,7 +279,7 @@ function SponsorVisualScene({
               )}
             </div>
 
-            <div className="flex justify-center pt-3">
+            <div className="flex justify-center pt-6">
               <div className={`flex ${actionsWidthClass} items-center ${actionJustifyClass} gap-3`}>
                 <div className="inline-flex items-center rounded-full border border-white/10 bg-white px-4 py-2 text-sm font-semibold text-slate-950 shadow-[0_18px_40px_-24px_rgba(255,255,255,0.75)]">
                   Explore Threecolts
@@ -494,9 +494,9 @@ export function AdBanner({ sponsor, variant, dismissible = false }: AdBannerProp
                 className="absolute inset-0 opacity-[0.3]"
                 style={{ background: `radial-gradient(circle at top left, ${hexToRgba(sponsor.backgroundColor, 0.4)}, transparent 32%)` }}
               />
-              <div className="relative z-[1] space-y-5">
+              <div className="relative z-[1] space-y-4">
                 <SponsorHeader sponsor={sponsor} />
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                   <SponsorLogo
                     name={sponsor.name}
                     logoUrl={sponsor.logoUrl}
@@ -511,14 +511,14 @@ export function AdBanner({ sponsor, variant, dismissible = false }: AdBannerProp
                 </div>
                 <div className="space-y-3">
                   <h3 className="text-2xl font-bold tracking-tight text-balance md:text-3xl">{sponsor.tagline}</h3>
-                  <p className="max-w-2xl text-sm leading-7 text-white/72 md:text-base">{sponsor.description}</p>
+                  <p className="max-w-2xl text-sm leading-7 text-white/76 md:text-base">{sponsor.description}</p>
                 </div>
                 <div className="grid gap-3 md:grid-cols-2">
-                  <div className="rounded-2xl border border-white/10 bg-white/8 p-4 shadow-sm backdrop-blur">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-4 shadow-sm backdrop-blur">
                     <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/60">Proof Point</p>
                     <p className="text-sm font-medium text-white">{sponsor.proofPoint}</p>
                   </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/8 p-4 shadow-sm backdrop-blur">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-4 shadow-sm backdrop-blur">
                     <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/60">Why It Fits Here</p>
                     <p className="text-sm font-medium text-white">{sponsor.whyRelevant}</p>
                   </div>
@@ -562,18 +562,19 @@ export function AdBanner({ sponsor, variant, dismissible = false }: AdBannerProp
             </div>
             <div className="space-y-2">
               <h4 className="text-xl font-bold tracking-tight text-balance">{sponsor.tagline}</h4>
-              <p className="text-sm leading-7 text-white/72">{sponsor.description}</p>
+              <p className="text-sm leading-7 text-white/76">{sponsor.description}</p>
             </div>
-            <div className="grid gap-3 md:grid-cols-2">
-              <div className="rounded-xl border border-white/10 bg-white/8 p-3">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="rounded-xl border border-white/10 bg-white/[0.06] p-3">
                 <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/60">Proof Point</p>
                 <p className="text-sm font-medium text-white">{sponsor.proofPoint}</p>
               </div>
-              <div className="rounded-xl border border-white/10 bg-white/8 p-3">
-                <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/60">Why Relevant</p>
-                <p className="text-sm font-medium text-white">{sponsor.whyRelevant}</p>
+              <div className="rounded-xl border border-white/10 bg-white/[0.06] p-3">
+                <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/60">Best Fit</p>
+                <p className="text-sm font-medium text-white">{sponsor.useCase}</p>
               </div>
             </div>
+            <SponsorHighlights sponsor={sponsor} />
             <SponsorActions sponsor={sponsor} />
           </div>
           <div className="relative min-h-[220px] border-t border-white/10 lg:border-l lg:border-t-0">
@@ -671,17 +672,16 @@ export function AdBanner({ sponsor, variant, dismissible = false }: AdBannerProp
           )}
           <div className="space-y-2">
             <p className="text-base font-semibold leading-6 text-balance text-white">{sponsor.tagline}</p>
-            <p className="text-sm leading-6 text-white/72">{sponsor.description}</p>
+            <p className="text-sm leading-6 text-white/76">{sponsor.description}</p>
           </div>
-          <div className="rounded-xl border border-white/10 bg-white/8 p-3">
-            <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/60">Why this sponsor is relevant</p>
-            <p className="text-sm font-medium text-white">{sponsor.whyRelevant}</p>
+          <div className="rounded-xl border border-white/10 bg-white/[0.06] p-3">
+            <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/60">Best fit</p>
+            <p className="text-sm font-medium text-white">{sponsor.useCase}</p>
           </div>
-          <div className="space-y-2">
-            {sponsor.highlights.slice(0, 3).map((highlight) => (
-              <div key={highlight} className="flex items-start gap-2 text-sm text-white/72">
-                <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0 text-cyan-300" />
-                <span>{highlight}</span>
+          <div className="flex flex-wrap gap-2">
+            {sponsor.highlights.slice(0, 2).map((highlight) => (
+              <div key={highlight} className="rounded-full border border-white/10 bg-white/6 px-3 py-1.5 text-[11px] font-semibold text-white/80">
+                {highlight}
               </div>
             ))}
           </div>

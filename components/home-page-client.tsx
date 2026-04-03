@@ -443,22 +443,22 @@ export default function HomePageClient({
         : 'bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.16),transparent_20%),radial-gradient(circle_at_top_right,rgba(217,70,239,0.14),transparent_18%),radial-gradient(circle_at_50%_12%,rgba(99,102,241,0.08),transparent_24%),linear-gradient(180deg,rgba(248,250,252,0.92),rgba(255,255,255,0.76)_18%,transparent_34%)]'
     }`}>
       {/* Breaking News Ticker - Live updates */}
-      <div className="relative overflow-hidden border-b border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.94),rgba(30,41,59,0.88))] text-white">
+      <div className="relative overflow-hidden border-b border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.98),rgba(30,41,59,0.92))] text-white">
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-fuchsia-400/40 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-sky-400/45 to-transparent" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_left_top,rgba(56,189,248,0.09),transparent_16%),radial-gradient(circle_at_right_top,rgba(217,70,239,0.08),transparent_18%)] pointer-events-none" />
-        <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-2.5">
-          <div className="flex shrink-0 items-center gap-2 rounded-full border border-white/10 bg-white/8 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/88 backdrop-blur">
-            <Zap className="h-3.5 w-3.5 text-sky-300" />
+        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2.5">
+          <div className="flex shrink-0 items-center gap-2 rounded-full border border-sky-300/20 bg-white/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/92 shadow-sm backdrop-blur">
+            <Zap className="h-3.5 w-3.5 text-sky-200" />
             <span>Live Signal</span>
           </div>
           <div className="min-w-0 flex-1 overflow-hidden">
             <div className="animate-ticker flex whitespace-nowrap">
               {[...breakingNews, ...breakingNews].map((item, i) => (
-                <span key={`${item.id}-${i}`} className="mx-8 flex items-center gap-3 text-sm text-white/84">
-                  <span className="inline-flex h-1.5 w-1.5 rounded-full bg-sky-300" />
-                  <span className="font-medium text-white">{item.title}</span>
-                  <span className="text-white/52">{formatTimeAgo(item.timestamp)}</span>
+                <span key={`${item.id}-${i}`} className="mx-6 flex items-center gap-3 text-sm text-white/88">
+                  <span className="inline-flex h-1.5 w-1.5 rounded-full bg-sky-200" />
+                  <span className="font-medium text-white/95">{item.title}</span>
+                  <span className="hidden text-white/60 sm:inline">{formatTimeAgo(item.timestamp)}</span>
                 </span>
               ))}
             </div>
@@ -615,20 +615,21 @@ export default function HomePageClient({
           {/* Mobile Menu */}
           {mobileMenuOpen && (
             <div className="border-t border-white/10 py-4 lg:hidden">
-              <nav className="flex flex-col gap-2">
-                <Link href="/" className="rounded-md px-4 py-2 text-white/82 hover:bg-white/10" onClick={() => setMobileMenuOpen(false)}>Home</Link>
-                <Link href="/articles" className="rounded-md px-4 py-2 text-white/82 hover:bg-white/10" onClick={() => setMobileMenuOpen(false)}>Articles</Link>
-                <Link href="/partners" className="rounded-md px-4 py-2 text-white/82 hover:bg-white/10" onClick={() => setMobileMenuOpen(false)}>Partners</Link>
-                <Link href="/tools" className="rounded-md px-4 py-2 text-white/82 hover:bg-white/10" onClick={() => setMobileMenuOpen(false)}>Tools</Link>
-                <Link href="/community" className="rounded-md px-4 py-2 text-white/82 hover:bg-white/10" onClick={() => setMobileMenuOpen(false)}>Community</Link>
-                <Link href="/events" className="rounded-md px-4 py-2 text-white/82 hover:bg-white/10" onClick={() => setMobileMenuOpen(false)}>Events</Link>
-                <Link href="/newsletter" className="rounded-md px-4 py-2 text-white/82 hover:bg-white/10" onClick={() => setMobileMenuOpen(false)}>Newsletter</Link>
+              <nav className="grid gap-2">
+                <Link href="/" className="rounded-2xl px-4 py-3 text-white/82 hover:bg-white/10 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Home</Link>
+                <Link href="/articles" className="rounded-2xl px-4 py-3 text-white/82 hover:bg-white/10 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Articles</Link>
+                <Link href="/news" className="rounded-2xl px-4 py-3 text-white/82 hover:bg-white/10 hover:text-white" onClick={() => setMobileMenuOpen(false)}>News</Link>
+                <Link href="/partners" className="rounded-2xl px-4 py-3 text-white/82 hover:bg-white/10 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Partners</Link>
+                <Link href="/tools" className="rounded-2xl px-4 py-3 text-white/82 hover:bg-white/10 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Tools</Link>
+                <Link href="/community" className="rounded-2xl px-4 py-3 text-white/82 hover:bg-white/10 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Community</Link>
+                <Link href="/events" className="rounded-2xl px-4 py-3 text-white/82 hover:bg-white/10 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Events</Link>
+                <Link href="/newsletter" className="rounded-2xl px-4 py-3 text-white/82 hover:bg-white/10 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Newsletter</Link>
                 {!accountLoading && currentUser ? (
-                  <Link href="/account" className="rounded-md px-4 py-2 text-white/82 hover:bg-white/10" onClick={() => setMobileMenuOpen(false)}>Account</Link>
+                  <Link href="/account" className="rounded-2xl px-4 py-3 text-white/82 hover:bg-white/10 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Account</Link>
                 ) : (
                   <button
                     type="button"
-                    className="rounded-md px-4 py-2 text-left text-white/82 hover:bg-white/10"
+                    className="rounded-2xl px-4 py-3 text-left text-white/82 hover:bg-white/10 hover:text-white"
                     onClick={() => {
                       setMobileMenuOpen(false)
                       setAuthDialogOpen(true)
@@ -637,12 +638,12 @@ export default function HomePageClient({
                     Sign In
                   </button>
                 )}
-                <div className="px-4 py-2">
+                <div className="px-1 pt-1">
                   <Input
                     placeholder="Search news..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="border-white/10 bg-white/10 text-white placeholder:text-white/45"
+                    className="h-11 rounded-2xl border-white/10 bg-white/10 text-white placeholder:text-white/45"
                   />
                 </div>
               </nav>
@@ -657,13 +658,13 @@ export default function HomePageClient({
         <div className="absolute left-1/2 top-16 h-64 w-64 -translate-x-1/2 rounded-full bg-sky-400/10 blur-3xl" />
         <div className="relative max-w-7xl mx-auto px-4 py-12 md:py-16 lg:py-20">
           <div className="max-w-5xl">
-              <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/15 bg-white/70 px-3 py-1.5 text-sm shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+              <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/20 bg-white/80 px-3 py-1.5 text-sm shadow-sm backdrop-blur dark:border-sky-300/15 dark:bg-slate-950/70 dark:text-slate-100">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-500 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-500"></span>
                 </span>
-                <span className="text-muted-foreground">
-                  Live operator desk tracking <span className="font-semibold text-foreground">marketplace shifts, tools, and deal flow</span>
+                <span className="text-slate-600 dark:text-slate-200">
+                  Live operator desk tracking <span className="font-semibold text-slate-950 dark:text-white">marketplace shifts, tools, and deal flow</span>
                 </span>
               </div>
 
@@ -715,11 +716,11 @@ export default function HomePageClient({
               </div>
 
               {currentUser && personalizationLabel ? (
-                <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-sky-400/15 bg-white/70 px-3 py-1.5 text-sm shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+                <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-sky-400/20 bg-white/80 px-3 py-1.5 text-sm shadow-sm backdrop-blur dark:border-sky-300/15 dark:bg-slate-950/70">
                   <Target className="h-4 w-4 text-sky-600" />
-                  <span className="text-muted-foreground">
+                  <span className="text-slate-600 dark:text-slate-200">
                     {personalizationLabel}. Adjust it anytime in{" "}
-                    <Link href="/account" className="font-semibold text-foreground hover:text-primary">
+                    <Link href="/account" className="font-semibold text-slate-950 hover:text-primary dark:text-white">
                       your account
                     </Link>
                     .
@@ -732,15 +733,15 @@ export default function HomePageClient({
 
       {/* Active Filter Indicator — only shows when a filter is active */}
       {selectedCategory !== "all" && (
-        <div className="border-b border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.78),rgba(248,250,252,0.72))] backdrop-blur dark:bg-[linear-gradient(180deg,rgba(2,6,23,0.72),rgba(15,23,42,0.68))]">
-          <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-3">
-            <span className="text-sm text-muted-foreground">
+        <div className="border-b border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.82),rgba(248,250,252,0.76))] backdrop-blur dark:bg-[linear-gradient(180deg,rgba(2,6,23,0.84),rgba(15,23,42,0.8))]">
+          <div className="max-w-7xl mx-auto flex flex-col items-start justify-between gap-3 px-4 py-3 sm:flex-row sm:items-center">
+            <span className="text-sm text-slate-600 dark:text-slate-200">
               Filtered by:
-              <Badge variant="secondary" className="ml-2 rounded-full border border-sky-400/15 bg-white/75 px-3 py-1 dark:border-white/10 dark:bg-slate-950/45">
+              <Badge variant="secondary" className="ml-2 rounded-full border border-sky-400/15 bg-white/85 px-3 py-1 text-slate-700 dark:border-sky-300/15 dark:bg-slate-950/60 dark:text-slate-100">
                 {getCategoryConfig(selectedCategory).label}
               </Badge>
             </span>
-            <Button variant="ghost" size="sm" onClick={() => setSelectedCategory("all")} className="h-8 rounded-full px-3 text-xs hover:bg-white/75 dark:hover:bg-slate-950/45">
+            <Button variant="ghost" size="sm" onClick={() => setSelectedCategory("all")} className="h-8 rounded-full px-3 text-xs text-slate-600 hover:bg-white/75 hover:text-slate-950 dark:text-slate-200 dark:hover:bg-slate-950/60 dark:hover:text-white">
               <X className="h-3 w-3 mr-1" />
               Clear
             </Button>
