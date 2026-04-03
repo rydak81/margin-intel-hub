@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { getArticleFallbackImage, getArticleImageUrl } from "@/lib/article-images"
+import { cleanArticleContent, paragraphizeArticleContent } from "@/lib/article-content"
 import type { ClassifiedArticle } from "@/lib/ai-classifier"
 import { getLatestPulseArticles, getRelevantCommunityTopics } from "@/lib/community-intelligence"
 import { getArticleById, getRelatedArticles } from "@/lib/article-store"
@@ -65,51 +66,6 @@ function getReadTime(content: string): number {
   return Math.max(2, Math.ceil(wordCount / 200))
 }
 
-function stripHtml(html: string | undefined): string {
-  if (!html) return ""
-  return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim()
-}
-
-type ContentBlock =
-  | { type: "paragraph"; content: string }
-  | { type: "list"; items: string[] }
-
-function paragraphize(content: string | undefined): ContentBlock[] {
-  if (!content) return []
-
-  const normalized = content
-    .replace(/<\/(p|div|section|article|h1|h2|h3|h4|blockquote)>/gi, "\n\n")
-    .replace(/<br\s*\/?>/gi, "\n")
-    .replace(/<li[^>]*>/gi, "• ")
-    .replace(/<\/li>/gi, "\n")
-    .replace(/<\/(ul|ol)>/gi, "\n\n")
-    .replace(/&nbsp;/gi, " ")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/[ \t]+\n/g, "\n")
-    .replace(/\n{3,}/g, "\n\n")
-    .replace(/\s{2,}/g, " ")
-    .trim()
-
-  if (!normalized) return []
-
-  return normalized
-    .split(/\n{2,}/)
-    .map((block) => block.trim())
-    .filter(Boolean)
-    .flatMap<ContentBlock>((block) => {
-      const lines = block
-        .split("\n")
-        .map((line) => line.trim())
-        .filter(Boolean)
-
-      if (lines.length > 0 && lines.every((line) => line.startsWith("• "))) {
-        return [{ type: "list", items: lines.map((line) => line.replace(/^•\s*/, "").trim()) }]
-      }
-
-      return [{ type: "paragraph", content: block.replace(/\s+/g, " ").trim() }]
-    })
-}
-
 function resolveArticleImage(article: Pick<ClassifiedArticle, "imageUrl" | "title" | "category" | "platforms" | "fullContent">): string {
   return getArticleImageUrl(
     article.imageUrl,
@@ -134,8 +90,8 @@ export default async function ArticlePage({
 
   const relatedArticles = await getRelatedArticles(id, article.category, 4)
   const articleImage = resolveArticleImage(article)
-  const contentText = stripHtml(article.fullContent || article.summary || article.aiSummary || "")
-  const contentBlocks = paragraphize(article.fullContent || article.summary || article.aiSummary)
+  const contentText = cleanArticleContent(article.fullContent || article.summary || article.aiSummary || "", article.title)
+  const contentBlocks = paragraphizeArticleContent(article.fullContent || article.summary || article.aiSummary, article.title)
   const readTime = getReadTime(contentText)
   const sourceIntelligence = getSourceIntelligence(article.sourceName, article.sourceType)
   const [operatorNotes, pulseArticles] = await Promise.all([
@@ -353,17 +309,13 @@ export default async function ArticlePage({
                 <h2 className="text-2xl font-bold">Full Coverage</h2>
               </div>
               <div className="rounded-[28px] border border-white/70 bg-white/86 p-6 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45 md:p-8">
-                <div className="space-y-6">
+                <div className="mx-auto max-w-3xl space-y-7">
                   {contentBlocks.length > 0 ? (
                     contentBlocks.map((block, index) =>
                       block.type === "paragraph" ? (
                         <p
                           key={`${article.id}-paragraph-${index}`}
-                          className={`text-[1.05rem] leading-8 text-slate-700 dark:text-slate-200 ${
-                            index === 0
-                              ? "first-letter:text-5xl first-letter:font-bold first-letter:float-left first-letter:mr-3 first-letter:mt-1 first-letter:text-foreground"
-                              : ""
-                          }`}
+                          className="text-[1.06rem] leading-8 text-slate-700 dark:text-slate-200 md:text-[1.08rem] md:leading-9"
                         >
                           {block.content}
                         </p>
@@ -387,7 +339,9 @@ export default async function ArticlePage({
                       )
                     )
                 ) : (
-                    <p className="text-[1.05rem] leading-8 text-slate-700 dark:text-slate-200">{article.summary}</p>
+                    <p className="text-[1.06rem] leading-8 text-slate-700 dark:text-slate-200 md:text-[1.08rem] md:leading-9">
+                      {contentText || article.summary}
+                    </p>
                 )}
               </div>
               </div>
