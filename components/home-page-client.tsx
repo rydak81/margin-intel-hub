@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef, Fragment } from "react"
+import { useState, useEffect, useCallback, useRef, Fragment, useMemo } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useTheme } from "next-themes"
@@ -32,6 +32,7 @@ import {
 import { AdBanner } from "@/components/AdBanner"
 import { getActivePlacements } from "@/lib/sponsors"
 import { useAuthAccount } from "@/hooks/use-auth-account"
+import { buildUserPreferenceProfile, getPersonalizationLabel, personalizeArticles } from "@/lib/personalization"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -165,7 +166,7 @@ export default function HomePageClient({
   initialBreakingNews,
 }: HomePageClientProps) {
   const { resolvedTheme, setTheme } = useTheme()
-  const { currentUser, loading: accountLoading } = useAuthAccount()
+  const { currentUser, loading: accountLoading, metadata } = useAuthAccount()
 
   const [articles, setArticles] = useState<NewsArticle[]>(initialArticles)
   const [breakingNews, setBreakingNews] = useState<BreakingNews[]>(
@@ -190,6 +191,8 @@ export default function HomePageClient({
   const [searchResults, setSearchResults] = useState<NewsArticle[] | null>(null)
   const [searchLoading, setSearchLoading] = useState(false)
   const searchInputRef = useRef<HTMLInputElement>(null)
+  const preferenceProfile = useMemo(() => buildUserPreferenceProfile(metadata), [metadata])
+  const personalizationLabel = useMemo(() => getPersonalizationLabel(preferenceProfile), [preferenceProfile])
 
   // Track scroll position for header transition
   useEffect(() => {
@@ -301,16 +304,17 @@ export default function HomePageClient({
   const filteredArticles = (() => {
     // When searching via API, use search results directly
     if (searchQuery && searchQuery.length >= 2 && searchResults !== null) {
-      if (selectedCategory === "all") return searchResults
+      const personalizedResults = personalizeArticles(searchResults, preferenceProfile)
+      if (selectedCategory === "all") return personalizedResults
       // Apply category filter on top of search results
-      return searchResults.filter(article => {
+      return personalizedResults.filter(article => {
         const allowedCategories = CATEGORY_MAPPINGS[selectedCategory] || []
         return allowedCategories.length === 0 || allowedCategories.includes(article.category)
       })
     }
 
     // No search — filter by category only (client-side)
-    return articles.filter(article => {
+    const baseArticles = articles.filter(article => {
       if (selectedCategory !== "all") {
         const allowedCategories = CATEGORY_MAPPINGS[selectedCategory] || []
         if (allowedCategories.length > 0 && !allowedCategories.includes(article.category)) {
@@ -319,6 +323,8 @@ export default function HomePageClient({
       }
       return true
     })
+
+    return personalizeArticles(baseArticles, preferenceProfile)
   })()
 
   // Select hero article: prioritize articles with REAL images (not stock fallbacks)
@@ -707,6 +713,19 @@ export default function HomePageClient({
                   </div>
                 ))}
               </div>
+
+              {currentUser && personalizationLabel ? (
+                <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-sky-400/15 bg-white/70 px-3 py-1.5 text-sm shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+                  <Target className="h-4 w-4 text-sky-600" />
+                  <span className="text-muted-foreground">
+                    {personalizationLabel}. Adjust it anytime in{" "}
+                    <Link href="/account" className="font-semibold text-foreground hover:text-primary">
+                      your account
+                    </Link>
+                    .
+                  </span>
+                </div>
+              ) : null}
           </div>
         </div>
       </section>

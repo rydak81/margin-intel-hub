@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { getArticleFallbackImage } from "@/lib/article-images"
+import { useAuthAccount } from "@/hooks/use-auth-account"
+import { buildUserPreferenceProfile, getNewsDeskDefaults, getPersonalizationLabel } from "@/lib/personalization"
 import {
   Search,
   X,
@@ -77,6 +79,11 @@ function formatCategoryLabel(category: string): string {
 }
 
 export default function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
+  const { currentUser, metadata } = useAuthAccount()
+  const preferenceProfile = useMemo(() => buildUserPreferenceProfile(metadata), [metadata])
+  const newsDeskDefaults = useMemo(() => getNewsDeskDefaults(preferenceProfile), [preferenceProfile])
+  const personalizationLabel = useMemo(() => getPersonalizationLabel(preferenceProfile), [preferenceProfile])
+  const defaultsAppliedRef = useRef(false)
   const isNewsDesk = mode === "news"
   const deskLabel = isNewsDesk ? "News Desk" : "Articles Desk"
   const heroPillCopy = isNewsDesk
@@ -104,6 +111,18 @@ export default function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
   const [offset, setOffset] = useState(0)
   const [hasMore, setHasMore] = useState(true)
   const limit = 12
+
+  useEffect(() => {
+    if (!currentUser || defaultsAppliedRef.current) return
+    defaultsAppliedRef.current = true
+
+    if (newsDeskDefaults.platforms.length > 0) setSelectedPlatforms(newsDeskDefaults.platforms)
+    if (newsDeskDefaults.category) setSelectedCategory(newsDeskDefaults.category)
+    if (newsDeskDefaults.audience) setSelectedAudience(newsDeskDefaults.audience)
+    if (newsDeskDefaults.platforms.length > 0 || newsDeskDefaults.category || newsDeskDefaults.audience) {
+      setSortBy("relevant")
+    }
+  }, [currentUser, newsDeskDefaults])
 
   const fetchArticles = useCallback(
     async (resetOffset = true) => {
@@ -253,6 +272,12 @@ export default function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
             </div>
 
             <div className="mt-8 rounded-[26px] border border-white/70 bg-white/76 p-5 shadow-[0_20px_50px_-34px_rgba(15,23,42,0.28)] backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+              {currentUser && personalizationLabel ? (
+                <div className="mb-5 rounded-2xl border border-sky-400/15 bg-sky-500/5 px-4 py-3 text-sm leading-6 text-muted-foreground">
+                  <span className="font-semibold text-foreground">Personalized desk:</span> {personalizationLabel}. MarketplaceBeta is preloading filters and ranking from your account preferences.
+                </div>
+              ) : null}
+
               <div className="relative mb-5">
                 <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                 <Input
