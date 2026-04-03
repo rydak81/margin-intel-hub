@@ -696,24 +696,42 @@ export function AdBanner({ sponsor, variant, dismissible = false }: AdBannerProp
       style={{ background: getModuleBackground(sponsor) }}
     >
       <DismissButton dismissible={dismissible} sponsor={sponsor} onDismiss={() => setDismissed(true)} />
-      <CardContent className="flex flex-col gap-4 p-5 lg:flex-row lg:items-center">
-        <div className="flex items-center gap-3">
-          <SponsorLogo
-            name={sponsor.name}
-            logoUrl={sponsor.logoUrl}
-            sizes="40px"
-            className={getLogoFrameClasses(sponsor, variant)}
-            imageClassName={getLogoImageClasses(sponsor)}
-          />
-          <div>
-            <p className="text-sm font-semibold text-white">{sponsor.name}</p>
-            <p className="text-xs text-white/65">{getModuleTypeLabel(sponsor.moduleType)} · {sponsor.trustLabel}</p>
+      <CardContent className="space-y-4 p-5">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="flex min-w-0 items-center gap-3">
+            <SponsorLogo
+              name={sponsor.name}
+              logoUrl={sponsor.logoUrl}
+              sizes="40px"
+              className={getLogoFrameClasses(sponsor, variant)}
+              imageClassName={getLogoImageClasses(sponsor)}
+            />
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-white">{sponsor.name}</p>
+              <p className="text-xs text-white/65">{getModuleTypeLabel(sponsor.moduleType)} · {sponsor.trustLabel}</p>
+            </div>
+          </div>
+          <div className="shrink-0 rounded-full border border-white/12 bg-white/6 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/76">
+            Sponsored
           </div>
         </div>
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-white">{sponsor.tagline}</p>
-          <p className="text-sm text-white/72">{sponsor.proofPoint}</p>
+
+        <div className="space-y-2">
+          <p className="text-base font-semibold leading-7 text-white text-balance">{sponsor.tagline}</p>
+          <p className="text-sm leading-6 text-white/72">{sponsor.proofPoint}</p>
         </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          {sponsor.highlights.slice(0, 1).map((highlight) => (
+            <div key={highlight} className="rounded-full border border-white/10 bg-white/6 px-3 py-1.5 text-[11px] font-medium text-white/78">
+              {highlight}
+            </div>
+          ))}
+          <div className="rounded-full border border-white/10 bg-slate-950/45 px-3 py-1.5 text-[11px] font-medium text-white/72">
+            {sponsor.useCase}
+          </div>
+        </div>
+
         <SponsorActions sponsor={sponsor} compact />
       </CardContent>
     </Card>

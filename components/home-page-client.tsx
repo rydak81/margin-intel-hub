@@ -1075,12 +1075,13 @@ export default function HomePageClient({
                   <Fragment key={article.id}>
                     <div onClick={(e) => handleArticleClick(article, e)}>
                       <Card className="group h-full cursor-pointer overflow-hidden rounded-[24px] border border-white/60 bg-white/82 shadow-[0_22px_54px_-34px_rgba(15,23,42,0.28)] transition-all hover:-translate-y-1 hover:shadow-[0_26px_70px_-36px_rgba(15,23,42,0.42)] dark:border-white/10 dark:bg-slate-950/45">
-                        <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+                        <div className="relative aspect-[16/10] min-h-[300px] overflow-hidden bg-muted">
                           <img
                             src={getArticleImageUrl(article)}
                             alt={article.title}
-                            className="block h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            className="absolute inset-0 block h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                             loading={index < 4 ? 'eager' : 'lazy'}
+                            style={{ objectPosition: 'center center' }}
                             onError={(e) => {
                               const target = e.currentTarget
                               // Use curated stock image fallback instead of OG
@@ -1094,17 +1095,12 @@ export default function HomePageClient({
                               }
                             }}
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/92 via-slate-950/52 to-slate-950/12" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/94 via-slate-950/56 to-slate-950/18" />
                           <div className="absolute left-0 right-0 top-0 flex items-start justify-between gap-3 p-4">
                             <div className="flex flex-wrap items-center gap-2">
                               <span className="rounded-full border border-white/18 bg-slate-950/48 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white backdrop-blur">
                                 {article.category.replace(/[-_]/g, ' ')}
                               </span>
-                              {article.impactLevel && (
-                                <span className="rounded-full border border-white/18 bg-white/12 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-white backdrop-blur">
-                                  {article.impactLevel === 'high' ? 'High' : article.impactLevel === 'medium' ? 'Medium' : 'Low'} impact
-                                </span>
-                              )}
                             </div>
                             <span className="rounded-full border border-white/18 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/84 backdrop-blur">
                               {formatTimeAgo(article.publishedAt)}
@@ -1112,20 +1108,27 @@ export default function HomePageClient({
                           </div>
 
                           <div className="absolute inset-x-0 bottom-0 p-5">
-                            {article.aiSummary && (
-                              <div className="mb-3 flex items-center gap-1.5">
-                                <Sparkles className="h-3.5 w-3.5 text-sky-300" />
-                                <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-sky-100/90">
-                                  AI Enhanced
+                            <div className="mb-3 flex flex-wrap items-center gap-2">
+                              {article.aiSummary && (
+                                <div className="flex items-center gap-1.5">
+                                  <Sparkles className="h-3.5 w-3.5 text-sky-300" />
+                                  <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-sky-100/90">
+                                    AI Enhanced
+                                  </span>
+                                </div>
+                              )}
+                              {article.impactLevel && (
+                                <span className="rounded-full border border-white/18 bg-white/12 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/88 backdrop-blur">
+                                  {article.impactLevel} impact
                                 </span>
-                              </div>
-                            )}
+                              )}
+                            </div>
 
-                            <h3 className="mb-3 text-xl font-bold leading-tight text-white transition-colors group-hover:text-sky-100 md:text-[1.4rem] text-balance line-clamp-3">
+                            <h3 className="mb-3 text-[1.4rem] font-bold leading-tight text-white transition-colors group-hover:text-sky-100 md:text-[1.55rem] text-balance line-clamp-2">
                               {article.title}
                             </h3>
 
-                            <p className="mb-4 text-sm leading-6 text-white/82 line-clamp-3">
+                            <p className="mb-4 max-w-xl text-sm leading-6 text-white/82 line-clamp-2">
                               {article.aiSummary || article.excerpt}
                             </p>
 
