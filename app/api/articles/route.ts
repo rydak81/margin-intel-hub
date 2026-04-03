@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
-import { createClient } from "@supabase/supabase-js"
 import { getArticleImageUrl, isGoodArticleImage } from "@/lib/article-images"
 import { getArticleDeskScore } from "@/lib/source-intelligence"
+import { createAdminClient, hasAdminConfig } from "@/lib/supabase/admin"
 import {
   getArticlesCache,
   setArticlesCache,
@@ -12,11 +12,6 @@ import {
 export const dynamic = 'force-dynamic'
 export const revalidate = 300 // Revalidate every 5 minutes
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
-
 // ============================================================================
 // API ROUTE HANDLER — Serves articles from Supabase only (no RSS fetching)
 // Aggregation is handled by /api/news/aggregate via Vercel cron
@@ -24,6 +19,15 @@ const supabaseAdmin = createClient(
 
 export async function GET(request: Request) {
   try {
+    if (!hasAdminConfig()) {
+      return NextResponse.json({
+        success: false,
+        error: 'Missing Supabase credentials',
+        articles: getArticlesCache().slice(0, 30),
+      }, { status: 503 })
+    }
+    const supabaseAdmin = createAdminClient()
+
     const { searchParams } = new URL(request.url)
     const limit = Math.min(parseInt(searchParams.get('limit') || '60'), 100)
     const offset = Math.max(parseInt(searchParams.get('offset') || '0'), 0)

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createAdminClient, hasAdminConfig } from '@/lib/supabase/admin'
 
 type CategoryFacetRow = { category: string | null }
 type PlatformFacetRow = { platforms: string[] | null }
@@ -16,23 +16,6 @@ type SearchArticleRow = {
   impact_level: 'high' | 'medium' | 'low' | null
   relevance_score: number | null
   audience: string[] | null
-}
-
-let supabase: ReturnType<typeof createClient> | null = null
-
-function getSupabase() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-  if (!supabaseUrl || !supabaseServiceKey) {
-    throw new Error('Missing Supabase credentials')
-  }
-
-  if (!supabase) {
-    supabase = createClient(supabaseUrl, supabaseServiceKey)
-  }
-
-  return supabase
 }
 
 function parseList(str?: string): string[] {
@@ -66,7 +49,14 @@ function applyFilters<T>(query: T, filters: SearchFilters): T {
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = getSupabase()
+    if (!hasAdminConfig()) {
+      return NextResponse.json(
+        { error: 'Missing Supabase credentials' },
+        { status: 503 }
+      )
+    }
+
+    const supabase = createAdminClient()
     const searchParams = request.nextUrl.searchParams
     const q = searchParams.get('q') || ''
     const category = searchParams.get('category')
@@ -86,10 +76,18 @@ export async function GET(request: NextRequest) {
     )
 
     switch (sort) {
-      case 'oldest': query = query.order('published_at', { ascending: true }); break
-      case 'relevant': query = query.order('relevance_score', { ascending: false }); break
-      case 'impact': query = query.order('impact_level', { ascending: true }).order('published_at', { ascending: false }); break
-      default: query = query.order('published_at', { ascending: false }); break
+      case 'oldest':
+        query = query.order('published_at', { ascending: true })
+        break
+      case 'relevant':
+        query = query.order('relevance_score', { ascending: false })
+        break
+      case 'impact':
+        query = query.order('impact_level', { ascending: true }).order('published_at', { ascending: false })
+        break
+      default:
+        query = query.order('published_at', { ascending: false })
+        break
     }
 
     query = query.range(offset, offset + limit - 1)
@@ -100,7 +98,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Search failed', details: error.message }, { status: 500 })
     }
 
-    // Facets
     const { data: categoryData } = await applyFilters(
       supabase
         .from('articles')
@@ -141,9 +138,9 @@ export async function GET(request: NextRequest) {
     const articles = (((data as SearchArticleRow[] | null) || []).map((article) => ({
       id: article.id,
       title: article.title,
-      summary: article.summary || "",
-      category: article.category || "general",
-      sourceName: article.source_name || "Unknown Source",
+      summary: article.summary || '',
+      category: article.category || 'general',
+      sourceName: article.source_name || 'Unknown Source',
       publishedAt: article.published_at,
       imageUrl: article.image_url || undefined,
       platforms: article.platforms || [],
@@ -152,7 +149,6 @@ export async function GET(request: NextRequest) {
       audience: article.audience || [],
     })))
 
-    // Fix impact sort client-side since alphabetical != severity
     if (sort === 'impact') {
       const impactOrder: Record<string, number> = { high: 0, medium: 1, low: 2 }
       articles.sort((a, b) => {
@@ -164,7 +160,9 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json({
-      success: true, articles, total: count || 0,
+      success: true,
+      articles,
+      total: count || 0,
       facets: { categories: categoryFacets, platforms: platformFacets, impactLevels: impactFacets },
       appliedFilters: {
         query: q,
