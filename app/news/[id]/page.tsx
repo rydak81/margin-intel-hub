@@ -19,7 +19,6 @@ import {
   Users,
   Waves,
 } from "lucide-react"
-import { AdBanner } from "@/components/AdBanner"
 import { PremiumSiteFooter } from "@/components/premium-site-footer"
 import { PremiumSiteHeader } from "@/components/premium-site-header"
 import { Badge } from "@/components/ui/badge"
@@ -31,7 +30,6 @@ import type { ClassifiedArticle } from "@/lib/ai-classifier"
 import { getLatestPulseArticles, getRelevantCommunityTopics } from "@/lib/community-intelligence"
 import { getArticleById, getRelatedArticles } from "@/lib/article-store"
 import { getSourceIntelligence } from "@/lib/source-intelligence"
-import { getActivePlacements } from "@/lib/sponsors"
 import { LinkedInPostGenerator } from "@/components/linkedin-post-generator"
 
 function formatDate(dateString: string): string {
@@ -139,18 +137,6 @@ export default async function ArticlePage({
   const contentText = stripHtml(article.fullContent || article.summary || article.aiSummary || "")
   const contentBlocks = paragraphize(article.fullContent || article.summary || article.aiSummary)
   const readTime = getReadTime(contentText)
-  const articleSideBanners = getActivePlacements("article", "sidebar", {
-    topic: article.category,
-    audiences: article.audience || [],
-  })
-  const articleInlineBanners = getActivePlacements("article", "inline", {
-    topic: article.category,
-    audiences: article.audience || [],
-  })
-  const articleFooterBanners = getActivePlacements("article", "footer", {
-    topic: article.category,
-    audiences: article.audience || [],
-  })
   const sourceIntelligence = getSourceIntelligence(article.sourceName, article.sourceType)
   const [operatorNotes, pulseArticles] = await Promise.all([
     getRelevantCommunityTopics(article, 3),
@@ -361,15 +347,6 @@ export default async function ArticlePage({
 
             <Separator className="my-8" />
 
-            {articleInlineBanners.map((placement) => (
-              <AdBanner
-                key={placement.id}
-                sponsor={placement.sponsor}
-                variant="inline"
-                dismissible={placement.dismissible}
-              />
-            ))}
-
             <section className="mt-8">
               <div className="mb-5 flex items-center gap-2">
                 <BookOpen className="h-5 w-5 text-primary" />
@@ -472,15 +449,6 @@ export default async function ArticlePage({
           </article>
 
           <aside className="space-y-6">
-            {articleSideBanners.map((placement) => (
-              <AdBanner
-                key={placement.id}
-                sponsor={placement.sponsor}
-                variant="sidebar"
-                dismissible={placement.dismissible}
-              />
-            ))}
-
             <Card className="border-white/70 bg-white/82 dark:border-white/10 dark:bg-slate-950/45">
               <CardHeader>
                 <CardTitle className="text-base">Source Intelligence</CardTitle>
@@ -598,17 +566,6 @@ export default async function ArticlePage({
           </aside>
         </div>
       </main>
-
-      <div className="max-w-7xl mx-auto px-4">
-        {articleFooterBanners.map((placement) => (
-          <AdBanner
-            key={placement.id}
-            sponsor={placement.sponsor}
-            variant="footer"
-            dismissible={placement.dismissible}
-          />
-        ))}
-      </div>
 
       <PremiumSiteFooter />
     </div>

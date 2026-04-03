@@ -29,8 +29,6 @@ import {
   MarketSnapshotSkeleton,
   SidebarCardSkeleton,
 } from "@/components/article-skeleton"
-import { AdBanner } from "@/components/AdBanner"
-import { getActivePlacements } from "@/lib/sponsors"
 import { useAuthAccount } from "@/hooks/use-auth-account"
 import { buildUserPreferenceProfile, getPersonalizationLabel, personalizeArticles } from "@/lib/personalization"
 import {
@@ -365,14 +363,6 @@ export default function HomePageClient({
       return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
     })
     .slice(0, 5)
-  const sponsorContext = {
-    topic: selectedCategory !== "all" ? selectedCategory : heroArticle?.category,
-    audiences: heroArticle?.audience || [],
-  }
-  const topBanners = getActivePlacements('home', 'top-banner', sponsorContext)
-  const sideBanners = getActivePlacements('home', 'sidebar', sponsorContext)
-  const inlineBanners = getActivePlacements('home', 'inline', sponsorContext)
-  const footerBanners = getActivePlacements('home', 'footer', sponsorContext)
   const sourceCount = new Set(articles.map((article) => article.source).filter(Boolean)).size
   const freshStoryCount = articles.filter((article) => {
     const publishedAt = new Date(article.publishedAt).getTime()
@@ -751,33 +741,6 @@ export default function HomePageClient({
 
       {/* Main Content */}
       <main id="briefing" className="max-w-7xl mx-auto px-4 py-10">
-        {/* Sponsor Spotlights */}
-        {topBanners.length > 0 && (
-          <section className="mb-10 space-y-4">
-            <div className="flex items-end justify-between gap-4 border-b border-white/40 pb-4 dark:border-white/10">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-300">
-                  Sponsor Spotlight
-                </p>
-                <h2 className="mt-2 text-2xl font-bold">Recommended partners</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Selected tools and partner resources framed to support the stories on the desk.
-                </p>
-              </div>
-            </div>
-            <div className="grid gap-4 lg:grid-cols-2">
-              {topBanners.map((placement) => (
-                <AdBanner
-                  key={placement.id}
-                  sponsor={placement.sponsor}
-                  variant="footer"
-                  dismissible={placement.dismissible}
-                />
-              ))}
-            </div>
-          </section>
-        )}
-
         {/* Hero Featured Article - Full Width (outside flex layout) */}
         {loading && selectedCategory === "all" && (
           <div className="mb-8">
@@ -1201,19 +1164,6 @@ export default function HomePageClient({
                       </div>
                     )}
                     
-                    {/* Inline Ad Banners after 6th article */}
-                    {index === 5 && inlineBanners.length > 0 && (
-                      <div key={`inline-ad-${index}`} className="md:col-span-2">
-                        <AdBanner sponsor={inlineBanners[0].sponsor} variant="footer" dismissible={inlineBanners[0].dismissible} />
-                      </div>
-                    )}
-                    {/* Second inline ad after 12th article */}
-                    {index === 11 && inlineBanners.length > 1 && (
-                      <div key={`inline-ad-2-${index}`} className="md:col-span-2">
-                        <AdBanner sponsor={inlineBanners[1].sponsor} variant="footer" dismissible={inlineBanners[1].dismissible} />
-                      </div>
-                    )}
-
                     {/* MarginPro CTA - shows in Seller Profitability category after every 8th article */}
                     {selectedCategory === "profitability" && (index + 1) % 8 === 0 && index < regularArticles.length - 1 && (
                       <div key={`marginpro-cta-${index}`} className="md:col-span-2">
@@ -1263,11 +1213,6 @@ export default function HomePageClient({
 
           {/* Sidebar */}
           <aside className="w-full lg:w-80 space-y-6">
-            {/* Sidebar Ad Banners */}
-            {sideBanners.map(p => (
-              <AdBanner key={p.id} sponsor={p.sponsor} variant="sidebar" dismissible={p.dismissible} />
-            ))}
-
             {loading && (
               <>
                 <SidebarCardSkeleton rows={5} />
@@ -1438,12 +1383,6 @@ export default function HomePageClient({
           </aside>
         </div>
       </main>
-      {/* Footer Ad Banners */}
-      <div className="max-w-7xl mx-auto px-4">
-        {footerBanners.map(p => (
-          <AdBanner key={p.id} sponsor={p.sponsor} variant="footer" dismissible={p.dismissible} />
-        ))}
-      </div>
 
       {/* Footer */}
       <footer className="relative overflow-hidden border-t border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.22),transparent_24%),radial-gradient(circle_at_top_right,rgba(168,85,247,0.18),transparent_22%),radial-gradient(circle_at_bottom,rgba(20,184,166,0.1),transparent_20%),linear-gradient(180deg,rgba(2,6,23,0.98),rgba(15,23,42,1))] text-white">
