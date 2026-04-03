@@ -1,13 +1,8 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 import { callAIForJSON } from '@/lib/ai-client'
+import { createAdminClient, hasAdminConfig } from '@/lib/supabase/admin'
 
 export const maxDuration = 60
-
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
 
 interface CommunityTopic {
   id: string
@@ -22,6 +17,11 @@ interface CommunityTopic {
 
 export async function GET(request: Request) {
   try {
+    if (!hasAdminConfig()) {
+      return NextResponse.json({ error: 'Missing Supabase credentials' }, { status: 503 })
+    }
+    const supabaseAdmin = createAdminClient()
+
     const authHeader = request.headers.get('authorization')
     const cronSecret = process.env.CRON_SECRET
     if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {

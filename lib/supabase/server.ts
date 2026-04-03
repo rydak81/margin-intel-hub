@@ -1,6 +1,10 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
+const PLACEHOLDER_SUPABASE_URL = 'https://placeholder.supabase.co'
+const PLACEHOLDER_SUPABASE_ANON_KEY = 'placeholder-anon-key'
+let hasWarnedMissingServerEnv = false
+
 /**
  * Especially important if using Fluid compute: Don't put this client in a
  * global variable. Always create a new client within each function when using
@@ -8,10 +12,17 @@ import { cookies } from 'next/headers'
  */
 export async function createClient() {
   const cookieStore = await cookies()
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || PLACEHOLDER_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || PLACEHOLDER_SUPABASE_ANON_KEY
+
+  if ((!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) && !hasWarnedMissingServerEnv) {
+    console.warn('[supabase/server] Missing public Supabase env vars. Using inert fallback client.')
+    hasWarnedMissingServerEnv = true
+  }
 
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookies: {
         getAll() {
