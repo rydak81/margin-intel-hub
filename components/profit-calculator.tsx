@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
+import { Switch } from "@/components/ui/switch"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { 
@@ -134,6 +135,8 @@ interface FormData {
   referralFee: number
   fbaFee: number
   storageFee: number
+  includeFuelSurcharge: boolean
+  fuelSurchargeRate: number
   targetTacos: number
   productWeight: number
   productLength: number
@@ -147,6 +150,7 @@ interface CalculationResult {
   revenue: number
   cogs: number
   amazonFees: number
+  amazonFeesBeforeFuel: number
   advertisingCost: number
   netProfit: number
   margin: number
@@ -157,11 +161,19 @@ interface CalculationResult {
   monthlyRevenue: number
   monthlyCogs: number
   monthlyAmazonFees: number
+  monthlyAmazonFeesBeforeFuel: number
+  monthlyFuelSurcharge: number
   monthlyAdSpend: number
   monthlyROI: number
   sizeTier: string
   estimatedFbaFee: number
   estimatedReferralFee: number
+  fuelSurchargePerUnit: number
+  seasonalityMultiplier: number
+  adjustedUnitsPerDay: number
+  leadTimeDemandUnits: number
+  recommendedOrderUnits: number
+  moqAdjustedOrderUnits: number
   costBreakdown: {
     wholesale: number
     shipping: number
@@ -169,6 +181,7 @@ interface CalculationResult {
     packaging: number
     referralFee: number
     fbaFee: number
+    fuelSurcharge: number
     storageFee: number
     advertising: number
   }
@@ -249,6 +262,8 @@ const defaultFormData: FormData = {
   referralFee: 15,
   fbaFee: 5.40,
   storageFee: 0.15,
+  includeFuelSurcharge: true,
+  fuelSurchargeRate: 3.5,
   targetTacos: 15,
   productWeight: 1,
   productLength: 10,
@@ -256,6 +271,35 @@ const defaultFormData: FormData = {
   productHeight: 4,
   moq: 500,
   leadTime: 30,
+}
+
+const CATEGORY_SEASONALITY: Record<string, number[]> = {
+  "toys-games": [0.7, 0.72, 0.78, 0.82, 0.88, 0.92, 0.96, 1.0, 1.08, 1.2, 1.38, 1.65],
+  "clothing-accessories": [0.88, 0.9, 0.96, 1.0, 1.03, 0.98, 0.94, 0.97, 1.02, 1.1, 1.2, 1.32],
+  shoes: [0.84, 0.86, 0.92, 0.98, 1.03, 0.99, 0.95, 0.98, 1.05, 1.12, 1.22, 1.34],
+  outdoors: [0.72, 0.76, 0.9, 1.05, 1.18, 1.24, 1.28, 1.22, 1.06, 0.92, 0.8, 0.72],
+  "sports": [0.74, 0.78, 0.9, 1.02, 1.14, 1.2, 1.22, 1.18, 1.06, 0.96, 0.84, 0.76],
+  "lawn-garden": [0.62, 0.68, 0.9, 1.08, 1.22, 1.28, 1.26, 1.16, 0.98, 0.82, 0.7, 0.62],
+  "beauty": [0.95, 0.95, 0.98, 1.0, 1.0, 1.0, 1.02, 1.02, 1.04, 1.08, 1.12, 1.18],
+  "health-personal-care": [0.97, 0.97, 0.99, 1.0, 1.0, 1.0, 1.01, 1.01, 1.03, 1.05, 1.08, 1.12],
+  grocery: [0.98, 0.98, 1.0, 1.0, 1.0, 1.0, 1.01, 1.01, 1.02, 1.04, 1.08, 1.12],
+  "home-garden": [0.9, 0.92, 0.96, 1.0, 1.02, 1.02, 1.0, 1.0, 1.02, 1.08, 1.16, 1.24],
+  kitchen: [0.9, 0.92, 0.95, 0.98, 1.0, 1.0, 0.99, 1.0, 1.03, 1.1, 1.2, 1.32],
+  "pet-supplies": [0.98, 0.99, 1.0, 1.01, 1.01, 1.0, 1.0, 1.0, 1.01, 1.03, 1.05, 1.1],
+  default: [0.9, 0.92, 0.95, 0.98, 1.0, 1.01, 1.0, 1.01, 1.03, 1.08, 1.15, 1.24],
+}
+
+function getSeasonalityMultiplier(category: string, leadTimeDays: number): number {
+  const profile = CATEGORY_SEASONALITY[category] || CATEGORY_SEASONALITY.default
+  const startMonth = new Date().getMonth()
+  const periods = Math.max(1, Math.ceil(leadTimeDays / 30))
+
+  let total = 0
+  for (let i = 0; i < periods; i++) {
+    total += profile[(startMonth + i) % 12]
+  }
+
+  return total / periods
 }
 
 export function ProfitCalculator() {
@@ -277,11 +321,16 @@ export function ProfitCalculator() {
       referralFee,
       fbaFee,
       storageFee,
+      includeFuelSurcharge,
+      fuelSurchargeRate,
       targetTacos,
       productWeight,
       productLength,
       productWidth,
       productHeight,
+      leadTime,
+      moq,
+      category,
     } = formData
 
     // Auto-calculate FBA fee if enabled
@@ -298,7 +347,9 @@ export function ProfitCalculator() {
 
     // Amazon fees
     const referralFeeAmount = sellingPrice * (referralFee / 100)
-    const totalAmazonFees = referralFeeAmount + actualFbaFee + storageFee
+    const fuelSurchargePerUnit = includeFuelSurcharge ? actualFbaFee * (fuelSurchargeRate / 100) : 0
+    const amazonFeesBeforeFuel = referralFeeAmount + actualFbaFee + storageFee
+    const totalAmazonFees = amazonFeesBeforeFuel + fuelSurchargePerUnit
 
     // Advertising
     const advertisingCost = sellingPrice * (targetTacos / 100)
@@ -317,15 +368,24 @@ export function ProfitCalculator() {
     const monthlyRevenue = revenue * monthlyUnits
     const monthlyCogs = totalCogs * monthlyUnits
     const monthlyAmazonFees = totalAmazonFees * monthlyUnits
+    const monthlyAmazonFeesBeforeFuel = amazonFeesBeforeFuel * monthlyUnits
+    const monthlyFuelSurcharge = fuelSurchargePerUnit * monthlyUnits
     const monthlyAdSpend = advertisingCost * monthlyUnits
     const monthlyProfit = netProfit * monthlyUnits
     const annualProfit = monthlyProfit * 12
     const monthlyROI = monthlyCogs > 0 ? (monthlyProfit / monthlyCogs) * 100 : 0
 
+    const seasonalityMultiplier = getSeasonalityMultiplier(category, leadTime)
+    const adjustedUnitsPerDay = unitsPerDay * seasonalityMultiplier
+    const leadTimeDemandUnits = adjustedUnitsPerDay * leadTime
+    const recommendedOrderUnits = Math.ceil(leadTimeDemandUnits * 1.15)
+    const moqAdjustedOrderUnits = Math.max(moq, recommendedOrderUnits)
+
     return {
       revenue,
       cogs: totalCogs,
       amazonFees: totalAmazonFees,
+      amazonFeesBeforeFuel,
       advertisingCost,
       netProfit,
       margin,
@@ -336,11 +396,19 @@ export function ProfitCalculator() {
       monthlyRevenue,
       monthlyCogs,
       monthlyAmazonFees,
+      monthlyAmazonFeesBeforeFuel,
+      monthlyFuelSurcharge,
       monthlyAdSpend,
       monthlyROI,
       sizeTier,
       estimatedFbaFee: fbaResult.fee,
       estimatedReferralFee: referralFeeAmount,
+      fuelSurchargePerUnit,
+      seasonalityMultiplier,
+      adjustedUnitsPerDay,
+      leadTimeDemandUnits,
+      recommendedOrderUnits,
+      moqAdjustedOrderUnits,
       costBreakdown: {
         wholesale: wholesalePrice,
         shipping: shippingToAmazon,
@@ -348,6 +416,7 @@ export function ProfitCalculator() {
         packaging: packagingCost,
         referralFee: referralFeeAmount,
         fbaFee: actualFbaFee,
+        fuelSurcharge: fuelSurchargePerUnit,
         storageFee,
         advertising: advertisingCost,
       },
@@ -363,10 +432,15 @@ export function ProfitCalculator() {
 
   const marginStatus = getMarginStatus(calculation.margin)
 
-  const handleInputChange = (field: string, value: string | number) => {
+  const handleInputChange = (field: string, value: string | number | boolean) => {
     setFormData(prev => ({
       ...prev,
-      [field]: typeof value === 'string' && !isNaN(parseFloat(value)) ? parseFloat(value) : value
+      [field]:
+        typeof value === 'boolean'
+          ? value
+          : typeof value === 'string' && !isNaN(parseFloat(value))
+          ? parseFloat(value)
+          : value
     }))
   }
 
@@ -438,7 +512,8 @@ MONTHLY P&L SUMMARY
 -------------------
 Monthly Revenue: $${calculation.monthlyRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
 Monthly COGS: -$${calculation.monthlyCogs.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-Monthly Amazon Fees: -$${calculation.monthlyAmazonFees.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+Monthly Amazon Fees (before fuel): -$${calculation.monthlyAmazonFeesBeforeFuel.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+Monthly Fuel Surcharge: -$${calculation.monthlyFuelSurcharge.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
 Monthly Ad Spend: -$${calculation.monthlyAdSpend.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
 Monthly Net Profit: $${calculation.monthlyProfit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
 Annual Net Profit: $${calculation.annualProfit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -448,7 +523,15 @@ FBA FEE BREAKDOWN
 -----------------
 Referral Fee (${formData.referralFee}%): $${calculation.estimatedReferralFee.toFixed(2)}
 FBA Fulfillment: $${calculation.estimatedFbaFee.toFixed(2)}
+Fuel Surcharge (${formData.fuelSurchargeRate}% of FBA): $${calculation.fuelSurchargePerUnit.toFixed(2)}
 Storage Fee: $${formData.storageFee.toFixed(2)}
+
+INVENTORY PLANNING
+------------------
+Lead Time: ${formData.leadTime} days
+Seasonality Multiplier: ${calculation.seasonalityMultiplier.toFixed(2)}x
+Lead-Time Demand: ${Math.ceil(calculation.leadTimeDemandUnits).toLocaleString()} units
+Recommended Order Qty: ${calculation.moqAdjustedOrderUnits.toLocaleString()} units
 
 Generated by MarketplaceBeta Deal Calculator
 `.trim()
@@ -674,6 +757,42 @@ Generated by MarketplaceBeta Deal Calculator
                       />
                     </div>
                   </div>
+                  <div className="rounded-xl border border-sky-400/20 bg-sky-500/5 p-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="space-y-1">
+                        <Label htmlFor="fuelSurchargeRate" className="text-sm font-semibold">
+                          Include Amazon fuel surcharge
+                        </Label>
+                        <p className="text-xs leading-5 text-muted-foreground">
+                          Applies a surcharge on the FBA fulfillment fee so you can model the latest 3.5% fee pressure.
+                        </p>
+                      </div>
+                      <Switch
+                        checked={formData.includeFuelSurcharge}
+                        onCheckedChange={(checked) => handleInputChange("includeFuelSurcharge", checked)}
+                      />
+                    </div>
+                    <div className="mt-3 grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="fuelSurchargeRate">Fuel Surcharge Rate (%)</Label>
+                        <Input
+                          id="fuelSurchargeRate"
+                          type="number"
+                          step="0.1"
+                          value={formData.fuelSurchargeRate}
+                          onChange={(e) => handleInputChange("fuelSurchargeRate", e.target.value)}
+                          disabled={!formData.includeFuelSurcharge}
+                          className={!formData.includeFuelSurcharge ? "bg-muted" : ""}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Per-unit surcharge impact</Label>
+                        <div className="flex h-10 items-center rounded-md border bg-muted/40 px-3 text-sm font-semibold tabular-nums">
+                          ${calculation.fuelSurchargePerUnit.toFixed(2)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
 
@@ -702,6 +821,20 @@ Generated by MarketplaceBeta Deal Calculator
                           onChange={(e) => handleInputChange("moq", e.target.value)}
                         />
                       </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Lead Time (days)</Label>
+                      <Select value={String(formData.leadTime)} onValueChange={(value) => handleInputChange("leadTime", value)}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="30">30 days</SelectItem>
+                          <SelectItem value="60">60 days</SelectItem>
+                          <SelectItem value="90">90 days</SelectItem>
+                          <SelectItem value="120">120 days</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className="grid grid-cols-3 gap-4">
                       <div className="space-y-2">
@@ -850,8 +983,14 @@ Generated by MarketplaceBeta Deal Calculator
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Amazon Fees / Unit</span>
-                      <span className="font-medium text-red-500 tabular-nums">-${calculation.amazonFees.toFixed(2)}</span>
+                      <span className="font-medium text-red-500 tabular-nums">-${calculation.amazonFeesBeforeFuel.toFixed(2)}</span>
                     </div>
+                    {formData.includeFuelSurcharge && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Fuel Surcharge / Unit</span>
+                        <span className="font-medium text-red-500 tabular-nums">-${calculation.fuelSurchargePerUnit.toFixed(2)}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Advertising / Unit</span>
                       <span className="font-medium text-red-500 tabular-nums">-${calculation.advertisingCost.toFixed(2)}</span>
@@ -959,8 +1098,14 @@ Generated by MarketplaceBeta Deal Calculator
                     </div>
                     <div className="flex justify-between items-center p-3 rounded-lg bg-muted/30">
                       <span>Monthly Amazon Fees</span>
-                      <span className="font-semibold text-red-500 tabular-nums">-${calculation.monthlyAmazonFees.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                      <span className="font-semibold text-red-500 tabular-nums">-${calculation.monthlyAmazonFeesBeforeFuel.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </div>
+                    {formData.includeFuelSurcharge && (
+                      <div className="flex justify-between items-center p-3 rounded-lg bg-muted/30">
+                        <span>Monthly Fuel Surcharge</span>
+                        <span className="font-semibold text-red-500 tabular-nums">-${calculation.monthlyFuelSurcharge.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between items-center p-3 rounded-lg bg-muted/30">
                       <span>Monthly Ad Spend ({formData.targetTacos}% TACoS)</span>
                       <span className="font-semibold text-red-500 tabular-nums">-${calculation.monthlyAdSpend.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
@@ -1106,6 +1251,16 @@ Generated by MarketplaceBeta Deal Calculator
                       <p className="text-xs text-muted-foreground">Based on size & weight</p>
                     </div>
                     <span className="font-semibold tabular-nums">${calculation.estimatedFbaFee.toFixed(2)}</span>
+                  </div>
+
+                  <div className="flex justify-between items-center p-3 rounded-lg bg-muted/30">
+                    <div>
+                      <p className="font-medium">Fuel Surcharge</p>
+                      <p className="text-xs text-muted-foreground">
+                        {formData.includeFuelSurcharge ? `${formData.fuelSurchargeRate}% of fulfillment fee` : "Currently excluded"}
+                      </p>
+                    </div>
+                    <span className="font-semibold tabular-nums">${calculation.fuelSurchargePerUnit.toFixed(2)}</span>
                   </div>
                   
                   <div className="flex justify-between items-center p-3 rounded-lg bg-muted/30">
@@ -1276,6 +1431,10 @@ Generated by MarketplaceBeta Deal Calculator
                       <span className="font-medium tabular-nums">${calculation.costBreakdown.fbaFee.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between items-center p-2 rounded bg-muted/30">
+                      <span>Fuel Surcharge</span>
+                      <span className="font-medium tabular-nums">${calculation.costBreakdown.fuelSurcharge.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between items-center p-2 rounded bg-muted/30">
                       <span>Storage Fee (Monthly)</span>
                       <span className="font-medium tabular-nums">${calculation.costBreakdown.storageFee.toFixed(2)}</span>
                     </div>
@@ -1425,7 +1584,7 @@ Generated by MarketplaceBeta Deal Calculator
             <Card>
               <CardHeader>
                 <CardTitle>Investment Analysis</CardTitle>
-                <CardDescription>Initial inventory investment</CardDescription>
+                <CardDescription>Initial inventory investment and reorder planning</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="p-4 rounded-lg bg-muted/30">
@@ -1444,6 +1603,32 @@ Generated by MarketplaceBeta Deal Calculator
                   </p>
                 </div>
                 <Separator />
+                <div className="rounded-xl border border-sky-400/20 bg-sky-500/5 p-4 space-y-3">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Seasonality-adjusted daily units</p>
+                    <p className="text-2xl font-bold tabular-nums">{calculation.adjustedUnitsPerDay.toFixed(1)}</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Rule-based forecast using your category’s seasonal profile over the next {formData.leadTime} days.
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="p-3 rounded-lg bg-background/70">
+                      <p className="text-xs text-muted-foreground">Seasonality Multiplier</p>
+                      <p className="font-semibold tabular-nums">{calculation.seasonalityMultiplier.toFixed(2)}x</p>
+                    </div>
+                    <div className="p-3 rounded-lg bg-background/70">
+                      <p className="text-xs text-muted-foreground">Lead-Time Demand</p>
+                      <p className="font-semibold tabular-nums">{Math.ceil(calculation.leadTimeDemandUnits).toLocaleString()} units</p>
+                    </div>
+                  </div>
+                  <div className="p-3 rounded-lg bg-background/70">
+                    <p className="text-xs text-muted-foreground">Recommended Order Qty</p>
+                    <p className="text-xl font-bold tabular-nums">{calculation.moqAdjustedOrderUnits.toLocaleString()} units</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Includes a 15% buffer and respects your MOQ floor of {formData.moq.toLocaleString()} units.
+                    </p>
+                  </div>
+                </div>
                 <div className="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
                   <p className="text-sm text-muted-foreground">Investment ROI</p>
                   <p className="text-2xl font-bold text-emerald-500 tabular-nums">{calculation.roi.toFixed(1)}%</p>
