@@ -1075,7 +1075,7 @@ export default function HomePageClient({
                   <Fragment key={article.id}>
                     <div onClick={(e) => handleArticleClick(article, e)}>
                       <Card className="group h-full cursor-pointer overflow-hidden rounded-[24px] border border-white/60 bg-white/82 shadow-[0_22px_54px_-34px_rgba(15,23,42,0.28)] transition-all hover:-translate-y-1 hover:shadow-[0_26px_70px_-36px_rgba(15,23,42,0.42)] dark:border-white/10 dark:bg-slate-950/45">
-                        <div className="relative aspect-video overflow-hidden bg-muted">
+                        <div className="relative aspect-[4/3] overflow-hidden bg-muted">
                           <img
                             src={getArticleImageUrl(article)}
                             alt={article.title}
@@ -1094,94 +1094,74 @@ export default function HomePageClient({
                               }
                             }}
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/25 via-transparent to-transparent opacity-80" />
-                          <div className="absolute left-4 top-4 flex items-center gap-2">
-                            <span className="rounded-full border border-white/20 bg-slate-950/48 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white backdrop-blur">
-                              {article.category.replace(/[-_]/g, ' ')}
-                            </span>
-                          </div>
-                        </div>
-                        <CardContent className="p-5">
-                          <div className="mb-3 flex items-center gap-2 flex-wrap">
-                            {article.platforms?.slice(0, 2).map((p) => (
-                              <Badge key={p} variant="secondary" className="rounded-full border border-sky-400/10 bg-sky-500/8 text-xs">
-                                {p}
-                              </Badge>
-                            ))}
-                            {/* AI Impact Badge */}
-                            {article.impactLevel && (
-                              <Badge 
-                                variant="outline" 
-                                className={`text-xs ${
-                                  article.impactLevel === 'high' 
-                                    ? 'border-red-500/50 text-red-600 bg-red-500/10' 
-                                    : article.impactLevel === 'medium' 
-                                    ? 'border-amber-500/50 text-amber-600 bg-amber-500/10' 
-                                    : 'border-green-500/50 text-green-600 bg-green-500/10'
-                                }`}
-                              >
-                                <span className={`mr-1 ${
-                                  article.impactLevel === 'high' ? 'text-red-500' 
-                                  : article.impactLevel === 'medium' ? 'text-amber-500' 
-                                  : 'text-green-500'
-                                }`}>●</span>
-                                {article.impactLevel.charAt(0).toUpperCase() + article.impactLevel.slice(1)} Impact
-                              </Badge>
-                            )}
-                            <span className="ml-auto flex items-center gap-1 text-xs text-muted-foreground">
-                              <Clock className="h-3 w-3" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/92 via-slate-950/52 to-slate-950/12" />
+                          <div className="absolute left-0 right-0 top-0 flex items-start justify-between gap-3 p-4">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="rounded-full border border-white/18 bg-slate-950/48 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white backdrop-blur">
+                                {article.category.replace(/[-_]/g, ' ')}
+                              </span>
+                              {article.impactLevel && (
+                                <span className="rounded-full border border-white/18 bg-white/12 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-white backdrop-blur">
+                                  {article.impactLevel === 'high' ? 'High' : article.impactLevel === 'medium' ? 'Medium' : 'Low'} impact
+                                </span>
+                              )}
+                            </div>
+                            <span className="rounded-full border border-white/18 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/84 backdrop-blur">
                               {formatTimeAgo(article.publishedAt)}
                             </span>
                           </div>
-                          {/* AI Enhanced indicator */}
-                          {article.aiSummary && (
-                            <div className="flex items-center gap-1 mb-2">
-                              <Sparkles className="h-3 w-3 text-primary" />
-                              <span className="text-[10px] text-primary font-medium">AI Enhanced</span>
-                            </div>
-                          )}
-                          <h3 className="mb-2 text-lg font-semibold leading-7 group-hover:text-primary transition-colors line-clamp-2 text-balance">
-                            {article.title}
-                          </h3>
-                          <p className="mb-4 text-sm text-muted-foreground line-clamp-3 leading-6">
-                            {article.aiSummary || article.excerpt}
-                          </p>
-                          {/* Audience pills */}
-                          {article.audience && article.audience.length > 0 && (
-                            <div className="flex items-center gap-1 mb-3">
-                              <span className="text-[10px] text-muted-foreground">For:</span>
-                              {article.audience.slice(0, 3).map((aud) => (
-                                <span 
-                                  key={aud} 
-                                  className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground capitalize"
+
+                          <div className="absolute inset-x-0 bottom-0 p-5">
+                            {article.aiSummary && (
+                              <div className="mb-3 flex items-center gap-1.5">
+                                <Sparkles className="h-3.5 w-3.5 text-sky-300" />
+                                <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-sky-100/90">
+                                  AI Enhanced
+                                </span>
+                              </div>
+                            )}
+
+                            <h3 className="mb-3 text-xl font-bold leading-tight text-white transition-colors group-hover:text-sky-100 md:text-[1.4rem] text-balance line-clamp-3">
+                              {article.title}
+                            </h3>
+
+                            <p className="mb-4 text-sm leading-6 text-white/82 line-clamp-3">
+                              {article.aiSummary || article.excerpt}
+                            </p>
+
+                            <div className="flex flex-wrap items-center gap-2 mb-4">
+                              {article.platforms?.slice(0, 2).map((p) => (
+                                <span
+                                  key={p}
+                                  className="rounded-full bg-white/12 px-2.5 py-1 text-[11px] font-medium capitalize text-white/88 backdrop-blur"
                                 >
-                                  {aud}
+                                  {p}
+                                </span>
+                              ))}
+                              {article.audience?.slice(0, 1).map((aud) => (
+                                <span
+                                  key={aud}
+                                  className="rounded-full bg-white/8 px-2.5 py-1 text-[11px] font-medium capitalize text-white/74 backdrop-blur"
+                                >
+                                  {aud.replace(/_/g, ' ')}
                                 </span>
                               ))}
                             </div>
-                          )}
-                          <div className="flex items-center justify-between border-t border-white/50 pt-3 dark:border-white/10">
-                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                              {article.tier === 1 ? (
-                                <span className="flex items-center gap-1">
-                                  <span className="text-amber-500">&#10022;</span>
-                                  <span className="font-medium text-foreground">{article.source}</span>
-                                </span>
-                              ) : (
-                                <>
-                                  <Globe className="h-3 w-3" />
-                                  <span>{article.source}</span>
-                                </>
-                              )}
-                              <span className="mx-1">|</span>
-                              <span>{article.readTime} min read</span>
+
+                            <div className="flex items-center justify-between gap-3 border-t border-white/12 pt-3 text-sm text-white/72">
+                              <div className="flex min-w-0 items-center gap-2">
+                                <Globe className="h-3.5 w-3.5 shrink-0" />
+                                <span className="truncate">{article.source}</span>
+                                <span className="text-white/35">|</span>
+                                <span className="shrink-0">{article.readTime} min read</span>
+                              </div>
+                              <span className="flex shrink-0 items-center gap-1 font-semibold text-sky-200">
+                                Read more
+                                <ArrowRight className="h-3.5 w-3.5" />
+                              </span>
                             </div>
-                            <span className="text-xs font-semibold text-primary flex items-center gap-1">
-                              Read more
-                              <ArrowRight className="h-3 w-3" />
-                            </span>
                           </div>
-                        </CardContent>
+                        </div>
                       </Card>
                     </div>
                     
