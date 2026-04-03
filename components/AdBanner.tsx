@@ -609,7 +609,7 @@ export function AdBanner({ sponsor, variant, dismissible = false }: AdBannerProp
             </div>
           </div>
           {(sponsor.bannerImageUrl || isCustomMiniVisual) && (
-            <div className="relative h-36 overflow-hidden rounded-xl border border-white/10 bg-slate-100/5">
+            <div className="relative h-32 overflow-hidden rounded-xl border border-white/10 bg-slate-100/5">
               {sponsor.id === 'marketplacepulse' ? (
                 <div className="absolute inset-0 overflow-hidden rounded-xl bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.18),transparent_28%),linear-gradient(180deg,rgba(2,6,23,0.98),rgba(15,23,42,0.95))] p-4">
                   <div className="absolute -right-8 top-2 h-24 w-24 rounded-full bg-sky-400/12 blur-3xl" />
@@ -672,16 +672,18 @@ export function AdBanner({ sponsor, variant, dismissible = false }: AdBannerProp
           )}
           <div className="space-y-2">
             <p className="text-base font-semibold leading-6 text-balance text-white">{sponsor.tagline}</p>
-            <p className="text-sm leading-6 text-white/76">{sponsor.description}</p>
+            <p className="text-sm leading-6 text-white/72 line-clamp-3">{sponsor.description}</p>
           </div>
           <div className="flex flex-wrap gap-2">
-            {sponsor.highlights.slice(0, 2).map((highlight) => (
+            {sponsor.highlights.slice(0, 1).map((highlight) => (
               <div key={highlight} className="rounded-full border border-white/10 bg-white/6 px-3 py-1.5 text-[11px] font-semibold text-white/80">
                 {highlight}
               </div>
             ))}
+            <div className="rounded-full border border-white/10 bg-slate-950/45 px-3 py-1.5 text-[11px] font-medium text-white/72">
+              {sponsor.useCase}
+            </div>
           </div>
-          <p className="text-sm leading-6 text-white/72">{sponsor.useCase}</p>
           <SponsorActions sponsor={sponsor} compact />
         </CardContent>
       </Card>

@@ -12,7 +12,7 @@ import { Separator } from "@/components/ui/separator"
 import { ArticleDetailModal } from "@/components/article-detail-modal"
 import { AuthModal } from "@/components/auth-modal"
 import { BackToTop } from "@/components/back-to-top"
-import { getArticleFallbackImage } from "@/lib/article-images"
+import { getArticleFallbackImage, getArticleImageUrl as resolveArticleImageUrl } from "@/lib/article-images"
 import { EVENTS, isPastEvent, sortEvents } from "@/lib/events"
 import {
   buildBreakingNews,
@@ -129,13 +129,13 @@ const HOMEPAGE_EVENTS = sortEvents(EVENTS)
 
 // Get article image URL - the API already enriches with stock fallbacks
 function getArticleImageUrl(article: NewsArticle): string {
-  // The API now returns stock Unsplash images when RSS image is missing
-  // so we can directly use article.imageUrl
-  if (article.imageUrl) {
-    return article.imageUrl
-  }
-  // Absolute last resort - OG fallback (shouldn't happen anymore)
-  return `/api/og/article?title=${encodeURIComponent(article.title.substring(0, 100))}&category=${encodeURIComponent(article.category || 'platform')}&source=${encodeURIComponent(article.source || '')}`
+  return resolveArticleImageUrl(
+    article.imageUrl,
+    article.title,
+    article.category || "platform_updates",
+    article.platforms || [],
+    article.fullContent
+  )
 }
 
 // Category colors for hero badge
@@ -751,10 +751,32 @@ export default function HomePageClient({
 
       {/* Main Content */}
       <main id="briefing" className="max-w-7xl mx-auto px-4 py-10">
-        {/* Top Ad Banners */}
-        {topBanners.map(p => (
-          <AdBanner key={p.id} sponsor={p.sponsor} variant="top-banner" dismissible={p.dismissible} />
-        ))}
+        {/* Sponsor Spotlights */}
+        {topBanners.length > 0 && (
+          <section className="mb-10 space-y-4">
+            <div className="flex items-end justify-between gap-4 border-b border-white/40 pb-4 dark:border-white/10">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-300">
+                  Sponsor Spotlight
+                </p>
+                <h2 className="mt-2 text-2xl font-bold">Recommended partners</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Selected tools and partner resources framed to support the stories on the desk.
+                </p>
+              </div>
+            </div>
+            <div className="grid gap-4 lg:grid-cols-2">
+              {topBanners.map((placement) => (
+                <AdBanner
+                  key={placement.id}
+                  sponsor={placement.sponsor}
+                  variant="footer"
+                  dismissible={placement.dismissible}
+                />
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Hero Featured Article - Full Width (outside flex layout) */}
         {loading && selectedCategory === "all" && (
@@ -1199,13 +1221,13 @@ export default function HomePageClient({
                     {/* Inline Ad Banners after 6th article */}
                     {index === 5 && inlineBanners.length > 0 && (
                       <div key={`inline-ad-${index}`} className="md:col-span-2">
-                        <AdBanner sponsor={inlineBanners[0].sponsor} variant="inline" dismissible={inlineBanners[0].dismissible} />
+                        <AdBanner sponsor={inlineBanners[0].sponsor} variant="footer" dismissible={inlineBanners[0].dismissible} />
                       </div>
                     )}
                     {/* Second inline ad after 12th article */}
                     {index === 11 && inlineBanners.length > 1 && (
                       <div key={`inline-ad-2-${index}`} className="md:col-span-2">
-                        <AdBanner sponsor={inlineBanners[1].sponsor} variant="inline" dismissible={inlineBanners[1].dismissible} />
+                        <AdBanner sponsor={inlineBanners[1].sponsor} variant="footer" dismissible={inlineBanners[1].dismissible} />
                       </div>
                     )}
 

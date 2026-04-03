@@ -1,8 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import Image from "next/image"
 import Link from "next/link"
+import { PremiumSiteHeader } from "@/components/premium-site-header"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,7 +15,6 @@ import {
   Clock,
   Users,
   Zap,
-  ArrowLeft,
   Loader2,
   Building,
   ShoppingBag,
@@ -142,68 +141,7 @@ export default function NewsletterPage() {
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.14),transparent_18%),radial-gradient(circle_at_top_right,rgba(217,70,239,0.12),transparent_16%),linear-gradient(180deg,rgba(248,250,252,0.92),rgba(255,255,255,0.84)_18%,transparent_34%)] bg-background">
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.88),rgba(30,41,59,0.76))] backdrop-blur-2xl">
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-fuchsia-400/45 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-sky-400/55 to-transparent" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_left_top,rgba(56,189,248,0.08),transparent_18%),radial-gradient(circle_at_right_top,rgba(217,70,239,0.08),transparent_18%)] pointer-events-none" />
-        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-4 px-4">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              asChild
-              className="hidden border border-white/10 bg-white/10 text-white hover:bg-white/16 hover:text-white sm:inline-flex"
-            >
-              <Link href="/">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back
-              </Link>
-            </Button>
-            <Link href="/" className="flex items-center gap-3">
-              <div className="relative">
-                <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-sky-400/28 via-cyan-300/14 to-fuchsia-400/24 blur-sm" />
-                <Image src="/brand-icon.png" alt="MarketplaceBeta logo" width={32} height={32} className="relative h-8 w-8 rounded-lg object-cover ring-1 ring-sky-400/20" />
-              </div>
-              <div className="hidden sm:block">
-                <span className="block text-lg font-bold leading-none text-white">MarketplaceBeta</span>
-                <span className="block text-[10px] font-semibold uppercase tracking-[0.24em] text-white/55">Daily Brief</span>
-              </div>
-            </Link>
-          </div>
-
-          <nav className="hidden items-center gap-6 lg:flex">
-            <Link href="/" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-              Home
-            </Link>
-            <Link href="/articles" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-              Articles
-            </Link>
-            <Link href="/partners" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-              Partners
-            </Link>
-            <Link href="/tools" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-              Tools
-            </Link>
-            <Link href="/community" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-              Community
-            </Link>
-            <Link href="/events" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-              Events
-            </Link>
-            <Link href="/newsletter" className="text-sm font-semibold text-white">
-              Newsletter
-            </Link>
-          </nav>
-
-          <Button
-            asChild
-            size="sm"
-            className="hidden border border-white/10 bg-[linear-gradient(135deg,#2563eb,#4f46e5_72%,#7c3aed)] text-sm text-white shadow-[0_18px_40px_-24px_rgba(79,70,229,0.72)] hover:opacity-95 sm:flex"
-          >
-            <Link href="/newsletter">Subscribe</Link>
-          </Button>
-        </div>
-      </header>
+      <PremiumSiteHeader active="newsletter" deskLabel="Daily Brief" backHref="/" backLabel="Home" />
 
       <main className="mx-auto max-w-7xl px-4 py-10">
         {submitted ? (
