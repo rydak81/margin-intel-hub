@@ -1038,11 +1038,11 @@ export default function HomePageClient({
                   <Fragment key={article.id}>
                     <div onClick={(e) => handleArticleClick(article, e)}>
                       <Card className="group h-full cursor-pointer overflow-hidden rounded-[24px] border border-white/60 bg-white/82 shadow-[0_22px_54px_-34px_rgba(15,23,42,0.28)] transition-all hover:-translate-y-1 hover:shadow-[0_26px_70px_-36px_rgba(15,23,42,0.42)] dark:border-white/10 dark:bg-slate-950/45">
-                        <div className="relative aspect-[16/10] min-h-[300px] overflow-hidden bg-muted">
+                        <div className="relative aspect-[16/9] overflow-hidden bg-muted">
                           <img
                             src={getArticleImageUrl(article)}
                             alt={article.title}
-                            className="absolute inset-0 block h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            className="block h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                             loading={index < 4 ? 'eager' : 'lazy'}
                             style={{ objectPosition: 'center center' }}
                             onError={(e) => {
@@ -1058,76 +1058,70 @@ export default function HomePageClient({
                               }
                             }}
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/94 via-slate-950/56 to-slate-950/18" />
-                          <div className="absolute left-0 right-0 top-0 flex items-start justify-between gap-3 p-4">
+                        </div>
+                        <CardContent className="p-5 md:p-6">
+                          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                             <div className="flex flex-wrap items-center gap-2">
-                              <span className="rounded-full border border-white/18 bg-slate-950/48 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white backdrop-blur">
+                              <span className="rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-700 dark:border-white/10 dark:bg-white/8 dark:text-white/88">
                                 {article.category.replace(/[-_]/g, ' ')}
                               </span>
-                            </div>
-                            <span className="rounded-full border border-white/18 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/84 backdrop-blur">
-                              {formatTimeAgo(article.publishedAt)}
-                            </span>
-                          </div>
-
-                          <div className="absolute inset-x-0 bottom-0 p-5">
-                            <div className="mb-3 flex flex-wrap items-center gap-2">
                               {article.aiSummary && (
-                                <div className="flex items-center gap-1.5">
-                                  <Sparkles className="h-3.5 w-3.5 text-sky-300" />
-                                  <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-sky-100/90">
-                                    AI Enhanced
-                                  </span>
-                                </div>
+                                <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-400/15 bg-sky-50 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-sky-700 dark:border-sky-400/18 dark:bg-sky-400/10 dark:text-sky-200">
+                                  <Sparkles className="h-3 w-3" />
+                                  AI Enhanced
+                                </span>
                               )}
                               {article.impactLevel && (
-                                <span className="rounded-full border border-white/18 bg-white/12 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/88 backdrop-blur">
+                                <span className="rounded-full border border-amber-400/20 bg-amber-50 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-700 dark:border-amber-400/18 dark:bg-amber-400/10 dark:text-amber-200">
                                   {article.impactLevel} impact
                                 </span>
                               )}
                             </div>
-
-                            <h3 className="mb-3 text-[1.4rem] font-bold leading-tight text-white transition-colors group-hover:text-sky-100 md:text-[1.55rem] text-balance line-clamp-2">
-                              {article.title}
-                            </h3>
-
-                            <p className="mb-4 max-w-xl text-sm leading-6 text-white/82 line-clamp-2">
-                              {article.aiSummary || article.excerpt}
-                            </p>
-
-                            <div className="flex flex-wrap items-center gap-2 mb-4">
-                              {article.platforms?.slice(0, 2).map((p) => (
-                                <span
-                                  key={p}
-                                  className="rounded-full bg-white/12 px-2.5 py-1 text-[11px] font-medium capitalize text-white/88 backdrop-blur"
-                                >
-                                  {p}
-                                </span>
-                              ))}
-                              {article.audience?.slice(0, 1).map((aud) => (
-                                <span
-                                  key={aud}
-                                  className="rounded-full bg-white/8 px-2.5 py-1 text-[11px] font-medium capitalize text-white/74 backdrop-blur"
-                                >
-                                  {aud.replace(/_/g, ' ')}
-                                </span>
-                              ))}
-                            </div>
-
-                            <div className="flex items-center justify-between gap-3 border-t border-white/12 pt-3 text-sm text-white/72">
-                              <div className="flex min-w-0 items-center gap-2">
-                                <Globe className="h-3.5 w-3.5 shrink-0" />
-                                <span className="truncate">{article.source}</span>
-                                <span className="text-white/35">|</span>
-                                <span className="shrink-0">{article.readTime} min read</span>
-                              </div>
-                              <span className="flex shrink-0 items-center gap-1 font-semibold text-sky-200">
-                                Read more
-                                <ArrowRight className="h-3.5 w-3.5" />
-                              </span>
-                            </div>
+                            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-300">
+                              {formatTimeAgo(article.publishedAt)}
+                            </span>
                           </div>
-                        </div>
+
+                          <h3 className="mb-3 text-[1.35rem] font-bold leading-tight text-slate-950 transition-colors group-hover:text-sky-700 md:text-[1.5rem] dark:text-white dark:group-hover:text-sky-200 text-balance line-clamp-2">
+                            {article.title}
+                          </h3>
+
+                          <p className="mb-4 text-sm leading-6 text-slate-600 line-clamp-3 dark:text-slate-300">
+                            {article.aiSummary || article.excerpt}
+                          </p>
+
+                          <div className="mb-5 flex flex-wrap items-center gap-2">
+                            {article.platforms?.slice(0, 2).map((p) => (
+                              <span
+                                key={p}
+                                className="rounded-full border border-slate-200 bg-slate-100 px-2.5 py-1 text-[11px] font-medium capitalize text-slate-600 dark:border-white/10 dark:bg-white/7 dark:text-slate-200"
+                              >
+                                {p}
+                              </span>
+                            ))}
+                            {article.audience?.slice(0, 1).map((aud) => (
+                              <span
+                                key={aud}
+                                className="rounded-full border border-slate-200/80 bg-white px-2.5 py-1 text-[11px] font-medium capitalize text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-400"
+                              >
+                                {aud.replace(/_/g, ' ')}
+                              </span>
+                            ))}
+                          </div>
+
+                          <div className="flex items-center justify-between gap-3 border-t border-slate-200/80 pt-4 text-sm text-slate-500 dark:border-white/10 dark:text-slate-300">
+                            <div className="flex min-w-0 items-center gap-2">
+                              <Globe className="h-3.5 w-3.5 shrink-0" />
+                              <span className="truncate">{article.source}</span>
+                              <span className="text-slate-300 dark:text-white/20">|</span>
+                              <span className="shrink-0">{article.readTime} min read</span>
+                            </div>
+                            <span className="flex shrink-0 items-center gap-1 font-semibold text-sky-700 dark:text-sky-200">
+                              Read more
+                              <ArrowRight className="h-3.5 w-3.5" />
+                            </span>
+                          </div>
+                        </CardContent>
                       </Card>
                     </div>
                     

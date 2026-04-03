@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { callAIForJSON } from '@/lib/ai-client'
+import { generateAndStoreArticleImage } from '@/lib/article-image-generation'
+import { isGoodArticleImage } from '@/lib/article-images'
 
 // Lazy-initialized Supabase client (avoids module-level crash if env vars missing)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -334,6 +336,14 @@ async function insertCategories(articleId: string, primaryCategory: string, plat
   if (error) console.error('Error inserting categories:', error)
 }
 
+function needsFreshArticleImage(imageUrl: string | null | undefined): boolean {
+  if (!imageUrl) return true
+  if (!isGoodArticleImage(imageUrl)) return true
+
+  const lowerUrl = imageUrl.toLowerCase()
+  return lowerUrl.includes('images.unsplash.com') || lowerUrl.includes('source.unsplash.com')
+}
+
 export async function GET(request: NextRequest) {
   return POST(request)
 }
@@ -374,7 +384,21 @@ export async function POST(request: NextRequest) {
 
     if (enrichErr) throw enrichErr
 
-    const unclassified = [...(brandNew || []), ...(needsEnrichment || [])]
+    const { data: needsImageRefresh, error: imageRefreshErr } = await getSupabase()
+      .from('articles')
+      .select('*')
+      .eq('relevant', true)
+      .or('image_url.is.null,image_url.like.%images.unsplash.com%,image_url.like.%source.unsplash.com%')
+      .limit(20)
+      .order('published_at', { ascending: false })
+
+    if (imageRefreshErr) throw imageRefreshErr
+
+    const unclassified = Array.from(
+      new Map(
+        [...(brandNew || []), ...(needsEnrichment || []), ...(needsImageRefresh || [])].map((article) => [article.id, article])
+      ).values()
+    )
 
     if (unclassified.length === 0) {
       console.log('[Classify] No articles found needing classification or enrichment')
@@ -387,11 +411,14 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    console.log(`[Classify] Found ${brandNew?.length || 0} new + ${needsEnrichment?.length || 0} needing enrichment = ${unclassified.length} total`)
+    console.log(
+      `[Classify] Found ${brandNew?.length || 0} new + ${needsEnrichment?.length || 0} needing enrichment + ${needsImageRefresh?.length || 0} needing image refresh = ${unclassified.length} total`
+    )
 
     let classifiedCount = 0
     let enrichedCount = 0
     let fixedImageCount = 0
+    let generatedImageCount = 0
     const errors: any[] = []
 
     // Process in batches of 5 (reduced from 10 to stay within Sonnet rate limits)
@@ -401,7 +428,25 @@ export async function POST(request: NextRequest) {
       await Promise.all(
         batch.map(async (article: any) => {
           try {
-            const classified = evaluateOperatorValue(article, await classifyArticle(article))
+            const needsClassification = !article.ai_summary || !article.our_take
+            const classified = needsClassification
+              ? evaluateOperatorValue(article, await classifyArticle(article))
+              : {
+                  aiSummary: article.ai_summary || stripHTML(article.summary || ''),
+                  ourTake: article.our_take || '',
+                  keyTakeaways: article.key_takeaways || [],
+                  bottomLine: article.bottom_line || '',
+                  whatThisMeans: article.what_this_means || null,
+                  category: article.category || 'market_metrics',
+                  platforms: article.platforms || [],
+                  audience: article.audience || [],
+                  impactLevel: article.impact_level || 'medium',
+                  keyStat: article.key_stat || null,
+                  relevanceScore: Math.max(0, Math.min(1, Number(article.relevance_score || 50) / 100)),
+                  unsplashQuery: '',
+                  relevant: article.relevant !== false,
+                  rejectionReason: article.rejection_reason || null,
+                }
             const cleanSummary = stripHTML(article.summary || '')
             const keywords = extractKeywords(`${article.title} ${classified.aiSummary} ${cleanSummary}`)
 
@@ -418,8 +463,26 @@ export async function POST(request: NextRequest) {
               classified_at: new Date().toISOString()
             }
 
-            if (!article.image_url) {
-              let imageUrl = classified.unsplashQuery ? await searchUnsplashImage(classified.unsplashQuery) : null
+            if (needsFreshArticleImage(article.image_url)) {
+              const generatedImage = await generateAndStoreArticleImage({
+                id: article.id,
+                title: article.title,
+                summary: classified.aiSummary || cleanSummary || article.summary || '',
+                category: classified.category,
+                platforms: classified.platforms,
+                sourceName: article.source_name,
+                publishedAt: article.published_at,
+              })
+
+              let imageUrl = generatedImage?.imageUrl || null
+
+              if (generatedImage?.imageUrl) {
+                generatedImageCount++
+              }
+
+              if (!imageUrl && classified.unsplashQuery) {
+                imageUrl = await searchUnsplashImage(classified.unsplashQuery)
+              }
               if (!imageUrl) imageUrl = getCategoryFallbackImage(classified.category)
               updateData.image_url = imageUrl
               fixedImageCount++
@@ -432,31 +495,35 @@ export async function POST(request: NextRequest) {
             }
 
             // Phase 2: Deep insight fields + cleaned summary
-            const insightData: any = {
-              our_take: classified.ourTake,
-              key_takeaways: classified.keyTakeaways,
-              bottom_line: classified.bottomLine,
-              key_stat: classified.keyStat,
-              what_this_means: classified.whatThisMeans,
-              summary: cleanSummary
+            if (needsClassification) {
+              const insightData: any = {
+                our_take: classified.ourTake,
+                key_takeaways: classified.keyTakeaways,
+                bottom_line: classified.bottomLine,
+                key_stat: classified.keyStat,
+                what_this_means: classified.whatThisMeans,
+                summary: cleanSummary
+              }
+
+              const { error: insightError } = await getSupabase().from('articles').update(insightData).eq('id', article.id)
+              if (!insightError) enrichedCount++
+
+              // Insert keywords and categories (may fail due to article_id type mismatch -- non-fatal)
+              try {
+                await insertKeywords(article.id, keywords)
+              } catch (kwErr) {
+                console.warn(`[Classify] Keyword insertion failed for ${article.id} (article_id type mismatch?):`, kwErr)
+              }
+              try {
+                await insertCategories(article.id, classified.category, classified.platforms, classified.relevanceScore)
+              } catch (catErr) {
+                console.warn(`[Classify] Category insertion failed for ${article.id} (article_id type mismatch?):`, catErr)
+              }
             }
 
-            const { error: insightError } = await getSupabase().from('articles').update(insightData).eq('id', article.id)
-            if (!insightError) enrichedCount++
-
-            // Insert keywords and categories (may fail due to article_id type mismatch -- non-fatal)
-            try {
-              await insertKeywords(article.id, keywords)
-            } catch (kwErr) {
-              console.warn(`[Classify] Keyword insertion failed for ${article.id} (article_id type mismatch?):`, kwErr)
+            if (needsClassification) {
+              classifiedCount++
             }
-            try {
-              await insertCategories(article.id, classified.category, classified.platforms, classified.relevanceScore)
-            } catch (catErr) {
-              console.warn(`[Classify] Category insertion failed for ${article.id} (article_id type mismatch?):`, catErr)
-            }
-
-            classifiedCount++
           } catch (error) {
             console.error(`[Classify] Error for article ${article.id}:`, error instanceof Error ? error.message : String(error))
             errors.push({ articleId: article.id, error: error instanceof Error ? error.message : String(error) })
@@ -472,6 +539,7 @@ export async function POST(request: NextRequest) {
       classifiedCount,
       enrichedCount,
       fixedImageCount,
+      generatedImageCount,
       totalProcessed: unclassified.length,
       errors: errors.length > 0 ? errors : undefined
     })

@@ -244,7 +244,8 @@ function hashString(str: string): number {
 const BAD_PATTERNS = [
   'favicon', '1x1', 'pixel.', 'gravatar.com', 's2/favicons',
   'wp-content/plugins', '/logo', 'spacer', 'blank', 'transparent',
-  'tracking', 'beacon', 'avatar', 'badge',
+  'tracking', 'beacon', 'avatar', 'badge', 'newsletter',
+  'default-image', 'no-image', 'missing-image',
 ]
 
 // More permissive — allow small icons that are still usable
