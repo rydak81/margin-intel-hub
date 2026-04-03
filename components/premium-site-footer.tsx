@@ -1,5 +1,5 @@
-import Image from "next/image"
 import Link from "next/link"
+import { SiteBrand } from "@/components/site-brand"
 
 export function PremiumSiteFooter() {
   return (
@@ -7,15 +7,14 @@ export function PremiumSiteFooter() {
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/45 to-transparent" />
       <div className="mx-auto max-w-7xl px-4 py-8 md:py-10">
         <div className="flex flex-col items-center justify-between gap-6 md:flex-row md:items-start">
-          <Link href="/" className="flex items-center gap-3 text-center md:text-left">
-            <Image src="/brand-icon.png" alt="MarketplaceBeta logo" width={28} height={28} className="h-7 w-7 rounded-lg object-cover" />
-            <div>
-              <span className="block font-bold">MarketplaceBeta</span>
-              <span className="block text-[10px] font-semibold uppercase tracking-[0.22em] text-white/45">
-                Operator Intelligence Desk
-              </span>
-            </div>
-          </Link>
+          <SiteBrand
+            href="/"
+            deskLabel="Operator Intelligence Desk"
+            className="justify-center text-center md:justify-start md:text-left"
+            logoClassName="h-10"
+            iconClassName="h-7 w-7"
+            labelClassName="text-white/45"
+          />
           <div className="flex max-w-3xl flex-wrap items-center justify-center gap-x-5 gap-y-3 text-sm text-white/68 md:justify-end">
             <Link href="/" className="hover:text-white transition-colors">Home</Link>
             <Link href="/news" className="hover:text-white transition-colors">News</Link>

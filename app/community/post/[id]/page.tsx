@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect, use } from "react"
-import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -10,6 +9,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Textarea } from "@/components/ui/textarea"
 import { Separator } from "@/components/ui/separator"
+import { SiteBrand } from "@/components/site-brand"
 import {
   Dialog,
   DialogContent,
@@ -609,10 +609,7 @@ What's everyone's strategy for dealing with these changes?`,
               <Button variant="ghost" size="icon" onClick={() => router.back()}>
                 <ArrowLeft className="h-5 w-5" />
               </Button>
-              <Link href="/" className="flex items-center gap-2">
-                <Image src="/brand-icon.png" alt="MarketplaceBeta logo" width={36} height={36} className="h-9 w-9 rounded-lg object-cover" />
-                <span className="font-bold text-xl hidden sm:block">MarketplaceBeta</span>
-              </Link>
+              <SiteBrand href="/" logoClassName="h-10" iconClassName="h-9 w-9" />
             </div>
 
             <div className="flex items-center gap-3">

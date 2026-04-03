@@ -1,10 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import Image from "next/image"
 import Link from "next/link"
 import { ArrowLeft, Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { SiteBrand } from "@/components/site-brand"
 
 type NavKey =
   | "home"
@@ -70,24 +70,15 @@ export function PremiumSiteHeader({
               </Button>
             ) : null}
 
-            <Link href="/" className="flex min-w-0 items-center gap-3" onClick={() => setMobileMenuOpen(false)}>
-              <div className="relative shrink-0">
-                <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-sky-400/28 via-cyan-300/14 to-fuchsia-400/24 blur-sm" />
-                <Image
-                  src="/brand-icon.png"
-                  alt="MarketplaceBeta logo"
-                  width={32}
-                  height={32}
-                  className="relative h-8 w-8 rounded-lg object-cover ring-1 ring-sky-400/20"
-                />
-              </div>
-              <div className="min-w-0">
-                <span className="block truncate text-base font-bold leading-none text-white sm:text-lg">MarketplaceBeta</span>
-                <span className="block truncate text-[10px] font-semibold uppercase tracking-[0.24em] text-white/55">
-                  {deskLabel}
-                </span>
-              </div>
-            </Link>
+            <SiteBrand
+              href="/"
+              deskLabel={deskLabel}
+              className="max-w-[250px]"
+              logoClassName="h-9"
+              iconClassName="h-8 w-8"
+              labelClassName="truncate text-white/52"
+              priority
+            />
           </div>
 
           <nav className="hidden items-center gap-2 lg:flex">

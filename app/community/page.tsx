@@ -27,6 +27,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { createClient } from "@/lib/supabase/client"
 import { AuthPanel } from "@/components/auth-panel"
+import { SiteBrand } from "@/components/site-brand"
 import { useAuthAccount } from "@/hooks/use-auth-account"
 import {
   Menu,
@@ -531,24 +532,15 @@ export default function CommunityPage() {
                   Back
                 </Link>
               </Button>
-              <Link href="/" className="flex items-center gap-3">
-                <div className="relative">
-                  <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-sky-400/28 via-cyan-300/14 to-fuchsia-400/24 blur-sm" />
-                  <Image
-                    src="/brand-icon.png"
-                    alt="MarketplaceBeta logo"
-                    width={32}
-                    height={32}
-                    className="relative h-8 w-8 rounded-lg object-cover ring-1 ring-sky-400/20"
-                  />
-                </div>
-                <div className="hidden sm:block">
-                  <span className="block text-lg font-bold leading-none text-white">MarketplaceBeta</span>
-                  <span className="block text-[10px] font-semibold uppercase tracking-[0.24em] text-white/55">
-                    Operator Network
-                  </span>
-                </div>
-              </Link>
+              <SiteBrand
+                href="/"
+                deskLabel="Operator Network"
+                className="max-w-[260px]"
+                logoClassName="h-9"
+                iconClassName="h-8 w-8"
+                labelClassName="text-white/52"
+                priority
+              />
             </div>
 
             <nav className="hidden items-center gap-6 lg:flex">
@@ -1267,13 +1259,13 @@ export default function CommunityPage() {
 
       <footer className="mt-16 border-t border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.98),rgba(2,6,23,1))]">
         <div className="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-8 text-sm text-white/62 md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center gap-3">
-            <Image src="/brand-icon.png" alt="MarketplaceBeta logo" width={24} height={24} className="h-6 w-6 rounded object-cover" />
-            <div>
-              <p className="font-semibold text-white">MarketplaceBeta</p>
-              <p className="text-xs uppercase tracking-[0.22em] text-white/40">Operator Network</p>
-            </div>
-          </div>
+          <SiteBrand
+            href="/"
+            deskLabel="Operator Network"
+            logoClassName="h-9"
+            iconClassName="h-6 w-6"
+            labelClassName="text-white/40"
+          />
           <div className="flex flex-wrap gap-5">
             <Link href="/articles" className="transition-colors hover:text-white">
               Articles

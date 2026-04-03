@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator"
 import { ArticleDetailModal } from "@/components/article-detail-modal"
 import { AuthModal } from "@/components/auth-modal"
 import { BackToTop } from "@/components/back-to-top"
+import { SiteBrand } from "@/components/site-brand"
 import { getArticleFallbackImage, getArticleImageUrl as resolveArticleImageUrl } from "@/lib/article-images"
 import { EVENTS, isPastEvent, sortEvents } from "@/lib/events"
 import {
@@ -468,24 +469,15 @@ export default function HomePageClient({
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-14">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-3">
-              <div className="relative">
-                <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-sky-400/28 via-cyan-300/14 to-fuchsia-400/24 blur-sm" />
-                <Image 
-                  src="/brand-icon.png"
-                  alt="MarketplaceBeta logo" 
-                  width={32} 
-                  height={32} 
-                  className="relative h-8 w-8 rounded-lg object-cover ring-1 ring-sky-400/20"
-                />
-              </div>
-              <div className="hidden sm:block">
-                <span className="block text-lg font-bold leading-none text-white">MarketplaceBeta</span>
-                <span className="block text-[10px] font-semibold uppercase tracking-[0.24em] text-white/55">
-                  Operator Intelligence Desk
-                </span>
-              </div>
-            </Link>
+            <SiteBrand
+              href="/"
+              deskLabel="Operator Intelligence Desk"
+              className="max-w-[280px]"
+              logoClassName="h-9"
+              iconClassName="h-8 w-8"
+              labelClassName="text-white/52"
+              priority
+            />
 
             {/* Desktop Nav */}
             <nav className="hidden lg:flex items-center gap-6">
@@ -1385,10 +1377,7 @@ export default function HomePageClient({
           <div className="grid md:grid-cols-4 gap-8">
             {/* Brand */}
             <div>
-              <div className="flex items-center gap-2 mb-4">
-                <Image src="/brand-icon.png" alt="MarketplaceBeta logo" width={36} height={36} className="h-9 w-9 rounded-lg object-cover" />
-                <span className="font-bold text-xl">MarketplaceBeta</span>
-              </div>
+              <SiteBrand href="/" logoClassName="h-11" iconClassName="h-9 w-9" className="mb-4" priority />
               <p className="text-sm text-white/70 mb-4">
                 The intelligence hub for marketplace commerce. News, tools, and insights for e-commerce professionals.
               </p>

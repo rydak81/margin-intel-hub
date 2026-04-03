@@ -4,6 +4,7 @@ import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { PremiumSiteHeader } from "@/components/premium-site-header"
+import { SiteBrand } from "@/components/site-brand"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -487,13 +488,13 @@ export default function EventsPage() {
 
       <footer className="mt-16 border-t border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.98),rgba(2,6,23,1))]">
         <div className="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-8 text-sm text-white/62 md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center gap-3">
-            <Image src="/brand-icon.png" alt="MarketplaceBeta logo" width={24} height={24} className="h-6 w-6 rounded object-cover" />
-            <div>
-              <p className="font-semibold text-white">MarketplaceBeta</p>
-              <p className="text-xs uppercase tracking-[0.22em] text-white/40">Operator Events Desk</p>
-            </div>
-          </div>
+          <SiteBrand
+            href="/"
+            deskLabel="Operator Events Desk"
+            logoClassName="h-9"
+            iconClassName="h-6 w-6"
+            labelClassName="text-white/40"
+          />
           <div className="flex flex-wrap gap-5">
             <Link href="/articles" className="transition-colors hover:text-white">
               Articles

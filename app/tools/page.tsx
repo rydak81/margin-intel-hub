@@ -5,6 +5,8 @@ import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { PremiumSiteHeader } from "@/components/premium-site-header"
+import { SiteBrand } from "@/components/site-brand"
 import { ProfitCalculator } from "@/components/profit-calculator"
 import { ListingOptimizer } from "@/components/listing-optimizer"
 import { KeywordTrends } from "@/components/keyword-trends"
@@ -14,9 +16,6 @@ import {
   FileText,
   Search,
   TrendingUp,
-  Menu,
-  X,
-  ArrowLeft,
   BarChart3,
   Wrench,
   Mail,
@@ -26,7 +25,6 @@ import {
 
 export default function ToolsPage() {
   const [activeTab, setActiveTab] = useState("calculator")
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   // Handle hash navigation
   useEffect(() => {
@@ -73,106 +71,7 @@ export default function ToolsPage() {
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.14),transparent_18%),radial-gradient(circle_at_top_right,rgba(217,70,239,0.12),transparent_16%),linear-gradient(180deg,rgba(248,250,252,0.92),rgba(255,255,255,0.84)_18%,transparent_32%)] bg-background">
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.88),rgba(30,41,59,0.76))] backdrop-blur-2xl">
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-fuchsia-400/45 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-sky-400/55 to-transparent" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_left_top,rgba(56,189,248,0.08),transparent_18%),radial-gradient(circle_at_right_top,rgba(217,70,239,0.08),transparent_18%)] pointer-events-none" />
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex h-14 items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="sm"
-                asChild
-                className="hidden sm:inline-flex border border-white/10 bg-white/10 text-white hover:bg-white/16 hover:text-white"
-              >
-                <Link href="/">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back
-                </Link>
-              </Button>
-              <Link href="/" className="flex items-center gap-3">
-                <div className="relative">
-                  <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-sky-400/28 via-cyan-300/14 to-fuchsia-400/24 blur-sm" />
-                  <Image src="/brand-icon.png" alt="MarketplaceBeta logo" width={32} height={32} className="relative h-8 w-8 rounded-lg object-cover ring-1 ring-sky-400/20" />
-                </div>
-                <div className="hidden sm:block">
-                  <span className="block text-lg font-bold leading-none text-white">MarketplaceBeta</span>
-                  <span className="block text-[10px] font-semibold uppercase tracking-[0.24em] text-white/55">Operator Tool Suite</span>
-                </div>
-              </Link>
-            </div>
-
-            <nav className="hidden md:flex items-center gap-8">
-              <Link href="/" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-                Home
-              </Link>
-              <Link href="/articles" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-                Articles
-              </Link>
-              <Link href="/partners" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-                Partners
-              </Link>
-              <Link href="/tools" className="text-sm font-semibold text-white">
-                Tools
-              </Link>
-              <Link href="/community" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-                Community
-              </Link>
-              <Link href="/events" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-                Events
-              </Link>
-              <Link href="/newsletter" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-                Newsletter
-              </Link>
-            </nav>
-
-            <div className="flex items-center gap-3">
-              <Button asChild className="hidden sm:flex border border-white/10 bg-[linear-gradient(135deg,#2563eb,#4f46e5_72%,#7c3aed)] text-white shadow-[0_18px_40px_-24px_rgba(79,70,229,0.72)] hover:opacity-95">
-                <Link href="/newsletter">Subscribe</Link>
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="md:hidden h-9 w-9 rounded-full border border-white/10 bg-white/10 text-white shadow-sm backdrop-blur hover:bg-white/16"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              >
-                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Mobile Navigation */}
-      {mobileMenuOpen && (
-        <div className="fixed inset-0 top-14 z-40 bg-[linear-gradient(180deg,rgba(15,23,42,0.96),rgba(2,6,23,0.98))] md:hidden">
-          <nav className="max-w-7xl mx-auto px-4 py-4 space-y-2">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => {
-                  setActiveTab(tab.id)
-                  setMobileMenuOpen(false)
-                }}
-                className={`w-full flex items-center gap-3 rounded-2xl p-4 transition-colors ${
-                  activeTab === tab.id
-                    ? "bg-white text-slate-950"
-                    : "border border-white/10 bg-white/6 text-white hover:bg-white/10"
-                }`}
-              >
-                <tab.icon className="h-5 w-5" />
-                <div className="text-left">
-                  <p className="font-medium">{tab.label}</p>
-                  <p className={`text-sm ${activeTab === tab.id ? "text-slate-600" : "text-white/60"}`}>
-                    {tab.description}
-                  </p>
-                </div>
-              </button>
-            ))}
-          </nav>
-        </div>
-      )}
+      <PremiumSiteHeader active="tools" deskLabel="Operator Tool Suite" backHref="/" backLabel="Home" />
 
       <section className="relative overflow-hidden bg-grid-pattern">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.1),transparent_24%),radial-gradient(circle_at_top_right,rgba(217,70,239,0.12),transparent_18%),linear-gradient(180deg,rgba(37,99,235,0.05),transparent_44%)]" />
@@ -217,6 +116,23 @@ export default function ToolsPage() {
                   </div>
                   <p className="mt-3 text-lg font-bold text-slate-950 dark:text-white">{item.value}</p>
                 </div>
+              ))}
+            </div>
+
+            <div className="mt-8 flex gap-2 overflow-x-auto pb-1 md:hidden">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition ${
+                    activeTab === tab.id
+                      ? "border-sky-400/25 bg-sky-500/10 text-sky-700 dark:border-sky-300/20 dark:bg-sky-400/10 dark:text-sky-200"
+                      : "border-white/50 bg-white/78 text-slate-700 hover:bg-white dark:border-white/10 dark:bg-slate-950/45 dark:text-slate-200 dark:hover:bg-slate-900"
+                  }`}
+                >
+                  <tab.icon className="h-4 w-4" />
+                  {tab.label}
+                </button>
               ))}
             </div>
 
@@ -357,10 +273,13 @@ export default function ToolsPage() {
       <footer className="border-t border-white/10 mt-12 bg-[linear-gradient(180deg,rgba(15,23,42,0.98),rgba(2,6,23,1))] text-white">
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Image src="/brand-icon.png" alt="MarketplaceBeta logo" width={24} height={24} className="h-6 w-6 rounded object-cover" />
-              <span className="text-sm text-white/68">MarketplaceBeta - Seller Tools</span>
-            </div>
+            <SiteBrand
+              href="/"
+              deskLabel="Seller Tools"
+              logoClassName="h-9"
+              iconClassName="h-6 w-6"
+              labelClassName="text-white/52"
+            />
             <div className="flex items-center gap-4 text-sm text-white/52">
               <span>All calculations are estimates and should be verified</span>
             </div>

@@ -44,6 +44,7 @@ import {
 import { createClient } from "@/lib/supabase/client"
 import { PremiumSiteFooter } from "@/components/premium-site-footer"
 import { PremiumSiteHeader } from "@/components/premium-site-header"
+import { SiteBrand } from "@/components/site-brand"
 
 // Marketplace platform logos (using text placeholders for now)
 const MARKETPLACE_LOGOS = [
@@ -498,10 +499,7 @@ export default function SolutionsPage() {
       <footer className="border-t py-12 mt-16">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Image src="/brand-icon.png" alt="MarketplaceBeta logo" width={32} height={32} className="h-8 w-8 rounded-lg object-cover" />
-              <span className="font-bold">MarketplaceBeta</span>
-            </div>
+            <SiteBrand href="/" logoClassName="h-10" iconClassName="h-8 w-8" />
             <p className="text-sm text-muted-foreground">
               Your source for e-commerce industry intelligence
             </p>
