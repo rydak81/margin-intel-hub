@@ -179,14 +179,14 @@ export default function ToolsPage() {
         <div className="absolute left-1/2 top-16 h-64 w-64 -translate-x-1/2 rounded-full bg-sky-400/10 blur-3xl" />
         <div className="relative max-w-7xl mx-auto px-4 py-12 md:py-16">
           <div className="max-w-5xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/15 bg-white/70 px-3 py-1.5 text-sm shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+            <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/20 bg-white/82 px-3 py-1.5 text-sm shadow-sm backdrop-blur dark:border-sky-300/15 dark:bg-slate-950/60">
               <Zap className="h-4 w-4 text-sky-500" />
-              <span className="text-muted-foreground">
-                Operator-grade tools for <span className="font-semibold text-foreground">profitability, listings, keywords, and product discovery</span>
+              <span className="text-slate-600 dark:text-slate-200">
+                Operator-grade tools for <span className="font-semibold text-slate-950 dark:text-white">profitability, listings, keywords, and product discovery</span>
               </span>
             </div>
 
-            <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-fuchsia-400/15 bg-[linear-gradient(135deg,rgba(255,255,255,0.78),rgba(248,250,252,0.68))] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-600 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45 dark:text-slate-200">
+            <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-fuchsia-400/15 bg-[linear-gradient(135deg,rgba(255,255,255,0.86),rgba(248,250,252,0.76))] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-700 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/55 dark:text-slate-200">
               <Sparkles className="h-3.5 w-3.5 text-fuchsia-500" />
               Premium Tool Suite for Marketplace Teams
             </div>
@@ -198,7 +198,7 @@ export default function ToolsPage() {
               </span>
             </h1>
 
-            <p className="mt-6 max-w-3xl text-lg text-slate-600 md:text-xl md:leading-8 dark:text-slate-300">
+            <p className="mt-6 max-w-3xl text-lg text-slate-700 md:text-xl md:leading-8 dark:text-slate-300">
               Calculate profitability, optimize listings, research keywords, and spot trending products with a cleaner
               workflow built for Amazon sellers, agencies, and e-commerce operators.
             </p>
@@ -210,7 +210,7 @@ export default function ToolsPage() {
                 { icon: Search, label: "Keyword Research", value: "Trends + indexing" },
                 { icon: TrendingUp, label: "Hot Products", value: "Signal across sources" },
               ].map((item) => (
-                <div key={item.label} className="rounded-2xl border border-white/70 bg-white/78 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+                <div key={item.label} className="rounded-2xl border border-white/70 bg-white/84 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
                   <div className="flex items-center gap-2 text-slate-500 dark:text-slate-300">
                     <item.icon className="h-4 w-4 text-sky-600" />
                     <span className="text-[11px] font-semibold uppercase tracking-[0.18em]">{item.label}</span>
@@ -220,7 +220,7 @@ export default function ToolsPage() {
               ))}
             </div>
 
-            <div className="mt-6 max-w-4xl rounded-3xl border border-amber-500/20 bg-amber-500/6 px-5 py-4 shadow-sm backdrop-blur">
+            <div className="mt-6 max-w-4xl rounded-3xl border border-amber-500/25 bg-[linear-gradient(135deg,rgba(255,251,235,0.92),rgba(254,243,199,0.72))] px-5 py-4 shadow-sm backdrop-blur dark:border-amber-500/20 dark:bg-amber-500/8">
               <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                 <div>
                   <div className="flex items-center gap-2">

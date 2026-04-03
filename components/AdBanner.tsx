@@ -115,13 +115,13 @@ function SponsorImage({
 function SponsorHeader({ sponsor }: { sponsor: SponsorConfig }) {
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <Badge variant="secondary" className="rounded-full border border-white/10 bg-white/10 text-[11px] font-semibold uppercase tracking-[0.16em] text-white">
+      <Badge variant="secondary" className="rounded-full border border-white/12 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white">
         Sponsored
       </Badge>
-      <Badge variant="outline" className="rounded-full border-white/20 bg-white/8 text-[11px] font-semibold uppercase tracking-[0.16em] text-white">
+      <Badge variant="outline" className="rounded-full border-white/16 bg-white/6 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white">
         {getModuleTypeLabel(sponsor.moduleType)}
       </Badge>
-      <span className="text-xs font-medium text-white/70">{sponsor.partnerType}</span>
+      <span className="text-xs font-medium text-white/68">{sponsor.partnerType}</span>
     </div>
   )
 }
@@ -514,13 +514,13 @@ export function AdBanner({ sponsor, variant, dismissible = false }: AdBannerProp
                   <p className="max-w-2xl text-sm leading-7 text-white/76 md:text-base">{sponsor.description}</p>
                 </div>
                 <div className="grid gap-3 md:grid-cols-2">
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-4 shadow-sm backdrop-blur">
-                    <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/60">Proof Point</p>
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 backdrop-blur">
+                    <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/58">Proof Point</p>
                     <p className="text-sm font-medium text-white">{sponsor.proofPoint}</p>
                   </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-4 shadow-sm backdrop-blur">
-                    <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/60">Why It Fits Here</p>
-                    <p className="text-sm font-medium text-white">{sponsor.whyRelevant}</p>
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 backdrop-blur">
+                    <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/58">Best Fit</p>
+                    <p className="text-sm font-medium text-white">{sponsor.useCase}</p>
                   </div>
                 </div>
                 <SponsorHighlights sponsor={sponsor} />
@@ -565,12 +565,12 @@ export function AdBanner({ sponsor, variant, dismissible = false }: AdBannerProp
               <p className="text-sm leading-7 text-white/76">{sponsor.description}</p>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-xl border border-white/10 bg-white/[0.06] p-3">
-                <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/60">Proof Point</p>
+              <div className="rounded-xl border border-white/10 bg-white/[0.04] p-3">
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/58">Proof Point</p>
                 <p className="text-sm font-medium text-white">{sponsor.proofPoint}</p>
               </div>
-              <div className="rounded-xl border border-white/10 bg-white/[0.06] p-3">
-                <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/60">Best Fit</p>
+              <div className="rounded-xl border border-white/10 bg-white/[0.04] p-3">
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/58">Best Fit</p>
                 <p className="text-sm font-medium text-white">{sponsor.useCase}</p>
               </div>
             </div>
@@ -674,10 +674,6 @@ export function AdBanner({ sponsor, variant, dismissible = false }: AdBannerProp
             <p className="text-base font-semibold leading-6 text-balance text-white">{sponsor.tagline}</p>
             <p className="text-sm leading-6 text-white/76">{sponsor.description}</p>
           </div>
-          <div className="rounded-xl border border-white/10 bg-white/[0.06] p-3">
-            <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/60">Best fit</p>
-            <p className="text-sm font-medium text-white">{sponsor.useCase}</p>
-          </div>
           <div className="flex flex-wrap gap-2">
             {sponsor.highlights.slice(0, 2).map((highlight) => (
               <div key={highlight} className="rounded-full border border-white/10 bg-white/6 px-3 py-1.5 text-[11px] font-semibold text-white/80">
@@ -685,6 +681,7 @@ export function AdBanner({ sponsor, variant, dismissible = false }: AdBannerProp
               </div>
             ))}
           </div>
+          <p className="text-sm leading-6 text-white/72">{sponsor.useCase}</p>
           <SponsorActions sponsor={sponsor} compact />
         </CardContent>
       </Card>

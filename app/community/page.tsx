@@ -679,14 +679,14 @@ export default function CommunityPage() {
         <div className="relative mx-auto max-w-7xl px-4 py-12 md:py-16">
           <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-end">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/15 bg-white/70 px-3 py-1.5 text-sm shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+              <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/20 bg-white/82 px-3 py-1.5 text-sm shadow-sm backdrop-blur dark:border-sky-300/15 dark:bg-slate-950/60">
                 <Users className="h-4 w-4 text-sky-500" />
-                <span className="text-muted-foreground">
-                  Verified operator network for <span className="font-semibold text-foreground">sellers, agencies, SaaS teams, service partners, and investors</span>
+                <span className="text-slate-600 dark:text-slate-200">
+                  Verified operator network for <span className="font-semibold text-slate-950 dark:text-white">sellers, agencies, SaaS teams, service partners, and investors</span>
                 </span>
               </div>
 
-              <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-fuchsia-400/15 bg-[linear-gradient(135deg,rgba(255,255,255,0.78),rgba(248,250,252,0.68))] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-600 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45 dark:text-slate-200">
+              <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-fuchsia-400/15 bg-[linear-gradient(135deg,rgba(255,255,255,0.86),rgba(248,250,252,0.76))] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-700 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/55 dark:text-slate-200">
                 <Sparkles className="h-3.5 w-3.5 text-fuchsia-500" />
                 Community, deal flow, and operator signal
               </div>
@@ -698,7 +698,7 @@ export default function CommunityPage() {
                 </span>
               </h1>
 
-              <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-600 dark:text-slate-300">
+              <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-700 dark:text-slate-300">
                 Not just a forum. This is where marketplace operators ask smarter questions, share real case studies,
                 source partners, spot deal flow, and turn industry news into better commercial decisions.
               </p>
@@ -868,7 +868,7 @@ export default function CommunityPage() {
                   { label: "Live Opportunities", value: `${featuredOpportunities.length}` },
                   { label: "Online Now", value: "156" },
                 ].map((item) => (
-                  <div key={item.label} className="rounded-2xl border border-white/70 bg-white/78 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+                <div key={item.label} className="rounded-2xl border border-white/70 bg-white/84 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-white/52">
                       {item.label}
                     </p>

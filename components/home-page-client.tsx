@@ -774,18 +774,23 @@ export default function HomePageClient({
             >
               <Card className="group cursor-pointer overflow-hidden border border-white/50 bg-white/85 shadow-[0_28px_70px_-42px_rgba(15,23,42,0.42)] transition-all hover:-translate-y-1 hover:shadow-[0_32px_90px_-44px_rgba(15,23,42,0.55)] dark:border-white/10 dark:bg-slate-950/45">
                 <div className="aspect-[16/9] md:aspect-[21/9] lg:aspect-[3/1] min-h-[350px] md:min-h-[400px] lg:min-h-[450px] relative overflow-hidden">
-                  {featuredArticles[0]?.imageUrl ? (
-                    <Image
-                      src={featuredArticles[0].imageUrl}
-                      alt={featuredArticles[0].title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                      sizes="100vw"
-                      priority
-                    />
-                  ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5" />
-                  )}
+                  <img
+                    src={getArticleImageUrl(featuredArticles[0])}
+                    alt={featuredArticles[0].title}
+                    className="block h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    loading="eager"
+                    onError={(e) => {
+                      const target = e.currentTarget
+                      const fallback = getArticleFallbackImage(
+                        featuredArticles[0].title,
+                        featuredArticles[0].category,
+                        featuredArticles[0].platforms || []
+                      )
+                      if (target.src !== fallback) {
+                        target.src = fallback
+                      }
+                    }}
+                  />
                   {/* Strong gradient overlay for text readability on any image */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/20" />
                   <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent" />
@@ -869,7 +874,7 @@ export default function HomePageClient({
                     <img
                       src={getArticleImageUrl(heroArticle)}
                       alt={heroArticle.title}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="block h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       loading="eager"
                       onError={(e) => {
                         const target = e.currentTarget
@@ -1052,7 +1057,7 @@ export default function HomePageClient({
                           <img
                             src={getArticleImageUrl(article)}
                             alt={article.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            className="block h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                             loading={index < 4 ? 'eager' : 'lazy'}
                             onError={(e) => {
                               const target = e.currentTarget
@@ -1374,11 +1379,11 @@ export default function HomePageClient({
 
             {/* Newsletter Signup - Sticky */}
             {!loading && (
-            <Card className="sticky top-32 overflow-hidden rounded-[24px] border border-white/10 bg-[linear-gradient(135deg,rgba(15,23,42,0.98),rgba(37,99,235,0.94)_58%,rgba(79,70,229,0.92))] text-primary-foreground shadow-[0_26px_70px_-36px_rgba(15,23,42,0.72)]">
+            <Card className="sticky top-32 overflow-hidden rounded-[24px] border border-white/10 bg-[linear-gradient(135deg,rgba(15,23,42,0.96),rgba(30,41,59,0.94)_52%,rgba(55,48,163,0.86))] text-primary-foreground shadow-[0_26px_70px_-36px_rgba(15,23,42,0.58)]">
               <CardContent className="p-5">
-                <Mail className="mb-3 h-8 w-8" />
+                <Mail className="mb-3 h-8 w-8 text-sky-300" />
                 <h3 className="mb-2 font-bold">Daily Marketplace Brief</h3>
-                <p className="mb-4 text-sm text-primary-foreground/80">
+                <p className="mb-4 text-sm text-white/76">
                   The most important news in 5 minutes or less. Free.
                 </p>
                 <form onSubmit={handleSubscribe} className="space-y-2">
