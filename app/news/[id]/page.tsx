@@ -98,17 +98,17 @@ function paragraphize(content: string | undefined): ContentBlock[] {
     .split(/\n{2,}/)
     .map((block) => block.trim())
     .filter(Boolean)
-    .flatMap((block) => {
+    .flatMap<ContentBlock>((block) => {
       const lines = block
         .split("\n")
         .map((line) => line.trim())
         .filter(Boolean)
 
       if (lines.length > 0 && lines.every((line) => line.startsWith("• "))) {
-        return [{ type: "list", items: lines.map((line) => line.replace(/^•\s*/, "").trim()) } satisfies ContentBlock]
+        return [{ type: "list", items: lines.map((line) => line.replace(/^•\s*/, "").trim()) }]
       }
 
-      return [{ type: "paragraph", content: block.replace(/\s+/g, " ").trim() } satisfies ContentBlock]
+      return [{ type: "paragraph", content: block.replace(/\s+/g, " ").trim() }]
     })
 }
 
