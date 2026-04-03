@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { PremiumSiteHeader } from "@/components/premium-site-header"
 import { Badge } from "@/components/ui/badge"
