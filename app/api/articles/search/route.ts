@@ -11,12 +11,14 @@ type SearchArticleRow = {
   summary: string | null
   category: string | null
   source_name: string | null
+  source_type?: "industry" | "google" | null
   published_at: string
   image_url: string | null
   platforms: string[] | null
   impact_level: 'high' | 'medium' | 'low' | null
   relevance_score: number | null
   audience: string[] | null
+  is_breaking?: boolean | null
 }
 
 function parseList(str?: string): string[] {
@@ -73,7 +75,7 @@ export async function GET(request: NextRequest) {
     let query = applyFilters(
       supabase
         .from('articles')
-        .select('id, title, summary, category, source_name, published_at, image_url, platforms, impact_level, relevance_score, audience'),
+        .select('id, title, summary, category, source_name, source_type, published_at, image_url, platforms, impact_level, relevance_score, audience, is_breaking'),
       filters
     )
 
@@ -143,12 +145,14 @@ export async function GET(request: NextRequest) {
       summary: article.summary || '',
       category: article.category || 'general',
       sourceName: article.source_name || 'Unknown Source',
+      sourceType: article.source_type || 'industry',
       publishedAt: article.published_at,
       imageUrl: article.image_url || undefined,
       platforms: article.platforms || [],
       impactLevel: article.impact_level || undefined,
       relevanceScore: article.relevance_score || 0,
       audience: article.audience || [],
+      isBreaking: article.is_breaking || false,
     })))
 
     if (sort === 'impact') {
