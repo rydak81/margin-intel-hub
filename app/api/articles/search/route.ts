@@ -149,7 +149,7 @@ export async function GET(request: NextRequest) {
       publishedAt: article.published_at,
       imageUrl: article.image_url || undefined,
       platforms: article.platforms || [],
-      impactLevel: article.impact_level || undefined,
+      impactLevel: article.impact_level || 'medium',
       relevanceScore: article.relevance_score || 0,
       audience: article.audience || [],
       isBreaking: article.is_breaking || false,
