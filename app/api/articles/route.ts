@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { getArticleImageUrl, isGoodArticleImage } from "@/lib/article-images"
+import { curateArticleFeed } from "@/lib/feed-curation"
 import { getArticleDeskScore } from "@/lib/source-intelligence"
 import { createAdminClient, hasAdminConfig } from "@/lib/supabase/admin"
 import {
@@ -45,13 +46,13 @@ export async function GET(request: Request) {
       // Load from Supabase (fast DB read, ~200ms)
       console.log('[articles] Cache cold — loading from Supabase...')
 
-      let query = supabaseAdmin
+      const query = supabaseAdmin
         .from('articles')
         .select('*')
         .eq('relevant', true)
         .gte('relevance_score', 40)
         .order('published_at', { ascending: false })
-        .limit(200)
+        .limit(320)
 
       const { data: dbArticles, error } = await query
 
@@ -61,7 +62,7 @@ export async function GET(request: Request) {
         console.log(`[articles] Loaded ${dbArticles.length} articles from Supabase`)
         // Convert DB rows to cache format and store
         const mapped = dbArticles.map(dbRowToArticle)
-        setArticlesCache(mapped)
+        setArticlesCache(curateArticleFeed(mapped, { limit: 180, maxPerTopic: 2 }))
       } else {
         console.log('[articles] No articles in database — cron job will populate soon')
       }
@@ -84,6 +85,9 @@ export async function GET(request: Request) {
       articles = articles.filter(a => a.impactLevel === impactLevel)
     }
 
+    articles = curateArticleFeed(articles, {
+      maxPerTopic: category || platform || audience || impactLevel ? 3 : 2,
+    })
     articles.sort((a, b) => getArticleDeskScore(b) - getArticleDeskScore(a))
 
     // Calculate breakdown stats

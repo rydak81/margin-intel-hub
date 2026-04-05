@@ -47,6 +47,16 @@ function collapseLineNoise(text: string): string {
   return filtered.join("\n")
 }
 
+function stripLeadingMetadata(text: string): string {
+  return text
+    .replace(
+      /^(?:(?:january|february|march|april|may|june|july|august|september|october|november|december)\s+\d{1,2},\s+\d{4}\s*){1,2}(?:by\s+)?(?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,2}\s+)?/i,
+      ""
+    )
+    .replace(/^(?:updated\s+)?\d{1,2}:\d{2}\s*(?:am|pm)\s*/i, "")
+    .trim()
+}
+
 function splitLongParagraph(paragraph: string): string[] {
   if (paragraph.length < 420) {
     return [paragraph]
@@ -81,6 +91,7 @@ export function cleanArticleContent(rawContent: string | undefined, title?: stri
     .replace(/<script[\s\S]*?<\/script>/gi, " ")
     .replace(/<style[\s\S]*?<\/style>/gi, " ")
     .replace(/<!--[\s\S]*?-->/g, " ")
+    .replace(/\s(?:href|target|rel|class|id)\s*=\s*["'][^"']*["']/gi, " ")
     .replace(/<a [^>]*>([\s\S]*?)<\/a>/gi, "$1")
     .replace(/<\/(p|div|section|article|blockquote|figure|figcaption|h1|h2|h3|h4|h5|h6)>/gi, "\n\n")
     .replace(/<(ul|ol)[^>]*>/gi, "\n")
@@ -90,15 +101,18 @@ export function cleanArticleContent(rawContent: string | undefined, title?: stri
     .replace(/<[^>]+>/g, " ")
 
   normalized = decodeHtmlEntities(normalized)
+    .replace(/https?:\/\/\S+/gi, " ")
     .replace(/\u00a0/g, " ")
     .replace(/[ \t]+\n/g, "\n")
     .replace(/\n{3,}/g, "\n\n")
     .replace(/[ \t]{2,}/g, " ")
     .replace(/\s+([,.;:!?])/g, "$1")
     .replace(/([([{])\s+/g, "$1")
+    .replace(/\s+[<>]\s+/g, " ")
     .trim()
 
   normalized = collapseLineNoise(normalized)
+    .replace(/\b(?:LinkedIn|Facebook|Twitter|X|Instagram|Threads)\b(?:\s+\b(?:LinkedIn|Facebook|Twitter|X|Instagram|Threads)\b)+/gi, " ")
     .replace(/\b(LinkedIn|Facebook|Twitter|X)\b(?:\s+\b(LinkedIn|Facebook|Twitter|X)\b)+.*$/i, "")
     .replace(/\b(Related Coverage|Member Exclusive|Continue reading)\b[\s\S]*$/i, "")
     .replace(/\bRead the full story\b[\s\S]*$/i, "")
@@ -109,7 +123,7 @@ export function cleanArticleContent(rawContent: string | undefined, title?: stri
     normalized = normalized.replace(duplicatedTitle, "")
   }
 
-  return normalized
+  return stripLeadingMetadata(normalized)
 }
 
 export function paragraphizeArticleContent(rawContent: string | undefined, title?: string): ArticleContentBlock[] {
@@ -152,4 +166,3 @@ export function paragraphizeArticleContent(rawContent: string | undefined, title
 
   return contentBlocks
 }
-

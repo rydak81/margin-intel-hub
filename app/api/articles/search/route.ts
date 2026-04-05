@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient, hasAdminConfig } from '@/lib/supabase/admin'
+import { curateArticleFeed } from '@/lib/feed-curation'
 
 type CategoryFacetRow = { category: string | null }
 type PlatformFacetRow = { platforms: string[] | null }
@@ -66,12 +67,13 @@ export async function GET(request: NextRequest) {
     const sort = (searchParams.get('sort') || 'newest') as 'newest' | 'oldest' | 'relevant' | 'impact'
     const limit = Math.min(parseInt(searchParams.get('limit') || '12'), 100)
     const offset = Math.max(0, parseInt(searchParams.get('offset') || '0'))
+    const rawWindow = Math.min(Math.max((offset + limit) * 4, 80), 320)
     const filters: SearchFilters = { q, category, platforms, impact, audience }
 
     let query = applyFilters(
       supabase
         .from('articles')
-        .select('id, title, summary, category, source_name, published_at, image_url, platforms, impact_level, relevance_score, audience', { count: 'exact' }),
+        .select('id, title, summary, category, source_name, published_at, image_url, platforms, impact_level, relevance_score, audience'),
       filters
     )
 
@@ -90,8 +92,8 @@ export async function GET(request: NextRequest) {
         break
     }
 
-    query = query.range(offset, offset + limit - 1)
-    const { data, count, error } = await query
+    query = query.limit(rawWindow)
+    const { data, error } = await query
 
     if (error) {
       console.error('Search query error:', error)
@@ -135,7 +137,7 @@ export async function GET(request: NextRequest) {
       if (item.impact_level) impactFacets[item.impact_level] = (impactFacets[item.impact_level] || 0) + 1
     })
 
-    const articles = (((data as SearchArticleRow[] | null) || []).map((article) => ({
+    const allArticles = (((data as SearchArticleRow[] | null) || []).map((article) => ({
       id: article.id,
       title: article.title,
       summary: article.summary || '',
@@ -151,7 +153,7 @@ export async function GET(request: NextRequest) {
 
     if (sort === 'impact') {
       const impactOrder: Record<string, number> = { high: 0, medium: 1, low: 2 }
-      articles.sort((a, b) => {
+      allArticles.sort((a, b) => {
         const impactA = impactOrder[a.impactLevel || 'low'] ?? 3
         const impactB = impactOrder[b.impactLevel || 'low'] ?? 3
         if (impactA !== impactB) return impactA - impactB
@@ -159,10 +161,15 @@ export async function GET(request: NextRequest) {
       })
     }
 
+    const curatedArticles = curateArticleFeed(allArticles, {
+      maxPerTopic: q.trim() || category || platforms.length > 0 ? 3 : 2,
+    })
+    const articles = curatedArticles.slice(offset, offset + limit)
+
     return NextResponse.json({
       success: true,
       articles,
-      total: count || 0,
+      total: curatedArticles.length,
       facets: { categories: categoryFacets, platforms: platformFacets, impactLevels: impactFacets },
       appliedFilters: {
         query: q,

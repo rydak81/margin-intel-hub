@@ -13,6 +13,7 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import type { ClassifiedArticle } from '@/lib/ai-classifier'
 import { getArticleDeskScore } from '@/lib/source-intelligence'
+import { curateArticleFeed } from '@/lib/feed-curation'
 
 // In-memory cache (fast reads, populated from Supabase on startup)
 let articlesCache: ClassifiedArticle[] = []
@@ -89,13 +90,15 @@ export async function loadArticlesFromDB(options?: {
 
   try {
     const supabase = createAdminClient()
+    const requestedLimit = options?.limit || 200
+    const rawLimit = Math.min(Math.max(requestedLimit * 4, 120), 500)
     let query = supabase
       .from('articles')
       .select('*')
       .eq('relevant', true)
       .gte('relevance_score', 40)
       .order('published_at', { ascending: false })
-      .limit(options?.limit || 200)
+      .limit(rawLimit)
 
     if (options?.category) {
       query = query.eq('category', options.category)
@@ -120,9 +123,14 @@ export async function loadArticlesFromDB(options?: {
       return []
     }
 
-    return (data || [])
+    const articles = (data || [])
       .map(dbRowToArticle)
       .sort((a, b) => getArticleDeskScore(b) - getArticleDeskScore(a))
+
+    return curateArticleFeed(articles, {
+      limit: requestedLimit,
+      maxPerTopic: options?.search ? 3 : 2,
+    })
   } catch (err) {
     console.warn('[ArticleStore] Failed to load from Supabase:', err)
     return []
@@ -161,13 +169,16 @@ export async function searchArticles(query: string, limit = 20): Promise<Classif
   if (!isSupabaseConfigured()) {
     // Fall back to in-memory search
     const q = query.toLowerCase()
-    return articlesCache
+    return curateArticleFeed(
+      articlesCache
       .filter(a =>
         a.title.toLowerCase().includes(q) ||
         (a.aiSummary || '').toLowerCase().includes(q) ||
         (a.summary || '').toLowerCase().includes(q)
       )
-      .slice(0, limit)
+      .slice(0, limit * 4),
+      { limit, maxPerTopic: 3 }
+    )
   }
 
   try {
@@ -185,7 +196,10 @@ export async function searchArticles(query: string, limit = 20): Promise<Classif
       return []
     }
 
-    return (data || []).map(dbRowToArticle)
+    return curateArticleFeed((data || []).map(dbRowToArticle), {
+      limit,
+      maxPerTopic: 3,
+    })
   } catch {
     return []
   }
@@ -198,11 +212,14 @@ export async function getRelatedArticles(articleId: string, category: string, li
   // Try in-memory first
   const fromCache = articlesCache
     .filter(a => a.id !== articleId && a.category === category)
-    .slice(0, limit)
+  const curatedFromCache = curateArticleFeed(fromCache, {
+    limit,
+    maxPerTopic: 2,
+  })
 
-  if (fromCache.length >= limit) return fromCache
+  if (curatedFromCache.length >= limit) return curatedFromCache
 
-  if (!isSupabaseConfigured()) return fromCache
+  if (!isSupabaseConfigured()) return curatedFromCache
 
   try {
     const supabase = createAdminClient()
@@ -215,10 +232,13 @@ export async function getRelatedArticles(articleId: string, category: string, li
       .order('published_at', { ascending: false })
       .limit(limit)
 
-    if (error || !data) return fromCache
-    return data.map(dbRowToArticle)
+    if (error || !data) return curatedFromCache
+    return curateArticleFeed(data.map(dbRowToArticle), {
+      limit,
+      maxPerTopic: 2,
+    })
   } catch {
-    return fromCache
+    return curatedFromCache
   }
 }
 
