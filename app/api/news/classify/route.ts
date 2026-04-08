@@ -15,6 +15,17 @@ function getSupabase() {
   return _supabase
 }
 
+function isUnsplashUrl(imageUrl: string | null | undefined): boolean {
+  if (!imageUrl) return false
+  try {
+    const parsed = new URL(imageUrl)
+    const hostname = parsed.hostname.toLowerCase()
+    return hostname === 'unsplash.com' || hostname.endsWith('.unsplash.com')
+  } catch {
+    return false
+  }
+}
+
 /**
  * Strip HTML tags from text
  */
@@ -296,7 +307,7 @@ export async function POST(request: NextRequest) {
                 imageUrl = getCategoryFallbackImage(classified.category)
               }
               updateData.image_url = imageUrl
-              updateData.image_source = imageUrl?.includes('unsplash.com') ? 'unsplash_ai' : 'category_fallback'
+              updateData.image_source = isUnsplashUrl(imageUrl) ? 'unsplash_ai' : 'category_fallback'
               fixedImageCount++
             }
 
