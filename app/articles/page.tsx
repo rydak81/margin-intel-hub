@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { getArticleFallbackImage } from "@/lib/article-images"
+import { SiteLogo } from "@/components/site-logo"
 import {
   Search,
   X,
@@ -134,10 +135,7 @@ export default function ArticlesPage() {
           <Button variant="ghost" size="sm" asChild>
             <Link href="/"><ArrowLeft className="h-4 w-4 mr-2" />Back</Link>
           </Button>
-          <Link href="/" className="flex items-center gap-2">
-            <Image src="/logo.png" alt="MarketplaceBeta logo" width={28} height={28} className="h-7 w-7 rounded-lg object-cover" />
-            <span className="font-bold text-lg hidden sm:block">MarketplaceBeta</span>
-          </Link>
+          <SiteLogo size="sm" />
           <div className="w-32" />
         </div>
       </header>
@@ -233,12 +231,10 @@ export default function ArticlesPage() {
               {articles.map(article => (
                 <Link key={article.id} href={`/news/${article.id}`}>
                   <Card className="overflow-hidden group cursor-pointer hover:shadow-lg transition-all h-full flex flex-col border-0">
-                    {article.imageUrl && (
-                      <div className="relative aspect-video overflow-hidden bg-muted">
-                        <Image src={article.imageUrl} alt={article.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          onError={(e) => { const target = e.currentTarget as HTMLImageElement; const fallback = getArticleFallbackImage(article.title, article.category, article.platforms || []); if (target.src !== fallback) { target.src = fallback } }} />
-                      </div>
-                    )}
+                    <div className="relative aspect-video overflow-hidden bg-muted">
+                      <Image src={article.imageUrl || getArticleFallbackImage(article.title, article.category, article.platforms || [])} alt={article.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        onError={(e) => { const target = e.currentTarget as HTMLImageElement; const fallback = getArticleFallbackImage(article.title, article.category, article.platforms || []); if (target.src !== fallback) { target.src = fallback } }} />
+                    </div>
                     <CardContent className="p-4 flex flex-col flex-grow">
                       <div className="mb-3"><Badge className={`${CATEGORY_COLORS[article.category] || 'bg-primary'} text-white border-0`}>{formatCategoryLabel(article.category)}</Badge></div>
                       <h3 className="font-bold text-base group-hover:text-primary transition-colors line-clamp-2 mb-2">{article.title}</h3>

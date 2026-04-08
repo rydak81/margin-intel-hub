@@ -57,29 +57,69 @@ export async function GET(request: Request) {
       })
     }
 
-    const briefPrompt = `You are a marketplace intelligence analyst writing a daily brief for ecommerce professionals who sell on Amazon, Walmart, Shopify, and other marketplaces.
+    const briefPrompt = `You are the lead marketplace analyst at MarketplaceBeta, an e-commerce intelligence publication read by Amazon sellers, agency operators, and SaaS founders.
 
-Write a concise daily news brief with these ${topArticles.length} stories. For each story:
-- One-line headline
-- 2-3 sentence summary focused on seller impact
-- Action item if applicable
+Write today's "Seller's Daily Brief" — an editorial-quality briefing that reads like it was written by a sharp industry insider, NOT a bot summary.
 
-End with a "Bottom Line" section (2-3 sentences) summarizing the day's themes.
+Today's top ${topArticles.length} stories:
+${topArticles.map((a: any, i: number) => `${i + 1}. "${a.title}" (${a.source_name})\nSummary: ${a.ai_summary || a.summary}\nFull context: ${(a.full_content || '').substring(0, 800)}`).join('\n\n')}
 
-Stories:
-${topArticles.map((a: any, i: number) => `${i + 1}. "${a.title}" (${a.source_name})\nSummary: ${a.ai_summary || a.summary}`).join('\n\n')}`
+Structure your brief as follows (use markdown):
+
+## The Seller's Daily Brief
+*${new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}*
+
+### The Big Picture
+2-3 sentences framing the day's overall theme. What's the connective thread?
+
+### What Happened
+For each story (use ### for headlines):
+- A punchy headline (not the source headline — rewrite it with a seller lens)
+- 2-3 paragraph analysis: what happened, why it matters to operators, and what to do about it
+- Bold the most important sentence in each story
+
+### Moves to Watch
+Bullet list of 3-5 tactical items sellers should act on or monitor this week
+
+### The Bottom Line
+A single quotable paragraph that captures the day's essence — the kind of thing a seller would screenshot and share.
+
+Write with authority, specificity, and an operator's perspective. Avoid corporate speak. Be direct.`
 
     const response = await callAI({
       prompt: briefPrompt,
-      maxTokens: 2000
+      maxTokens: 3000,
+      tier: 'deep'
     })
-    console.log(`[DailyBrief] Generated via ${response.provider} (${response.model})`)
+    console.log(`[DailyBrief] Generated via ${response.provider} (${response.model}) [${response.tier}]`)
+
+    // Store the daily brief in Supabase for frontend consumption
+    const today = new Date().toISOString().split('T')[0] // YYYY-MM-DD
+    try {
+      await getSupabase()
+        .from('daily_briefs')
+        .upsert({
+          id: today,
+          brief_date: today,
+          content: response.text,
+          article_count: topArticles.length,
+          article_ids: topArticles.map((a: any) => a.id),
+          provider: response.provider,
+          model: response.model,
+          created_at: new Date().toISOString(),
+        }, { onConflict: 'id' })
+    } catch (dbErr) {
+      // Non-fatal — brief still returned in response even if DB save fails
+      console.warn('[DailyBrief] Failed to save to daily_briefs table:', dbErr)
+    }
 
     return NextResponse.json({
       success: true,
       articles: topArticles.length,
       brief: response.text,
       provider: response.provider,
+      model: response.model,
+      tier: response.tier,
       topArticles,
       date: new Date().toISOString()
     })

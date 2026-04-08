@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
+import { SiteLogo, SiteLogoFooter } from "@/components/site-logo"
 import {
   BarChart3,
   Mail,
@@ -153,10 +154,7 @@ export default function NewsletterPage() {
       <header className="border-b bg-background/95 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
-            <Link href="/" className="flex items-center gap-2">
-              <Image src="/logo.png" alt="MarketplaceBeta logo" width={36} height={36} className="h-9 w-9 rounded-lg object-cover" />
-              <span className="font-bold text-xl hidden sm:block">MarketplaceBeta</span>
-            </Link>
+            <SiteLogo size="md" />
             <nav className="hidden md:flex items-center gap-8">
               <Link href="/" className="text-base font-semibold hover:text-primary transition-colors">
                 Home
@@ -276,7 +274,7 @@ export default function NewsletterPage() {
                 <Card className="border-0 shadow-lg">
                   <CardContent className="p-6">
                     <div className="flex items-center gap-2 mb-4">
-                      <Image src="/logo.png" alt="MarketplaceBeta logo" width={32} height={32} className="h-8 w-8 rounded-lg object-cover" />
+                      <Image src="/logo-mark.svg" alt="MarketplaceBeta" width={32} height={32} className="h-8 w-8" />
                       <div>
                         <p className="font-semibold text-sm">The Daily Marketplace Brief</p>
                         <p className="text-xs text-muted-foreground">March 11, 2026</p>
@@ -448,10 +446,7 @@ export default function NewsletterPage() {
       <footer className="border-t mt-16">
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <Image src="/logo.png" alt="MarketplaceBeta logo" width={24} height={24} className="h-6 w-6 rounded object-cover" />
-              <span>MarketplaceBeta</span>
-            </div>
+            <SiteLogoFooter />
             <div className="flex gap-6">
               <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
               <Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link>

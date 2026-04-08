@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { SiteLogo, SiteLogoFooter } from "@/components/site-logo"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -231,10 +232,7 @@ export default function SolutionsPage() {
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-14">
-            <Link href="/" className="flex items-center gap-2">
-              <Image src="/logo.png" alt="MarketplaceBeta logo" width={32} height={32} className="h-8 w-8 rounded-lg object-cover" />
-              <span className="font-bold text-lg hidden sm:block">MarketplaceBeta</span>
-            </Link>
+            <SiteLogo size="md" />
 
             <nav className="hidden lg:flex items-center gap-6">
               <Link href="/" className="text-sm font-semibold hover:text-primary transition-colors">Home</Link>
@@ -545,10 +543,7 @@ export default function SolutionsPage() {
       <footer className="border-t py-12 mt-16">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Image src="/logo.png" alt="MarketplaceBeta logo" width={32} height={32} className="h-8 w-8 rounded-lg object-cover" />
-              <span className="font-bold">MarketplaceBeta</span>
-            </div>
+            <SiteLogoFooter />
             <p className="text-sm text-muted-foreground">
               Your source for e-commerce industry intelligence
             </p>

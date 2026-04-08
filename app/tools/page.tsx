@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -10,6 +9,8 @@ import { ProfitCalculator } from "@/components/profit-calculator"
 import { ListingOptimizer } from "@/components/listing-optimizer"
 import { KeywordTrends } from "@/components/keyword-trends"
 import { TrendingProducts } from "@/components/trending-products"
+import { SalesForecaster } from "@/components/sales-forecaster"
+import { SiteLogo, SiteLogoFooter } from "@/components/site-logo"
 import {
   Calculator,
   FileText,
@@ -24,7 +25,7 @@ import {
 } from "lucide-react"
 
 export default function ToolsPage() {
-  const [activeTab, setActiveTab] = useState("calculator")
+  const [activeTab, setActiveTab] = useState("forecaster")
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   // Handle hash navigation
@@ -32,6 +33,8 @@ export default function ToolsPage() {
     const hash = window.location.hash.slice(1)
     if (hash) {
       const tabMap: Record<string, string> = {
+        forecaster: "forecaster",
+        forecast: "forecaster",
         profit: "calculator",
         listing: "listing",
         keywords: "keywords",
@@ -44,6 +47,12 @@ export default function ToolsPage() {
   }, [])
 
   const tabs = [
+    {
+      id: "forecaster",
+      label: "Sales Forecaster",
+      icon: TrendingUp,
+      description: "AI-powered sales projections, inventory planning, and ad spend optimization"
+    },
     {
       id: "calculator",
       label: "Profit Calculator",
@@ -76,10 +85,7 @@ export default function ToolsPage() {
       <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
-            <Link href="/" className="flex items-center gap-2">
-              <Image src="/logo.png" alt="MarketplaceBeta logo" width={36} height={36} className="h-9 w-9 rounded-lg object-cover" />
-              <span className="font-bold text-xl hidden sm:block">MarketplaceBeta</span>
-            </Link>
+            <SiteLogo size="md" />
 
             <div className="hidden md:flex items-center gap-8">
               <nav className="flex items-center gap-8">
@@ -171,7 +177,7 @@ export default function ToolsPage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 py-6">
         {/* Feature Cards - Desktop Only */}
-        <div className="hidden md:grid md:grid-cols-4 gap-4 mb-8">
+        <div className="hidden md:grid md:grid-cols-5 gap-4 mb-8">
           {tabs.map((tab) => (
             <button
               key={tab.id}
@@ -195,6 +201,23 @@ export default function ToolsPage() {
 
         {/* Tab Content */}
         <div className="bg-background">
+          {activeTab === "forecaster" && (
+            <div id="forecaster">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-3xl font-bold flex items-center gap-2">
+                    <TrendingUp className="h-7 w-7 text-primary" />
+                    Sales Forecaster
+                  </h2>
+                  <p className="text-muted-foreground">
+                    Forecast sales, plan inventory, and optimize ad spend with data-driven projections
+                  </p>
+                </div>
+              </div>
+              <SalesForecaster />
+            </div>
+          )}
+
           {activeTab === "calculator" && (
             <div id="profit">
               <div className="flex items-center justify-between mb-6">
@@ -284,10 +307,7 @@ export default function ToolsPage() {
       <footer className="border-t mt-12">
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Image src="/logo.png" alt="MarketplaceBeta logo" width={24} height={24} className="h-6 w-6 rounded object-cover" />
-              <span className="text-sm text-muted-foreground">MarketplaceBeta - Seller Tools</span>
-            </div>
+            <SiteLogoFooter />
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <span>All calculations are estimates and should be verified</span>
             </div>

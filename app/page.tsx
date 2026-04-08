@@ -14,6 +14,8 @@ import { getArticleFallbackImage } from "@/lib/article-images"
 import { ArticleGridSkeleton } from "@/components/article-skeleton"
 import { AdBanner } from "@/components/AdBanner"
 import { getActivePlacements } from "@/lib/sponsors"
+import { SiteLogo, SiteLogoFooter } from "@/components/site-logo"
+import { DailyBrief } from "@/components/daily-brief"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -585,18 +587,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-14">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2">
-              <Image 
-                src="/logo.png"
-                alt="MarketplaceBeta logo" 
-                width={32} 
-                height={32} 
-                className="h-8 w-8 rounded-lg object-cover"
-              />
-              <span className="font-bold text-lg hidden sm:block">
-                MarketplaceBeta
-              </span>
-            </Link>
+            <SiteLogo size="md" />
 
             {/* Desktop Nav */}
             <nav className="hidden lg:flex items-center gap-6">
@@ -739,7 +730,7 @@ export default function HomePage() {
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 text-balance">
               The Intelligence Hub for{" "}
-              <span className="text-primary">Marketplace Commerce</span>
+              <span className="bg-clip-text text-transparent" style={{ backgroundImage: "linear-gradient(135deg, #0099FF, #CC44FF)" }}>Marketplace Commerce</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground mb-8 text-pretty">
               Breaking news, platform updates, M&A activity, and actionable insights for Amazon sellers, 
@@ -784,6 +775,13 @@ export default function HomePage() {
         {topBanners.map(p => (
           <AdBanner key={p.id} sponsor={p.sponsor} variant="top-banner" />
         ))}
+
+        {/* Seller's Daily Brief — AI-generated editorial analysis */}
+        {selectedCategory === "all" && !searchQuery && (
+          <div className="mb-8">
+            <DailyBrief />
+          </div>
+        )}
 
         {/* Hero Featured Article - Full Width (outside flex layout) */}
         {!loading && featuredArticles.length > 0 && selectedCategory === "all" && (
@@ -1411,9 +1409,8 @@ export default function HomePage() {
           <div className="grid md:grid-cols-4 gap-8">
             {/* Brand */}
             <div>
-              <div className="flex items-center gap-2 mb-4">
-                <Image src="/logo.png" alt="MarketplaceBeta logo" width={36} height={36} className="h-9 w-9 rounded-lg object-cover" />
-                <span className="font-bold text-xl">MarketplaceBeta</span>
+              <div className="mb-4">
+                <SiteLogo size="lg" href={undefined} />
               </div>
               <p className="text-sm text-muted-foreground mb-4">
                 The intelligence hub for marketplace commerce. News, tools, and insights for e-commerce professionals.
@@ -1514,6 +1511,7 @@ export default function HomePage() {
                 </a>
               </div>
               <div className="flex gap-6">
+                <Link href="/about" className="hover:text-foreground transition-colors">About</Link>
                 <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
                 <Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link>
               </div>

@@ -2,10 +2,11 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { 
-  Home, 
-  Wrench, 
-  TrendingUp, 
+import { SiteLogo } from "@/components/site-logo"
+import {
+  Home,
+  Wrench,
+  TrendingUp,
   Search,
   ArrowRight,
   AlertCircle
@@ -52,12 +53,7 @@ export default function NotFound() {
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-                <TrendingUp className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <span className="font-bold text-xl">MarketplaceBeta</span>
-            </Link>
+            <SiteLogo size="lg" />
           </div>
         </div>
       </header>

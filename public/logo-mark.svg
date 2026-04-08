@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="g" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0099FF"/>
+      <stop offset="40%" stop-color="#4466FF"/>
+      <stop offset="100%" stop-color="#CC44FF"/>
+    </linearGradient>
+  </defs>
+  <!-- Four-pointed star with rounded bulb tips and diamond center cutout -->
+  <path fill="url(#g)" d="
+    M100 8 C106 8 114 40 114 56 C114 68 120 76 132 76
+    C148 76 192 80 192 100 C192 120 148 124 132 124
+    C120 124 114 132 114 144 C114 160 106 192 100 192
+    C94 192 86 160 86 144 C86 132 80 124 68 124
+    C52 124 8 120 8 100 C8 80 52 76 68 76
+    C80 76 86 68 86 56 C86 40 94 8 100 8Z
+  "/>
+</svg>

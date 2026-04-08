@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { SiteLogo } from "@/components/site-logo"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
@@ -507,10 +508,7 @@ export default function CommunityPage() {
       <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
-            <Link href="/" className="flex items-center gap-2">
-              <Image src="/logo.png" alt="MarketplaceBeta logo" width={36} height={36} className="h-9 w-9 rounded-lg object-cover" />
-              <span className="font-bold text-xl hidden sm:block">MarketplaceBeta</span>
-            </Link>
+            <SiteLogo size="md" />
 
             <div className="hidden md:flex items-center gap-8">
               <nav className="flex items-center gap-8">

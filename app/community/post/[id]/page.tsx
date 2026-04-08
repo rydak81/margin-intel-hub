@@ -3,6 +3,7 @@
 import { useState, useEffect, use } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { SiteLogo } from "@/components/site-logo"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -609,10 +610,7 @@ What's everyone's strategy for dealing with these changes?`,
               <Button variant="ghost" size="icon" onClick={() => router.back()}>
                 <ArrowLeft className="h-5 w-5" />
               </Button>
-              <Link href="/" className="flex items-center gap-2">
-                <Image src="/logo.png" alt="MarketplaceBeta logo" width={36} height={36} className="h-9 w-9 rounded-lg object-cover" />
-                <span className="font-bold text-xl hidden sm:block">MarketplaceBeta</span>
-              </Link>
+              <SiteLogo size="md" />
             </div>
 
             <div className="flex items-center gap-3">

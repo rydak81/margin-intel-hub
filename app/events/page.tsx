@@ -37,6 +37,7 @@ import {
   Building2,
 } from "lucide-react"
 import Image from "next/image"
+import { SiteLogo, SiteLogoFooter } from "@/components/site-logo"
 
 interface Event {
   id: string
@@ -345,10 +346,7 @@ export default function EventsPage() {
       <header className="border-b bg-background/95 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
-            <Link href="/" className="flex items-center gap-2">
-              <Image src="/logo.png" alt="MarketplaceBeta logo" width={36} height={36} className="h-9 w-9 rounded-lg object-cover" />
-              <span className="font-bold text-xl hidden sm:block">MarketplaceBeta</span>
-            </Link>
+            <SiteLogo size="md" />
             <nav className="hidden md:flex items-center gap-8">
               <Link href="/" className="text-base font-semibold hover:text-primary transition-colors">
                 Home
@@ -645,10 +643,7 @@ export default function EventsPage() {
       <footer className="border-t mt-16">
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <Image src="/logo.png" alt="MarketplaceBeta logo" width={24} height={24} className="h-6 w-6 rounded object-cover" />
-              <span>MarketplaceBeta</span>
-            </div>
+            <SiteLogoFooter />
             <div className="flex gap-6">
               <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
               <Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link>

@@ -115,9 +115,11 @@ Provide a JSON response with EXACTLY this structure (no markdown, no code blocks
 
 Respond ONLY with valid JSON, no other text.`
 
+  // Use fast tier (Haiku) for classification — it's called on every article
   const { data: parsed, provider, model } = await callAIForJSON<any>({
     prompt,
-    maxTokens: 1024
+    maxTokens: 1024,
+    tier: 'fast',
   })
   console.log(`[Classify] Article classified via ${provider} (${model})`)
 
@@ -137,18 +139,28 @@ Respond ONLY with valid JSON, no other text.`
 }
 
 /**
- * Search Unsplash for an image
+ * Search Unsplash for an image. Returns null if API key missing or request fails.
  */
 async function searchUnsplashImage(query: string): Promise<string | null> {
+  const accessKey = process.env.UNSPLASH_ACCESS_KEY
+  if (!accessKey) {
+    console.log('[Classify] UNSPLASH_ACCESS_KEY not set — skipping Unsplash search')
+    return null
+  }
   try {
     const response = await fetch(
-      `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=1&client_id=${process.env.UNSPLASH_ACCESS_KEY}`,
-      { next: { revalidate: 3600 } }
+      `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=1&orientation=landscape&client_id=${accessKey}`,
+      { signal: AbortSignal.timeout(5000) }
     )
+    if (!response.ok) {
+      console.warn(`[Classify] Unsplash API ${response.status}`)
+      return null
+    }
     const data = await response.json()
-    return data.results?.[0]?.urls?.regular || null
+    const url = data.results?.[0]?.urls?.regular
+    return url ? `${url}&w=800&h=450&fit=crop` : null
   } catch (error) {
-    console.error('Unsplash search failed:', error)
+    console.error('[Classify] Unsplash search failed:', error)
     return null
   }
 }
@@ -272,10 +284,19 @@ export async function POST(request: NextRequest) {
               classified_at: new Date().toISOString()
             }
 
-            if (!article.image_url) {
-              let imageUrl = classified.unsplashQuery ? await searchUnsplashImage(classified.unsplashQuery) : null
-              if (!imageUrl) imageUrl = getCategoryFallbackImage(classified.category)
+            // Always ensure an image URL exists
+            if (!article.image_url || !article.has_real_image) {
+              let imageUrl: string | null = null
+              // Try Unsplash first (if query available and key configured)
+              if (classified.unsplashQuery) {
+                imageUrl = await searchUnsplashImage(classified.unsplashQuery)
+              }
+              // Always fall back to category image if Unsplash fails
+              if (!imageUrl) {
+                imageUrl = getCategoryFallbackImage(classified.category)
+              }
               updateData.image_url = imageUrl
+              updateData.image_source = imageUrl?.includes('unsplash.com') ? 'unsplash_ai' : 'category_fallback'
               fixedImageCount++
             }
 
@@ -318,11 +339,68 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // ── PHASE 2: Deep editorial enhancement for high-value articles (Sonnet) ──
+    // Pick recently classified high-impact articles that haven't had deep analysis
+    let deepEnhancedCount = 0
+    try {
+      const { data: highValueArticles } = await getSupabase()
+        .from('articles')
+        .select('id, title, summary, full_content, ai_summary, category')
+        .eq('impact_level', 'high')
+        .gte('relevance_score', 70)
+        .is('what_this_means', null) // Not yet deep-enhanced
+        .order('published_at', { ascending: false })
+        .limit(3) // Only enhance top 3 per run to manage costs
+
+      if (highValueArticles?.length) {
+        for (const article of highValueArticles) {
+          try {
+            const deepPrompt = `You are a senior e-commerce analyst. Write an in-depth editorial analysis of this article for marketplace sellers.
+
+ARTICLE:
+Title: ${article.title}
+AI Summary: ${article.ai_summary || article.summary}
+${article.full_content ? `Full Content: ${article.full_content.substring(0, 4000)}` : ''}
+
+Provide a JSON response:
+{
+  "whatThisMeans": "2-3 paragraphs explaining why this matters to sellers, what it signals about the market, and potential second-order effects. Write like a sharp analyst, not a bot.",
+  "relatedContext": "1-2 paragraphs placing this news in broader industry context. What trends does it connect to? What historical parallels exist?"
+}
+
+Respond ONLY with valid JSON.`
+
+            const { data: deepData } = await callAIForJSON<any>({
+              prompt: deepPrompt,
+              maxTokens: 1500,
+              tier: 'deep',
+            })
+
+            await getSupabase()
+              .from('articles')
+              .update({
+                what_this_means: deepData.whatThisMeans || null,
+                related_context: deepData.relatedContext || null,
+              })
+              .eq('id', article.id)
+
+            deepEnhancedCount++
+            console.log(`[Classify] Deep-enhanced article: ${article.title.substring(0, 50)}`)
+          } catch (deepErr) {
+            console.warn(`[Classify] Deep enhancement failed for ${article.id}:`, deepErr)
+          }
+        }
+      }
+    } catch (deepPhaseErr) {
+      console.warn('[Classify] Deep enhancement phase error:', deepPhaseErr)
+    }
+
     return NextResponse.json({
       success: true,
       classifiedCount,
       enrichedCount,
       fixedImageCount,
+      deepEnhancedCount,
       totalProcessed: unclassified.length,
       errors: errors.length > 0 ? errors : undefined
     })
