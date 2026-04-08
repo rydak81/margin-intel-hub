@@ -1,14 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-if (!supabaseUrl || !supabaseServiceKey) {
-  throw new Error('Missing Supabase credentials')
+let _supabase: any = null
+function getSupabase() {
+  if (!_supabase) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+    if (!url || !key) throw new Error('Missing Supabase credentials')
+    _supabase = createClient(url, key)
+  }
+  return _supabase
 }
-
-const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 function parseList(str?: string): string[] {
   if (!str) return []
@@ -27,6 +29,7 @@ export async function GET(request: NextRequest) {
     const limit = Math.min(parseInt(searchParams.get('limit') || '12'), 100)
     const offset = Math.max(0, parseInt(searchParams.get('offset') || '0'))
 
+    const supabase = getSupabase()
     let query = supabase
       .from('articles')
       .select('id, title, summary, category, source_name, published_at, image_url, platforms, impact_level, relevance_score, audience', { count: 'exact' })
