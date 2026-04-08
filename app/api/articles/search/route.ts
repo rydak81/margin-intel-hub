@@ -60,17 +60,17 @@ export async function GET(request: NextRequest) {
     // Facets
     const { data: categoryData } = await supabase.from('articles').select('category')
     const categoryFacets: Record<string, number> = {}
-    categoryData?.forEach(item => { if (item.category) categoryFacets[item.category] = (categoryFacets[item.category] || 0) + 1 })
+    categoryData?.forEach((item: { category: string | null }) => { if (item.category) categoryFacets[item.category] = (categoryFacets[item.category] || 0) + 1 })
 
     const { data: platformData } = await supabase.from('articles').select('platforms')
     const platformFacets: Record<string, number> = {}
-    platformData?.forEach(item => { if (item.platforms && Array.isArray(item.platforms)) item.platforms.forEach((p: string) => { platformFacets[p] = (platformFacets[p] || 0) + 1 }) })
+    platformData?.forEach((item: { platforms: string[] | null }) => { if (item.platforms && Array.isArray(item.platforms)) item.platforms.forEach((p: string) => { platformFacets[p] = (platformFacets[p] || 0) + 1 }) })
 
     const { data: impactData } = await supabase.from('articles').select('impact_level')
     const impactFacets: Record<string, number> = {}
-    impactData?.forEach(item => { if (item.impact_level) impactFacets[item.impact_level] = (impactFacets[item.impact_level] || 0) + 1 })
+    impactData?.forEach((item: { impact_level: string | null }) => { if (item.impact_level) impactFacets[item.impact_level] = (impactFacets[item.impact_level] || 0) + 1 })
 
-    const articles = data?.map(article => ({
+    const articles = data?.map((article: Record<string, any>) => ({
       id: article.id,
       title: article.title,
       summary: article.summary,
@@ -87,7 +87,7 @@ export async function GET(request: NextRequest) {
     // Fix impact sort client-side since alphabetical != severity
     if (sort === 'impact') {
       const impactOrder: Record<string, number> = { high: 0, medium: 1, low: 2 }
-      articles.sort((a, b) => {
+      articles.sort((a: Record<string, any>, b: Record<string, any>) => {
         const impactA = impactOrder[a.impactLevel || 'low'] ?? 3
         const impactB = impactOrder[b.impactLevel || 'low'] ?? 3
         if (impactA !== impactB) return impactA - impactB
