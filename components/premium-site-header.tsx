@@ -73,11 +73,10 @@ export function PremiumSiteHeader({
             <SiteBrand
               href="/"
               deskLabel={deskLabel}
-              className="max-w-[250px]"
-              logoClassName="h-9"
-              iconClassName="h-8 w-8"
-              labelClassName="truncate text-white/52"
-              priority
+              className="max-w-[320px]"
+              logoClassName="h-11 w-11"
+              iconClassName="h-9 w-9"
+              labelClassName="truncate text-white/55"
             />
           </div>
 

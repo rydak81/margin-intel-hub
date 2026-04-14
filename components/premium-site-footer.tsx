@@ -11,9 +11,9 @@ export function PremiumSiteFooter() {
             href="/"
             deskLabel="Operator Intelligence Desk"
             className="justify-center text-center md:justify-start md:text-left"
-            logoClassName="h-10"
-            iconClassName="h-7 w-7"
-            labelClassName="text-white/45"
+            logoClassName="h-12 w-12"
+            iconClassName="h-10 w-10"
+            labelClassName="text-white/50"
           />
           <div className="flex max-w-3xl flex-wrap items-center justify-center gap-x-5 gap-y-3 text-sm text-white/68 md:justify-end">
             <Link href="/" className="hover:text-white transition-colors">Home</Link>
