@@ -26,26 +26,26 @@ export function SiteBrand({
       {/* Mobile: Icon only */}
       <div className="relative shrink-0 sm:hidden">
         <Image
-          src="/brand-icon.png"
+          src="/logo-mark.png"
           alt="MarketplaceBeta"
-          width={40}
-          height={40}
-          className={cn("relative h-10 w-10 rounded-lg object-cover", iconClassName)}
+          width={44}
+          height={44}
+          className={cn("relative h-11 w-auto object-contain", iconClassName)}
         />
       </div>
 
       {/* Desktop: Logo mark + wordmark */}
-      <div className="hidden min-w-0 items-center gap-3.5 sm:flex">
+      <div className="hidden min-w-0 items-center gap-3 sm:flex">
         <Image
-          src="/brand-icon.png"
+          src="/logo-mark.png"
           alt="MarketplaceBeta"
-          width={48}
-          height={48}
-          className={cn("h-12 w-12 shrink-0 rounded-lg object-cover", logoClassName)}
+          width={56}
+          height={56}
+          className={cn("h-14 w-auto shrink-0 object-contain", logoClassName)}
         />
         <div className="flex flex-col justify-center">
-          <span className="text-xl font-semibold tracking-tight text-white">
-            <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">Marketplace</span>
+          <span className="text-xl font-semibold tracking-tight">
+            <span className="bg-gradient-to-r from-teal-400 via-cyan-400 to-teal-500 bg-clip-text text-transparent">Marketplace</span>
             <span className="text-white/90">Beta</span>
           </span>
           {deskLabel ? (

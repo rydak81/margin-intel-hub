@@ -1,6 +1,7 @@
 from PIL import Image
 import urllib.request
 import io
+import os
 
 # Download the image
 url = "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Gemini_Generated_Image_oo3vd3oo3vd3oo3v.png-LstgvCaBoO7raoIYqC5h1PPzE7br9s.jpeg"
@@ -33,6 +34,7 @@ if bbox:
 
 # Save as PNG with transparency
 output_path = "/vercel/share/v0-project/public/logo-mark.png"
+os.makedirs(os.path.dirname(output_path), exist_ok=True)
 img.save(output_path, "PNG")
 
 print(f"Saved transparent logo to {output_path}")
