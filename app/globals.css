@@ -102,8 +102,8 @@
 }
 
 @theme inline {
-  --font-sans: 'Geist', 'Geist Fallback';
-  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
+  --font-sans: var(--font-inter), 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'SF Mono', 'Consolas', 'Liberation Mono', monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -190,19 +190,25 @@
     @apply border-border outline-ring/50;
   }
   html {
-    font-size: 16px;
+    font-size: 17px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   body {
-    @apply bg-background text-foreground text-base leading-relaxed;
+    @apply bg-background text-foreground leading-relaxed;
+    letter-spacing: -0.011em;
   }
   h1 {
-    @apply text-4xl md:text-5xl font-bold tracking-tight;
+    @apply text-4xl md:text-5xl font-semibold tracking-tight;
+    letter-spacing: -0.025em;
   }
   h2 {
-    @apply text-2xl md:text-3xl font-semibold tracking-tight;
+    @apply text-2xl md:text-3xl font-semibold;
+    letter-spacing: -0.02em;
   }
   h3 {
-    @apply text-xl md:text-2xl font-semibold;
+    @apply text-xl md:text-2xl font-medium;
+    letter-spacing: -0.015em;
   }
   h4 {
     @apply text-lg font-medium;
