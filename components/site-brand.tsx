@@ -1,3 +1,4 @@
+import Image from "next/image"
 import Link from "next/link"
 
 import { cn } from "@/lib/utils"
@@ -19,41 +20,43 @@ export function SiteBrand({
   logoClassName,
   iconClassName,
   labelClassName,
+  priority = false,
 }: SiteBrandProps) {
   return (
     <Link href={href} className={cn("flex min-w-0 items-center gap-3", className)}>
       {/* Mobile: Icon only */}
       <div className="relative shrink-0 sm:hidden">
-        <img
-          src="/logo-mark.svg"
-          alt="MarketplaceBeta"
-          className={cn("relative h-11 w-11 object-contain", iconClassName)}
+        <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-sky-400/28 via-cyan-300/14 to-fuchsia-400/24 blur-sm" />
+        <Image
+          src="/brand-icon.png"
+          alt="MarketplaceBeta icon"
+          width={32}
+          height={32}
+          priority={priority}
+          className={cn("relative h-8 w-8 rounded-lg object-cover ring-1 ring-sky-400/20", iconClassName)}
         />
       </div>
 
       {/* Desktop: Logo mark + wordmark */}
-      <div className="hidden min-w-0 items-center gap-3 sm:flex">
-        <img
-          src="/logo-mark.svg"
+      <div className="hidden min-w-0 sm:block">
+        <Image
+          src="/brand-logo.jpg"
           alt="MarketplaceBeta"
-          className={cn("h-14 w-14 shrink-0 object-contain", logoClassName)}
+          width={1600}
+          height={852}
+          priority={priority}
+          className={cn("h-10 w-auto object-contain", logoClassName)}
         />
-        <div className="flex flex-col justify-center">
-          <span className="text-xl font-semibold tracking-tight">
-            <span className="bg-gradient-to-r from-teal-400 via-cyan-400 to-teal-500 bg-clip-text text-transparent">Marketplace</span>
-            <span className="text-white/90">Beta</span>
+        {deskLabel ? (
+          <span
+            className={cn(
+              "block pl-1 pt-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-white/48",
+              labelClassName
+            )}
+          >
+            {deskLabel}
           </span>
-          {deskLabel ? (
-            <span
-              className={cn(
-                "text-[10px] font-medium uppercase tracking-[0.18em] text-white/50",
-                labelClassName
-              )}
-            >
-              {deskLabel}
-            </span>
-          ) : null}
-        </div>
+        ) : null}
       </div>
     </Link>
   )
