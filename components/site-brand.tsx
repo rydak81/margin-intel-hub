@@ -1,4 +1,3 @@
-import Image from "next/image"
 import Link from "next/link"
 
 import { cn } from "@/lib/utils"
@@ -25,23 +24,19 @@ export function SiteBrand({
     <Link href={href} className={cn("flex min-w-0 items-center gap-3", className)}>
       {/* Mobile: Icon only */}
       <div className="relative shrink-0 sm:hidden">
-        <Image
-          src="/logo-mark.png"
+        <img
+          src="/logo-mark.svg"
           alt="MarketplaceBeta"
-          width={44}
-          height={44}
-          className={cn("relative h-11 w-auto object-contain", iconClassName)}
+          className={cn("relative h-11 w-11 object-contain", iconClassName)}
         />
       </div>
 
       {/* Desktop: Logo mark + wordmark */}
       <div className="hidden min-w-0 items-center gap-3 sm:flex">
-        <Image
-          src="/logo-mark.png"
+        <img
+          src="/logo-mark.svg"
           alt="MarketplaceBeta"
-          width={56}
-          height={56}
-          className={cn("h-14 w-auto shrink-0 object-contain", logoClassName)}
+          className={cn("h-14 w-14 shrink-0 object-contain", logoClassName)}
         />
         <div className="flex flex-col justify-center">
           <span className="text-xl font-semibold tracking-tight">

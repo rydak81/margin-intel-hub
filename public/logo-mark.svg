@@ -1,0 +1,58 @@
+<svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="tealGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#14B8A6"/>
+      <stop offset="100%" stop-color="#5EEAD4"/>
+    </linearGradient>
+    <linearGradient id="navyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E3A5F"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+    <linearGradient id="arrowGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0D9488"/>
+      <stop offset="100%" stop-color="#2DD4BF"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Hexagon network - outer ring -->
+  <!-- Top hexagons -->
+  <polygon points="100,20 112,27 112,41 100,48 88,41 88,27" fill="url(#tealGradient)"/>
+  <polygon points="70,35 82,42 82,56 70,63 58,56 58,42" fill="url(#tealGradient)"/>
+  <polygon points="130,35 142,42 142,56 130,63 118,56 118,42" fill="url(#tealGradient)"/>
+  
+  <!-- Middle row hexagons -->
+  <polygon points="45,70 57,77 57,91 45,98 33,91 33,77" fill="url(#navyGradient)"/>
+  <polygon points="155,70 167,77 167,91 155,98 143,91 143,77" fill="url(#navyGradient)"/>
+  
+  <!-- Lower middle hexagons -->
+  <polygon points="45,115 57,122 57,136 45,143 33,136 33,122" fill="url(#navyGradient)"/>
+  <polygon points="155,115 167,122 167,136 155,143 143,136 143,122" fill="url(#navyGradient)"/>
+  
+  <!-- Bottom hexagons -->
+  <polygon points="70,150 82,157 82,171 70,178 58,171 58,157" fill="url(#navyGradient)"/>
+  <polygon points="130,150 142,157 142,171 130,178 118,171 118,157" fill="url(#tealGradient)"/>
+  <polygon points="100,165 112,172 112,186 100,193 88,186 88,172" fill="url(#tealGradient)"/>
+  
+  <!-- Connecting lines -->
+  <line x1="100" y1="48" x2="70" y2="63" stroke="#5EEAD4" stroke-width="2"/>
+  <line x1="100" y1="48" x2="130" y2="63" stroke="#5EEAD4" stroke-width="2"/>
+  <line x1="70" y1="63" x2="45" y2="77" stroke="#5EEAD4" stroke-width="2"/>
+  <line x1="130" y1="63" x2="155" y2="77" stroke="#5EEAD4" stroke-width="2"/>
+  <line x1="45" y1="98" x2="45" y2="115" stroke="#1E3A5F" stroke-width="2"/>
+  <line x1="155" y1="98" x2="155" y2="115" stroke="#1E3A5F" stroke-width="2"/>
+  <line x1="45" y1="143" x2="70" y2="157" stroke="#1E3A5F" stroke-width="2"/>
+  <line x1="155" y1="143" x2="130" y2="157" stroke="#5EEAD4" stroke-width="2"/>
+  <line x1="70" y1="178" x2="100" y2="172" stroke="#5EEAD4" stroke-width="2"/>
+  <line x1="130" y1="178" x2="100" y2="172" stroke="#5EEAD4" stroke-width="2"/>
+  
+  <!-- Center M shape with arrows -->
+  <!-- Left downward arrow of M -->
+  <path d="M65,75 L65,140 L80,140 L80,95 L100,120 L100,75 L85,75 L85,100 L65,75" fill="url(#navyGradient)"/>
+  
+  <!-- Right upward arrow of M -->
+  <path d="M100,75 L100,120 L115,95 L115,140 L130,140 L130,75 L115,75 L115,100 L100,75" fill="url(#arrowGradient)"/>
+  
+  <!-- Large upward arrow -->
+  <path d="M120,55 L145,90 L132,90 L132,135 L150,135 L150,80 L175,80 L140,35 L120,55" fill="url(#arrowGradient)"/>
+  <polygon points="140,25 165,65 155,65 155,75 175,75 175,55 185,55 140,5 95,55 105,55 105,75 125,75 125,65 115,65" fill="url(#tealGradient)" transform="translate(10, 30) scale(0.6)"/>
+</svg>
