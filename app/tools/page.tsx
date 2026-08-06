@@ -159,6 +159,28 @@ export default function ToolsPage() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 py-8">
+        {/* Margin-Aware Repricer promo */}
+        <Link
+          href="/tools/repricer"
+          className="mb-8 flex flex-col gap-3 rounded-[24px] border border-white/10 bg-[linear-gradient(135deg,rgba(15,23,42,0.98),rgba(30,41,59,0.94),rgba(55,48,163,0.86))] p-5 text-white shadow-[0_22px_60px_-34px_rgba(15,23,42,0.65)] transition hover:-translate-y-0.5 md:flex-row md:items-center md:justify-between"
+        >
+          <div className="flex items-center gap-3">
+            <div className="rounded-xl bg-white/12 p-2">
+              <BarChart3 className="h-5 w-5" />
+            </div>
+            <div>
+              <span className="font-semibold">New: Margin-Aware Repricer</span>
+              <p className="text-sm text-white/72">
+                Compute floor, target, and ceiling prices per SKU from landed cost and platform
+                fees — and see exactly when the market drops below your profitable floor.
+              </p>
+            </div>
+          </div>
+          <Badge variant="outline" className="w-fit shrink-0 border-white/30 text-white">
+            Open dashboard →
+          </Badge>
+        </Link>
+
         {/* Feature Cards - Desktop Only */}
         <div className="hidden md:grid md:grid-cols-4 gap-4 mb-8">
           {tabs.map((tab) => (
