@@ -440,7 +440,7 @@ export function RepricerDashboard() {
 
       {/* SKU analyzer */}
       <Dialog open={selected !== null} onOpenChange={(o) => !o && setSelectedAsin(null)}>
-        <DialogContent className="max-h-[85vh] max-w-3xl overflow-y-auto">
+        <DialogContent className="max-h-[85vh] w-[calc(100vw-2rem)] sm:max-w-4xl lg:max-w-5xl overflow-y-auto">
           {selected && (
             <SkuAnalyzer
               item={selected}
@@ -462,7 +462,7 @@ export function RepricerDashboard() {
 
       {/* Cost import dialog */}
       <Dialog open={importOpen} onOpenChange={setImportOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>Import landed costs</DialogTitle>
             <DialogDescription>
