@@ -339,3 +339,48 @@ describe("price history", async () => {
     expect(keys).toEqual(["2026-06", "2026-07", "2026-08"])
   })
 })
+
+describe("sourcing (reverse) math", async () => {
+  const { classifyQuery, maxLandedCost, profitBuyingAt } = await import("./sourcing")
+  const fees = {
+    tiers: [{ upTo: null, rate: 0.08 }],
+    fixedFees: 0,
+    acosRate: 0,
+    returnReserveRate: 0.06,
+    outboundShipping: 8,
+  }
+
+  it("reverse-checks: buying at max landed cost yields exactly the target margin", () => {
+    const price = 168.41 // iPad 9th Gen current Buy Box
+    const max = maxLandedCost(price, fees, 0.1)
+    const profit = profitBuyingAt(price, max, fees)
+    expect(profit / price).toBeCloseTo(0.1, 3)
+  })
+
+  it("goes non-positive when the margin is unachievable at the price", () => {
+    expect(maxLandedCost(10, fees, 0.5)).toBeLessThanOrEqual(0)
+  })
+
+  it("handles tiered referral fees at the known selling price", () => {
+    const watchFees = {
+      ...fees,
+      tiers: [
+        { upTo: 1500, rate: 0.16 },
+        { upTo: null, rate: 0.03 },
+      ],
+      outboundShipping: 5,
+    }
+    const price = 2000 // referral = 240 + 15 = 255
+    const max = maxLandedCost(price, watchFees, 0.1)
+    // 2000 - 255 - (0.06+0.10)*2000 - 5 = 1420
+    expect(max).toBeCloseTo(1420, 2)
+    expect(profitBuyingAt(price, max, watchFees) / price).toBeCloseTo(0.1, 3)
+  })
+
+  it("classifies queries as ASIN, barcode, or search term", () => {
+    expect(classifyQuery("B08264XHCZ")).toBe("asin")
+    expect(classifyQuery("194252099537")).toBe("code")
+    expect(classifyQuery("0194252099537")).toBe("code")
+    expect(classifyQuery("iPad 9th Gen 64GB")).toBe("term")
+  })
+})
