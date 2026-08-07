@@ -55,6 +55,12 @@ export default function RepricerSourcingPage() {
       <main className="mx-auto max-w-7xl px-4 py-6">
         <SourcingView />
       </main>
+
+      <footer className="mt-12 border-t border-slate-200/60 py-5 text-center dark:border-white/10">
+        <p className="text-xs text-slate-500 dark:text-slate-400">
+          Built by BeaconPath Holdings, LLC © 2026 · DBA RD Consulting
+        </p>
+      </footer>
     </div>
   )
 }

@@ -75,8 +75,13 @@ export default function RepricerPage() {
       </main>
 
       <footer className="mt-12 border-t border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.98),rgba(2,6,23,1))] py-8 text-center text-sm text-white/52">
-        Fee rates are placeholders and must be verified against current marketplace schedules.
-        All prices computed here are estimates for analysis, not live repricing instructions.
+        <p>
+          Fee rates are placeholders and must be verified against current marketplace schedules.
+          All prices computed here are estimates for analysis, not live repricing instructions.
+        </p>
+        <p className="mt-2 text-xs text-white/40">
+          Built by BeaconPath Holdings, LLC © 2026 · DBA RD Consulting
+        </p>
       </footer>
     </div>
   )
