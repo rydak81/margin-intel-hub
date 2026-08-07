@@ -45,10 +45,18 @@ export interface CostRecord {
   estimated: boolean
 }
 
+/** One marginal referral tier: `rate` applies to the price portion up to `upTo`. */
+export interface ReferralTier {
+  /** Upper bound of this tier in dollars; null = unbounded top tier. */
+  upTo: number | null
+  rate: number
+}
+
 export interface PricingInputs {
   landedCost: number
   outboundShipping: number
-  referralRate: number
+  /** Marginal referral tiers, in ascending order. A flat rate is one tier. */
+  referralTiers: ReferralTier[]
   fixedFees: number
   acosRate: number
   returnReserveRate: number
@@ -61,6 +69,7 @@ export interface PriceLadder {
   targetPrice: number
   /** max(targetPrice * ceilingMultiplier, market high) unless overridden. */
   ceilingPrice: number
+  /** Marginal variable rate at the target price (referral tier + ACoS + reserve). */
   variableRate: number
   fixedCosts: number
 }

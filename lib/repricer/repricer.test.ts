@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest"
 
-import { computeLadder, marginAtPrice, priceForMargin, UnsellableSkuError } from "./pricing"
+import {
+  computeLadder,
+  marginAtPrice,
+  priceForMargin,
+  referralFeeAt,
+  UnsellableSkuError,
+} from "./pricing"
+import { feesFor } from "./fees"
 import { clampToGuardrails } from "./guardrails"
 import { decide, DEFAULT_STRATEGY } from "./decision"
 import { parseCostCsv } from "./costs"
@@ -11,7 +18,7 @@ const workedExample: PricingInputs = {
   landedCost: 65.0,
   outboundShipping: 8.0,
   fixedFees: 0.3,
-  referralRate: 0.08,
+  referralTiers: [{ upTo: null, rate: 0.08 }],
   acosRate: 0.05,
   returnReserveRate: 0.06,
 }
@@ -28,7 +35,10 @@ describe("pricing math", () => {
   })
 
   it("guards the denominator with a clear domain error", () => {
-    const impossible: PricingInputs = { ...workedExample, referralRate: 0.9 }
+    const impossible: PricingInputs = {
+      ...workedExample,
+      referralTiers: [{ upTo: null, rate: 0.9 }],
+    }
     expect(() => priceForMargin(impossible, 0.12, "B0TESTSKU1")).toThrow(UnsellableSkuError)
     expect(() => priceForMargin(impossible, 0.12, "B0TESTSKU1")).toThrow(/B0TESTSKU1/)
   })
@@ -56,6 +66,66 @@ describe("pricing math", () => {
       marketHigh: 999,
     })
     expect(high.ceilingPrice).toBe(999)
+  })
+})
+
+describe("tiered referral rates (e.g. Amazon watches 16% to $1,500, then 3%)", () => {
+  const tiers = [
+    { upTo: 1500, rate: 0.16 },
+    { upTo: null, rate: 0.03 },
+  ]
+  const watch = (landedCost: number): PricingInputs => ({
+    landedCost,
+    outboundShipping: 5,
+    fixedFees: 0,
+    referralTiers: tiers,
+    acosRate: 0,
+    returnReserveRate: 0.06,
+  })
+
+  it("computes marginal fees correctly across the boundary", () => {
+    expect(referralFeeAt(tiers, 1000)).toBeCloseTo(160, 6)
+    expect(referralFeeAt(tiers, 1500)).toBeCloseTo(240, 6)
+    // $2,000: 16% of 1,500 + 3% of the 500 above = 240 + 15
+    expect(referralFeeAt(tiers, 2000)).toBeCloseTo(255, 6)
+  })
+
+  it("solves price(m) inside the first tier", () => {
+    const price = priceForMargin(watch(126.12), 0.12, "B0WATCHLOW")
+    expect(price).toBeLessThan(1500)
+    // reverse: realized margin at that price is the requested margin
+    expect(marginAtPrice(watch(126.12), price)).toBeCloseTo(0.12, 3)
+  })
+
+  it("solves price(m) in the upper tier for high-cost SKUs", () => {
+    const price = priceForMargin(watch(1400), 0.12, "B0WATCHHIGH")
+    expect(price).toBeGreaterThan(1500)
+    expect(marginAtPrice(watch(1400), price)).toBeCloseTo(0.12, 3)
+  })
+
+  it("is continuous at the tier boundary", () => {
+    const justBelow = referralFeeAt(tiers, 1499.99)
+    const justAbove = referralFeeAt(tiers, 1500.01)
+    expect(justAbove - justBelow).toBeLessThan(0.01)
+  })
+})
+
+describe("fee overrides", () => {
+  it("replaces the first-tier rate and keeps upper tiers", () => {
+    const base = feesFor("amazon", "Apple Watch")
+    expect(base.tiers[0].rate).toBeCloseTo(0.16, 6)
+    const overridden = feesFor("amazon", "Apple Watch", {
+      amazon: { "Apple Watch": { rate: 0.15 } },
+    })
+    expect(overridden.tiers[0].rate).toBeCloseTo(0.15, 6)
+    expect(overridden.tiers[1].rate).toBeCloseTo(0.03, 6)
+    expect(overridden.note).toMatch(/customized/)
+  })
+
+  it("returns base schedule untouched without overrides", () => {
+    const base = feesFor("walmart", "iPad")
+    expect(base.tiers).toHaveLength(1)
+    expect(base.tiers[0].rate).toBeCloseTo(0.08, 6)
   })
 })
 

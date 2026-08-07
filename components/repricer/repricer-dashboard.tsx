@@ -36,6 +36,7 @@ import {
   DollarSign,
   FileUp,
   ShieldAlert,
+  Percent,
   Sparkles,
   Target,
   Trash2,
@@ -44,8 +45,21 @@ import {
 import { SEED_CATALOG, summarizeCatalog } from "@/lib/repricer/catalog"
 import { decide, DEFAULT_STRATEGY, pricingInputsFor } from "@/lib/repricer/decision"
 import { estimateCost, parseCostCsv } from "@/lib/repricer/costs"
-import { feesFor, MARKETPLACE_LABELS, MARKETPLACES } from "@/lib/repricer/fees"
-import { computeLadder, marginAtPrice, profitAtPrice } from "@/lib/repricer/pricing"
+import {
+  describeTiers,
+  FEE_SCHEDULES,
+  feesFor,
+  MARKETPLACE_LABELS,
+  MARKETPLACES,
+  type FeeOverrides,
+} from "@/lib/repricer/fees"
+import {
+  computeLadder,
+  effectiveReferralRateAt,
+  marginAtPrice,
+  profitAtPrice,
+  referralFeeAt,
+} from "@/lib/repricer/pricing"
 import type {
   CatalogItem,
   CostRecord,
@@ -56,6 +70,7 @@ import type {
 
 const COSTS_KEY = "repricer.costs.v1"
 const STRATEGY_KEY = "repricer.strategy.v1"
+const FEES_KEY = "repricer.fees.v1"
 
 const fmt = (n: number | null | undefined, dash = "—") =>
   n === null || n === undefined || !Number.isFinite(n) ? dash : `$${n.toFixed(2)}`
@@ -93,6 +108,8 @@ export function RepricerDashboard() {
   const [search, setSearch] = useState("")
   const [selectedAsin, setSelectedAsin] = useState<string | null>(null)
   const [importOpen, setImportOpen] = useState(false)
+  const [feesOpen, setFeesOpen] = useState(false)
+  const [feeOverrides, setFeeOverrides] = useState<FeeOverrides>({})
   const [importText, setImportText] = useState("")
   const [importReport, setImportReport] = useState<string[]>([])
   const [hydrated, setHydrated] = useState(false)
@@ -103,6 +120,8 @@ export function RepricerDashboard() {
       if (c) setCosts(JSON.parse(c))
       const s = localStorage.getItem(STRATEGY_KEY)
       if (s) setStrategy({ ...DEFAULT_STRATEGY, ...JSON.parse(s) })
+      const f = localStorage.getItem(FEES_KEY)
+      if (f) setFeeOverrides(JSON.parse(f))
     } catch {
       // corrupted local state — fall back to defaults
     }
@@ -115,14 +134,17 @@ export function RepricerDashboard() {
   useEffect(() => {
     if (hydrated) localStorage.setItem(STRATEGY_KEY, JSON.stringify(strategy))
   }, [strategy, hydrated])
+  useEffect(() => {
+    if (hydrated) localStorage.setItem(FEES_KEY, JSON.stringify(feeOverrides))
+  }, [feeOverrides, hydrated])
 
   const decisions = useMemo(() => {
     const map = new Map<string, Decision>()
     for (const it of SEED_CATALOG) {
-      map.set(it.asin, decide(it, costs[it.asin] ?? null, marketplace, strategy))
+      map.set(it.asin, decide(it, costs[it.asin] ?? null, marketplace, strategy, feeOverrides))
     }
     return map
-  }, [costs, marketplace, strategy])
+  }, [costs, marketplace, strategy, feeOverrides])
 
   const summary = useMemo(() => summarizeCatalog(SEED_CATALOG), [])
   const counts = useMemo(() => {
@@ -296,6 +318,10 @@ export function RepricerDashboard() {
             <FileUp className="mr-2 h-4 w-4" />
             Import cost CSV
           </Button>
+          <Button size="sm" variant="outline" onClick={() => setFeesOpen(true)}>
+            <Percent className="mr-2 h-4 w-4" />
+            Edit platform fees
+          </Button>
           <Button
             size="sm"
             variant="ghost"
@@ -447,6 +473,7 @@ export function RepricerDashboard() {
               cost={costs[selected.asin] ?? null}
               marketplace={marketplace}
               strategy={strategy}
+              feeOverrides={feeOverrides}
               onCostChange={(rec) =>
                 setCosts((prev) => {
                   const next = { ...prev }
@@ -457,6 +484,21 @@ export function RepricerDashboard() {
               }
             />
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Fee schedule editor */}
+      <Dialog open={feesOpen} onOpenChange={setFeesOpen}>
+        <DialogContent className="max-h-[85vh] w-[calc(100vw-2rem)] sm:max-w-4xl overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Platform fee schedules</DialogTitle>
+            <DialogDescription>
+              Rates change quickly and often — Walmart cut 14 categories in June 2026 with
+              little notice. Edit any rate the moment a platform changes it; every floor,
+              target, and decision recomputes instantly. Edits persist in this browser.
+            </DialogDescription>
+          </DialogHeader>
+          <FeeEditor overrides={feeOverrides} onChange={setFeeOverrides} />
         </DialogContent>
       </Dialog>
 
@@ -529,12 +571,14 @@ function SkuAnalyzer({
   cost,
   marketplace,
   strategy,
+  feeOverrides,
   onCostChange,
 }: {
   item: CatalogItem
   cost: CostRecord | null
   marketplace: Marketplace
   strategy: StrategyConfig
+  feeOverrides: FeeOverrides
   onCostChange: (rec: CostRecord | null) => void
 }) {
   const [landed, setLanded] = useState(cost?.landedCost ?? 0)
@@ -556,10 +600,12 @@ function SkuAnalyzer({
         }
       : null
 
-  const decision = decide(item, workingCost, marketplace, strategy)
+  const decision = decide(item, workingCost, marketplace, strategy, feeOverrides)
   const meta = ACTION_META[decision.action]
-  const fees = feesFor(marketplace, item.category)
-  const inputs = workingCost ? pricingInputsFor(item, workingCost, marketplace, strategy) : null
+  const fees = feesFor(marketplace, item.category, feeOverrides)
+  const inputs = workingCost
+    ? pricingInputsFor(item, workingCost, marketplace, strategy, feeOverrides)
+    : null
 
   const saveCost = () => onCostChange(workingCost && { ...workingCost, estimated: false })
 
@@ -613,7 +659,17 @@ function SkuAnalyzer({
           </div>
           {decision.ladder && inputs ? (
             <div className="grid gap-x-8 gap-y-1.5 text-sm sm:grid-cols-2">
-              <Row k="Referral fee" v={`${pct(fees.referralRate)} of price`} />
+              <Row k="Referral rate" v={describeTiers(fees.tiers)} />
+              <Row
+                k="Referral fee @ recommended"
+                v={
+                  decision.newPrice !== null
+                    ? `${fmt(referralFeeAt(fees.tiers, decision.newPrice))} (${pct(
+                        effectiveReferralRateAt(fees.tiers, decision.newPrice),
+                      )} eff.)`
+                    : "—"
+                }
+              />
               <Row k="Fixed fees" v={fmt(fees.fixedFees)} />
               <Row k="ACoS" v={pct(strategy.acosRate)} />
               <Row k="Return reserve" v={pct(strategy.returnReserveRate)} />
@@ -676,8 +732,8 @@ function SkuAnalyzer({
                 </TableHeader>
                 <TableBody>
                   {MARKETPLACES.map((m) => {
-                    const f = feesFor(m, item.category)
-                    const inp = pricingInputsFor(item, workingCost, m, strategy)
+                    const f = feesFor(m, item.category, feeOverrides)
+                    const inp = pricingInputsFor(item, workingCost, m, strategy, feeOverrides)
                     let ladder = null
                     try {
                       ladder = computeLadder(
@@ -701,7 +757,7 @@ function SkuAnalyzer({
                       <TableRow key={m} className={m === marketplace ? "bg-sky-500/5" : ""}>
                         <TableCell className="font-medium">{MARKETPLACE_LABELS[m]}</TableCell>
                         <TableCell className="text-right tabular-nums">
-                          {pct(f.referralRate)}
+                          {describeTiers(f.tiers)}
                           {f.fixedFees > 0 ? ` + ${fmt(f.fixedFees)}` : ""}
                         </TableCell>
                         <TableCell className="text-right tabular-nums">
@@ -727,8 +783,8 @@ function SkuAnalyzer({
             </div>
             <p className="mt-2 text-xs text-muted-foreground">
               Same landed cost across every channel's fee schedule — where the floor sits below
-              the market low, the channel can win the sale profitably. Fee rates are placeholders
-              pending verification.
+              the market low, the channel can win the sale profitably. Verify rates against each
+              platform's own fee preview; edit them under "Edit platform fees".
             </p>
           </div>
         )}
@@ -742,6 +798,116 @@ function Row({ k, v, strong = false }: { k: string; v: string; strong?: boolean 
     <div className="flex items-center justify-between border-b border-dashed border-muted py-1 last:border-0">
       <span className="text-muted-foreground">{k}</span>
       <span className={`tabular-nums ${strong ? "font-semibold" : ""}`}>{v}</span>
+    </div>
+  )
+}
+
+function FeeEditor({
+  overrides,
+  onChange,
+}: {
+  overrides: FeeOverrides
+  onChange: (next: FeeOverrides) => void
+}) {
+  const categories = Object.keys(FEE_SCHEDULES.amazon) as (keyof typeof FEE_SCHEDULES.amazon)[]
+
+  const setOverride = (
+    m: Marketplace,
+    c: (typeof categories)[number],
+    field: "rate" | "fixedFees",
+    value: number | undefined,
+  ) => {
+    const next: FeeOverrides = JSON.parse(JSON.stringify(overrides))
+    next[m] = next[m] ?? {}
+    const cell = { ...(next[m]![c] ?? {}) }
+    if (value === undefined) delete cell[field]
+    else cell[field] = value
+    if (cell.rate === undefined && cell.fixedFees === undefined) delete next[m]![c]
+    else next[m]![c] = cell
+    if (Object.keys(next[m]!).length === 0) delete next[m]
+    onChange(next)
+  }
+
+  return (
+    <div className="space-y-4">
+      {MARKETPLACES.map((m) => (
+        <div key={m} className="rounded-xl border p-3">
+          <div className="mb-2 flex items-center justify-between">
+            <h4 className="text-sm font-semibold">{MARKETPLACE_LABELS[m]}</h4>
+            {overrides[m] && (
+              <Badge variant="outline" className="border-sky-400/40 text-sky-700 dark:text-sky-300">
+                customized
+              </Badge>
+            )}
+          </div>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Category</TableHead>
+                  <TableHead className="w-32 text-right">Rate %</TableHead>
+                  <TableHead className="w-32 text-right">Fixed fee $</TableHead>
+                  <TableHead>Schedule &amp; last verified</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {categories.map((c) => {
+                  const base = FEE_SCHEDULES[m][c]
+                  const eff = feesFor(m, c, overrides)
+                  const o = overrides[m]?.[c]
+                  return (
+                    <TableRow key={c}>
+                      <TableCell className="font-medium">{c}</TableCell>
+                      <TableCell className="text-right">
+                        <Input
+                          type="number"
+                          step={0.1}
+                          className="h-8 w-24 text-right tabular-nums"
+                          value={Number(((o?.rate ?? base.tiers[0].rate) * 100).toFixed(2))}
+                          onChange={(e) => {
+                            const v = Number(e.target.value)
+                            if (Number.isFinite(v) && v >= 0 && v < 100)
+                              setOverride(m, c, "rate", v / 100)
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Input
+                          type="number"
+                          step={0.05}
+                          className="h-8 w-24 text-right tabular-nums"
+                          value={Number((o?.fixedFees ?? base.fixedFees).toFixed(2))}
+                          onChange={(e) => {
+                            const v = Number(e.target.value)
+                            if (Number.isFinite(v) && v >= 0) setOverride(m, c, "fixedFees", v)
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell className="max-w-[300px] text-xs text-muted-foreground">
+                        <p>
+                          {describeTiers(eff.tiers)}
+                          {eff.fixedFees > 0 ? ` + $${eff.fixedFees.toFixed(2)}/order` : ""} ·
+                          verified {base.lastVerified}
+                        </p>
+                        {base.note && <p className="text-amber-700 dark:text-amber-400">{base.note}</p>}
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+      ))}
+      <div className="flex items-center justify-between">
+        <p className="text-xs text-muted-foreground">
+          Editing the rate changes the first tier only; upper tiers (e.g. watches 3% above
+          $1,500) keep their defaults. Tier structures themselves live in lib/repricer/fees.ts.
+        </p>
+        <Button variant="ghost" size="sm" className="text-red-600" onClick={() => onChange({})}>
+          Reset all to defaults
+        </Button>
+      </div>
     </div>
   )
 }

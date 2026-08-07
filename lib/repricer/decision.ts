@@ -15,7 +15,7 @@ import type {
   PricingInputs,
   StrategyConfig,
 } from "./types"
-import { feesFor } from "./fees"
+import { feesFor, type FeeOverrides } from "./fees"
 import { computeLadder, marginAtPrice, UnsellableSkuError } from "./pricing"
 import { clampToGuardrails } from "./guardrails"
 
@@ -39,12 +39,13 @@ export function pricingInputsFor(
   cost: CostRecord,
   marketplace: Marketplace,
   strategy: StrategyConfig,
+  feeOverrides?: FeeOverrides,
 ): PricingInputs {
-  const fees = feesFor(marketplace, item.category)
+  const fees = feesFor(marketplace, item.category, feeOverrides)
   return {
     landedCost: cost.landedCost,
     outboundShipping: cost.outboundShipping,
-    referralRate: fees.referralRate,
+    referralTiers: fees.tiers,
     fixedFees: fees.fixedFees,
     acosRate: strategy.acosRate,
     returnReserveRate: strategy.returnReserveRate,
@@ -61,6 +62,7 @@ export function decide(
   cost: CostRecord | null,
   marketplace: Marketplace,
   strategy: StrategyConfig,
+  feeOverrides?: FeeOverrides,
 ): Decision {
   const flags: string[] = []
 
@@ -81,7 +83,7 @@ export function decide(
     flags.push("ESTIMATED cost from category default — floor is not trustworthy")
   }
 
-  const inputs = pricingInputsFor(item, cost, marketplace, strategy)
+  const inputs = pricingInputsFor(item, cost, marketplace, strategy, feeOverrides)
   let ladder
   try {
     ladder = computeLadder(
