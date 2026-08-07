@@ -22,42 +22,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { AlertTriangle } from "lucide-react"
+import { AlertTriangle, Maximize2 } from "lucide-react"
 
 import { SEED_CATALOG } from "@/lib/repricer/catalog"
 import { decide, DEFAULT_STRATEGY } from "@/lib/repricer/decision"
 import { generateSampleHistory, type HistoryPoint } from "@/lib/repricer/history"
 import type { CostRecord, StrategyConfig } from "@/lib/repricer/types"
 import type { FeeOverrides } from "@/lib/repricer/fees"
-
-// Validated 3-slot categorical palette (dataviz reference palette; first three
-// slots pass all-pairs CVD + normal-vision checks in both modes).
-const SERIES = {
-  light: { our: "#2a78d6", buyBox: "#eb6834", lowest: "#1baf7a" },
-  dark: { our: "#3987e5", buyBox: "#d95926", lowest: "#199e70" },
-}
-const CHROME = {
-  light: { grid: "#e1e0d9", axis: "#898781", floor: "#d03b3b" },
-  dark: { grid: "#2c2c2a", axis: "#898781", floor: "#d03b3b" },
-}
-
-function useDarkMode(): boolean {
-  const [dark, setDark] = useState(false)
-  useEffect(() => {
-    const root = document.documentElement
-    const media = window.matchMedia("(prefers-color-scheme: dark)")
-    const compute = () => setDark(root.classList.contains("dark") || media.matches)
-    compute()
-    const observer = new MutationObserver(compute)
-    observer.observe(root, { attributes: true, attributeFilter: ["class"] })
-    media.addEventListener("change", compute)
-    return () => {
-      observer.disconnect()
-      media.removeEventListener("change", compute)
-    }
-  }, [])
-  return dark
-}
+import { CHROME, SERIES, useDarkMode } from "./chart-theme"
+import { HistoryExplorer } from "./history-explorer"
 
 export function HistoryView() {
   const [asin, setAsin] = useState(SEED_CATALOG[0].asin)
@@ -66,6 +39,7 @@ export function HistoryView() {
   const [source, setSource] = useState<"keepa" | "sample">("sample")
   const [loading, setLoading] = useState(false)
   const [floor, setFloor] = useState<number | null>(null)
+  const [explorerOpen, setExplorerOpen] = useState(false)
   const dark = useDarkMode()
   const colors = dark ? SERIES.dark : SERIES.light
   const chrome = dark ? CHROME.dark : CHROME.light
@@ -177,7 +151,16 @@ export function HistoryView() {
       {/* Price chart */}
       <div className="rounded-2xl border border-white/70 bg-white/84 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
         <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
-          <h3 className="text-sm font-semibold">Price history — {item.asin}</h3>
+          <h3 className="flex items-center gap-2 text-sm font-semibold">
+            Price history — {item.asin}
+            <button
+              onClick={() => setExplorerOpen(true)}
+              className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium text-muted-foreground transition hover:bg-slate-100 dark:hover:bg-slate-800"
+            >
+              <Maximize2 className="h-3 w-3" />
+              Expand
+            </button>
+          </h3>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
             <LegendSwatch color={colors.our} label="Our price" />
             <LegendSwatch color={colors.buyBox} label="Buy Box" />
@@ -190,7 +173,12 @@ export function HistoryView() {
           every month the market sits below it is a month you could not have competed
           profitably.
         </p>
-        <div className="h-[320px]">
+        <div
+          className="h-[320px] cursor-zoom-in"
+          role="button"
+          title="Click to open the interactive explorer"
+          onClick={() => setExplorerOpen(true)}
+        >
           <ResponsiveContainer>
             <LineChart data={points} margin={{ top: 8, right: 16, bottom: 4, left: 8 }}>
               <CartesianGrid stroke={chrome.grid} strokeWidth={1} vertical={false} />
@@ -274,7 +262,7 @@ export function HistoryView() {
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-2xl border border-white/70 bg-white/84 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
           <h3 className="mb-3 text-sm font-semibold">Competing sellers</h3>
-          <div className="h-[180px]">
+          <div className="h-[180px] cursor-zoom-in" role="button" onClick={() => setExplorerOpen(true)}>
             <ResponsiveContainer>
               <LineChart data={points} margin={{ top: 8, right: 16, bottom: 4, left: 8 }}>
                 <CartesianGrid stroke={chrome.grid} strokeWidth={1} vertical={false} />
@@ -308,7 +296,7 @@ export function HistoryView() {
         </div>
         <div className="rounded-2xl border border-white/70 bg-white/84 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
           <h3 className="mb-3 text-sm font-semibold">Est. monthly sales (units)</h3>
-          <div className="h-[180px]">
+          <div className="h-[180px] cursor-zoom-in" role="button" onClick={() => setExplorerOpen(true)}>
             <ResponsiveContainer>
               <BarChart data={points} margin={{ top: 8, right: 16, bottom: 4, left: 8 }}>
                 <CartesianGrid stroke={chrome.grid} strokeWidth={1} vertical={false} />
@@ -339,6 +327,12 @@ export function HistoryView() {
           </div>
         </div>
       </div>
+
+      <HistoryExplorer
+        open={explorerOpen}
+        initialAsin={asin}
+        onOpenChange={setExplorerOpen}
+      />
     </div>
   )
 }

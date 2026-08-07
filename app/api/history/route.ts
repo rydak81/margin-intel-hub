@@ -15,13 +15,15 @@ export async function GET(req: NextRequest) {
   if (!asin || !/^B0[A-Z0-9]{8}$/.test(asin)) {
     return NextResponse.json({ error: "Invalid ASIN" }, { status: 400 })
   }
+  const months = Math.min(36, Math.max(6, Number(req.nextUrl.searchParams.get("months")) || 18))
 
   const key = process.env.KEEPA_API_KEY
   if (!key) {
     return NextResponse.json({ configured: false })
   }
 
-  const cached = cache.get(asin)
+  const cacheKey = `${asin}:${months}`
+  const cached = cache.get(cacheKey)
   if (cached && Date.now() - cached.at < CACHE_TTL_MS) {
     return NextResponse.json(cached.body)
   }
@@ -44,8 +46,8 @@ export async function GET(req: NextRequest) {
     configured: true,
     asin,
     source: "keepa" as const,
-    points: keepaProductToHistory(product),
+    points: keepaProductToHistory(product, months),
   }
-  cache.set(asin, { at: Date.now(), body })
+  cache.set(cacheKey, { at: Date.now(), body })
   return NextResponse.json(body)
 }
