@@ -169,7 +169,7 @@ export default function ToolsPage() {
               <BarChart3 className="h-5 w-5" />
             </div>
             <div>
-              <span className="font-semibold">New: Margin-Aware Repricer</span>
+              <span className="font-semibold">New: ProfitTygr — Margin-Aware Repricer</span>
               <p className="text-sm text-white/72">
                 Compute floor, target, and ceiling prices per SKU from landed cost and platform
                 fees — and see exactly when the market drops below your profitable floor.

@@ -5,7 +5,7 @@ import { HistoryView } from "@/components/repricer/history-view"
 import { LineChart } from "lucide-react"
 
 export const metadata: Metadata = {
-  title: "Price History | Margin-Aware Repricer",
+  title: "Price History | ProfitTygr",
   description:
     "Historical pricing, Buy Box price, seller count, and monthly sales per SKU — with your profitability floor drawn on the chart.",
 }
@@ -15,7 +15,7 @@ export default function RepricerHistoryPage() {
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.14),transparent_18%),radial-gradient(circle_at_top_right,rgba(217,70,239,0.12),transparent_16%),linear-gradient(180deg,rgba(248,250,252,0.92),rgba(255,255,255,0.84)_18%,transparent_32%)] bg-background">
       <PremiumSiteHeader
         active="tools"
-        deskLabel="Repricer · Price History"
+        deskLabel="ProfitTygr · Price History"
         backHref="/tools/repricer"
         backLabel="Repricer"
       />
@@ -58,7 +58,7 @@ export default function RepricerHistoryPage() {
 
       <footer className="mt-12 border-t border-slate-200/60 py-5 text-center dark:border-white/10">
         <p className="text-xs text-slate-500 dark:text-slate-400">
-          Built by BeaconPath Holdings, LLC © 2026 · DBA RD Consulting
+          ProfitTygr — built by BeaconPath Holdings, LLC © 2026 · DBA RD Consulting
         </p>
       </footer>
     </div>

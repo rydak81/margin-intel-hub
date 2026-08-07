@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Scale, Sparkles } from "lucide-react"
 
 export const metadata: Metadata = {
-  title: "Margin-Aware Repricer | Seller Tools",
+  title: "ProfitTygr | Seller Tools",
   description:
     "Repricing and pricing analysis for optimum margin: compute the lowest price that still hits your target margin per platform and landed cost, then compete only within that band.",
 }
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 export default function RepricerPage() {
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.14),transparent_18%),radial-gradient(circle_at_top_right,rgba(217,70,239,0.12),transparent_16%),linear-gradient(180deg,rgba(248,250,252,0.92),rgba(255,255,255,0.84)_18%,transparent_32%)] bg-background">
-      <PremiumSiteHeader active="tools" deskLabel="Margin-Aware Repricer" backHref="/tools" backLabel="Tools" />
+      <PremiumSiteHeader active="tools" deskLabel="ProfitTygr" backHref="/tools" backLabel="Tools" />
 
       <section className="relative overflow-hidden bg-grid-pattern">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.1),transparent_24%),radial-gradient(circle_at_top_right,rgba(217,70,239,0.12),transparent_18%),linear-gradient(180deg,rgba(37,99,235,0.05),transparent_44%)]" />
@@ -28,9 +28,9 @@ export default function RepricerPage() {
           <h1 className="mt-5 flex items-center gap-3 text-4xl font-black tracking-tight md:text-5xl">
             <Scale className="h-9 w-9 text-sky-600" />
             <span>
-              Margin-Aware{" "}
+              Profit
               <span className="bg-[linear-gradient(135deg,#0f3f96_0%,#2563eb_38%,#7c3aed_72%,#d946ef_100%)] bg-clip-text text-transparent">
-                Repricer
+                Tygr
               </span>
             </span>
           </h1>
@@ -80,7 +80,7 @@ export default function RepricerPage() {
           All prices computed here are estimates for analysis, not live repricing instructions.
         </p>
         <p className="mt-2 text-xs text-white/40">
-          Built by BeaconPath Holdings, LLC © 2026 · DBA RD Consulting
+          ProfitTygr — built by BeaconPath Holdings, LLC © 2026 · DBA RD Consulting
         </p>
       </footer>
     </div>

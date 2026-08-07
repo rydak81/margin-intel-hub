@@ -5,7 +5,7 @@ import { SourcingView } from "@/components/repricer/sourcing-view"
 import { PackageSearch } from "lucide-react"
 
 export const metadata: Metadata = {
-  title: "Sourcing Calculator | Margin-Aware Repricer",
+  title: "Sourcing Calculator | ProfitTygr",
   description:
     "Look up or scan a product, pull the live Buy Box price, and reverse-calculate the maximum you should pay to hit your target margin on each platform.",
 }
@@ -15,7 +15,7 @@ export default function RepricerSourcingPage() {
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.14),transparent_18%),radial-gradient(circle_at_top_right,rgba(217,70,239,0.12),transparent_16%),linear-gradient(180deg,rgba(248,250,252,0.92),rgba(255,255,255,0.84)_18%,transparent_32%)] bg-background">
       <PremiumSiteHeader
         active="tools"
-        deskLabel="Repricer · Sourcing"
+        deskLabel="ProfitTygr · Sourcing"
         backHref="/tools/repricer"
         backLabel="Repricer"
       />
@@ -58,7 +58,7 @@ export default function RepricerSourcingPage() {
 
       <footer className="mt-12 border-t border-slate-200/60 py-5 text-center dark:border-white/10">
         <p className="text-xs text-slate-500 dark:text-slate-400">
-          Built by BeaconPath Holdings, LLC © 2026 · DBA RD Consulting
+          ProfitTygr — built by BeaconPath Holdings, LLC © 2026 · DBA RD Consulting
         </p>
       </footer>
     </div>
