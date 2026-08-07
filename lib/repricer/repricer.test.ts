@@ -285,3 +285,57 @@ describe("cost CSV import", () => {
     expect(r.unmatched).toEqual(["B0NOTINCAT"])
   })
 })
+
+describe("price history", async () => {
+  const { generateSampleHistory, keepaProductToHistory, keepaSeriesToMonthly, keepaTimeToDate, lastMonths } =
+    await import("./history")
+
+  it("converts Keepa timestamps to real dates", () => {
+    // Keepa epoch offset: 21564000 minutes. 0 => 2011-01-08ish.
+    const d = keepaTimeToDate(0)
+    expect(d.getUTCFullYear()).toBe(2011)
+  })
+
+  it("takes the last observation per month and skips -1 gaps", () => {
+    const jan = Math.floor(Date.UTC(2026, 0, 5) / 60000) - 21564000
+    const janLater = Math.floor(Date.UTC(2026, 0, 20) / 60000) - 21564000
+    const feb = Math.floor(Date.UTC(2026, 1, 10) / 60000) - 21564000
+    const m = keepaSeriesToMonthly([jan, 10000, janLater, 12000, feb, -1])
+    expect(m.get("2026-01")).toBe(12000)
+    expect(m.has("2026-02")).toBe(false)
+  })
+
+  it("maps Keepa csv indices to monthly points in dollars", () => {
+    const t = Math.floor(Date.now() / 60000) - 21564000
+    const csv: (number[] | null)[] = []
+    csv[1] = [t, 9999] // NEW: $99.99
+    csv[11] = [t, 12] // COUNT_NEW
+    csv[18] = [t, 10499] // BUY_BOX_SHIPPING: $104.99
+    const points = keepaProductToHistory({ asin: "B0TESTSKU1", csv }, 3)
+    const latest = points[points.length - 1]
+    expect(latest.lowestOffer).toBeCloseTo(99.99, 2)
+    expect(latest.buyBoxPrice).toBeCloseTo(104.99, 2)
+    expect(latest.offerCount).toBe(12)
+    expect(latest.ourPrice).toBeNull() // Keepa tracks the market, not our offer
+  })
+
+  it("generates deterministic, plausible sample series anchored to the snapshot", () => {
+    const it1 = item()
+    const a = generateSampleHistory(it1)
+    const b = generateSampleHistory(it1)
+    expect(a).toEqual(b) // seeded by ASIN — stable across renders
+    expect(a).toHaveLength(18)
+    const latest = a[a.length - 1]
+    // ends near current snapshot values
+    expect(Math.abs(latest.ourPrice! - it1.currentPrice!) / it1.currentPrice!).toBeLessThan(0.1)
+    for (const p of a) {
+      expect(p.lowestOffer!).toBeGreaterThan(0)
+      expect(p.offerCount!).toBeGreaterThan(0)
+    }
+  })
+
+  it("lastMonths returns consecutive month keys ending this month", () => {
+    const keys = lastMonths(3, new Date(Date.UTC(2026, 7, 15)))
+    expect(keys).toEqual(["2026-06", "2026-07", "2026-08"])
+  })
+})

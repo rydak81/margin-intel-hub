@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import Link from "next/link"
 import { PremiumSiteHeader } from "@/components/premium-site-header"
 import { RepricerDashboard } from "@/components/repricer/repricer-dashboard"
 import { Badge } from "@/components/ui/badge"
@@ -50,6 +51,20 @@ export default function RepricerPage() {
       </section>
 
       <main className="mx-auto max-w-7xl px-4 py-8">
+        <nav className="mb-6 flex items-center gap-1 text-sm">
+          <Link
+            href="/tools/repricer"
+            className="rounded-full bg-sky-500/10 px-3 py-1.5 font-medium text-sky-700 dark:text-sky-300"
+          >
+            Dashboard
+          </Link>
+          <Link
+            href="/tools/repricer/history"
+            className="rounded-full px-3 py-1.5 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-900"
+          >
+            Price History
+          </Link>
+        </nav>
         <RepricerDashboard />
       </main>
 
