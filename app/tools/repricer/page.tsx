@@ -2,8 +2,9 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { PremiumSiteHeader } from "@/components/premium-site-header"
 import { RepricerDashboard } from "@/components/repricer/repricer-dashboard"
+import { TygrLogo } from "@/components/repricer/tygr-logo"
 import { Badge } from "@/components/ui/badge"
-import { Scale, Sparkles } from "lucide-react"
+import { Sparkles } from "lucide-react"
 
 export const metadata: Metadata = {
   title: "ProfitTygr | Seller Tools",
@@ -26,7 +27,7 @@ export default function RepricerPage() {
             </span>
           </div>
           <h1 className="mt-5 flex items-center gap-3 text-4xl font-black tracking-tight md:text-5xl">
-            <Scale className="h-9 w-9 text-sky-600" />
+            <TygrLogo className="h-10 w-10" />
             <span>
               Profit
               <span className="bg-[linear-gradient(135deg,#0f3f96_0%,#2563eb_38%,#7c3aed_72%,#d946ef_100%)] bg-clip-text text-transparent">
