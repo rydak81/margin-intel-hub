@@ -5,14 +5,19 @@ import { getSourceIntelligence } from "@/lib/source-intelligence"
 
 function stripHtmlTags(text: string): string {
   if (!text) return ''
-  return text
-    .replace(/<[^>]*>/g, '')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&amp;/g, '&')
-    .replace(/&quot;/g, '"')
-    .replace(/&#039;/g, "'")
+  let result = text
+  let prev = ''
+  while (prev !== result) {
+    prev = result
+    result = result.replace(/<[^>]*>/g, '')
+  }
+  return result
+    .replace(/&(nbsp|lt|gt|amp|quot|#039);/g, (match, entity: string) => {
+      const entities: Record<string, string> = {
+        nbsp: ' ', lt: '<', gt: '>', amp: '&', quot: '"', '#039': "'"
+      }
+      return entities[entity] ?? match
+    })
     .replace(/\s+/g, ' ')
     .trim()
 }

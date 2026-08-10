@@ -33,12 +33,6 @@ import {
 import { useAuthAccount } from "@/hooks/use-auth-account"
 import { buildUserPreferenceProfile, getPersonalizationLabel, personalizeArticles } from "@/lib/personalization"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import {
   AlertTriangle,
   BarChart3,
   RefreshCw,
@@ -67,7 +61,6 @@ import {
   Calculator,
   Target,
   LineChart,
-  ChevronDown,
   FileText,
   Linkedin,
   Twitter,
