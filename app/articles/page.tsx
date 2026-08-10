@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { PremiumSiteHeader } from "@/components/premium-site-header"
+import { PremiumSiteFooter } from "@/components/premium-site-footer"
 import { getArticleFallbackImage } from "@/lib/article-images"
 import { useAuthAccount } from "@/hooks/use-auth-account"
 import { buildUserPreferenceProfile, getNewsDeskDefaults, getPersonalizationLabel } from "@/lib/personalization"
@@ -456,6 +457,7 @@ export default function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
           </>
         )}
       </main>
+      <PremiumSiteFooter />
     </div>
   )
 }

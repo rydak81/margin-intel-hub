@@ -3,6 +3,20 @@ import { loadArticlesFromDB } from "@/lib/article-store"
 import { callAIForJSON } from "@/lib/ai-client"
 import { getSourceIntelligence } from "@/lib/source-intelligence"
 
+function stripHtmlTags(text: string): string {
+  if (!text) return ''
+  return text
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
 export interface BriefingMetric {
   label: string
   value: string
@@ -36,6 +50,26 @@ const BRIEFING_TTL = 15 * 60 * 1000
 
 function formatCategory(category: string): string {
   return category.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())
+}
+
+function getCategoryWhyItMatters(category: string, impactLevel?: string): string {
+  const level = impactLevel || 'medium'
+  const categoryMessages: Record<string, string> = {
+    platform_updates: level === 'high'
+      ? 'Review this platform change and assess direct impact on your operations.'
+      : 'Monitor this platform update for potential workflow changes.',
+    market_metrics: 'Evaluate how this market shift affects your competitive positioning and pricing strategy.',
+    profitability: 'Assess the margin and cost implications for your business model.',
+    mergers_acquisitions: 'Consider how this deal reshapes the competitive landscape in your category.',
+    tools_technology: 'Evaluate whether this tool or technology change warrants adoption or workflow adjustment.',
+    advertising: 'Review ad spend efficiency and campaign strategy in light of this development.',
+    logistics: 'Check fulfillment and supply chain exposure related to this update.',
+    breaking: 'Act quickly — this development may require immediate operational adjustments.',
+    tactics: 'Consider integrating this tactic into your current growth playbook.',
+    events: 'Mark your calendar and assess networking or learning opportunities.',
+    compliance_policy: 'Review compliance requirements and ensure your operations align with this policy change.',
+  }
+  return categoryMessages[category] || 'Review this signal for operational relevance to your marketplace business.'
 }
 
 function buildFallbackBriefing(articles: ClassifiedArticle[]): DailyOperatorBriefing {
@@ -92,8 +126,8 @@ function buildFallbackBriefing(articles: ClassifiedArticle[]): DailyOperatorBrie
     signals: topArticles.map((article) => ({
       articleId: article.id,
       title: article.title,
-      summary: article.aiSummary || article.summary,
-      whyItMatters: article.impactDetail || article.actionItem || "This signal is worth reviewing because it can affect operator workflow, profitability, or platform risk.",
+      summary: stripHtmlTags(article.aiSummary || article.summary),
+      whyItMatters: article.impactDetail || article.actionItem || getCategoryWhyItMatters(article.category, article.impactLevel),
       source: article.sourceName,
       platforms: article.platforms || [],
       impactLevel: article.impactLevel,

@@ -39,7 +39,8 @@ function formatRelativeTime(dateString: string): string {
 
 export default async function NewsPage() {
   const { briefing, articles } = await getDailyOperatorBriefing()
-  const topCoverage = articles.slice(0, 8)
+  const signalIds = new Set(briefing.signals.map(s => s.articleId))
+  const topCoverage = articles.filter(a => !signalIds.has(a.id)).slice(0, 8)
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.14),transparent_18%),radial-gradient(circle_at_top_right,rgba(217,70,239,0.12),transparent_16%),linear-gradient(180deg,rgba(248,250,252,0.92),rgba(255,255,255,0.84)_18%,transparent_32%)] bg-background">
@@ -132,7 +133,7 @@ export default async function NewsPage() {
           </div>
         </section>
 
-        <section className="mt-10 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+        <section className="mt-16 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
           <div className="rounded-[30px] border border-white/70 bg-white/82 p-6 shadow-[0_24px_60px_-38px_rgba(15,23,42,0.28)] backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-sky-600" />
@@ -193,7 +194,9 @@ export default async function NewsPage() {
           </div>
         </section>
 
-        <section className="mt-10">
+        <div className="mx-auto my-8 h-px max-w-2xl bg-gradient-to-r from-transparent via-slate-300/50 to-transparent dark:via-slate-700/50" />
+
+        <section className="mt-16">
           <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-sky-700 dark:text-sky-300">

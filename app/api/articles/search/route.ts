@@ -36,8 +36,11 @@ type SearchFilters = {
 
 function applyFilters<T>(query: T, filters: SearchFilters): T {
   let next = (query as any)
-    .eq('relevant', true)
-    .gte('relevance_score', 40)
+
+  const hasActiveFilters = filters.q.trim() || filters.category || filters.platforms.length > 0 || filters.impact || filters.audience
+  if (hasActiveFilters) {
+    next = next.eq('relevant', true).gte('relevance_score', 40)
+  }
 
   if (filters.q.trim()) {
     next = next.or(`title.ilike.%${filters.q}%,summary.ilike.%${filters.q}%,ai_summary.ilike.%${filters.q}%`)
@@ -153,7 +156,13 @@ export async function GET(request: NextRequest) {
       relevanceScore: article.relevance_score || 0,
       audience: article.audience || [],
       isBreaking: article.is_breaking || false,
-    })))
+    })).filter((article) => {
+      const lowerSummary = article.summary.toLowerCase()
+      if (lowerSummary.includes('no substantive content')) return false
+      if (lowerSummary.includes('no data, policy change')) return false
+      if (lowerSummary.includes('article summary contains only')) return false
+      return true
+    }))
 
     if (sort === 'impact') {
       const impactOrder: Record<string, number> = { high: 0, medium: 1, low: 2 }

@@ -352,18 +352,23 @@ export default function HomePageClient({
   // 95%+ of content because most articles score >= 80 (the "featured" threshold).
   // Featured articles still get priority placement in the sidebar/hero sections.
   const regularArticles = deduplicatedFeed
-  const trendingArticles = [...articles]
-    .sort((a, b) => {
-      const priorityA = Number(a.breaking || a.featured)
-      const priorityB = Number(b.breaking || b.featured)
-
-      if (priorityA !== priorityB) {
-        return priorityB - priorityA
-      }
-
-      return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
-    })
-    .slice(0, 5)
+  const trendingArticles = (() => {
+    const seen = new Set<string>()
+    return [...articles]
+      .sort((a, b) => {
+        const priorityA = Number(a.breaking || a.featured)
+        const priorityB = Number(b.breaking || b.featured)
+        if (priorityA !== priorityB) return priorityB - priorityA
+        return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+      })
+      .filter(a => {
+        const normalizedTitle = a.title.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 60)
+        if (seen.has(normalizedTitle)) return false
+        seen.add(normalizedTitle)
+        return true
+      })
+      .slice(0, 5)
+  })()
   const sourceCount = new Set(articles.map((article) => article.source).filter(Boolean)).size
   const freshStoryCount = articles.filter((article) => {
     const publishedAt = new Date(article.publishedAt).getTime()
@@ -480,41 +485,26 @@ export default function HomePageClient({
             />
 
             {/* Desktop Nav */}
-            <nav className="hidden lg:flex items-center gap-6">
-              <Link href="/" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-                Home
-              </Link>
-              <DropdownMenu>
-                <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-semibold text-white/82 transition-colors hover:text-white">
-                  Categories <ChevronDown className="h-3 w-3" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-56">
-                  {CATEGORIES.slice(1).map((cat) => (
-                    <DropdownMenuItem key={cat.id} onClick={() => setSelectedCategory(cat.id)}>
-                      <cat.icon className="h-4 w-4 mr-2" />
-                      {cat.label}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <Link href="/articles" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-                Articles
-              </Link>
-              <Link href="/partners" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-                Partners
-              </Link>
-              <Link href="/tools" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-                Tools
-              </Link>
-              <Link href="/community" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-                Community
-              </Link>
-              <Link href="/events" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-                Events
-              </Link>
-              <Link href="/newsletter" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-                Newsletter
-              </Link>
+            <nav className="hidden items-center gap-2 lg:flex">
+              {[
+                { href: "/", label: "Home" },
+                { href: "/news", label: "News" },
+                { href: "/articles", label: "Articles" },
+                { href: "/partners", label: "Partners" },
+                { href: "/tools", label: "Tools" },
+                { href: "/community", label: "Community" },
+                { href: "/events", label: "Events" },
+                { href: "/solutions", label: "Solutions" },
+                { href: "/newsletter", label: "Newsletter" },
+              ].map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="rounded-full px-3 py-2 text-sm font-semibold text-white/80 transition-colors hover:bg-white/6 hover:text-white"
+                >
+                  {item.label}
+                </Link>
+              ))}
             </nav>
 
             {/* Right Actions */}
@@ -599,12 +589,13 @@ export default function HomePageClient({
             <div className="border-t border-white/10 py-4 lg:hidden">
               <nav className="grid gap-2">
                 <Link href="/" className="rounded-2xl px-4 py-3 text-white/82 hover:bg-white/10 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Home</Link>
-                <Link href="/articles" className="rounded-2xl px-4 py-3 text-white/82 hover:bg-white/10 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Articles</Link>
                 <Link href="/news" className="rounded-2xl px-4 py-3 text-white/82 hover:bg-white/10 hover:text-white" onClick={() => setMobileMenuOpen(false)}>News</Link>
+                <Link href="/articles" className="rounded-2xl px-4 py-3 text-white/82 hover:bg-white/10 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Articles</Link>
                 <Link href="/partners" className="rounded-2xl px-4 py-3 text-white/82 hover:bg-white/10 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Partners</Link>
                 <Link href="/tools" className="rounded-2xl px-4 py-3 text-white/82 hover:bg-white/10 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Tools</Link>
                 <Link href="/community" className="rounded-2xl px-4 py-3 text-white/82 hover:bg-white/10 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Community</Link>
                 <Link href="/events" className="rounded-2xl px-4 py-3 text-white/82 hover:bg-white/10 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Events</Link>
+                <Link href="/solutions" className="rounded-2xl px-4 py-3 text-white/82 hover:bg-white/10 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Solutions</Link>
                 <Link href="/newsletter" className="rounded-2xl px-4 py-3 text-white/82 hover:bg-white/10 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Newsletter</Link>
                 {!accountLoading && currentUser ? (
                   <Link href="/account" className="rounded-2xl px-4 py-3 text-white/82 hover:bg-white/10 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Account</Link>
@@ -967,7 +958,7 @@ export default function HomePageClient({
                 <h2 className="mt-2 text-2xl font-bold">
                   {searchQuery ? `Search Results` : 'Latest News'}
                 </h2>
-                <p className="mt-1 text-sm text-muted-foreground">
+                <p className="mt-1 text-base text-muted-foreground">
                   Curated for operators, sellers, agencies, and marketplace tech teams.
                 </p>
               </div>
@@ -1054,22 +1045,22 @@ export default function HomePageClient({
                         <CardContent className="p-5 md:p-6">
                           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                             <div className="flex flex-wrap items-center gap-2">
-                              <span className="rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-700 dark:border-white/10 dark:bg-white/8 dark:text-white/88">
+                              <span className="rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-700 dark:border-white/10 dark:bg-white/8 dark:text-white/88">
                                 {article.category.replace(/[-_]/g, ' ')}
                               </span>
                               {article.aiSummary && (
-                                <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-400/15 bg-sky-50 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-sky-700 dark:border-sky-400/18 dark:bg-sky-400/10 dark:text-sky-200">
+                                <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-400/15 bg-sky-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-sky-700 dark:border-sky-400/18 dark:bg-sky-400/10 dark:text-sky-200">
                                   <Sparkles className="h-3 w-3" />
                                   AI Enhanced
                                 </span>
                               )}
                               {article.impactLevel && (
-                                <span className="rounded-full border border-amber-400/20 bg-amber-50 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-700 dark:border-amber-400/18 dark:bg-amber-400/10 dark:text-amber-200">
+                                <span className="rounded-full border border-amber-400/20 bg-amber-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-amber-700 dark:border-amber-400/18 dark:bg-amber-400/10 dark:text-amber-200">
                                   {article.impactLevel} impact
                                 </span>
                               )}
                             </div>
-                            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-300">
+                            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-300">
                               {formatTimeAgo(article.publishedAt)}
                             </span>
                           </div>
@@ -1078,7 +1069,7 @@ export default function HomePageClient({
                             {article.title}
                           </h3>
 
-                          <p className="mb-4 text-sm leading-6 text-slate-600 line-clamp-3 dark:text-slate-300">
+                          <p className="mb-4 text-base leading-relaxed text-slate-600 line-clamp-3 dark:text-slate-300">
                             {article.aiSummary || article.excerpt}
                           </p>
 

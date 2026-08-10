@@ -2,6 +2,20 @@ import type { ClassifiedArticle } from "@/lib/ai-classifier"
 import { getArticleImageUrl, isGoodArticleImage } from "@/lib/article-images"
 import { loadArticlesFromDB } from "@/lib/article-store"
 
+function stripHtmlTags(text: string): string {
+  if (!text) return ''
+  return text
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
 export interface NewsArticle {
   id: string
   title: string
@@ -116,8 +130,8 @@ export function mapAICategory(aiCategory: string | undefined): string {
 }
 
 export function toNewsArticle(article: HomepageArticleSource): NewsArticle {
-  const summary = article.summary || ""
-  const aiSummary = article.aiSummary || summary
+  const summary = stripHtmlTags(article.summary || "")
+  const aiSummary = stripHtmlTags(article.aiSummary || "") || summary
   const resolvedCategory = mapAICategory(article.category)
   const resolvedImageUrl = getArticleImageUrl(
     article.imageUrl,
@@ -130,8 +144,8 @@ export function toNewsArticle(article: HomepageArticleSource): NewsArticle {
   return {
     id: article.id,
     title: article.title,
-    excerpt: aiSummary,
-    fullContent: article.fullContent || summary,
+    excerpt: aiSummary || article.title,
+    fullContent: stripHtmlTags(article.fullContent || "") || summary,
     category: resolvedCategory,
     source: article.sourceName || "MarketplaceBeta",
     sourceUrl: article.sourceUrl || "",

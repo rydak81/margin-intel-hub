@@ -102,7 +102,7 @@ export default async function ArticlePage({
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://marketplacebeta.com"
   const articleUrl = `${siteUrl}/news/${article.id}`
   const articleDescription = article.aiSummary || article.summary || "Read the full analysis on MarketplaceBeta"
-  const standfirst = article.aiSummary || article.summary
+  const standfirst = cleanArticleContent(article.aiSummary || article.summary, article.title)
   const intelligenceHighlights = [
     article.whatThisMeans
       ? {
@@ -315,7 +315,7 @@ export default async function ArticlePage({
                       block.type === "paragraph" ? (
                         <p
                           key={`${article.id}-paragraph-${index}`}
-                          className="text-[1.06rem] leading-8 text-slate-700 dark:text-slate-200 md:text-[1.08rem] md:leading-9"
+                          className="text-lg leading-relaxed text-slate-700 dark:text-slate-200"
                         >
                           {block.content}
                         </p>
@@ -339,9 +339,24 @@ export default async function ArticlePage({
                       )
                     )
                 ) : (
-                    <p className="text-[1.06rem] leading-8 text-slate-700 dark:text-slate-200 md:text-[1.08rem] md:leading-9">
+                    <p className="text-lg leading-relaxed text-slate-700 dark:text-slate-200">
                       {contentText || article.summary}
                     </p>
+                )}
+                {contentText.length < 100 && article.sourceUrl && (
+                  <div className="mt-6 rounded-2xl border border-slate-200/70 bg-slate-50/80 p-5 dark:border-white/10 dark:bg-white/[0.03]">
+                    <p className="text-base leading-7 text-slate-600 dark:text-slate-300">
+                      Full article available at the original source.{' '}
+                      <a
+                        href={article.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-semibold text-primary hover:underline"
+                      >
+                        Read the complete story at {article.sourceName} →
+                      </a>
+                    </p>
+                  </div>
                 )}
               </div>
               </div>

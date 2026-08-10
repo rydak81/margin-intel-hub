@@ -4,10 +4,17 @@ import { syncMarketplaceFirstSourceStrategy } from '@/lib/news-aggregation'
 
 export const maxDuration = 60 // Allow up to 60s for aggregation
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let _supabaseAdmin: any = null
+function getSupabaseAdmin() {
+  if (!_supabaseAdmin) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+    if (!url || !key) throw new Error('Missing Supabase credentials')
+    _supabaseAdmin = createClient(url, key)
+  }
+  return _supabaseAdmin
+}
 
 // MarketplaceBeta now leans into best-available operator intelligence,
 // including agencies and partner ecosystems when the content is useful.
@@ -83,6 +90,7 @@ export async function POST(request: Request) {
 }
 
 async function runAggregationFromDB() {
+  const supabaseAdmin = getSupabaseAdmin()
   const startTime = Date.now()
   const MAX_RUNTIME_MS = 50000 // Stop at 50s to leave buffer for DB writes
 
