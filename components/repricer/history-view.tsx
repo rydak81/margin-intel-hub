@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
+import { useRouter } from "next/navigation"
 import {
   Bar,
   BarChart,
@@ -26,13 +27,13 @@ import { AlertTriangle, Maximize2 } from "lucide-react"
 
 import { SEED_CATALOG } from "@/lib/repricer/catalog"
 import { decide, DEFAULT_STRATEGY } from "@/lib/repricer/decision"
-import { generateSampleHistory, type HistoryPoint } from "@/lib/repricer/history"
+import { generateSampleHistory, trimLeadingEmpty, type HistoryPoint } from "@/lib/repricer/history"
 import type { CostRecord, StrategyConfig } from "@/lib/repricer/types"
 import type { FeeOverrides } from "@/lib/repricer/fees"
 import { CHROME, SERIES, useDarkMode } from "./chart-theme"
 import { HistoryExplorer } from "./history-explorer"
 
-export function HistoryView() {
+export function HistoryView({ basePath = "/history" }: { basePath?: string } = {}) {
   const [asin, setAsin] = useState(SEED_CATALOG[0].asin)
   const [search, setSearch] = useState("")
   const [points, setPoints] = useState<HistoryPoint[]>([])
@@ -40,6 +41,7 @@ export function HistoryView() {
   const [loading, setLoading] = useState(false)
   const [floor, setFloor] = useState<number | null>(null)
   const [explorerOpen, setExplorerOpen] = useState(false)
+  const router = useRouter()
   const dark = useDarkMode()
   const colors = dark ? SERIES.dark : SERIES.light
   const chrome = dark ? CHROME.dark : CHROME.light
@@ -83,12 +85,9 @@ export function HistoryView() {
       .then((data) => {
         if (cancelled) return
         if (data.configured && data.points) {
-          // Keepa tracks the market, not our offer — overlay our current price
-          // on the most recent month so the series stays honest.
-          const pts = data.points as HistoryPoint[]
-          if (pts.length && item.currentPrice !== null)
-            pts[pts.length - 1] = { ...pts[pts.length - 1], ourPrice: item.currentPrice }
-          setPoints(pts)
+          // Keepa tracks the market, not our offer — our price renders as a
+          // reference line (from the catalog snapshot), never as fake history.
+          setPoints(trimLeadingEmpty(data.points as HistoryPoint[]))
           setSource("keepa")
         } else {
           setPoints(generateSampleHistory(item))
@@ -162,7 +161,7 @@ export function HistoryView() {
             </button>
           </h3>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <LegendSwatch color={colors.our} label="Our price" />
+            <LegendSwatch color={colors.our} label={source === "keepa" ? "Our price (current)" : "Our price"} dashed={source === "keepa"} />
             <LegendSwatch color={colors.buyBox} label="Buy Box" />
             <LegendSwatch color={colors.lowest} label="Lowest offer" />
             {floor !== null && <LegendSwatch color={chrome.floor} label="Our floor" dashed />}
@@ -176,8 +175,8 @@ export function HistoryView() {
         <div
           className="h-[320px] cursor-zoom-in"
           role="button"
-          title="Click to open the interactive explorer"
-          onClick={() => setExplorerOpen(true)}
+          title="Click to open the full analysis page"
+          onClick={() => router.push(`${basePath}/${asin}?metric=price`)}
         >
           <ResponsiveContainer>
             <LineChart data={points} margin={{ top: 8, right: 16, bottom: 4, left: 8 }}>
@@ -195,8 +194,10 @@ export function HistoryView() {
                 tickFormatter={(v: number) => `$${v}`}
                 width={52}
                 domain={[
-                  (dataMin: number) => Math.floor((dataMin * 0.96) / 5) * 5,
-                  (dataMax: number) => Math.ceil((dataMax * 1.03) / 5) * 5,
+                  (dataMin: number) =>
+                    Number.isFinite(dataMin) ? Math.floor((dataMin * 0.96) / 5) * 5 : 0,
+                  (dataMax: number) =>
+                    Number.isFinite(dataMax) ? Math.ceil((dataMax * 1.03) / 5) * 5 : 1,
                 ]}
               />
               <Tooltip
@@ -212,23 +213,41 @@ export function HistoryView() {
                   stroke={chrome.floor}
                   strokeDasharray="6 4"
                   strokeWidth={2}
+                  ifOverflow="extendDomain"
                   label={{
                     value: `Floor $${floor.toFixed(2)}`,
-                    position: "insideBottomRight",
+                    position: "insideBottomLeft",
                     fontSize: 11,
                     fill: chrome.floor,
                   }}
                 />
               )}
-              <Line
-                type="monotone"
-                dataKey="ourPrice"
-                name="Our price"
-                stroke={colors.our}
-                strokeWidth={2}
-                dot={false}
-                connectNulls
-              />
+              {source === "keepa" && item.currentPrice !== null && (
+                <ReferenceLine
+                  y={item.currentPrice}
+                  stroke={colors.our}
+                  strokeDasharray="2 4"
+                  strokeWidth={2}
+                  ifOverflow="extendDomain"
+                  label={{
+                    value: `Our price $${item.currentPrice.toFixed(2)}`,
+                    position: "insideTopLeft",
+                    fontSize: 11,
+                    fill: colors.our,
+                  }}
+                />
+              )}
+              {source === "sample" && (
+                <Line
+                  type="monotone"
+                  dataKey="ourPrice"
+                  name="Our price"
+                  stroke={colors.our}
+                  strokeWidth={2}
+                  dot={false}
+                  connectNulls
+                />
+              )}
               <Line
                 type="monotone"
                 dataKey="buyBoxPrice"
@@ -262,7 +281,12 @@ export function HistoryView() {
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-2xl border border-white/70 bg-white/84 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
           <h3 className="mb-3 text-sm font-semibold">Competing sellers</h3>
-          <div className="h-[180px] cursor-zoom-in" role="button" onClick={() => setExplorerOpen(true)}>
+          <div
+            className="h-[180px] cursor-zoom-in"
+            role="button"
+            title="Click to open the full analysis page"
+            onClick={() => router.push(`${basePath}/${asin}?metric=sellers`)}
+          >
             <ResponsiveContainer>
               <LineChart data={points} margin={{ top: 8, right: 16, bottom: 4, left: 8 }}>
                 <CartesianGrid stroke={chrome.grid} strokeWidth={1} vertical={false} />
@@ -296,7 +320,12 @@ export function HistoryView() {
         </div>
         <div className="rounded-2xl border border-white/70 bg-white/84 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
           <h3 className="mb-3 text-sm font-semibold">Est. monthly sales (units)</h3>
-          <div className="h-[180px] cursor-zoom-in" role="button" onClick={() => setExplorerOpen(true)}>
+          <div
+            className="h-[180px] cursor-zoom-in"
+            role="button"
+            title="Click to open the full analysis page"
+            onClick={() => router.push(`${basePath}/${asin}?metric=sales`)}
+          >
             <ResponsiveContainer>
               <BarChart data={points} margin={{ top: 8, right: 16, bottom: 4, left: 8 }}>
                 <CartesianGrid stroke={chrome.grid} strokeWidth={1} vertical={false} />

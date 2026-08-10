@@ -166,3 +166,21 @@ export function generateSampleHistory(item: CatalogItem, months = 18): HistoryPo
   }
   return points
 }
+
+/**
+ * Drop leading months where every series is null — live Keepa products that
+ * are younger than the requested window otherwise render a long empty region
+ * on the left of every chart. Keeps at least 3 points.
+ */
+export function trimLeadingEmpty(points: HistoryPoint[]): HistoryPoint[] {
+  const firstWithData = points.findIndex(
+    (p) =>
+      p.buyBoxPrice !== null ||
+      p.lowestOffer !== null ||
+      p.offerCount !== null ||
+      p.monthlySold !== null ||
+      p.ourPrice !== null,
+  )
+  if (firstWithData <= 0) return points
+  return points.slice(Math.min(firstWithData, Math.max(0, points.length - 3)))
+}

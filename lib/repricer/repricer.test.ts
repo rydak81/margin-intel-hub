@@ -384,3 +384,143 @@ describe("sourcing (reverse) math", async () => {
     expect(classifyQuery("iPad 9th Gen 64GB")).toBe("term")
   })
 })
+
+describe("history chart data hygiene", async () => {
+  const { trimLeadingEmpty } = await import("./history")
+  const empty = (month: string) => ({
+    month,
+    ourPrice: null,
+    buyBoxPrice: null,
+    lowestOffer: null,
+    offerCount: null,
+    monthlySold: null,
+  })
+
+  it("trims leading all-null months from young products", () => {
+    const pts = [
+      empty("2024-01"),
+      empty("2024-02"),
+      { ...empty("2024-03"), buyBoxPrice: 100 },
+      { ...empty("2024-04"), buyBoxPrice: 101 },
+      { ...empty("2024-05"), buyBoxPrice: 102 },
+    ]
+    const trimmed = trimLeadingEmpty(pts)
+    expect(trimmed[0].month).toBe("2024-03")
+    expect(trimmed).toHaveLength(3)
+  })
+
+  it("leaves series with data from the start untouched", () => {
+    const pts = [
+      { ...empty("2024-01"), lowestOffer: 90 },
+      empty("2024-02"),
+      { ...empty("2024-03"), buyBoxPrice: 100 },
+    ]
+    expect(trimLeadingEmpty(pts)).toHaveLength(3)
+  })
+
+  it("never trims below three remaining points", () => {
+    const pts = [
+      empty("2024-01"),
+      empty("2024-02"),
+      empty("2024-03"),
+      { ...empty("2024-04"), monthlySold: 5 },
+    ]
+    expect(trimLeadingEmpty(pts).length).toBeGreaterThanOrEqual(3)
+  })
+})
+
+describe("sales forecasting", async () => {
+  const { addMonths, extractObservations, fitElasticity, forecastSales, seasonalIndices } =
+    await import("./forecast")
+
+  // Synthetic history with KNOWN elasticity -1.5 and a December seasonal bump.
+  type Pt = import("./history").HistoryPoint
+  const synthetic = (months = 24, elasticity = -1.5): Pt[] => {
+    const pts: Pt[] = []
+    for (let i = 0; i < months; i++) {
+      const y = 2024 + Math.floor(i / 12)
+      const m = (i % 12) + 1
+      const month = `${y}-${String(m).padStart(2, "0")}`
+      // price wanders 80..120 deterministically
+      const price = 100 + 20 * Math.sin(i * 1.7)
+      const seasonal = m === 12 ? 1.5 : 1
+      const units = Math.round(80 * Math.pow(price / 100, elasticity) * seasonal)
+      pts.push({
+        month,
+        ourPrice: null,
+        buyBoxPrice: Math.round(price * 100) / 100,
+        lowestOffer: null,
+        offerCount: 10,
+        monthlySold: units,
+      })
+    }
+    return pts
+  }
+
+  it("extracts only months with both price and units", () => {
+    const pts = synthetic(6)
+    pts[2].monthlySold = null
+    pts[3].buyBoxPrice = null
+    expect(extractObservations(pts)).toHaveLength(4)
+  })
+
+  it("recovers a known elasticity from synthetic data", () => {
+    const fit = fitElasticity(extractObservations(synthetic(24)))!
+    expect(fit.elasticity).toBeGreaterThan(-1.7)
+    expect(fit.elasticity).toBeLessThan(-1.3)
+    expect(fit.r2).toBeGreaterThan(0.5)
+  })
+
+  it("recovers the December seasonal bump", () => {
+    const idx = seasonalIndices(extractObservations(synthetic(24)))
+    expect(idx[11]).toBeGreaterThan(1.2) // December
+    expect(Math.abs(idx.reduce((a, b) => a + b, 0) / 12 - 1)).toBeLessThan(0.01)
+  })
+
+  it("is deterministic for a given seed", () => {
+    const pts = synthetic(24)
+    const a = forecastSales(pts, { scenarioPrice: 95, seed: 7 })
+    const b = forecastSales(pts, { scenarioPrice: 95, seed: 7 })
+    expect(a).toEqual(b)
+  })
+
+  it("bands are monotone: P10 <= P50 <= P90 every month", () => {
+    const r = forecastSales(synthetic(24), { scenarioPrice: 100, simulations: 2000 })
+    expect(r.ok).toBe(true)
+    if (r.ok) {
+      for (const m of r.months) {
+        expect(m.unitsP10).toBeLessThanOrEqual(m.unitsP50)
+        expect(m.unitsP50).toBeLessThanOrEqual(m.unitsP90)
+      }
+    }
+  })
+
+  it("a lower price scenario forecasts more units (negative elasticity)", () => {
+    const pts = synthetic(24)
+    const cheap = forecastSales(pts, { scenarioPrice: 85, simulations: 2000 })
+    const dear = forecastSales(pts, { scenarioPrice: 115, simulations: 2000 })
+    expect(cheap.ok && dear.ok).toBe(true)
+    if (cheap.ok && dear.ok) {
+      const sum = (r: typeof cheap) => r.months.reduce((a, m) => a + m.unitsP50, 0)
+      expect(sum(cheap)).toBeGreaterThan(sum(dear))
+    }
+  })
+
+  it("falls back to the category prior on thin history and says so", () => {
+    const r = forecastSales(synthetic(7), { scenarioPrice: 100, simulations: 500 })
+    expect(r.ok).toBe(true)
+    if (r.ok) {
+      expect(r.elasticitySource).toBe("category-fallback")
+      expect(r.notes.join(" ")).toMatch(/category prior/)
+    }
+  })
+
+  it("refuses to forecast with under six usable months", () => {
+    const r = forecastSales(synthetic(5), { scenarioPrice: 100 })
+    expect(r.ok).toBe(false)
+  })
+
+  it("addMonths rolls years correctly", () => {
+    expect(addMonths("2026-11", 3)).toBe("2027-02")
+  })
+})

@@ -53,7 +53,7 @@ export default function RepricerHistoryPage() {
       </section>
 
       <main className="mx-auto max-w-7xl px-4 py-6">
-        <HistoryView />
+        <HistoryView basePath="/tools/repricer/history" />
       </main>
 
       <footer className="mt-12 border-t border-slate-200/60 py-5 text-center dark:border-white/10">

@@ -39,7 +39,7 @@ import { AlertTriangle } from "lucide-react"
 
 import { SEED_CATALOG } from "@/lib/repricer/catalog"
 import { decide, DEFAULT_STRATEGY } from "@/lib/repricer/decision"
-import { generateSampleHistory, type HistoryPoint } from "@/lib/repricer/history"
+import { generateSampleHistory, trimLeadingEmpty, type HistoryPoint } from "@/lib/repricer/history"
 import type { CostRecord, PriceLadder, StrategyConfig } from "@/lib/repricer/types"
 import type { FeeOverrides } from "@/lib/repricer/fees"
 import { CHROME, SERIES, useDarkMode } from "./chart-theme"
@@ -126,10 +126,7 @@ export function HistoryExplorer({
       .then((data) => {
         if (cancelled) return
         if (data.configured && data.points) {
-          const pts = data.points as HistoryPoint[]
-          if (pts.length && item.currentPrice !== null)
-            pts[pts.length - 1] = { ...pts[pts.length - 1], ourPrice: item.currentPrice }
-          setAllPoints(pts)
+          setAllPoints(trimLeadingEmpty(data.points as HistoryPoint[]))
           setSource("keepa")
         } else {
           setAllPoints(generateSampleHistory(item, 36))
@@ -258,8 +255,10 @@ export function HistoryExplorer({
                 tickFormatter={(v: number) => `$${v}`}
                 width={52}
                 domain={[
-                  (dataMin: number) => Math.floor((dataMin * 0.96) / 5) * 5,
-                  (dataMax: number) => Math.ceil((dataMax * 1.03) / 5) * 5,
+                  (dataMin: number) =>
+                    Number.isFinite(dataMin) ? Math.floor((dataMin * 0.96) / 5) * 5 : 0,
+                  (dataMax: number) =>
+                    Number.isFinite(dataMax) ? Math.ceil((dataMax * 1.03) / 5) * 5 : 1,
                 ]}
               />
               <Tooltip
@@ -275,9 +274,10 @@ export function HistoryExplorer({
                   stroke={chrome.floor}
                   strokeDasharray="6 4"
                   strokeWidth={2}
+                  ifOverflow="extendDomain"
                   label={{
                     value: `Floor $${ladder.floorPrice.toFixed(2)}`,
-                    position: "insideBottomRight",
+                    position: "insideBottomLeft",
                     fontSize: 11,
                     fill: chrome.floor,
                   }}
@@ -289,6 +289,7 @@ export function HistoryExplorer({
                   stroke={chrome.target}
                   strokeDasharray="6 4"
                   strokeWidth={2}
+                  ifOverflow="extendDomain"
                   label={{
                     value: `Target $${ladder.targetPrice.toFixed(2)}`,
                     position: "insideTopRight",
@@ -297,7 +298,22 @@ export function HistoryExplorer({
                   }}
                 />
               )}
-              {visible.ourPrice && (
+              {visible.ourPrice && source === "keepa" && item.currentPrice !== null && (
+                <ReferenceLine
+                  y={item.currentPrice}
+                  stroke={colors.our}
+                  strokeDasharray="2 4"
+                  strokeWidth={2}
+                  ifOverflow="extendDomain"
+                  label={{
+                    value: `Our price $${item.currentPrice.toFixed(2)}`,
+                    position: "insideTopLeft",
+                    fontSize: 11,
+                    fill: colors.our,
+                  }}
+                />
+              )}
+              {visible.ourPrice && source === "sample" && (
                 <Line
                   type="monotone"
                   dataKey="ourPrice"
@@ -331,6 +347,7 @@ export function HistoryExplorer({
                 />
               )}
               <Brush
+                key={`${asin}-${months}`}
                 dataKey="month"
                 height={26}
                 travellerWidth={8}
