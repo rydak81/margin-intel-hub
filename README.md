@@ -107,7 +107,7 @@ The app will be available at [http://localhost:3000](http://localhost:3000).
 1. Push the repository to GitHub
 2. Import the project in [Vercel](https://vercel.com)
 3. Add the environment variables above in the Vercel dashboard
-4. Vercel will automatically set up the cron job defined in `vercel.json` (news aggregation every 2 hours)
+4. Vercel will automatically set up the cron jobs defined in `vercel.json` (daily news and community pipelines)
 
 ## Project Structure
 

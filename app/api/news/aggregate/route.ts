@@ -39,7 +39,7 @@ function stripHTML(html: string): string {
     .trim()
 }
 
-// GET handler - called by Vercel cron every 2 hours
+// GET handler - called by Vercel cron daily at 5 AM UTC
 export async function GET(request: Request) {
   try {
     const authHeader = request.headers.get('authorization')
