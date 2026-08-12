@@ -9,10 +9,32 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 // Valid roles
 const VALID_ROLES = ['brand_seller', 'agency', 'saas_tech', 'investor', 'service_provider', 'other']
 
+/** Keys we accept into the enrichment payload, to avoid storing arbitrary client JSON. */
+const CONTEXT_KEYS = ['source', 'marketplace', 'category', 'salePrice', 'unitCost', 'marginPct'] as const
+
+function sanitizeContext(raw: unknown): Record<string, string | number> | null {
+  if (!raw || typeof raw !== 'object') return null
+
+  const input = raw as Record<string, unknown>
+  const clean: Record<string, string | number> = {}
+
+  for (const key of CONTEXT_KEYS) {
+    const value = input[key]
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      clean[key] = value
+    } else if (typeof value === 'string' && value.trim()) {
+      clean[key] = value.trim().slice(0, 200)
+    }
+  }
+
+  return Object.keys(clean).length > 0 ? clean : null
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { email, firstName, company, role, source = 'website' } = body
+    const { email, firstName, company, role, source = 'website', update = false } = body
+    const context = sanitizeContext(body.context)
 
     console.log('[Subscribe] API called with:', { email, firstName, company, role, source })
 
@@ -51,6 +73,30 @@ export async function POST(request: Request) {
       .single()
 
     if (existingSubscriber) {
+      // Step two of the gated-tool flow: the subscriber already exists from the
+      // email step, and we're now enriching them with role/context. Treat this
+      // as a success rather than a duplicate-signup conflict.
+      if (update && (role || context)) {
+        const patch: Record<string, unknown> = { updated_at: new Date().toISOString() }
+        if (role) patch.role = role
+        if (context) patch.context = context
+
+        const { error: updateError } = await supabase
+          .from('subscribers')
+          .update(patch)
+          .eq('id', existingSubscriber.id)
+
+        if (updateError) {
+          console.warn('[Subscribe] Enrichment update failed:', updateError.message)
+        }
+
+        return NextResponse.json({
+          success: true,
+          message: 'Preferences saved.',
+          subscriber: { id: existingSubscriber.id, email: existingSubscriber.email },
+        })
+      }
+
       return NextResponse.json(
         {
           success: false,
@@ -70,6 +116,7 @@ export async function POST(request: Request) {
         company: company?.trim() || null,
         role: role || null,
         source: source,
+        context: context,
       })
       .select()
       .single()

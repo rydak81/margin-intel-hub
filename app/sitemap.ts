@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { MARKETPLACES, getAllFeeRoutes } from '@/lib/marketplace-fees'
 
 export const revalidate = 300
 
@@ -108,8 +109,38 @@ async function getArticleRoutes(): Promise<MetadataRoute.Sitemap> {
   }
 }
 
+/**
+ * Fee pages are statically generated from a local dataset, so they can be
+ * enumerated synchronously — no database round-trip needed.
+ */
+function getFeeRoutes(): MetadataRoute.Sitemap {
+  const hub: MetadataRoute.Sitemap = [
+    {
+      url: `${siteUrl}/fees`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    ...MARKETPLACES.map((marketplace) => ({
+      url: `${siteUrl}/fees/${marketplace.slug}`,
+      lastModified: new Date(marketplace.lastVerified),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    })),
+  ]
+
+  const categories: MetadataRoute.Sitemap = getAllFeeRoutes().map((route) => ({
+    url: `${siteUrl}/fees/${route.marketplace}/${route.category}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly',
+    priority: 0.7,
+  }))
+
+  return [...hub, ...categories]
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const articleRoutes = await getArticleRoutes()
 
-  return [...staticRoutes, ...articleRoutes]
+  return [...staticRoutes, ...getFeeRoutes(), ...articleRoutes]
 }

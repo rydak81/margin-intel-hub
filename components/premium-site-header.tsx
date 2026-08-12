@@ -12,6 +12,7 @@ type NavKey =
   | "news"
   | "partners"
   | "tools"
+  | "fees"
   | "community"
   | "events"
   | "solutions"
@@ -32,6 +33,7 @@ const NAV_ITEMS: Array<{ key: NavKey; href: string; label: string }> = [
   { key: "news", href: "/news", label: "News" },
   { key: "partners", href: "/partners", label: "Partners" },
   { key: "tools", href: "/tools", label: "Tools" },
+  { key: "fees", href: "/fees", label: "Fees" },
   { key: "community", href: "/community", label: "Community" },
   { key: "events", href: "/events", label: "Events" },
   { key: "solutions", href: "/solutions", label: "Solutions" },

@@ -485,6 +485,7 @@ export default function HomePageClient({
                 { href: "/articles", label: "Articles" },
                 { href: "/partners", label: "Partners" },
                 { href: "/tools", label: "Tools" },
+                { href: "/fees", label: "Fees" },
                 { href: "/community", label: "Community" },
                 { href: "/events", label: "Events" },
                 { href: "/solutions", label: "Solutions" },
