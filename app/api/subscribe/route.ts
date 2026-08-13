@@ -79,7 +79,12 @@ export async function POST(request: Request) {
       if (update && (role || context)) {
         const patch: Record<string, unknown> = { updated_at: new Date().toISOString() }
         if (role) patch.role = role
-        if (context) patch.context = context
+        if (context) {
+          patch.context = context
+          // Mirror the marketplace into its own column — it's the routing key the
+          // rest of the system reads, so it shouldn't live only inside the blob.
+          if (context.marketplace) patch.primary_marketplace = context.marketplace
+        }
 
         const { error: updateError } = await supabase
           .from('subscribers')
@@ -117,6 +122,7 @@ export async function POST(request: Request) {
         role: role || null,
         source: source,
         context: context,
+        primary_marketplace: context?.marketplace ?? null,
       })
       .select()
       .single()
