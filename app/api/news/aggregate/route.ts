@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { syncMarketplaceFirstSourceStrategy } from '@/lib/news-aggregation'
+import { isGoodArticleImage, normalizeArticleImageUrl } from '@/lib/article-images'
 
 export const maxDuration = 60 // Allow up to 60s for aggregation
 
@@ -22,6 +23,31 @@ const BLOCKED_DOMAINS: string[] = []
 
 function isBlockedSource(url: string): boolean {
   return BLOCKED_DOMAINS.some(domain => url.includes(domain))
+}
+
+/**
+ * Validate image fields before writing. RSS extraction happily captures
+ * tracking pixels, podcast enclosures, and http-only URLs — none of which
+ * should reach the database. When the image is junk or missing, the image
+ * keys are removed from the payload entirely so an upsert can't overwrite a
+ * previously repaired image (OG re-fetch or AI-generated) with garbage; a
+ * brand-new row simply gets NULL and the read-side fallback takes over.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function sanitizeArticleImageFields(article: any) {
+  const normalized = normalizeArticleImageUrl(article.image_url)
+  if (normalized && isGoodArticleImage(normalized)) {
+    article.image_url = normalized
+    if (article.original_rss_image) {
+      article.original_rss_image = normalizeArticleImageUrl(article.original_rss_image)
+    }
+  } else {
+    delete article.image_url
+    delete article.original_rss_image
+    delete article.has_real_image
+    delete article.image_source
+    delete article.og_image_url
+  }
 }
 
 /**
@@ -181,6 +207,8 @@ async function runAggregationFromDB() {
           article.image_source = 'rss'
         }
 
+        sanitizeArticleImageFields(article)
+
         const { error: upsertError } = await supabaseAdmin
           .from('articles')
           .upsert(article, { onConflict: 'source_url' })
@@ -216,6 +244,7 @@ async function runAggregationFromDB() {
           totalBlocked++
           continue
         }
+        sanitizeArticleImageFields(article)
         const { error } = await supabaseAdmin
           .from('articles')
           .upsert(article, { onConflict: 'source_url' })

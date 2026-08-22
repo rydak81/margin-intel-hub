@@ -1,4 +1,4 @@
-import Image from "next/image"
+import { ArticleImage } from "@/components/article-image"
 import Link from "next/link"
 import Script from "next/script"
 import { notFound } from "next/navigation"
@@ -198,13 +198,14 @@ export default async function ArticlePage({
             </div>
 
             <div className="relative mt-8 aspect-[16/9] overflow-hidden rounded-2xl border bg-muted">
-              <Image
+              <ArticleImage
                 src={articleImage}
                 alt={article.title}
-                fill
-                className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 960px"
-                priority
+                title={article.title}
+                category={article.category}
+                platforms={article.platforms || []}
+                className="absolute inset-0 h-full w-full object-cover"
+                eager
               />
             </div>
 
@@ -502,12 +503,13 @@ export default async function ArticlePage({
                       <Link key={related.id} href={`/news/${related.id}`}>
                         <Card className="overflow-hidden group cursor-pointer hover:shadow-md transition-all border-0 mb-4">
                           <div className="aspect-video relative overflow-hidden">
-                            <Image
+                            <ArticleImage
                               src={relatedImage}
                               alt={related.title}
-                              fill
-                              className="object-cover group-hover:scale-105 transition-transform duration-300"
-                              sizes="320px"
+                              title={related.title}
+                              category={related.category}
+                              platforms={related.platforms || []}
+                              className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
                             />
                           </div>
                           <CardContent className="p-4">

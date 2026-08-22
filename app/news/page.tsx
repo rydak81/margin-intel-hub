@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import Image from "next/image"
+import { ArticleImage } from "@/components/article-image"
 import Link from "next/link"
 import { AlertTriangle, ArrowRight, BellRing, BookOpenText, CalendarDays, CircleDot, Sparkles, Target } from "lucide-react"
 import { PremiumSiteHeader } from "@/components/premium-site-header"
@@ -229,12 +229,13 @@ export default async function NewsPage() {
                   className="group overflow-hidden rounded-[28px] border border-white/70 bg-white/88 shadow-[0_24px_60px_-38px_rgba(15,23,42,0.24)] transition hover:-translate-y-0.5 hover:shadow-[0_34px_78px_-40px_rgba(15,23,42,0.28)] dark:border-white/10 dark:bg-slate-950/45"
                 >
                   <div className="relative aspect-[16/10] overflow-hidden bg-slate-100 dark:bg-slate-900">
-                    <Image
+                    <ArticleImage
                       src={imageUrl}
                       alt={article.title}
-                      fill
-                      className="object-cover transition duration-500 group-hover:scale-[1.02]"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 25vw"
+                      title={article.title}
+                      category={article.category}
+                      platforms={article.platforms || []}
+                      className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]"
                     />
                   </div>
                   <div className="p-5">

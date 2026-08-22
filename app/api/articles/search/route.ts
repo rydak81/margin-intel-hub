@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient, hasAdminConfig } from '@/lib/supabase/admin'
 import { curateArticleFeed } from '@/lib/feed-curation'
+import { resolveArticleImage } from '@/lib/article-images'
 
 type CategoryFacetRow = { category: string | null }
 type PlatformFacetRow = { platforms: string[] | null }
@@ -19,6 +20,7 @@ type SearchArticleRow = {
   relevance_score: number | null
   audience: string[] | null
   is_breaking?: boolean | null
+  search_rank?: number
 }
 
 function parseList(str?: string): string[] {
@@ -34,7 +36,14 @@ type SearchFilters = {
   audience?: string | null
 }
 
+/**
+ * Applies filters to a PostgREST query builder. Text queries go through
+ * Postgres full-text search on the weighted search_vector column (websearch
+ * syntax: multi-word, "quoted phrases", OR, -exclusions) rather than ilike
+ * substring matching.
+ */
 function applyFilters<T>(query: T, filters: SearchFilters): T {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let next = (query as any)
 
   const hasActiveFilters = filters.q.trim() || filters.category || filters.platforms.length > 0 || filters.impact || filters.audience
@@ -43,14 +52,22 @@ function applyFilters<T>(query: T, filters: SearchFilters): T {
   }
 
   if (filters.q.trim()) {
-    next = next.or(`title.ilike.%${filters.q}%,summary.ilike.%${filters.q}%,ai_summary.ilike.%${filters.q}%`)
+    next = next.textSearch('search_vector', filters.q.trim(), { type: 'websearch', config: 'english' })
   }
   if (filters.category) next = next.eq('category', filters.category)
-  if (filters.platforms.length > 0) next = next.filter('platforms', 'cs', JSON.stringify(filters.platforms))
+  if (filters.platforms.length > 0) next = next.contains('platforms', filters.platforms)
   if (filters.impact) next = next.eq('impact_level', filters.impact)
-  if (filters.audience) next = next.filter('audience', 'cs', JSON.stringify([filters.audience]))
+  if (filters.audience) next = next.contains('audience', [filters.audience])
 
   return next
+}
+
+/** Junk-summary rows the classifier flagged but never cleaned up. */
+function isSubstantive(summary: string): boolean {
+  const lower = summary.toLowerCase()
+  return !lower.includes('no substantive content')
+    && !lower.includes('no data, policy change')
+    && !lower.includes('article summary contains only')
 }
 
 export async function GET(request: NextRequest) {
@@ -64,41 +81,68 @@ export async function GET(request: NextRequest) {
 
     const supabase = createAdminClient()
     const searchParams = request.nextUrl.searchParams
-    const q = searchParams.get('q') || ''
+    const q = (searchParams.get('q') || '').trim()
     const category = searchParams.get('category')
     const platforms = parseList(searchParams.get('platforms') || '')
     const impact = searchParams.get('impact')
     const audience = searchParams.get('audience')
-    const sort = (searchParams.get('sort') || 'newest') as 'newest' | 'oldest' | 'relevant' | 'impact'
+    const sort = (searchParams.get('sort') || (q ? 'relevant' : 'newest')) as 'newest' | 'oldest' | 'relevant' | 'impact'
     const limit = Math.min(parseInt(searchParams.get('limit') || '12'), 100)
     const offset = Math.max(0, parseInt(searchParams.get('offset') || '0'))
     const rawWindow = Math.min(Math.max((offset + limit) * 4, 80), 320)
     const filters: SearchFilters = { q, category, platforms, impact, audience }
 
-    let query = applyFilters(
-      supabase
-        .from('articles')
-        .select('id, title, summary, category, source_name, source_type, published_at, image_url, platforms, impact_level, relevance_score, audience, is_breaking'),
-      filters
-    )
+    let data: SearchArticleRow[] | null = null
+    let error: { message: string } | null = null
 
-    switch (sort) {
-      case 'oldest':
-        query = query.order('published_at', { ascending: true })
-        break
-      case 'relevant':
-        query = query.order('relevance_score', { ascending: false })
-        break
-      case 'impact':
-        query = query.order('impact_level', { ascending: true }).order('published_at', { ascending: false })
-        break
-      default:
-        query = query.order('published_at', { ascending: false })
-        break
+    if (q) {
+      // Full-text path: the ranked RPC blends match quality with recency, so
+      // "most relevant" means relevant to the query — not the classifier's
+      // industry-relevance score.
+      const rpc = await supabase.rpc('search_articles_ranked', {
+        search_query: q,
+        filter_category: category ?? null,
+        filter_platforms: platforms.length > 0 ? platforms : null,
+        filter_impact: impact ?? null,
+        filter_audience: audience ?? null,
+        max_rows: rawWindow,
+      })
+      data = rpc.data as SearchArticleRow[] | null
+      error = rpc.error
+
+      if (data) {
+        if (sort === 'newest') {
+          data.sort((a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime())
+        } else if (sort === 'oldest') {
+          data.sort((a, b) => new Date(a.published_at).getTime() - new Date(b.published_at).getTime())
+        }
+        // 'relevant' keeps the RPC's rank order; 'impact' is sorted below.
+      }
+    } else {
+      let query = applyFilters(
+        supabase
+          .from('articles')
+          .select('id, title, summary, category, source_name, source_type, published_at, image_url, platforms, impact_level, relevance_score, audience, is_breaking'),
+        filters
+      )
+
+      switch (sort) {
+        case 'oldest':
+          query = query.order('published_at', { ascending: true })
+          break
+        case 'relevant':
+          query = query.order('relevance_score', { ascending: false })
+          break
+        default:
+          query = query.order('published_at', { ascending: false })
+          break
+      }
+
+      query = query.limit(rawWindow)
+      const result = await query
+      data = result.data as SearchArticleRow[] | null
+      error = result.error
     }
-
-    query = query.limit(rawWindow)
-    const { data, error } = await query
 
     if (error) {
       console.error('Search query error:', error)
@@ -150,19 +194,20 @@ export async function GET(request: NextRequest) {
       sourceName: article.source_name || 'Unknown Source',
       sourceType: article.source_type || 'industry',
       publishedAt: article.published_at,
-      imageUrl: article.image_url || undefined,
+      // Normalized + validated, with a deterministic stock fallback — a card
+      // never ships with a null or junk image URL.
+      imageUrl: resolveArticleImage(
+        article.image_url,
+        article.title,
+        article.category || 'general',
+        article.platforms || [],
+      ),
       platforms: article.platforms || [],
       impactLevel: article.impact_level || 'medium',
       relevanceScore: article.relevance_score || 0,
       audience: article.audience || [],
       isBreaking: article.is_breaking || false,
-    })).filter((article) => {
-      const lowerSummary = article.summary.toLowerCase()
-      if (lowerSummary.includes('no substantive content')) return false
-      if (lowerSummary.includes('no data, policy change')) return false
-      if (lowerSummary.includes('article summary contains only')) return false
-      return true
-    }))
+    })).filter((article) => isSubstantive(article.summary)))
 
     if (sort === 'impact') {
       const impactOrder: Record<string, number> = { high: 0, medium: 1, low: 2 }
@@ -174,8 +219,10 @@ export async function GET(request: NextRequest) {
       })
     }
 
+    // With a search query, don't collapse near-duplicate coverage as
+    // aggressively — the reader asked for everything on this topic.
     const curatedArticles = curateArticleFeed(allArticles, {
-      maxPerTopic: q.trim() || category || platforms.length > 0 ? 3 : 2,
+      maxPerTopic: q ? 4 : (category || platforms.length > 0 ? 3 : 2),
     })
     const articles = curatedArticles.slice(offset, offset + limit)
 

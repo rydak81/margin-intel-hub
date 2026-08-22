@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react"
-import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -9,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { PremiumSiteHeader } from "@/components/premium-site-header"
 import { PremiumSiteFooter } from "@/components/premium-site-footer"
-import { getArticleFallbackImage } from "@/lib/article-images"
+import { ArticleImage } from "@/components/article-image"
 import { useAuthAccount } from "@/hooks/use-auth-account"
 import { buildUserPreferenceProfile, getNewsDeskDefaults, getPersonalizationLabel } from "@/lib/personalization"
 import {
@@ -95,6 +94,9 @@ export default function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
     : "Explore every MarketplaceBeta story by topic, platform, and impact level so operators, agencies, and SaaS teams can find the exact signal they need fast."
 
   const [query, setQuery] = useState("")
+  // Debounced copy of the query drives fetching, so we don't fire a request
+  // per keystroke against a 7,900-article search.
+  const [debouncedQuery, setDebouncedQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([])
   const [selectedImpact, setSelectedImpact] = useState<string | null>(null)
@@ -111,6 +113,18 @@ export default function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
   const [offset, setOffset] = useState(0)
   const [hasMore, setHasMore] = useState(true)
   const limit = 12
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(query.trim())
+      // A fresh text query means "find me the best match", so flip the default
+      // sort to relevance; clearing the query flips it back. Explicit user
+      // choices of other sorts are left alone.
+      if (query.trim() && sortBy === "newest") setSortBy("relevant")
+      if (!query.trim() && sortBy === "relevant") setSortBy("newest")
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [query, sortBy])
 
   useEffect(() => {
     if (!currentUser || defaultsAppliedRef.current) return
@@ -131,7 +145,7 @@ export default function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
       if (resetOffset) setOffset(0)
       try {
         const params = new URLSearchParams({
-          q: query, sort: sortBy, limit: limit.toString(), offset: newOffset.toString(),
+          q: debouncedQuery, sort: sortBy, limit: limit.toString(), offset: newOffset.toString(),
         })
         if (selectedCategory) params.append("category", selectedCategory)
         if (selectedPlatforms.length > 0) params.append("platforms", selectedPlatforms.join(","))
@@ -152,10 +166,10 @@ export default function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
         setLoading(false)
       }
     },
-    [query, selectedCategory, selectedPlatforms, selectedImpact, selectedAudience, sortBy, offset]
+    [debouncedQuery, selectedCategory, selectedPlatforms, selectedImpact, selectedAudience, sortBy, offset]
   )
 
-  useEffect(() => { fetchArticles(true) }, [query, selectedCategory, selectedPlatforms, selectedImpact, selectedAudience, sortBy])
+  useEffect(() => { fetchArticles(true) }, [debouncedQuery, selectedCategory, selectedPlatforms, selectedImpact, selectedAudience, sortBy])
 
   const loadMore = () => { const newOffset = offset + limit; setOffset(newOffset); fetchArticles(false) }
   const clearFilters = () => { setQuery(""); setSelectedCategory(null); setSelectedPlatforms([]); setSelectedImpact(null); setSelectedAudience(null); setSortBy("newest"); setOffset(0) }
@@ -229,7 +243,7 @@ export default function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
               <div className="relative mb-5">
                 <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                 <Input
-                  placeholder="Search by title, summary, or keywords..."
+                  placeholder='Search 7,900+ articles — try "fba fees", walmart fulfillment, tiktok -ads'
                   value={query}
                   onChange={(e) => { setQuery(e.target.value); setOffset(0) }}
                   className="h-12 border-white/40 bg-white/85 pl-10 text-base shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45"
@@ -374,18 +388,22 @@ export default function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
               {articles.map(article => (
                 <Link key={article.id} href={`/news/${article.id}`}>
                   <Card className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-[24px] border border-white/60 bg-white/84 shadow-[0_22px_54px_-34px_rgba(15,23,42,0.28)] transition-all hover:-translate-y-1 hover:shadow-[0_26px_70px_-36px_rgba(15,23,42,0.42)] dark:border-white/10 dark:bg-slate-950/45">
-                    {article.imageUrl && (
-                      <div className="relative aspect-video overflow-hidden bg-muted">
-                        <Image src={article.imageUrl} alt={article.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          onError={(e) => { const target = e.currentTarget as HTMLImageElement; const fallback = getArticleFallbackImage(article.title, article.category, article.platforms || []); if (target.src !== fallback) { target.src = fallback } }} />
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/30 via-transparent to-transparent" />
-                        <div className="absolute left-4 top-4">
-                          <Badge className={`${CATEGORY_COLORS[article.category] || 'bg-primary'} border-0 text-white shadow-lg`}>
-                            {formatCategoryLabel(article.category)}
-                          </Badge>
-                        </div>
+                    <div className="relative aspect-video overflow-hidden bg-muted">
+                      <ArticleImage
+                        src={article.imageUrl}
+                        alt={article.title}
+                        title={article.title}
+                        category={article.category}
+                        platforms={article.platforms || []}
+                        className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/30 via-transparent to-transparent" />
+                      <div className="absolute left-4 top-4">
+                        <Badge className={`${CATEGORY_COLORS[article.category] || 'bg-primary'} border-0 text-white shadow-lg`}>
+                          {formatCategoryLabel(article.category)}
+                        </Badge>
                       </div>
-                    )}
+                    </div>
                     <CardContent className="p-4 flex flex-col flex-grow">
                       <h3 className="mb-2 line-clamp-2 text-lg font-bold leading-7 transition-colors group-hover:text-primary">{article.title}</h3>
                       <p className="mb-4 flex-grow line-clamp-3 text-sm leading-6 text-muted-foreground">{article.summary}</p>
