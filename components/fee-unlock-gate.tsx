@@ -38,6 +38,8 @@ interface FeeUnlockGateProps {
   children: ReactNode
   headline?: string
   subhead?: string
+  /** Small print under the email field — what signing up also gets them. */
+  finePrint?: string
 }
 
 function hasStoredUnlock(): boolean {
@@ -62,6 +64,7 @@ export function FeeUnlockGate({
   children,
   headline = "See the full breakdown",
   subhead = "Every fee line, the same product priced across all five marketplaces, and your break-even price.",
+  finePrint = "You'll also get the daily brief when these fees change. Unsubscribe anytime.",
 }: FeeUnlockGateProps) {
   // Always render locked on the server so markup matches the first client paint;
   // the stored unlock is applied in an effect to avoid a hydration mismatch.
@@ -178,9 +181,7 @@ export function FeeUnlockGate({
 
             {error && <p className="mt-2 text-sm text-rose-600 dark:text-rose-400">{error}</p>}
 
-            <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
-              You&apos;ll also get the daily brief when these fees change. Unsubscribe anytime.
-            </p>
+            <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">{finePrint}</p>
           </>
         ) : (
           <>

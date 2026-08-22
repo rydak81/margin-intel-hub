@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { PremiumSiteHeader } from "@/components/premium-site-header"
 import { SiteBrand } from "@/components/site-brand"
 import { ProfitCalculator } from "@/components/profit-calculator"
+import { SalesForecaster } from "@/components/sales-forecaster"
 import { ListingOptimizer } from "@/components/listing-optimizer"
 import { KeywordTrends } from "@/components/keyword-trends"
 import { TrendingProducts } from "@/components/trending-products"
@@ -21,6 +22,7 @@ import {
   Mail,
   Sparkles,
   Zap,
+  LineChart,
 } from "lucide-react"
 
 export default function ToolsPage() {
@@ -35,6 +37,7 @@ export default function ToolsPage() {
         listing: "listing",
         keywords: "keywords",
         products: "trending",
+        forecast: "forecast",
       }
       if (tabMap[hash]) {
         setActiveTab(tabMap[hash])
@@ -66,6 +69,12 @@ export default function ToolsPage() {
       label: "Hot Products",
       icon: TrendingUp,
       description: "Find trending products from multiple data sources"
+    },
+    {
+      id: "forecast",
+      label: "Sales Forecaster",
+      icon: LineChart,
+      description: "Probabilistic 12-month unit forecast from your own sales history"
     }
   ]
 
@@ -249,6 +258,23 @@ export default function ToolsPage() {
                 </div>
               </div>
               <TrendingProducts />
+            </div>
+          )}
+
+          {activeTab === "forecast" && (
+            <div id="forecast">
+              <div className="mb-6 rounded-[24px] border border-white/60 bg-[linear-gradient(135deg,rgba(255,255,255,0.88),rgba(248,250,252,0.74))] p-5 shadow-sm dark:border-white/10 dark:bg-[linear-gradient(135deg,rgba(15,23,42,0.92),rgba(30,41,59,0.84))]">
+                <div>
+                  <h2 className="text-3xl font-bold flex items-center gap-2">
+                    <LineChart className="h-7 w-7 text-primary" />
+                    Sales Forecaster
+                  </h2>
+                  <p className="mt-2 text-muted-foreground">
+                    Holt-Winters + Monte Carlo forecasting fitted to your own sales history — with honest uncertainty bands
+                  </p>
+                </div>
+              </div>
+              <SalesForecaster />
             </div>
           )}
         </div>
