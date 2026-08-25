@@ -293,9 +293,15 @@ async function fetchFromNewsAPI(): Promise<any[]> {
 
   const articles: any[] = []
 
-  // Rotate through queries each run (3 per run, cycles through the full list)
-  // Uses the current hour to offset which queries get picked
-  const offset = Math.floor(Date.now() / (2 * 60 * 60 * 1000)) % queries.length
+  // Rotate through queries each run (3 per run, cycles through the full list).
+  // The rotation must advance across DAYS, not hours: crons fire at the same
+  // fixed hours every day, and a floor(now/2h) % 12 index aliases with the
+  // 24-hour cycle so the same offsets repeat forever. Day-based stepping with
+  // a stride coprime to the list length (gcd(5,12)=1) visits every query, and
+  // the half-cycle bump separates the two daily runs.
+  const daysSinceEpoch = Math.floor(Date.now() / 86_400_000)
+  const secondRunOfDay = new Date().getUTCHours() >= 12 ? 1 : 0
+  const offset = (daysSinceEpoch * 5 + secondRunOfDay * 6) % queries.length
   const selectedQueries = [
     queries[offset % queries.length],
     queries[(offset + 1) % queries.length],

@@ -83,7 +83,7 @@ export function PremiumSiteHeader({
             />
           </div>
 
-          <nav className="hidden items-center gap-2 lg:flex">
+          <nav className="hidden items-center gap-2 xl:flex">
             {NAV_ITEMS.map((item) => (
               <Link
                 key={item.key}
@@ -123,7 +123,7 @@ export function PremiumSiteHeader({
               type="button"
               variant="ghost"
               size="icon"
-              className="h-9 w-9 rounded-full border border-white/10 bg-white/10 text-white hover:bg-white/16 lg:hidden"
+              className="h-9 w-9 rounded-full border border-white/10 bg-white/10 text-white hover:bg-white/16 xl:hidden"
               onClick={() => setMobileMenuOpen((open) => !open)}
               aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
             >
@@ -133,7 +133,7 @@ export function PremiumSiteHeader({
         </div>
 
         {mobileMenuOpen ? (
-          <div className="border-t border-white/10 pb-4 pt-3 lg:hidden">
+          <div className="border-t border-white/10 pb-4 pt-3 xl:hidden">
             <div className="grid gap-2">
               {NAV_ITEMS.map((item) => (
                 <Link

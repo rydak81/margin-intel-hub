@@ -261,7 +261,7 @@ export const MARKETPLACES: Marketplace[] = [
     sourceUrl: "https://seller-us.tiktok.com/university/essay?knowledge_id=10004017",
     lastVerified: "2026-08-12",
     summary:
-      "TikTok Shop charges a flat commission on each order plus payment processing. Rates have moved several times since the US launch as introductory pricing wound down, so this is the schedule most worth re-checking before you model margin on it.",
+      "TikTok Shop charges a commission on each order, with payment processing bundled into it rather than billed as a separate line. Rates have moved several times since the US launch as introductory pricing wound down, so this is the schedule most worth re-checking before you model margin on it.",
     categories: TIKTOK_CATEGORIES,
   },
   {

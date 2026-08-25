@@ -478,7 +478,7 @@ export default function HomePageClient({
             />
 
             {/* Desktop Nav */}
-            <nav className="hidden items-center gap-2 lg:flex">
+            <nav className="hidden items-center gap-2 xl:flex">
               {[
                 { href: "/", label: "Home" },
                 { href: "/news", label: "News" },
@@ -570,7 +570,7 @@ export default function HomePageClient({
               <Button
                 variant="ghost"
                 size="icon"
-                className="lg:hidden h-9 w-9 rounded-full border border-white/10 bg-white/10 text-white shadow-sm backdrop-blur hover:bg-white/16"
+                className="xl:hidden h-9 w-9 rounded-full border border-white/10 bg-white/10 text-white shadow-sm backdrop-blur hover:bg-white/16"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
                 {mobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
@@ -580,7 +580,7 @@ export default function HomePageClient({
 
           {/* Mobile Menu */}
           {mobileMenuOpen && (
-            <div className="border-t border-white/10 py-4 lg:hidden">
+            <div className="border-t border-white/10 py-4 xl:hidden">
               <nav className="grid gap-2">
                 <Link href="/" className="rounded-2xl px-4 py-3 text-white/82 hover:bg-white/10 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Home</Link>
                 <Link href="/news" className="rounded-2xl px-4 py-3 text-white/82 hover:bg-white/10 hover:text-white" onClick={() => setMobileMenuOpen(false)}>News</Link>
