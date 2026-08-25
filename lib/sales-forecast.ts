@@ -159,13 +159,35 @@ function initialState(units: number[], seasonal: number[]): HWState {
   return { level: Math.max(level, 0.01), trend, seasonal: normalizeSeasonal([...seasonal]) }
 }
 
-/** Seasonal factors estimated from the data: average detrended ratio per calendar month. */
+/**
+ * Seasonal factors estimated from the data: average ratio to a fitted linear
+ * trend per calendar month. Dividing by one overall mean would alias any
+ * sustained trend into the calendar factors — with two years of steady
+ * growth, January would look weak purely because it comes earlier in each
+ * year, manufacturing a phantom December→January cliff.
+ */
 function estimateSeasonalFromData(units: number[], monthIndices: number[]): number[] {
-  const overallMean = units.reduce((a, b) => a + b, 0) / units.length || 1
+  const n = units.length
+  const overallMean = units.reduce((a, b) => a + b, 0) / n || 1
+
+  // OLS linear fit y = a + b·t as the detrending baseline.
+  const tMean = (n - 1) / 2
+  let num = 0
+  let den = 0
+  units.forEach((y, t) => {
+    num += (t - tMean) * (y - overallMean)
+    den += (t - tMean) ** 2
+  })
+  const slope = den > 0 ? num / den : 0
+  const intercept = overallMean - slope * tMean
+
   const sums = Array(12).fill(0)
   const counts = Array(12).fill(0)
   units.forEach((u, t) => {
-    sums[monthIndices[t]] += u / overallMean
+    // Floor the baseline so a steep negative trend can't divide by ~0 and
+    // blow up a single month's factor.
+    const baseline = Math.max(intercept + slope * t, overallMean * 0.1, 0.01)
+    sums[monthIndices[t]] += u / baseline
     counts[monthIndices[t]] += 1
   })
   const indices = sums.map((s, m) => (counts[m] > 0 ? s / counts[m] : 1))

@@ -46,10 +46,11 @@ function applyFilters<T>(query: T, filters: SearchFilters): T {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let next = (query as any)
 
-  const hasActiveFilters = filters.q.trim() || filters.category || filters.platforms.length > 0 || filters.impact || filters.audience
-  if (hasActiveFilters) {
-    next = next.eq('relevant', true).gte('relevance_score', 40)
-  }
+  // Quality gate is unconditional: the classifier deliberately keeps rejected
+  // rows (relevant=false) in the table, and the aggregator inserts new rows as
+  // relevant=true score 50 — so this never empties the default view, it only
+  // keeps explicitly-rejected content out of it.
+  next = next.eq('relevant', true).gte('relevance_score', 40)
 
   if (filters.q.trim()) {
     next = next.textSearch('search_vector', filters.q.trim(), { type: 'websearch', config: 'english' })
@@ -111,6 +112,8 @@ export async function GET(request: NextRequest) {
       error = rpc.error
     }
 
+    const SELECT_COLUMNS = 'id, title, summary, category, source_name, source_type, published_at, image_url, platforms, impact_level, relevance_score, audience, is_breaking'
+
     // Every other combination — browsing, or a query with an explicit
     // newest/oldest/impact sort — goes through the query builder, where the
     // requested ORDER BY runs in the database BEFORE the row limit. Sorting a
@@ -118,34 +121,50 @@ export async function GET(request: NextRequest) {
     // matches on broad queries. Also the fallback when the ranked RPC is
     // missing (databases provisioned without scripts/010).
     if (data === null) {
-      let query = applyFilters(
-        supabase
-          .from('articles')
-          .select('id, title, summary, category, source_name, source_type, published_at, image_url, platforms, impact_level, relevance_score, audience, is_breaking'),
-        filters
-      )
+      if (sort === 'impact' && !impact) {
+        // Alphabetical order can't express high > medium > low ('low' sorts
+        // before 'medium'), and PostgREST has no CASE ordering — so fill the
+        // window tier by tier in severity order, each tier newest-first.
+        const collected: SearchArticleRow[] = []
+        for (const level of ['high', 'medium', 'low']) {
+          const remaining = rawWindow - collected.length
+          if (remaining <= 0) break
+          const tier = await applyFilters(
+            supabase.from('articles').select(SELECT_COLUMNS),
+            { ...filters, impact: level }
+          )
+            .order('published_at', { ascending: false })
+            .limit(remaining)
+          if (tier.error) {
+            error = tier.error
+            break
+          }
+          collected.push(...((tier.data as SearchArticleRow[] | null) ?? []))
+        }
+        if (!error) data = collected
+      } else {
+        let query = applyFilters(
+          supabase.from('articles').select(SELECT_COLUMNS),
+          filters
+        )
 
-      switch (sort) {
-        case 'oldest':
-          query = query.order('published_at', { ascending: true })
-          break
-        case 'relevant':
-          query = query.order('relevance_score', { ascending: false })
-          break
-        case 'impact':
-          // Alphabetical asc puts 'high' first; exact high/medium/low order
-          // within the window is finished in JS below.
-          query = query.order('impact_level', { ascending: true }).order('published_at', { ascending: false })
-          break
-        default:
-          query = query.order('published_at', { ascending: false })
-          break
+        switch (sort) {
+          case 'oldest':
+            query = query.order('published_at', { ascending: true })
+            break
+          case 'relevant':
+            query = query.order('relevance_score', { ascending: false })
+            break
+          default:
+            query = query.order('published_at', { ascending: false })
+            break
+        }
+
+        query = query.limit(rawWindow)
+        const result = await query
+        data = result.data as SearchArticleRow[] | null
+        error = result.error
       }
-
-      query = query.limit(rawWindow)
-      const result = await query
-      data = result.data as SearchArticleRow[] | null
-      error = result.error
     }
 
     if (error) {
