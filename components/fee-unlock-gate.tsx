@@ -71,6 +71,10 @@ export function FeeUnlockGate({
   const [unlocked, setUnlocked] = useState(false)
   const [step, setStep] = useState<"email" | "role">("email")
   const [email, setEmail] = useState("")
+  // Issued by the API on a fresh signup; authorizes the step-two enrichment
+  // update. Existing subscribers don't get one, so they skip straight to
+  // unlocked instead of a role step whose write would be rejected.
+  const [enrichToken, setEnrichToken] = useState<string | null>(null)
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -101,9 +105,16 @@ export function FeeUnlockGate({
       const payload = await response.json().catch(() => null)
 
       // An existing subscriber has already paid the price of admission — unlock
-      // rather than bouncing them off their own data.
-      if (response.ok || payload?.error === "already_subscribed") {
+      // rather than bouncing them off their own data. They get no enrichment
+      // token, so skip the role step (its write would be rejected anyway).
+      if (payload?.error === "already_subscribed") {
         storeUnlock()
+        setUnlocked(true)
+        return
+      }
+      if (response.ok) {
+        storeUnlock()
+        setEnrichToken(typeof payload?.enrichToken === "string" ? payload.enrichToken : null)
         setStep("role")
         return
       }
@@ -118,6 +129,7 @@ export function FeeUnlockGate({
 
   async function submitRole(role: string) {
     setUnlocked(true)
+    if (!enrichToken) return
     // Fire-and-forget: the unlock already happened, so a failed enrichment
     // write must never block the reader from their results.
     try {
@@ -130,6 +142,7 @@ export function FeeUnlockGate({
           source: `fee-gate:${context.source}`,
           context,
           update: true,
+          token: enrichToken,
         }),
       })
     } catch {

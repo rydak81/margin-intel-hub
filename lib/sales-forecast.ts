@@ -223,14 +223,16 @@ function simulate(
   horizon: number,
   updateGamma: boolean,
   paths = 1000,
-): { p10: number[]; p50: number[]; p90: number[] } {
+): { p10: number[]; p50: number[]; p90: number[]; totals: { p10: number; p50: number; p90: number } } {
   const rand = mulberry32(42)
   // Guard against degenerate residual sets (perfect fit on tiny data).
   const residuals = fit.residuals.length >= 4 ? fit.residuals : [0.9, 0.95, 1.05, 1.1]
   const results: number[][] = Array.from({ length: horizon }, () => [])
+  const pathTotals: number[] = []
 
   for (let p = 0; p < paths; p++) {
     const state = clonedState(fit.state)
+    let pathTotal = 0
     for (let h = 0; h < horizon; h++) {
       const m = (startMonthIndex + h) % 12
       const s = state.seasonal[m] || 1
@@ -238,6 +240,7 @@ function simulate(
       const shock = residuals[Math.floor(rand() * residuals.length)]
       const y = Math.max(point * shock, 0)
       results[h].push(y)
+      pathTotal += y
 
       const prevLevel = state.level
       const ySafe = Math.max(y, 0.01)
@@ -247,6 +250,7 @@ function simulate(
         state.seasonal[m] = fit.params.gamma * (ySafe / state.level) + (1 - fit.params.gamma) * s
       }
     }
+    pathTotals.push(pathTotal)
   }
 
   const p10: number[] = []
@@ -258,7 +262,18 @@ function simulate(
     p50.push(quantile(sorted, 0.5))
     p90.push(quantile(sorted, 0.9))
   }
-  return { p10, p50, p90 }
+
+  // Horizon-total quantiles come from each path's own total — quantiles are
+  // not additive, and months are correlated through the evolving state, so
+  // summing the monthly P10s would badly overstate how wide the annual band is.
+  const sortedTotals = pathTotals.sort((a, b) => a - b)
+  const totals = {
+    p10: Math.round(quantile(sortedTotals, 0.1)),
+    p50: Math.round(quantile(sortedTotals, 0.5)),
+    p90: Math.round(quantile(sortedTotals, 0.9)),
+  }
+
+  return { p10, p50, p90, totals }
 }
 
 /** Backtest: refit without the last `holdout` months, forecast them, report MAPE. */
@@ -342,11 +357,7 @@ export function forecastSales(
     })
   }
 
-  const totalNext12 = {
-    p10: forecast.reduce((a, f) => a + f.p10, 0),
-    p50: forecast.reduce((a, f) => a + f.p50, 0),
-    p90: forecast.reduce((a, f) => a + f.p90, 0),
-  }
+  const totalNext12 = bands.totals
 
   let peakMonthIndex: number | null = null
   if (forecast.length > 0) {

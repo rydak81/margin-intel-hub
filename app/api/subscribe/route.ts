@@ -2,6 +2,28 @@ import { createAdminClient } from "@/lib/supabase/admin"
 import { sendEmail } from "@/lib/email"
 import { generateWelcomeEmail } from "@/lib/email-templates"
 import { NextResponse } from "next/server"
+import { createHmac, timingSafeEqual } from "crypto"
+
+/**
+ * Stateless proof that a caller completed step one of the gated signup for
+ * this email. Issued only in the fresh-signup response and required for the
+ * step-two enrichment update — possession of someone's email address is not
+ * authorization to rewrite their lead data.
+ */
+function enrichmentToken(email: string): string | null {
+  const secret = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.CRON_SECRET
+  if (!secret) return null
+  return createHmac('sha256', secret).update(`enrich:${email}`).digest('hex')
+}
+
+function isValidEnrichmentToken(email: string, token: unknown): boolean {
+  if (typeof token !== 'string' || token.length === 0) return false
+  const expected = enrichmentToken(email)
+  if (!expected) return false
+  const a = Buffer.from(token)
+  const b = Buffer.from(expected)
+  return a.length === b.length && timingSafeEqual(a, b)
+}
 
 // Email validation regex
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -74,9 +96,16 @@ export async function POST(request: Request) {
 
     if (existingSubscriber) {
       // Step two of the gated-tool flow: the subscriber already exists from the
-      // email step, and we're now enriching them with role/context. Treat this
-      // as a success rather than a duplicate-signup conflict.
+      // email step, and we're now enriching them with role/context. Requires
+      // the token issued when this signup was created — without it, anyone who
+      // knows a subscriber's email could corrupt their lead-routing data.
       if (update && (role || context)) {
+        if (!isValidEnrichmentToken(trimmedEmail, body.token)) {
+          return NextResponse.json(
+            { success: false, error: 'Not authorized to update this subscriber.' },
+            { status: 403 }
+          )
+        }
         const patch: Record<string, unknown> = { updated_at: new Date().toISOString() }
         if (role) patch.role = role
         if (context) {
@@ -174,7 +203,9 @@ export async function POST(request: Request) {
       subscriber: {
         id: data.id,
         email: data.email,
-      }
+      },
+      // Authorizes the optional step-two enrichment update for this signup.
+      enrichToken: enrichmentToken(trimmedEmail),
     })
 
   } catch (error) {

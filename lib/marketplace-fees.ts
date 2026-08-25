@@ -311,6 +311,27 @@ export function getAllFeeRoutes(): { marketplace: string; category: string }[] {
   )
 }
 
+/** Catch-all category slugs that stand in when a marketplace has no specific match. */
+const GENERIC_CATEGORY_SLUGS = ["most-categories", "all-categories", "everything-else", "standard"]
+
+/**
+ * Best category on a marketplace for a given label: exact match, then
+ * first-word match, then the marketplace's catch-all category (eBay "Most
+ * Categories", Etsy "All Categories") — so a comparison never silently drops
+ * a marketplace that does carry the product.
+ */
+function matchCategory(marketplace: Marketplace, categoryLabel: string): FeeCategory | undefined {
+  const normalized = categoryLabel.toLowerCase()
+  const firstWord = normalized.split(/[\s&,]+/)[0]
+
+  const exact = marketplace.categories.find((c) => c.label.toLowerCase() === normalized)
+  if (exact) return exact
+  const partial = marketplace.categories.find((c) => c.label.toLowerCase().startsWith(firstWord))
+  if (partial) return partial
+  if (marketplace.categories.length === 1) return marketplace.categories[0]
+  return marketplace.categories.find((c) => GENERIC_CATEGORY_SLUGS.includes(c.slug))
+}
+
 /**
  * Other marketplaces carrying a category with the same label, so each page can
  * cross-link to its true comparison set rather than an arbitrary list.
@@ -319,15 +340,9 @@ export function getComparableCategories(
   marketplaceSlug: string,
   categoryLabel: string,
 ): { marketplace: Marketplace; category: FeeCategory }[] {
-  const normalized = categoryLabel.toLowerCase()
-  const firstWord = normalized.split(/[\s&,]+/)[0]
-
   return MARKETPLACES.filter((m) => m.slug !== marketplaceSlug)
     .map((m) => {
-      const exact = m.categories.find((c) => c.label.toLowerCase() === normalized)
-      const partial = m.categories.find((c) => c.label.toLowerCase().startsWith(firstWord))
-      const fallback = m.categories.length === 1 ? m.categories[0] : undefined
-      const category = exact ?? partial ?? fallback
+      const category = matchCategory(m, categoryLabel)
       return category ? { marketplace: m, category } : null
     })
     .filter((entry): entry is { marketplace: Marketplace; category: FeeCategory } => entry !== null)
@@ -368,9 +383,10 @@ function cents(value: number): number {
  * The referral/commission fee for a price, honoring tiered schedules.
  * 'whole' tiers pick one rate for the entire price by which bracket the price
  * falls in; 'marginal' tiers charge each bracket's rate on the portion of the
- * price inside it.
+ * price inside it. Exported so page copy (FAQ examples, JSON-LD) computes the
+ * same number the calculator does.
  */
-function referralFee(salePrice: number, category: FeeCategory): { amount: number; detail: string } {
+export function referralFee(salePrice: number, category: FeeCategory): { amount: number; detail: string } {
   const { tiers, tierMode } = category
   if (!tiers || tiers.length === 0) {
     return {
@@ -484,10 +500,14 @@ function profitAt(
 }
 
 /**
- * Lowest price at which profit reaches zero, found numerically. Whole-price
- * tier switches make profit *discontinuous* (crossing $10 in Amazon Baby jumps
- * the fee on the entire price from 8% to 15%), so a closed-form solve is
- * wrong by construction — scan for the first crossing, then bisect within it.
+ * Lowest price at which profit reaches zero AND stays non-negative at every
+ * higher price, found numerically. Whole-price tier switches make profit
+ * *discontinuous*: Amazon Baby with a $9.10 cost breaks even near $9.89 at 8%,
+ * dips back into loss just above $10 when the whole price flips to 15%, and
+ * doesn't recover until ~$10.71. Returning the first crossing would falsely
+ * imply every higher price is profitable — so we find the LAST sign change.
+ * Tier boundaries are sampled explicitly so no negative window between grid
+ * points can be missed.
  */
 function solveBreakEven(
   unitCost: number,
@@ -497,28 +517,38 @@ function solveBreakEven(
 ): number {
   const upper = Math.max((unitCost + shippingCost + 5) * 4, 50)
   const steps = 2000
-  let prevPrice = 0.01
-  let prevProfit = profitAt(prevPrice, unitCost, shippingCost, marketplace, category)
-  if (prevProfit >= 0) return cents(prevPrice)
 
-  for (let i = 1; i <= steps; i++) {
-    const price = 0.01 + (upper - 0.01) * (i / steps)
-    const profit = profitAt(price, unitCost, shippingCost, marketplace, category)
-    if (profit >= 0) {
-      // Bisect the bracketing interval down to sub-cent precision.
-      let lo = prevPrice
-      let hi = price
-      for (let iter = 0; iter < 40; iter++) {
-        const mid = (lo + hi) / 2
-        if (profitAt(mid, unitCost, shippingCost, marketplace, category) >= 0) hi = mid
-        else lo = mid
-      }
-      return cents(hi)
-    }
-    prevPrice = price
-    prevProfit = profit
+  const samples: number[] = []
+  for (let i = 0; i <= steps; i++) {
+    samples.push(0.01 + (upper - 0.01) * (i / steps))
   }
-  return cents(upper)
+  for (const tier of category.tiers ?? []) {
+    if (tier.upTo !== null && tier.upTo < upper) {
+      // Both sides of each discontinuity.
+      samples.push(tier.upTo, tier.upTo + 0.001)
+    }
+  }
+  samples.sort((a, b) => a - b)
+
+  const profits = samples.map((p) => profitAt(p, unitCost, shippingCost, marketplace, category))
+
+  // Index of the last sample still in loss; break-even sits in the interval
+  // just after it. If nothing is ever in loss, the first sample already works.
+  let lastNegative = -1
+  for (let i = 0; i < profits.length; i++) {
+    if (profits[i] < 0) lastNegative = i
+  }
+  if (lastNegative === -1) return cents(samples[0])
+  if (lastNegative === profits.length - 1) return cents(upper)
+
+  let lo = samples[lastNegative]
+  let hi = samples[lastNegative + 1]
+  for (let iter = 0; iter < 40; iter++) {
+    const mid = (lo + hi) / 2
+    if (profitAt(mid, unitCost, shippingCost, marketplace, category) >= 0) hi = mid
+    else lo = mid
+  }
+  return cents(hi)
 }
 
 /** Same product modelled across every marketplace that carries the category. */
@@ -527,14 +557,8 @@ export function compareAcrossMarketplaces(
   unitCost: number,
   categoryLabel: string,
 ): { marketplace: Marketplace; category: FeeCategory; breakdown: FeeBreakdown }[] {
-  const normalized = categoryLabel.toLowerCase()
-  const firstWord = normalized.split(/[\s&,]+/)[0]
-
   return MARKETPLACES.map((m) => {
-    const exact = m.categories.find((c) => c.label.toLowerCase() === normalized)
-    const partial = m.categories.find((c) => c.label.toLowerCase().startsWith(firstWord))
-    const fallback = m.categories.length === 1 ? m.categories[0] : undefined
-    const category = exact ?? partial ?? fallback
+    const category = matchCategory(m, categoryLabel)
     if (!category) return null
     return {
       marketplace: m,

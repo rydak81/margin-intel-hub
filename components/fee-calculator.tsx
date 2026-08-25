@@ -192,8 +192,9 @@ export function FeeCalculator({ marketplace, category }: FeeCalculatorProps) {
             <div className="mt-5 rounded-xl bg-sky-50 p-4 dark:bg-sky-400/10">
               <p className="text-sm text-sky-900 dark:text-sky-200">
                 <span className="font-semibold">Break-even price:</span>{" "}
-                {money(breakdown.breakEvenPrice)} — below this, a {money(unitCost)} unit loses money
-                on {marketplace.shortName}.
+                {money(breakdown.breakEvenPrice)} — the lowest price at which a {money(unitCost)}{" "}
+                unit is profitable on {marketplace.shortName} and stays profitable at every higher
+                price (tiered fee jumps can make a narrow band above a threshold loss-making).
               </p>
             </div>
 
