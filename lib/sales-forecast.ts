@@ -276,17 +276,46 @@ function simulate(
   return { p10, p50, p90, totals }
 }
 
+/**
+ * Seasonality policy for a series of length n: estimated from the data when
+ * there are 2+ full seasons, blended with the category prior at 12–23 points,
+ * pure prior below that. Centralized so the backtest applies the same policy
+ * to its training split — deriving seasonality from the full series and then
+ * "holding out" months it already saw would leak the evaluation targets and
+ * flatter the reported error.
+ */
+function chooseSeasonality(
+  units: number[],
+  monthIndices: number[],
+  prior: number[],
+): { seasonal: number[]; updateGamma: boolean } {
+  const n = units.length
+  if (n >= 24) {
+    return { seasonal: estimateSeasonalFromData(units, monthIndices), updateGamma: true }
+  }
+  if (n >= 12) {
+    const fromData = estimateSeasonalFromData(units, monthIndices)
+    const w = n / 24
+    return {
+      seasonal: normalizeSeasonal(fromData.map((d, i) => w * d + (1 - w) * prior[i])),
+      updateGamma: false,
+    }
+  }
+  return { seasonal: [...prior], updateGamma: false }
+}
+
 /** Backtest: refit without the last `holdout` months, forecast them, report MAPE. */
 function backtest(
   units: number[],
   monthIndices: number[],
-  seasonal: number[],
-  updateGamma: boolean,
+  prior: number[],
   holdout: number,
 ): number | null {
   if (units.length < holdout + 10) return null
   const trainUnits = units.slice(0, -holdout)
   const trainMonths = monthIndices.slice(0, -holdout)
+  // Seasonality comes from the training split only — never the held-out tail.
+  const { seasonal, updateGamma } = chooseSeasonality(trainUnits, trainMonths, prior)
   const fit = fitHoltWinters(trainUnits, trainMonths, seasonal, updateGamma)
 
   const state = clonedState(fit.state)
@@ -321,24 +350,9 @@ export function forecastSales(
 
   // Seasonality source: the seller's own data when there's enough of it,
   // the category prior when there isn't, and a blend in between.
-  let seasonal: number[]
-  let seasonalitySource: ForecastResult['seasonalitySource']
-  let updateGamma: boolean
-  if (n >= 24) {
-    seasonal = estimateSeasonalFromData(units, monthIndices)
-    seasonalitySource = 'data'
-    updateGamma = true
-  } else if (n >= 12) {
-    const fromData = estimateSeasonalFromData(units, monthIndices)
-    const w = n / 24
-    seasonal = normalizeSeasonal(fromData.map((d, i) => w * d + (1 - w) * prior[i]))
-    seasonalitySource = 'blended'
-    updateGamma = false
-  } else {
-    seasonal = [...prior]
-    seasonalitySource = categoryKey === 'none' ? 'none' : 'category-prior'
-    updateGamma = false
-  }
+  const { seasonal, updateGamma } = chooseSeasonality(units, monthIndices, prior)
+  const seasonalitySource: ForecastResult['seasonalitySource'] =
+    n >= 24 ? 'data' : n >= 12 ? 'blended' : categoryKey === 'none' ? 'none' : 'category-prior'
 
   const fit = fitHoltWinters(units, monthIndices, seasonal, updateGamma)
 
@@ -380,7 +394,7 @@ export function forecastSales(
           ? 'Holt-Winters (your data blended with category seasonal priors) + Monte Carlo'
           : 'Holt trend model with category seasonal priors + Monte Carlo',
     seasonalitySource,
-    backtestMape: backtest(units, monthIndices, seasonal, updateGamma, 6),
+    backtestMape: backtest(units, monthIndices, prior, 6),
     totalNext12,
     peakMonthIndex,
   }

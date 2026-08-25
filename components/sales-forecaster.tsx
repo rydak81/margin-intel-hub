@@ -125,9 +125,11 @@ export function SalesForecaster() {
     if (!result) return
     const lines = ["month,units_p10,units_p50,units_p90,revenue_p50"]
     for (const f of result.forecast) {
-      lines.push(
-        `${f.date.toISOString().slice(0, 7)},${f.p10},${f.p50},${f.p90},${(f.p50 * price).toFixed(2)}`,
-      )
+      // Local calendar fields, not toISOString(): dates are local midnights,
+      // and UTC conversion would shift them into the previous month for
+      // viewers east of Greenwich.
+      const month = `${f.date.getFullYear()}-${String(f.date.getMonth() + 1).padStart(2, "0")}`
+      lines.push(`${month},${f.p10},${f.p50},${f.p90},${(f.p50 * price).toFixed(2)}`)
     }
     const blob = new Blob([lines.join("\n")], { type: "text/csv" })
     const url = URL.createObjectURL(blob)

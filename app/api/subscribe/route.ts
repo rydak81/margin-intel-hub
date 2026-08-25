@@ -122,6 +122,10 @@ export async function POST(request: Request) {
 
         if (updateError) {
           console.warn('[Subscribe] Enrichment update failed:', updateError.message)
+          return NextResponse.json(
+            { success: false, error: 'Failed to save preferences. Please try again.' },
+            { status: 500 }
+          )
         }
 
         return NextResponse.json({

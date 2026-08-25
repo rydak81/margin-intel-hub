@@ -223,7 +223,13 @@ export function FeeCalculator({ marketplace, category }: FeeCalculatorProps) {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-white/5">
-                  {comparison.map((row) => (
+                  {comparison.map((row) => {
+                    // The rate actually charged at THIS price — tiered
+                    // categories can differ from the headline rate (Amazon
+                    // Baby is 8% headline but 15% on a $29.99 sale).
+                    const referralLine = row.breakdown.lines[0]?.amount ?? 0
+                    const effectivePct = salePrice > 0 ? (referralLine / salePrice) * 100 : 0
+                    return (
                     <tr key={row.marketplace.slug}>
                       <td className="py-2.5">
                         <Link
@@ -237,7 +243,7 @@ export function FeeCalculator({ marketplace, category }: FeeCalculatorProps) {
                         </span>
                       </td>
                       <td className="py-2.5 text-right tabular-nums text-slate-600 dark:text-slate-300">
-                        {row.category.referralPct}%
+                        {effectivePct.toFixed(1).replace(/\.0$/, "")}%
                       </td>
                       <td className="py-2.5 text-right tabular-nums text-slate-600 dark:text-slate-300">
                         {money(row.breakdown.totalFees)}
@@ -252,7 +258,8 @@ export function FeeCalculator({ marketplace, category }: FeeCalculatorProps) {
                         {money(row.breakdown.profit)}
                       </td>
                     </tr>
-                  ))}
+                    )
+                  })}
                 </tbody>
               </table>
             </div>
