@@ -300,6 +300,19 @@ export function getMarketplace(slug: string): Marketplace | undefined {
   return MARKETPLACES.find((m) => m.slug === slug)
 }
 
+/**
+ * Human rate label honest about tiers: "15%" for flat categories,
+ * "8%–15%" for tiered ones — for titles and meta descriptions, which get no
+ * room for the qualifying note the page body carries.
+ */
+export function rateLabel(category: FeeCategory): string {
+  if (!category.tiers || category.tiers.length === 0) return `${category.referralPct}%`
+  const pcts = category.tiers.map((t) => t.pct)
+  const min = Math.min(...pcts)
+  const max = Math.max(...pcts)
+  return min === max ? `${min}%` : `${min}%–${max}%`
+}
+
 export function getCategory(marketplaceSlug: string, categorySlug: string): FeeCategory | undefined {
   return getMarketplace(marketplaceSlug)?.categories.find((c) => c.slug === categorySlug)
 }
@@ -332,7 +345,14 @@ const CATEGORY_SYNONYMS: Record<string, string[]> = {
   home: ["house"],
   jewelry: ["jewellery"],
   toys: ["toy"],
+  device: ["electronics"],
+  computers: ["electronics"],
+  camera: ["electronics"],
+  cell: ["electronics"],
 }
+
+/** Marketplace brand words that lead some category labels ("Amazon Device Accessories"). */
+const BRAND_PREFIX = /^(amazon|walmart|ebay|etsy|tiktok(?:\s+shop)?)\s+/
 
 /**
  * Best category on a marketplace for a given label: exact match, first-word
@@ -342,14 +362,19 @@ const CATEGORY_SYNONYMS: Record<string, string[]> = {
  */
 function matchCategory(marketplace: Marketplace, categoryLabel: string): FeeCategory | undefined {
   const normalized = categoryLabel.toLowerCase()
-  const firstWord = normalized.split(/[\s&,]+/)[0]
+  // "Amazon Device Accessories" must match on "device", not "amazon" —
+  // marketplace brand words carry no category meaning on other marketplaces.
+  const cleaned = normalized.replace(BRAND_PREFIX, "")
+  const firstWord = cleaned.split(/[\s&,]+/)[0]
 
   const exact = marketplace.categories.find((c) => c.label.toLowerCase() === normalized)
   if (exact) return exact
   const partial = marketplace.categories.find((c) => c.label.toLowerCase().startsWith(firstWord))
   if (partial) return partial
+  // Synonyms match anywhere in the label ("electronics" hits both
+  // "Electronics Accessories" and "Consumer Electronics").
   for (const synonym of CATEGORY_SYNONYMS[firstWord] ?? []) {
-    const bySynonym = marketplace.categories.find((c) => c.label.toLowerCase().startsWith(synonym))
+    const bySynonym = marketplace.categories.find((c) => c.label.toLowerCase().includes(synonym))
     if (bySynonym) return bySynonym
   }
   if (marketplace.categories.length === 1) return marketplace.categories[0]
@@ -612,6 +637,7 @@ export function compareAcrossMarketplaces(
   unitCost: number,
   categoryLabel: string,
   buyerShipping = 0,
+  shippingCost = 0,
 ): { marketplace: Marketplace; category: FeeCategory; breakdown: FeeBreakdown }[] {
   return MARKETPLACES.map((m) => {
     const category = matchCategory(m, categoryLabel)
@@ -619,7 +645,7 @@ export function compareAcrossMarketplaces(
     return {
       marketplace: m,
       category,
-      breakdown: computeFeeBreakdown({ salePrice, unitCost, buyerShipping, marketplace: m, category }),
+      breakdown: computeFeeBreakdown({ salePrice, unitCost, buyerShipping, shippingCost, marketplace: m, category }),
     }
   })
     .filter(

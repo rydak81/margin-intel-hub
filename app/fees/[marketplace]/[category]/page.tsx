@@ -11,6 +11,7 @@ import {
   getComparableCategories,
   getMarketplace,
   computeFeeBreakdown,
+  rateLabel,
 } from "@/lib/marketplace-fees"
 import { ArrowUpRight, ExternalLink } from "lucide-react"
 
@@ -35,10 +36,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const verified = formatVerifiedDate(marketplace.lastVerified)
   const feeLabel = marketplace.feeName.replace(/\b\w/g, (c) => c.toUpperCase())
+  // Tier-honest rate ("8%–15%") — search snippets get no room for the
+  // qualifying note the page body carries, so the number itself must be true.
+  const rate = rateLabel(category)
   // The date in the title is a real CTR lever on data queries — searchers scan
   // for recency before they click.
-  const title = `${marketplace.shortName} ${feeLabel} for ${category.label}: ${category.referralPct}% (${verified})`
-  const description = `${marketplace.name} charges a ${category.referralPct}% ${marketplace.feeName} on ${category.label}. See the full fee breakdown, calculate your margin, and compare the same product across Amazon, Walmart, TikTok Shop, eBay, and Etsy.`
+  const title = `${marketplace.shortName} ${feeLabel} for ${category.label}: ${rate} (${verified})`
+  const description = `${marketplace.name} charges ${category.tiers ? `a ${rate} ${marketplace.feeName} (tiered by price)` : `a ${rate} ${marketplace.feeName}`} on ${category.label}. See the full fee breakdown, calculate your margin, and compare the same product across Amazon, Walmart, TikTok Shop, eBay, and Etsy.`
   const canonical = `${SITE_URL}/fees/${marketplace.slug}/${category.slug}`
 
   return {

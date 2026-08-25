@@ -26,15 +26,16 @@ export function FeeCalculator({ marketplace, category }: FeeCalculatorProps) {
   const [salePrice, setSalePrice] = useState(29.99)
   const [unitCost, setUnitCost] = useState(8)
   const [buyerShipping, setBuyerShipping] = useState(0)
+  const [shippingCost, setShippingCost] = useState(0)
 
   const breakdown = useMemo(
-    () => computeFeeBreakdown({ salePrice, unitCost, buyerShipping, marketplace, category }),
-    [salePrice, unitCost, buyerShipping, marketplace, category],
+    () => computeFeeBreakdown({ salePrice, unitCost, buyerShipping, shippingCost, marketplace, category }),
+    [salePrice, unitCost, buyerShipping, shippingCost, marketplace, category],
   )
 
   const comparison = useMemo(
-    () => compareAcrossMarketplaces(salePrice, unitCost, category.label, buyerShipping),
-    [salePrice, unitCost, category.label, buyerShipping],
+    () => compareAcrossMarketplaces(salePrice, unitCost, category.label, buyerShipping, shippingCost),
+    [salePrice, unitCost, category.label, buyerShipping, shippingCost],
   )
 
   const profitable = breakdown.profit >= 0
@@ -49,7 +50,7 @@ export function FeeCalculator({ marketplace, category }: FeeCalculatorProps) {
         {marketplace.feeName}.
       </p>
 
-      <div className="mt-5 grid gap-4 sm:grid-cols-3">
+      <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <Label htmlFor="sale-price" className="text-sm font-medium">
             Sale price
@@ -102,6 +103,26 @@ export function FeeCalculator({ marketplace, category }: FeeCalculatorProps) {
           </div>
           <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
             Fees apply to it too — leave $0 for free shipping.
+          </p>
+        </div>
+        <div>
+          <Label htmlFor="seller-shipping" className="text-sm font-medium">
+            Your fulfillment cost
+          </Label>
+          <div className="relative mt-1.5">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+            <Input
+              id="seller-shipping"
+              type="number"
+              min={0}
+              step="0.01"
+              value={shippingCost}
+              onChange={(event) => setShippingCost(Math.max(0, Number(event.target.value) || 0))}
+              className="h-11 rounded-xl pl-7"
+            />
+          </div>
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+            What you pay to ship or fulfill the order.
           </p>
         </div>
       </div>
