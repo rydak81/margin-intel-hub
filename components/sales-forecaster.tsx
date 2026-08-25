@@ -355,6 +355,8 @@ export function SalesForecaster() {
             in-sample errors — bands widen with horizon because uncertainty genuinely compounds.
             {result.seasonalitySource === "category-prior" &&
               " Seasonal shape uses modeled category priors — add 24+ months of history and it will be learned from your data instead."}
+            {result.filledGaps > 0 &&
+              ` ${result.filledGaps} missing calendar month${result.filledGaps > 1 ? "s were" : " was"} treated as zero sales — if that's wrong, add the real numbers for those months.`}
             {" "}A forecast is a planning tool, not a promise: treat the band, not the midline, as the answer.
           </p>
 

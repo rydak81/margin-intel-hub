@@ -43,6 +43,8 @@ export interface ForecastResult {
   backtestMape: number | null
   totalNext12: { p10: number; p50: number; p90: number }
   peakMonthIndex: number | null
+  /** Calendar months missing from the pasted history, filled in as zero sales. */
+  filledGaps: number
 }
 
 /**
@@ -336,12 +338,38 @@ function backtest(
   return mapeCount > 0 ? (mapeSum / mapeCount) * 100 : null
 }
 
+/**
+ * Fill calendar gaps with zero-sales months. The smoothing recursion advances
+ * exactly one month per observation — a skipped February would otherwise make
+ * January→March look like a single monthly step, corrupting trend and
+ * seasonality. Zero is the honest default (exports commonly omit zero-sales
+ * months), and the count is surfaced so the UI can disclose it.
+ */
+function fillCalendarGaps(sorted: HistoryPoint[]): { points: HistoryPoint[]; filledGaps: number } {
+  if (sorted.length < 2) return { points: sorted, filledGaps: 0 }
+  const points: HistoryPoint[] = [sorted[0]]
+  let filledGaps = 0
+  for (let i = 1; i < sorted.length; i++) {
+    const prev = points[points.length - 1].date
+    const next = sorted[i].date
+    let cursor = new Date(prev.getFullYear(), prev.getMonth() + 1, 1)
+    while (cursor.getTime() < new Date(next.getFullYear(), next.getMonth(), 1).getTime()) {
+      points.push({ date: cursor, units: 0 })
+      filledGaps++
+      cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1)
+    }
+    points.push(sorted[i])
+  }
+  return { points, filledGaps }
+}
+
 export function forecastSales(
   history: HistoryPoint[],
   categoryKey: string,
   horizon = 12,
 ): ForecastResult {
-  const sorted = [...history].sort((a, b) => a.date.getTime() - b.date.getTime())
+  const chronological = [...history].sort((a, b) => a.date.getTime() - b.date.getTime())
+  const { points: sorted, filledGaps } = fillCalendarGaps(chronological)
   const units = sorted.map((p) => p.units)
   const monthIndices = sorted.map((p) => p.date.getMonth())
   const n = units.length
@@ -397,6 +425,7 @@ export function forecastSales(
     backtestMape: backtest(units, monthIndices, prior, 6),
     totalNext12,
     peakMonthIndex,
+    filledGaps,
   }
 }
 

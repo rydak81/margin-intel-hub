@@ -114,14 +114,28 @@ export default function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
   const [hasMore, setHasMore] = useState(true)
   const limit = 12
 
+  // True only while the relevance sort was applied *automatically* for a fresh
+  // query. An explicit pick from the sort dropdown clears it, so the effect
+  // below never fights the user's choice back to "relevant".
+  const autoSortRef = useRef(false)
+  const prevQueryRef = useRef("")
+
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedQuery(query.trim())
-      // A fresh text query means "find me the best match", so flip the default
-      // sort to relevance; clearing the query flips it back. Explicit user
-      // choices of other sorts are left alone.
-      if (query.trim() && sortBy === "newest") setSortBy("relevant")
-      if (!query.trim() && sortBy === "relevant") setSortBy("newest")
+      const trimmed = query.trim()
+      setDebouncedQuery(trimmed)
+      const hadQuery = prevQueryRef.current.length > 0
+      prevQueryRef.current = trimmed
+
+      // Only on the empty→non-empty transition: a fresh search defaults to
+      // relevance. Clearing the query undoes it only if it was auto-applied.
+      if (trimmed && !hadQuery && sortBy === "newest") {
+        autoSortRef.current = true
+        setSortBy("relevant")
+      } else if (!trimmed && hadQuery && autoSortRef.current && sortBy === "relevant") {
+        autoSortRef.current = false
+        setSortBy("newest")
+      }
     }, 300)
     return () => clearTimeout(timer)
   }, [query, sortBy])
@@ -300,6 +314,9 @@ export default function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
                   <select
                     value={sortBy}
                     onChange={(e) => {
+                      // A deliberate pick — the auto-relevance logic must not
+                      // override it while a query is active.
+                      autoSortRef.current = false
                       setSortBy(e.target.value as "newest" | "oldest" | "relevant" | "impact")
                       setOffset(0)
                     }}

@@ -95,8 +95,8 @@ export async function GET(request: NextRequest) {
     let data: SearchArticleRow[] | null = null
     let error: { message: string } | null = null
 
-    if (q) {
-      // Full-text path: the ranked RPC blends match quality with recency, so
+    if (q && sort === 'relevant') {
+      // Rank-ordered path: the RPC blends match quality with recency, so
       // "most relevant" means relevant to the query — not the classifier's
       // industry-relevance score.
       const rpc = await supabase.rpc('search_articles_ranked', {
@@ -109,32 +109,15 @@ export async function GET(request: NextRequest) {
       })
       data = rpc.data as SearchArticleRow[] | null
       error = rpc.error
+    }
 
-      // Databases provisioned from scripts/ without 010 applied won't have the
-      // RPC — degrade to plain full-text filtering (no rank order) rather than
-      // failing every search with a 500.
-      if (error) {
-        const fallback = await applyFilters(
-          supabase
-            .from('articles')
-            .select('id, title, summary, category, source_name, source_type, published_at, image_url, platforms, impact_level, relevance_score, audience, is_breaking'),
-          filters
-        )
-          .order('published_at', { ascending: false })
-          .limit(rawWindow)
-        data = fallback.data as SearchArticleRow[] | null
-        error = fallback.error
-      }
-
-      if (data) {
-        if (sort === 'newest') {
-          data.sort((a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime())
-        } else if (sort === 'oldest') {
-          data.sort((a, b) => new Date(a.published_at).getTime() - new Date(b.published_at).getTime())
-        }
-        // 'relevant' keeps the RPC's rank order; 'impact' is sorted below.
-      }
-    } else {
+    // Every other combination — browsing, or a query with an explicit
+    // newest/oldest/impact sort — goes through the query builder, where the
+    // requested ORDER BY runs in the database BEFORE the row limit. Sorting a
+    // rank-truncated window in JS would silently drop the true newest/oldest
+    // matches on broad queries. Also the fallback when the ranked RPC is
+    // missing (databases provisioned without scripts/010).
+    if (data === null) {
       let query = applyFilters(
         supabase
           .from('articles')
@@ -148,6 +131,11 @@ export async function GET(request: NextRequest) {
           break
         case 'relevant':
           query = query.order('relevance_score', { ascending: false })
+          break
+        case 'impact':
+          // Alphabetical asc puts 'high' first; exact high/medium/low order
+          // within the window is finished in JS below.
+          query = query.order('impact_level', { ascending: true }).order('published_at', { ascending: false })
           break
         default:
           query = query.order('published_at', { ascending: false })
