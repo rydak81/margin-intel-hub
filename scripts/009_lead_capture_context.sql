@@ -28,3 +28,10 @@ CREATE INDEX IF NOT EXISTS idx_subscribers_context ON public.subscribers USING G
 -- browser clients rewrite subscriber rows — so its absence is the security
 -- posture, not an omission.
 DROP POLICY IF EXISTS "Allow service role to update" ON public.subscribers;
+
+-- Same defect in the original 001 SELECT policy ("Allow service role to
+-- read" had no TO clause and USING(true), i.e. it applied to PUBLIC): with
+-- calculator context stored on subscribers, that would let any anon-key
+-- client read every subscriber's email, marketplace, price point, and
+-- margin. The service role bypasses RLS, so no replacement is needed.
+DROP POLICY IF EXISTS "Allow service role to read" ON public.subscribers;

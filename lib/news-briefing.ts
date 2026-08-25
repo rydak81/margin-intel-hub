@@ -9,7 +9,7 @@ function stripHtmlTags(text: string): string {
   let prev = ''
   while (prev !== result) {
     prev = result
-    result = result.replace(/<[^>]*>/g, '')
+    result = result.replace(/<[^>]*>/g, ' ')
   }
   return result
     .replace(/&(nbsp|lt|gt|amp|quot|#039);/g, (match, entity: string) => {

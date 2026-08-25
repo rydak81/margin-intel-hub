@@ -10,7 +10,7 @@ import {
   getCategory,
   getComparableCategories,
   getMarketplace,
-  referralFee,
+  computeFeeBreakdown,
 } from "@/lib/marketplace-fees"
 import { ArrowUpRight, ExternalLink } from "lucide-react"
 
@@ -63,9 +63,13 @@ export default async function FeeCategoryPage({ params }: PageProps) {
   const comparable = getComparableCategories(marketplace.slug, category.label)
   const canonical = `${SITE_URL}/fees/${marketplace.slug}/${category.slug}`
 
-  // Computed with the same tiered fee engine the calculator uses, so the FAQ
-  // (and its JSON-LD) can never contradict the interactive result.
-  const exampleFee = referralFee(29.99, category)
+  // Computed with the complete fee engine the calculator uses — including
+  // listing, per-order, and processing fees — so the FAQ (and its JSON-LD)
+  // can never contradict the interactive result.
+  const example = computeFeeBreakdown({ salePrice: 29.99, unitCost: 0, marketplace, category })
+  const exampleDetail = example.lines
+    .map((line) => `${line.label} $${line.amount.toFixed(2)}`)
+    .join(" + ")
   const faqs = [
     {
       question: `What is the ${marketplace.shortName} ${marketplace.feeName} for ${category.label}?`,
@@ -75,9 +79,9 @@ export default async function FeeCategoryPage({ params }: PageProps) {
     },
     {
       question: `How much do I keep on a $29.99 ${category.label} sale on ${marketplace.shortName}?`,
-      answer: `A $29.99 sale incurs $${exampleFee.amount.toFixed(2)} in ${marketplace.feeName}s (${
-        exampleFee.detail
-      }), leaving about $${(29.99 - exampleFee.amount).toFixed(2)} before your product cost and any fulfillment fees.`,
+      answer: `A $29.99 sale incurs $${example.totalFees.toFixed(2)} in total fees (${exampleDetail}), leaving $${example.netProceeds.toFixed(
+        2,
+      )} before your product cost and any fulfillment fees.`,
     },
     ...(marketplace.fulfillmentName
       ? [
