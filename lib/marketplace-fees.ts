@@ -15,12 +15,11 @@
 
 export type MarketplaceSlug = "amazon" | "walmart" | "tiktok-shop" | "ebay" | "etsy"
 
-/** A tiered rate that applies below/above a price threshold. */
+/** One price bracket of a tiered rate. Order tiers ascending; the last has upTo: null. */
 export interface FeeTier {
-  /** Rate applies to the portion of price at or below this amount. */
+  /** Bracket upper bound (inclusive); null = no upper bound. */
   upTo: number | null
   pct: number
-  label: string
 }
 
 export interface FeeCategory {
@@ -30,7 +29,14 @@ export interface FeeCategory {
   referralPct: number
   /** Rendered as a caveat under the headline rate. */
   note?: string
-  /** When present, overrides the flat rate with threshold-based pricing. */
+  /**
+   * Threshold pricing, when the marketplace uses it. Two distinct mechanics:
+   * - 'whole': the sale price picks ONE bracket and that rate applies to the
+   *   entire price (Amazon Baby: 8% if <= $10, 15% on the whole price if over).
+   * - 'marginal': each bracket's rate applies only to the portion of the price
+   *   inside it (Amazon Jewelry: 20% on the first $250, 5% on the rest).
+   */
+  tierMode?: 'whole' | 'marginal'
   tiers?: FeeTier[]
   /** Minimum fee charged per unit, if the marketplace enforces one. */
   minFee?: number
@@ -64,21 +70,53 @@ export interface Marketplace {
 
 const AMAZON_CATEGORIES: FeeCategory[] = [
   { slug: "amazon-device-accessories", label: "Amazon Device Accessories", referralPct: 45 },
-  { slug: "appliances", label: "Appliances", referralPct: 15, note: "Large appliances are charged at 8% on the portion above $300." },
+  {
+    slug: "appliances", label: "Appliances", referralPct: 15,
+    note: "Full-size appliances: 15% on the first $300, then 8% on the portion above.",
+    tierMode: "marginal", tiers: [{ upTo: 300, pct: 15 }, { upTo: null, pct: 8 }],
+  },
   { slug: "automotive", label: "Automotive & Powersports", referralPct: 12 },
-  { slug: "baby-products", label: "Baby Products", referralPct: 8, note: "15% on the portion of the price above $10." },
+  {
+    slug: "baby-products", label: "Baby Products", referralPct: 8,
+    note: "8% on items priced $10 or less; 15% on the whole price when over $10.",
+    tierMode: "whole", tiers: [{ upTo: 10, pct: 8 }, { upTo: null, pct: 15 }],
+  },
   { slug: "backpacks-handbags", label: "Backpacks & Handbags", referralPct: 15 },
-  { slug: "beauty", label: "Beauty", referralPct: 8, note: "15% on the portion of the price above $10." },
+  {
+    slug: "beauty", label: "Beauty", referralPct: 8,
+    note: "8% on items priced $10 or less; 15% on the whole price when over $10.",
+    tierMode: "whole", tiers: [{ upTo: 10, pct: 8 }, { upTo: null, pct: 15 }],
+  },
   { slug: "business-industrial", label: "Business & Industrial", referralPct: 12 },
-  { slug: "clothing-accessories", label: "Clothing & Accessories", referralPct: 17 },
+  {
+    slug: "clothing-accessories", label: "Clothing & Accessories", referralPct: 17,
+    note: "Tiered by total price: 5% at $15 or less, 10% from $15.01 to $20, 17% over $20.",
+    tierMode: "whole", tiers: [{ upTo: 15, pct: 5 }, { upTo: 20, pct: 10 }, { upTo: null, pct: 17 }],
+  },
   { slug: "computers", label: "Computers", referralPct: 8 },
   { slug: "consumer-electronics", label: "Consumer Electronics", referralPct: 8 },
   { slug: "electronics-accessories", label: "Electronics Accessories", referralPct: 15 },
-  { slug: "furniture", label: "Furniture", referralPct: 15, note: "10% on the portion of the price above $200." },
-  { slug: "grocery", label: "Grocery & Gourmet Food", referralPct: 8, note: "15% on the portion of the price above $15." },
-  { slug: "health-personal-care", label: "Health & Personal Care", referralPct: 8, note: "15% on the portion of the price above $10." },
+  {
+    slug: "furniture", label: "Furniture", referralPct: 15,
+    note: "15% on the first $200, then 10% on the portion above.",
+    tierMode: "marginal", tiers: [{ upTo: 200, pct: 15 }, { upTo: null, pct: 10 }],
+  },
+  {
+    slug: "grocery", label: "Grocery & Gourmet Food", referralPct: 8,
+    note: "8% on items priced $15 or less; 15% on the whole price when over $15.",
+    tierMode: "whole", tiers: [{ upTo: 15, pct: 8 }, { upTo: null, pct: 15 }],
+  },
+  {
+    slug: "health-personal-care", label: "Health & Personal Care", referralPct: 8,
+    note: "8% on items priced $10 or less; 15% on the whole price when over $10.",
+    tierMode: "whole", tiers: [{ upTo: 10, pct: 8 }, { upTo: null, pct: 15 }],
+  },
   { slug: "home-garden", label: "Home & Garden", referralPct: 15 },
-  { slug: "jewelry", label: "Jewelry", referralPct: 20, note: "5% on the portion of the price above $250." },
+  {
+    slug: "jewelry", label: "Jewelry", referralPct: 20,
+    note: "20% on the first $250, then 5% on the portion above.",
+    tierMode: "marginal", tiers: [{ upTo: 250, pct: 20 }, { upTo: null, pct: 5 }],
+  },
   { slug: "kitchen", label: "Kitchen", referralPct: 15 },
   { slug: "lawn-garden", label: "Lawn & Garden", referralPct: 15 },
   { slug: "luggage", label: "Luggage & Travel Accessories", referralPct: 15 },
@@ -91,7 +129,11 @@ const AMAZON_CATEGORIES: FeeCategory[] = [
   { slug: "tools-home-improvement", label: "Tools & Home Improvement", referralPct: 15 },
   { slug: "toys-games", label: "Toys & Games", referralPct: 15 },
   { slug: "video-games", label: "Video Games", referralPct: 15 },
-  { slug: "watches", label: "Watches", referralPct: 16, note: "3% on the portion of the price above $1,500." },
+  {
+    slug: "watches", label: "Watches", referralPct: 16,
+    note: "16% on the first $1,500, then 3% on the portion above.",
+    tierMode: "marginal", tiers: [{ upTo: 1500, pct: 16 }, { upTo: null, pct: 3 }],
+  },
   { slug: "everything-else", label: "Everything Else", referralPct: 15 },
 ]
 
@@ -100,15 +142,31 @@ const AMAZON_CATEGORIES: FeeCategory[] = [
 const WALMART_CATEGORIES: FeeCategory[] = [
   { slug: "apparel-accessories", label: "Apparel & Accessories", referralPct: 15 },
   { slug: "automotive", label: "Automotive & Powersports", referralPct: 12 },
-  { slug: "baby", label: "Baby", referralPct: 15, note: "8% on items priced $10 or less." },
-  { slug: "beauty", label: "Beauty", referralPct: 15, note: "8% on items priced $10 or less." },
+  {
+    slug: "baby", label: "Baby", referralPct: 15,
+    note: "8% on items priced $10 or less; 15% on the whole price when over $10.",
+    tierMode: "whole", tiers: [{ upTo: 10, pct: 8 }, { upTo: null, pct: 15 }],
+  },
+  {
+    slug: "beauty", label: "Beauty", referralPct: 15,
+    note: "8% on items priced $10 or less; 15% on the whole price when over $10.",
+    tierMode: "whole", tiers: [{ upTo: 10, pct: 8 }, { upTo: null, pct: 15 }],
+  },
   { slug: "books", label: "Books", referralPct: 15 },
   { slug: "camera-photo", label: "Camera & Photo", referralPct: 8 },
   { slug: "cell-phones", label: "Cell Phones", referralPct: 8 },
   { slug: "consumer-electronics", label: "Consumer Electronics", referralPct: 8 },
   { slug: "electronics-accessories", label: "Electronics Accessories", referralPct: 15 },
-  { slug: "grocery", label: "Grocery", referralPct: 15, note: "8% on items priced $10 or less." },
-  { slug: "health-personal-care", label: "Health & Personal Care", referralPct: 15, note: "8% on items priced $10 or less." },
+  {
+    slug: "grocery", label: "Grocery", referralPct: 15,
+    note: "8% on items priced $10 or less; 15% on the whole price when over $10.",
+    tierMode: "whole", tiers: [{ upTo: 10, pct: 8 }, { upTo: null, pct: 15 }],
+  },
+  {
+    slug: "health-personal-care", label: "Health & Personal Care", referralPct: 15,
+    note: "8% on items priced $10 or less; 15% on the whole price when over $10.",
+    tierMode: "whole", tiers: [{ upTo: 10, pct: 8 }, { upTo: null, pct: 15 }],
+  },
   { slug: "home-garden", label: "Home & Garden", referralPct: 15 },
   { slug: "industrial-scientific", label: "Industrial & Scientific", referralPct: 12 },
   { slug: "jewelry", label: "Jewelry", referralPct: 20 },
@@ -306,6 +364,48 @@ function cents(value: number): number {
   return Math.round(value * 100) / 100
 }
 
+/**
+ * The referral/commission fee for a price, honoring tiered schedules.
+ * 'whole' tiers pick one rate for the entire price by which bracket the price
+ * falls in; 'marginal' tiers charge each bracket's rate on the portion of the
+ * price inside it.
+ */
+function referralFee(salePrice: number, category: FeeCategory): { amount: number; detail: string } {
+  const { tiers, tierMode } = category
+  if (!tiers || tiers.length === 0) {
+    return {
+      amount: cents(salePrice * (category.referralPct / 100)),
+      detail: `${category.referralPct}% of $${salePrice.toFixed(2)}`,
+    }
+  }
+
+  if (tierMode === "whole") {
+    const bracket = tiers.find((t) => t.upTo === null || salePrice <= t.upTo) ?? tiers[tiers.length - 1]
+    return {
+      amount: cents(salePrice * (bracket.pct / 100)),
+      detail: `${bracket.pct}% of $${salePrice.toFixed(2)} (tiered by total price)`,
+    }
+  }
+
+  // Marginal: walk the brackets, charging each rate on its slice of the price.
+  let remaining = salePrice
+  let lower = 0
+  let amount = 0
+  const parts: string[] = []
+  for (const tier of tiers) {
+    if (remaining <= 0) break
+    const upper = tier.upTo ?? Infinity
+    const slice = Math.min(remaining, upper - lower)
+    if (slice > 0) {
+      amount += slice * (tier.pct / 100)
+      parts.push(`${tier.pct}% on $${slice.toFixed(2)}`)
+      remaining -= slice
+      lower = upper
+    }
+  }
+  return { amount: cents(amount), detail: parts.join(" + ") }
+}
+
 export function computeFeeBreakdown({
   salePrice,
   unitCost,
@@ -315,12 +415,12 @@ export function computeFeeBreakdown({
 }: FeeBreakdownInput): FeeBreakdown {
   const lines: FeeBreakdownLine[] = []
 
-  const referral = cents(salePrice * (category.referralPct / 100))
-  const referralWithMin = category.minFee ? Math.max(referral, category.minFee) : referral
+  const referral = referralFee(salePrice, category)
+  const referralWithMin = category.minFee ? Math.max(referral.amount, category.minFee) : referral.amount
   lines.push({
     label: `${marketplace.shortName} ${marketplace.feeName}`,
     amount: referralWithMin,
-    detail: `${category.referralPct}% of $${salePrice.toFixed(2)}`,
+    detail: referral.detail,
   })
 
   if (marketplace.perOrderFee) {
@@ -362,18 +462,63 @@ export function computeFeeBreakdown({
   const marginPct = salePrice > 0 ? cents((profit / salePrice) * 100) : 0
   const takeRatePct = salePrice > 0 ? cents((totalFees / salePrice) * 100) : 0
 
-  // Fees that scale with price, expressed as a fraction, so we can solve for the
-  // price at which profit reaches zero rather than iterating.
-  const variableRate = category.referralPct / 100 + (marketplace.paymentProcessingPct ?? 0) / 100
-  const fixedCosts =
-    unitCost +
-    shippingCost +
-    (marketplace.perOrderFee ?? 0) +
-    (marketplace.listingFee ?? 0) +
-    (marketplace.paymentProcessingFlat ?? 0)
-  const breakEvenPrice = variableRate < 1 ? cents(fixedCosts / (1 - variableRate)) : 0
+  const breakEvenPrice = solveBreakEven(unitCost, shippingCost, marketplace, category)
 
   return { lines, totalFees, netProceeds, profit, marginPct, takeRatePct, breakEvenPrice }
+}
+
+function profitAt(
+  price: number,
+  unitCost: number,
+  shippingCost: number,
+  marketplace: Marketplace,
+  category: FeeCategory,
+): number {
+  const referral = referralFee(price, category)
+  const withMin = category.minFee ? Math.max(referral.amount, category.minFee) : referral.amount
+  const processing = marketplace.paymentProcessingPct
+    ? price * (marketplace.paymentProcessingPct / 100) + (marketplace.paymentProcessingFlat ?? 0)
+    : 0
+  const fees = withMin + (marketplace.perOrderFee ?? 0) + (marketplace.listingFee ?? 0) + processing + shippingCost
+  return price - fees - unitCost
+}
+
+/**
+ * Lowest price at which profit reaches zero, found numerically. Whole-price
+ * tier switches make profit *discontinuous* (crossing $10 in Amazon Baby jumps
+ * the fee on the entire price from 8% to 15%), so a closed-form solve is
+ * wrong by construction — scan for the first crossing, then bisect within it.
+ */
+function solveBreakEven(
+  unitCost: number,
+  shippingCost: number,
+  marketplace: Marketplace,
+  category: FeeCategory,
+): number {
+  const upper = Math.max((unitCost + shippingCost + 5) * 4, 50)
+  const steps = 2000
+  let prevPrice = 0.01
+  let prevProfit = profitAt(prevPrice, unitCost, shippingCost, marketplace, category)
+  if (prevProfit >= 0) return cents(prevPrice)
+
+  for (let i = 1; i <= steps; i++) {
+    const price = 0.01 + (upper - 0.01) * (i / steps)
+    const profit = profitAt(price, unitCost, shippingCost, marketplace, category)
+    if (profit >= 0) {
+      // Bisect the bracketing interval down to sub-cent precision.
+      let lo = prevPrice
+      let hi = price
+      for (let iter = 0; iter < 40; iter++) {
+        const mid = (lo + hi) / 2
+        if (profitAt(mid, unitCost, shippingCost, marketplace, category) >= 0) hi = mid
+        else lo = mid
+      }
+      return cents(hi)
+    }
+    prevPrice = price
+    prevProfit = profit
+  }
+  return cents(upper)
 }
 
 /** Same product modelled across every marketplace that carries the category. */

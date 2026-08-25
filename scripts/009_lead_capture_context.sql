@@ -7,6 +7,7 @@
 
 ALTER TABLE public.subscribers
   ADD COLUMN IF NOT EXISTS context JSONB,
+  ADD COLUMN IF NOT EXISTS primary_marketplace TEXT,
   ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
 
 -- `source` already exists and is set per capture surface (e.g.
@@ -21,11 +22,9 @@ CREATE INDEX IF NOT EXISTS idx_subscribers_role ON public.subscribers(role);
 -- a Home & Garden product on Walmart.
 CREATE INDEX IF NOT EXISTS idx_subscribers_context ON public.subscribers USING GIN (context);
 
--- Allow the public insert policy to also carry through an update path for the
--- two-step gate (email first, role second). Scoped to service role only —
--- the API performs the update with the admin client, never the browser.
+-- No UPDATE policy is created: the two-step gate's enrichment update runs
+-- through the admin client (service role), which bypasses RLS entirely. A
+-- permissive UPDATE policy without a TO clause would apply to PUBLIC and let
+-- browser clients rewrite subscriber rows — so its absence is the security
+-- posture, not an omission.
 DROP POLICY IF EXISTS "Allow service role to update" ON public.subscribers;
-CREATE POLICY "Allow service role to update" ON public.subscribers
-  FOR UPDATE
-  USING (true)
-  WITH CHECK (true);

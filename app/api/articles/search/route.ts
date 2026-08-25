@@ -110,6 +110,22 @@ export async function GET(request: NextRequest) {
       data = rpc.data as SearchArticleRow[] | null
       error = rpc.error
 
+      // Databases provisioned from scripts/ without 010 applied won't have the
+      // RPC — degrade to plain full-text filtering (no rank order) rather than
+      // failing every search with a 500.
+      if (error) {
+        const fallback = await applyFilters(
+          supabase
+            .from('articles')
+            .select('id, title, summary, category, source_name, source_type, published_at, image_url, platforms, impact_level, relevance_score, audience, is_breaking'),
+          filters
+        )
+          .order('published_at', { ascending: false })
+          .limit(rawWindow)
+        data = fallback.data as SearchArticleRow[] | null
+        error = fallback.error
+      }
+
       if (data) {
         if (sort === 'newest') {
           data.sort((a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime())
