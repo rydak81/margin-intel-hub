@@ -8,6 +8,10 @@ import { ExternalLink } from "lucide-react"
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://marketplacebeta.com"
 
+// Titles embed the current year — regenerate daily so it rolls over instead
+// of freezing at deploy time.
+export const revalidate = 86400
+
 interface PageProps {
   params: Promise<{ marketplace: string }>
 }

@@ -315,8 +315,28 @@ export function getAllFeeRoutes(): { marketplace: string; category: string }[] {
 const GENERIC_CATEGORY_SLUGS = ["most-categories", "all-categories", "everything-else", "standard"]
 
 /**
- * Best category on a marketplace for a given label: exact match, then
- * first-word match, then the marketplace's catch-all category (eBay "Most
+ * Cross-marketplace naming synonyms: Amazon says "Clothing", Walmart and
+ * TikTok Shop say "Apparel"; Amazon says "Grocery", TikTok says "Food". Tried
+ * before the generic catch-all so a marketplace that genuinely carries the
+ * category isn't lumped into "Most Categories".
+ */
+const CATEGORY_SYNONYMS: Record<string, string[]> = {
+  clothing: ["apparel"],
+  apparel: ["clothing"],
+  grocery: ["food"],
+  food: ["grocery"],
+  kitchen: ["kitchenware"],
+  kitchenware: ["kitchen"],
+  sports: ["sporting"],
+  sporting: ["sports"],
+  home: ["house"],
+  jewelry: ["jewellery"],
+  toys: ["toy"],
+}
+
+/**
+ * Best category on a marketplace for a given label: exact match, first-word
+ * match, synonym match, then the marketplace's catch-all category (eBay "Most
  * Categories", Etsy "All Categories") — so a comparison never silently drops
  * a marketplace that does carry the product.
  */
@@ -328,6 +348,10 @@ function matchCategory(marketplace: Marketplace, categoryLabel: string): FeeCate
   if (exact) return exact
   const partial = marketplace.categories.find((c) => c.label.toLowerCase().startsWith(firstWord))
   if (partial) return partial
+  for (const synonym of CATEGORY_SYNONYMS[firstWord] ?? []) {
+    const bySynonym = marketplace.categories.find((c) => c.label.toLowerCase().startsWith(synonym))
+    if (bySynonym) return bySynonym
+  }
   if (marketplace.categories.length === 1) return marketplace.categories[0]
   return marketplace.categories.find((c) => GENERIC_CATEGORY_SLUGS.includes(c.slug))
 }
@@ -490,13 +514,18 @@ function profitAt(
   marketplace: Marketplace,
   category: FeeCategory,
 ): number {
+  // Mirror computeFeeBreakdown's per-line cent rounding exactly — an
+  // unrounded processing fee here can put the "break-even" price a cent into
+  // displayed loss.
   const referral = referralFee(price, category)
   const withMin = category.minFee ? Math.max(referral.amount, category.minFee) : referral.amount
   const processing = marketplace.paymentProcessingPct
-    ? price * (marketplace.paymentProcessingPct / 100) + (marketplace.paymentProcessingFlat ?? 0)
+    ? cents(price * (marketplace.paymentProcessingPct / 100) + (marketplace.paymentProcessingFlat ?? 0))
     : 0
-  const fees = withMin + (marketplace.perOrderFee ?? 0) + (marketplace.listingFee ?? 0) + processing + shippingCost
-  return price - fees - unitCost
+  const totalFees = cents(
+    withMin + (marketplace.perOrderFee ?? 0) + (marketplace.listingFee ?? 0) + processing + cents(shippingCost),
+  )
+  return cents(cents(price - totalFees) - unitCost)
 }
 
 /**
@@ -548,7 +577,13 @@ function solveBreakEven(
     if (profitAt(mid, unitCost, shippingCost, marketplace, category) >= 0) hi = mid
     else lo = mid
   }
-  return cents(hi)
+  // Rounding the crossing to a displayable cent can land one cent short of
+  // profitability — nudge up until the displayed price is genuinely break-even.
+  let result = cents(hi)
+  while (profitAt(result, unitCost, shippingCost, marketplace, category) < 0) {
+    result = cents(result + 0.01)
+  }
+  return result
 }
 
 /** Same product modelled across every marketplace that carries the category. */

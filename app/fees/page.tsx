@@ -6,6 +6,10 @@ import { MARKETPLACES } from "@/lib/marketplace-fees"
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://marketplacebeta.com"
 
+// The year in the title is a CTR asset on data queries, but a purely static
+// build would freeze it at deploy time — regenerate daily so it rolls over.
+export const revalidate = 86400
+
 const title = `Marketplace Seller Fees ${new Date().getFullYear()}: Amazon, Walmart, TikTok Shop, eBay & Etsy`
 const description =
   "Compare seller fees across every major marketplace. Category-by-category referral rates, a free margin calculator, and side-by-side unit economics for the same product on all five platforms."
