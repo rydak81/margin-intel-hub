@@ -377,7 +377,15 @@ export function getComparableCategories(
 export interface FeeBreakdownInput {
   salePrice: number
   unitCost: number
+  /** What the seller pays to fulfill — an expense line. */
   shippingCost?: number
+  /**
+   * Shipping charged to the buyer. Marketplaces calculate percentage fees on
+   * the order total including buyer-paid shipping (Amazon's referral fee and
+   * eBay's final value fee both do), so this joins the fee base AND the
+   * seller's revenue. Zero for free-shipping listings.
+   */
+  buyerShipping?: number
   marketplace: Marketplace
   category: FeeCategory
 }
@@ -450,17 +458,23 @@ export function computeFeeBreakdown({
   salePrice,
   unitCost,
   shippingCost = 0,
+  buyerShipping = 0,
   marketplace,
   category,
 }: FeeBreakdownInput): FeeBreakdown {
   const lines: FeeBreakdownLine[] = []
 
-  const referral = referralFee(salePrice, category)
+  // Percentage fees (and whole-price tier brackets) are computed on the order
+  // total including buyer-paid shipping — that's how Amazon and eBay define
+  // their fee base. It's also the seller's actual revenue.
+  const feeBase = salePrice + buyerShipping
+
+  const referral = referralFee(feeBase, category)
   const referralWithMin = category.minFee ? Math.max(referral.amount, category.minFee) : referral.amount
   lines.push({
     label: `${marketplace.shortName} ${marketplace.feeName}`,
     amount: referralWithMin,
-    detail: referral.detail,
+    detail: buyerShipping > 0 ? `${referral.detail} — base includes buyer-paid shipping` : referral.detail,
   })
 
   if (marketplace.perOrderFee) {
@@ -481,7 +495,7 @@ export function computeFeeBreakdown({
 
   if (marketplace.paymentProcessingPct) {
     const processing = cents(
-      salePrice * (marketplace.paymentProcessingPct / 100) + (marketplace.paymentProcessingFlat ?? 0),
+      feeBase * (marketplace.paymentProcessingPct / 100) + (marketplace.paymentProcessingFlat ?? 0),
     )
     lines.push({
       label: "Payment processing",
@@ -497,12 +511,12 @@ export function computeFeeBreakdown({
   }
 
   const totalFees = cents(lines.reduce((sum, line) => sum + line.amount, 0))
-  const netProceeds = cents(salePrice - totalFees)
+  const netProceeds = cents(feeBase - totalFees)
   const profit = cents(netProceeds - unitCost)
-  const marginPct = salePrice > 0 ? cents((profit / salePrice) * 100) : 0
-  const takeRatePct = salePrice > 0 ? cents((totalFees / salePrice) * 100) : 0
+  const marginPct = feeBase > 0 ? cents((profit / feeBase) * 100) : 0
+  const takeRatePct = feeBase > 0 ? cents((totalFees / feeBase) * 100) : 0
 
-  const breakEvenPrice = solveBreakEven(unitCost, shippingCost, marketplace, category)
+  const breakEvenPrice = solveBreakEven(unitCost, shippingCost, buyerShipping, marketplace, category)
 
   return { lines, totalFees, netProceeds, profit, marginPct, takeRatePct, breakEvenPrice }
 }
@@ -511,21 +525,23 @@ function profitAt(
   price: number,
   unitCost: number,
   shippingCost: number,
+  buyerShipping: number,
   marketplace: Marketplace,
   category: FeeCategory,
 ): number {
   // Mirror computeFeeBreakdown's per-line cent rounding exactly — an
   // unrounded processing fee here can put the "break-even" price a cent into
   // displayed loss.
-  const referral = referralFee(price, category)
+  const feeBase = price + buyerShipping
+  const referral = referralFee(feeBase, category)
   const withMin = category.minFee ? Math.max(referral.amount, category.minFee) : referral.amount
   const processing = marketplace.paymentProcessingPct
-    ? cents(price * (marketplace.paymentProcessingPct / 100) + (marketplace.paymentProcessingFlat ?? 0))
+    ? cents(feeBase * (marketplace.paymentProcessingPct / 100) + (marketplace.paymentProcessingFlat ?? 0))
     : 0
   const totalFees = cents(
     withMin + (marketplace.perOrderFee ?? 0) + (marketplace.listingFee ?? 0) + processing + cents(shippingCost),
   )
-  return cents(cents(price - totalFees) - unitCost)
+  return cents(cents(feeBase - totalFees) - unitCost)
 }
 
 /**
@@ -541,6 +557,7 @@ function profitAt(
 function solveBreakEven(
   unitCost: number,
   shippingCost: number,
+  buyerShipping: number,
   marketplace: Marketplace,
   category: FeeCategory,
 ): number {
@@ -552,14 +569,17 @@ function solveBreakEven(
     samples.push(0.01 + (upper - 0.01) * (i / steps))
   }
   for (const tier of category.tiers ?? []) {
-    if (tier.upTo !== null && tier.upTo < upper) {
+    // Tier thresholds live in fee-base space (price + buyer shipping), so the
+    // discontinuity in ITEM price sits at upTo - buyerShipping.
+    const boundary = tier.upTo !== null ? tier.upTo - buyerShipping : null
+    if (boundary !== null && boundary > 0 && boundary < upper) {
       // Both sides of each discontinuity.
-      samples.push(tier.upTo, tier.upTo + 0.001)
+      samples.push(boundary, boundary + 0.001)
     }
   }
   samples.sort((a, b) => a - b)
 
-  const profits = samples.map((p) => profitAt(p, unitCost, shippingCost, marketplace, category))
+  const profits = samples.map((p) => profitAt(p, unitCost, shippingCost, buyerShipping, marketplace, category))
 
   // Index of the last sample still in loss; break-even sits in the interval
   // just after it. If nothing is ever in loss, the first sample already works.
@@ -574,13 +594,13 @@ function solveBreakEven(
   let hi = samples[lastNegative + 1]
   for (let iter = 0; iter < 40; iter++) {
     const mid = (lo + hi) / 2
-    if (profitAt(mid, unitCost, shippingCost, marketplace, category) >= 0) hi = mid
+    if (profitAt(mid, unitCost, shippingCost, buyerShipping, marketplace, category) >= 0) hi = mid
     else lo = mid
   }
   // Rounding the crossing to a displayable cent can land one cent short of
   // profitability — nudge up until the displayed price is genuinely break-even.
   let result = cents(hi)
-  while (profitAt(result, unitCost, shippingCost, marketplace, category) < 0) {
+  while (profitAt(result, unitCost, shippingCost, buyerShipping, marketplace, category) < 0) {
     result = cents(result + 0.01)
   }
   return result
@@ -591,6 +611,7 @@ export function compareAcrossMarketplaces(
   salePrice: number,
   unitCost: number,
   categoryLabel: string,
+  buyerShipping = 0,
 ): { marketplace: Marketplace; category: FeeCategory; breakdown: FeeBreakdown }[] {
   return MARKETPLACES.map((m) => {
     const category = matchCategory(m, categoryLabel)
@@ -598,7 +619,7 @@ export function compareAcrossMarketplaces(
     return {
       marketplace: m,
       category,
-      breakdown: computeFeeBreakdown({ salePrice, unitCost, marketplace: m, category }),
+      breakdown: computeFeeBreakdown({ salePrice, unitCost, buyerShipping, marketplace: m, category }),
     }
   })
     .filter(

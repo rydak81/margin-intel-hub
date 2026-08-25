@@ -243,9 +243,12 @@ export async function GET(request: NextRequest) {
     }
 
     // With a search query, don't collapse near-duplicate coverage as
-    // aggressively — the reader asked for everything on this topic.
+    // aggressively — the reader asked for everything on this topic. And when
+    // the rows arrive already ordered (query rank, explicit oldest/impact),
+    // curation must only deduplicate, never re-sort by desk score.
     const curatedArticles = curateArticleFeed(allArticles, {
       maxPerTopic: q ? 4 : (category || platforms.length > 0 ? 3 : 2),
+      preserveOrder: Boolean(q) || sort === 'oldest' || sort === 'impact',
     })
     const articles = curatedArticles.slice(offset, offset + limit)
 

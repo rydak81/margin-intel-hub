@@ -25,15 +25,16 @@ function money(value: number): string {
 export function FeeCalculator({ marketplace, category }: FeeCalculatorProps) {
   const [salePrice, setSalePrice] = useState(29.99)
   const [unitCost, setUnitCost] = useState(8)
+  const [buyerShipping, setBuyerShipping] = useState(0)
 
   const breakdown = useMemo(
-    () => computeFeeBreakdown({ salePrice, unitCost, marketplace, category }),
-    [salePrice, unitCost, marketplace, category],
+    () => computeFeeBreakdown({ salePrice, unitCost, buyerShipping, marketplace, category }),
+    [salePrice, unitCost, buyerShipping, marketplace, category],
   )
 
   const comparison = useMemo(
-    () => compareAcrossMarketplaces(salePrice, unitCost, category.label),
-    [salePrice, unitCost, category.label],
+    () => compareAcrossMarketplaces(salePrice, unitCost, category.label, buyerShipping),
+    [salePrice, unitCost, category.label, buyerShipping],
   )
 
   const profitable = breakdown.profit >= 0
@@ -48,7 +49,7 @@ export function FeeCalculator({ marketplace, category }: FeeCalculatorProps) {
         {marketplace.feeName}.
       </p>
 
-      <div className="mt-5 grid gap-4 sm:grid-cols-2">
+      <div className="mt-5 grid gap-4 sm:grid-cols-3">
         <div>
           <Label htmlFor="sale-price" className="text-sm font-medium">
             Sale price
@@ -82,6 +83,26 @@ export function FeeCalculator({ marketplace, category }: FeeCalculatorProps) {
               className="h-11 rounded-xl pl-7"
             />
           </div>
+        </div>
+        <div>
+          <Label htmlFor="buyer-shipping" className="text-sm font-medium">
+            Shipping charged to buyer
+          </Label>
+          <div className="relative mt-1.5">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+            <Input
+              id="buyer-shipping"
+              type="number"
+              min={0}
+              step="0.01"
+              value={buyerShipping}
+              onChange={(event) => setBuyerShipping(Math.max(0, Number(event.target.value) || 0))}
+              className="h-11 rounded-xl pl-7"
+            />
+          </div>
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+            Fees apply to it too — leave $0 for free shipping.
+          </p>
         </div>
       </div>
 
@@ -196,6 +217,13 @@ export function FeeCalculator({ marketplace, category }: FeeCalculatorProps) {
                 unit is profitable on {marketplace.shortName} and stays profitable at every higher
                 price (tiered fee jumps can make a narrow band above a threshold loss-making).
               </p>
+              {marketplace.slug === "ebay" && (
+                <p className="mt-2 text-xs text-sky-800/80 dark:text-sky-300/70">
+                  eBay also applies its final value fee to collected sales tax, which varies by
+                  buyer location and isn&apos;t modeled here — treat these figures as a lower bound
+                  on fees.
+                </p>
+              )}
             </div>
 
             <h3 className="mt-7 text-base font-semibold text-slate-900 dark:text-white">
@@ -228,7 +256,8 @@ export function FeeCalculator({ marketplace, category }: FeeCalculatorProps) {
                     // categories can differ from the headline rate (Amazon
                     // Baby is 8% headline but 15% on a $29.99 sale).
                     const referralLine = row.breakdown.lines[0]?.amount ?? 0
-                    const effectivePct = salePrice > 0 ? (referralLine / salePrice) * 100 : 0
+                    const feeBase = salePrice + buyerShipping
+                    const effectivePct = feeBase > 0 ? (referralLine / feeBase) * 100 : 0
                     return (
                     <tr key={row.marketplace.slug}>
                       <td className="py-2.5">
