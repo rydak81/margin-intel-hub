@@ -1,12 +1,30 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "regions": ["iad1"],
   "crons": [
     {
       "path": "/api/news/aggregate",
-      "schedule": "0 */2 * * *"
+      "schedule": "0 5 * * *"
+    },
+    {
+      "path": "/api/news/aggregate",
+      "schedule": "0 15 * * *"
     },
     {
       "path": "/api/news/classify",
-      "schedule": "15 */2 * * *"
+      "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/news/classify",
+      "schedule": "0 12 * * *"
+    },
+    {
+      "path": "/api/news/classify",
+      "schedule": "0 18 * * *"
+    },
+    {
+      "path": "/api/news/classify",
+      "schedule": "0 22 * * *"
     },
     {
       "path": "/api/news/daily-brief",
@@ -14,19 +32,15 @@
     },
     {
       "path": "/api/community/aggregate",
-      "schedule": "0 */6 * * *"
+      "schedule": "0 14 * * *"
     },
     {
       "path": "/api/community/analyze",
-      "schedule": "30 */6 * * *"
+      "schedule": "0 17 * * *"
     },
     {
       "path": "/api/community/pulse",
-      "schedule": "0 12 * * *"
-    },
-    {
-      "path": "/api/news/daily-brief",
-      "schedule": "0 12 * * *"
+      "schedule": "0 20 * * *"
     }
   ],
   "functions": {

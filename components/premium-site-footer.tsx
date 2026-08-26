@@ -9,11 +9,9 @@ export function PremiumSiteFooter() {
         <div className="flex flex-col items-center justify-between gap-6 md:flex-row md:items-start">
           <SiteBrand
             href="/"
-            deskLabel="Operator Intelligence Desk"
             className="justify-center text-center md:justify-start md:text-left"
             logoClassName="h-10"
             iconClassName="h-7 w-7"
-            labelClassName="text-white/45"
           />
           <div className="flex max-w-3xl flex-wrap items-center justify-center gap-x-5 gap-y-3 text-sm text-white/68 md:justify-end">
             <Link href="/" className="hover:text-white transition-colors">Home</Link>

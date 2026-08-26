@@ -26,6 +26,12 @@ type CuratableArticle = Pick<
 interface CurateOptions {
   limit?: number
   maxPerTopic?: number
+  /**
+   * Keep the caller's ordering and only deduplicate topics. Use when the
+   * input is already ranked (query relevance, explicit newest/oldest) — the
+   * default desk-score re-sort would silently override that ranking.
+   */
+  preserveOrder?: boolean
 }
 
 interface TopicCluster<T extends CuratableArticle> {
@@ -163,6 +169,28 @@ export function curateArticleFeed<T extends CuratableArticle>(
   options: CurateOptions = {}
 ): T[] {
   const maxPerTopic = options.maxPerTopic ?? 2
+
+  if (options.preserveOrder) {
+    // Greedy pass in input order: keep the first maxPerTopic articles of each
+    // topic as they appear, never re-sorting — so the best-ranked coverage of
+    // a story survives and the caller's ordering is untouched.
+    const clusters: Array<{ all: T[]; keptCount: number }> = []
+    const kept: T[] = []
+    for (const article of articles) {
+      let cluster = clusters.find((c) => c.all.some((a) => areTopicMatches(article, a)))
+      if (!cluster) {
+        cluster = { all: [], keptCount: 0 }
+        clusters.push(cluster)
+      }
+      cluster.all.push(article)
+      if (cluster.keptCount < maxPerTopic) {
+        cluster.keptCount++
+        kept.push(article)
+      }
+    }
+    return options.limit ? kept.slice(0, options.limit) : kept
+  }
+
   const topicClusters = clusterArticles(articles)
 
   const curated = topicClusters

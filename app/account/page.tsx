@@ -1,6 +1,8 @@
 import type { Metadata } from "next"
 import { AccountPageClient } from "@/components/account-page-client"
 
+export const dynamic = "force-dynamic"
+
 export const metadata: Metadata = {
   title: "Account | MarketplaceBeta",
   description: "Manage your MarketplaceBeta profile, content preferences, and daily digest settings.",

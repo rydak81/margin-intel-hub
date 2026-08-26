@@ -1,4 +1,4 @@
-import Image from "next/image"
+import { ArticleImage } from "@/components/article-image"
 import Link from "next/link"
 import Script from "next/script"
 import { notFound } from "next/navigation"
@@ -102,7 +102,7 @@ export default async function ArticlePage({
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://marketplacebeta.com"
   const articleUrl = `${siteUrl}/news/${article.id}`
   const articleDescription = article.aiSummary || article.summary || "Read the full analysis on MarketplaceBeta"
-  const standfirst = article.aiSummary || article.summary
+  const standfirst = cleanArticleContent(article.aiSummary || article.summary, article.title)
   const intelligenceHighlights = [
     article.whatThisMeans
       ? {
@@ -198,13 +198,14 @@ export default async function ArticlePage({
             </div>
 
             <div className="relative mt-8 aspect-[16/9] overflow-hidden rounded-2xl border bg-muted">
-              <Image
+              <ArticleImage
                 src={articleImage}
                 alt={article.title}
-                fill
-                className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 960px"
-                priority
+                title={article.title}
+                category={article.category}
+                platforms={article.platforms || []}
+                className="absolute inset-0 h-full w-full object-cover"
+                eager
               />
             </div>
 
@@ -315,7 +316,7 @@ export default async function ArticlePage({
                       block.type === "paragraph" ? (
                         <p
                           key={`${article.id}-paragraph-${index}`}
-                          className="text-[1.06rem] leading-8 text-slate-700 dark:text-slate-200 md:text-[1.08rem] md:leading-9"
+                          className="text-lg leading-relaxed text-slate-700 dark:text-slate-200"
                         >
                           {block.content}
                         </p>
@@ -339,9 +340,24 @@ export default async function ArticlePage({
                       )
                     )
                 ) : (
-                    <p className="text-[1.06rem] leading-8 text-slate-700 dark:text-slate-200 md:text-[1.08rem] md:leading-9">
+                    <p className="text-lg leading-relaxed text-slate-700 dark:text-slate-200">
                       {contentText || article.summary}
                     </p>
+                )}
+                {contentText.length < 100 && article.sourceUrl && (
+                  <div className="mt-6 rounded-2xl border border-slate-200/70 bg-slate-50/80 p-5 dark:border-white/10 dark:bg-white/[0.03]">
+                    <p className="text-base leading-7 text-slate-600 dark:text-slate-300">
+                      Full article available at the original source.{' '}
+                      <a
+                        href={article.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-semibold text-primary hover:underline"
+                      >
+                        Read the complete story at {article.sourceName} →
+                      </a>
+                    </p>
+                  </div>
                 )}
               </div>
               </div>
@@ -487,12 +503,13 @@ export default async function ArticlePage({
                       <Link key={related.id} href={`/news/${related.id}`}>
                         <Card className="overflow-hidden group cursor-pointer hover:shadow-md transition-all border-0 mb-4">
                           <div className="aspect-video relative overflow-hidden">
-                            <Image
+                            <ArticleImage
                               src={relatedImage}
                               alt={related.title}
-                              fill
-                              className="object-cover group-hover:scale-105 transition-transform duration-300"
-                              sizes="320px"
+                              title={related.title}
+                              category={related.category}
+                              platforms={related.platforms || []}
+                              className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
                             />
                           </div>
                           <CardContent className="p-4">

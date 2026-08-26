@@ -23,7 +23,7 @@ function getSupabase() {
 function stripHTML(html: string): string {
   if (!html) return ''
   return html
-    .replace(/<[^>]*>/g, '')
+    .replace(/<[^>]*>/g, ' ')
     .replace(/&nbsp;/g, ' ')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
