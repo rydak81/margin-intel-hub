@@ -29,25 +29,17 @@ export function ArticleCardSkeleton() {
 
 export function FeaturedArticleSkeleton() {
   return (
-    <Card className="overflow-hidden border-0 shadow-lg">
-      <div className="aspect-[16/9] md:aspect-[21/9] lg:aspect-[3/1] min-h-[350px] md:min-h-[400px] lg:min-h-[450px] relative">
-        <Skeleton className="absolute inset-0 rounded-none" />
-        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 lg:p-12 space-y-4">
-          <div className="flex gap-2">
-            <Skeleton className="h-6 w-20 rounded-full" />
-            <Skeleton className="h-6 w-28 rounded-full" />
-            <Skeleton className="h-5 w-20" />
-          </div>
-          <Skeleton className="h-10 w-full max-w-3xl" />
-          <Skeleton className="h-10 w-4/5 max-w-2xl" />
-          <Skeleton className="h-5 w-full max-w-2xl" />
-          <div className="flex justify-between items-center gap-4 pt-2">
-            <Skeleton className="h-4 w-36" />
-            <Skeleton className="h-10 w-40 rounded-lg" />
-          </div>
-        </div>
+    <div className="grid overflow-hidden rounded-2xl border border-border bg-card md:grid-cols-2" aria-label="Loading lead story" role="status">
+      <Skeleton className="aspect-[16/10] rounded-none md:aspect-auto md:min-h-[380px]" />
+      <div className="space-y-5 p-6 sm:p-8 lg:p-10">
+        <Skeleton className="h-4 w-28" />
+        <Skeleton className="h-9 w-full" />
+        <Skeleton className="h-9 w-4/5" />
+        <Skeleton className="h-5 w-full" />
+        <Skeleton className="h-5 w-5/6" />
+        <Skeleton className="h-4 w-40" />
       </div>
-    </Card>
+    </div>
   )
 }
 

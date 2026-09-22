@@ -70,28 +70,7 @@ type HomepageArticleSource = Partial<ClassifiedArticle> & {
 }
 
 export function createFallbackBreakingNews(): BreakingNews[] {
-  const now = new Date().toISOString()
-
-  return [
-    {
-      id: "1",
-      title: "Amazon announces Q2 FBA fee structure changes effective April 2026",
-      timestamp: now,
-      urgent: true,
-    },
-    {
-      id: "2",
-      title: "TikTok Shop US GMV surpasses $10B milestone in Q1",
-      timestamp: now,
-      urgent: true,
-    },
-    {
-      id: "3",
-      title: "New tariff regulations impact cross-border sellers starting May 1",
-      timestamp: now,
-      urgent: false,
-    },
-  ]
+  return []
 }
 
 export function mapAICategory(aiCategory: string | undefined): string {
@@ -205,3 +184,4 @@ export async function loadHomepageData(limit = 50): Promise<{
     initialBreakingNews: buildBreakingNews(initialArticles),
   }
 }
+

@@ -1,22 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, type ReactNode } from "react"
 import Link from "next/link"
-import { ArrowLeft, Menu, X } from "lucide-react"
+import { ArrowLeft, ArrowUpRight, Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { SiteBrand } from "@/components/site-brand"
 
-type NavKey =
-  | "home"
-  | "articles"
-  | "news"
-  | "partners"
-  | "tools"
-  | "fees"
-  | "community"
-  | "events"
-  | "solutions"
-  | "newsletter"
+type NavKey = "home" | "articles" | "news" | "partners" | "tools" | "fees" | "community" | "events" | "solutions" | "newsletter"
 
 interface PremiumSiteHeaderProps {
   active?: NavKey
@@ -25,15 +15,18 @@ interface PremiumSiteHeaderProps {
   backLabel?: string
   ctaHref?: string
   ctaLabel?: string
+  actions?: ReactNode
+  mobileContent?: ReactNode
+  navExtra?: ReactNode
 }
 
 const NAV_ITEMS: Array<{ key: NavKey; href: string; label: string }> = [
-  { key: "home", href: "/", label: "Home" },
-  { key: "articles", href: "/articles", label: "Articles" },
+  { key: "home", href: "/", label: "Overview" },
   { key: "news", href: "/news", label: "News" },
-  { key: "partners", href: "/partners", label: "Partners" },
-  { key: "tools", href: "/tools", label: "Tools" },
+  { key: "articles", href: "/articles", label: "Articles" },
+  { key: "tools", href: "/tools", label: "Seller tools" },
   { key: "fees", href: "/fees", label: "Fees" },
+  { key: "partners", href: "/partners", label: "Partners" },
   { key: "community", href: "/community", label: "Community" },
   { key: "events", href: "/events", label: "Events" },
   { key: "solutions", href: "/solutions", label: "Solutions" },
@@ -41,124 +34,55 @@ const NAV_ITEMS: Array<{ key: NavKey; href: string; label: string }> = [
 ]
 
 export function PremiumSiteHeader({
-  active,
-  deskLabel = "Operator Intelligence Desk",
-  backHref,
-  backLabel = "Back",
-  ctaHref = "/newsletter",
-  ctaLabel = "Subscribe",
+  active, backHref, backLabel = "Back", ctaHref = "/newsletter", ctaLabel = "Get the daily brief",
+  actions, mobileContent, navExtra,
 }: PremiumSiteHeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.9),rgba(30,41,59,0.82))] backdrop-blur-2xl">
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-fuchsia-400/45 to-transparent" />
-      <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-sky-400/55 to-transparent" />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_left_top,rgba(56,189,248,0.08),transparent_18%),radial-gradient(circle_at_right_top,rgba(217,70,239,0.08),transparent_18%)]" />
-      <div className="mx-auto max-w-7xl px-4">
-        <div className="flex min-h-14 items-center justify-between gap-4 py-2">
-          <div className="flex min-w-0 items-center gap-3">
-            {backHref ? (
-              <Button
-                variant="ghost"
-                size="sm"
-                asChild
-                className="hidden border border-white/10 bg-white/10 text-white hover:bg-white/16 hover:text-white sm:inline-flex"
-              >
-                <Link href={backHref}>
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  {backLabel}
-                </Link>
-              </Button>
-            ) : null}
-
-            <SiteBrand
-              href="/"
-              deskLabel={deskLabel}
-              className="max-w-[250px]"
-              logoClassName="h-9"
-              iconClassName="h-8 w-8"
-              labelClassName="truncate text-white/52"
-              priority
-            />
-          </div>
-
-          <nav className="hidden items-center gap-2 xl:flex">
-            {NAV_ITEMS.map((item) => (
-              <Link
-                key={item.key}
-                href={item.href}
-                className={`rounded-full px-3 py-2 text-sm font-semibold transition-colors hover:text-white ${
-                  active === item.key
-                    ? "bg-white/10 text-white"
-                    : "text-white/80 hover:bg-white/6"
-                }`}
-              >
-                {item.label}
+    <header className="sticky top-0 z-50 border-b border-slate-800 bg-slate-950 text-white">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="flex min-h-20 items-center justify-between gap-3 py-4 sm:min-h-24">
+          <SiteBrand />
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+            {backHref && (
+              <Link href={backHref} className="hidden items-center gap-2 text-sm text-slate-300 hover:text-white md:inline-flex">
+                <ArrowLeft className="h-4 w-4" />{backLabel}
               </Link>
-            ))}
-          </nav>
-
-          <div className="flex shrink-0 items-center gap-2">
-            {backHref ? (
-              <Button
-                variant="ghost"
-                size="sm"
-                asChild
-                className="border border-white/10 bg-white/10 text-white hover:bg-white/16 hover:text-white sm:hidden"
-              >
-                <Link href={backHref}>
-                  <ArrowLeft className="h-4 w-4" />
-                </Link>
+            )}
+            {actions ?? (
+              <Button asChild className="hidden h-11 rounded-lg bg-blue-600 px-5 text-sm font-semibold text-white hover:bg-blue-500 sm:inline-flex">
+                <Link href={ctaHref}>{ctaLabel}<ArrowUpRight className="ml-2 h-4 w-4" /></Link>
               </Button>
-            ) : null}
-            <Button
-              asChild
-              size="sm"
-              className="hidden border border-white/10 bg-[linear-gradient(135deg,#2563eb,#4f46e5_72%,#7c3aed)] text-sm text-white shadow-[0_18px_40px_-24px_rgba(79,70,229,0.72)] hover:opacity-95 sm:flex"
-            >
-              <Link href={ctaHref}>{ctaLabel}</Link>
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="h-9 w-9 rounded-full border border-white/10 bg-white/10 text-white hover:bg-white/16 xl:hidden"
-              onClick={() => setMobileMenuOpen((open) => !open)}
-              aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
-            >
-              {mobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+            )}
+            <Button type="button" variant="ghost" size="icon" className="h-11 w-11 text-white hover:bg-white/10 hover:text-white xl:hidden" onClick={() => setMobileMenuOpen(open => !open)} aria-expanded={mobileMenuOpen} aria-controls="site-mobile-navigation" aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}>
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
           </div>
         </div>
-
-        {mobileMenuOpen ? (
-          <div className="border-t border-white/10 pb-4 pt-3 xl:hidden">
-            <div className="grid gap-2">
-              {NAV_ITEMS.map((item) => (
-                <Link
-                  key={item.key}
-                  href={item.href}
-                  className={`rounded-2xl px-4 py-3 text-sm font-medium transition-colors ${
-                    active === item.key
-                      ? "bg-white/10 text-white"
-                      : "text-white/80 hover:bg-white/6 hover:text-white"
-                  }`}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
+        <nav aria-label="Main navigation" className="hidden items-center justify-between gap-4 border-t border-white/10 xl:flex">
+          <div className="flex items-center gap-6">
+            {NAV_ITEMS.map(item => (
+              <Link key={item.key} href={item.href} aria-current={active === item.key ? "page" : undefined} className={`border-b-2 py-4 text-sm font-medium transition-colors hover:text-white ${active === item.key ? "border-blue-400 text-white" : "border-transparent text-slate-300"}`}>
+                {item.label}
+              </Link>
+            ))}
+          </div>
+          {navExtra}
+        </nav>
+        {mobileMenuOpen && (
+          <nav id="site-mobile-navigation" aria-label="Mobile navigation" className="max-h-[calc(100dvh-6rem)] overflow-y-auto border-t border-white/10 py-4 xl:hidden">
+            <div className="grid grid-cols-2 gap-1">
+              {NAV_ITEMS.map(item => (
+                <Link key={item.key} href={item.href} aria-current={active === item.key ? "page" : undefined} onClick={() => setMobileMenuOpen(false)} className={`rounded-lg px-3 py-3 text-base font-medium ${active === item.key ? "bg-white/10 text-white" : "text-slate-300 hover:bg-white/5 hover:text-white"}`}>
                   {item.label}
                 </Link>
               ))}
-              <Link
-                href={ctaHref}
-                className="mt-2 rounded-2xl bg-[linear-gradient(135deg,#2563eb,#4f46e5_72%,#7c3aed)] px-4 py-3 text-center text-sm font-semibold text-white shadow-[0_18px_40px_-24px_rgba(79,70,229,0.72)]"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {ctaLabel}
-              </Link>
             </div>
-          </div>
-        ) : null}
+            {mobileContent}
+            <Link href={ctaHref} onClick={() => setMobileMenuOpen(false)} className="mt-4 block rounded-lg bg-blue-600 px-4 py-3 text-center text-base font-semibold text-white hover:bg-blue-500">{ctaLabel}</Link>
+          </nav>
+        )}
       </div>
     </header>
   )

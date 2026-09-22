@@ -1,6 +1,4 @@
-import Image from "next/image"
 import Link from "next/link"
-
 import { cn } from "@/lib/utils"
 
 interface SiteBrandProps {
@@ -13,38 +11,20 @@ interface SiteBrandProps {
   priority?: boolean
 }
 
-export function SiteBrand({
-  href = "/",
-  deskLabel,
-  className,
-  logoClassName,
-  iconClassName,
-  labelClassName,
-  priority = false,
-}: SiteBrandProps) {
+export function SiteBrand({ href = "/", className }: SiteBrandProps) {
   return (
-    <Link href={href} className={cn("flex min-w-0 items-center gap-3", className)}>
-      <div className="relative shrink-0 sm:hidden">
-        <Image
-          src="/brand-icon.png"
-          alt="MarketplaceBeta icon"
-          width={36}
-          height={36}
-          priority={priority}
-          className={cn("h-9 w-9 rounded-lg object-contain", iconClassName)}
-        />
-      </div>
-
-      <div className="hidden min-w-0 sm:block">
-        <Image
-          src="/brand-logo.jpg"
-          alt="MarketplaceBeta"
-          width={1600}
-          height={852}
-          priority={priority}
-          className={cn("h-8 w-auto object-contain", logoClassName)}
-        />
-      </div>
+    <Link href={href} aria-label="MarketplaceBeta home" className={cn("inline-flex shrink-0 items-center gap-2.5 rounded-sm text-white sm:gap-3", className)}>
+      <svg aria-hidden="true" viewBox="0 0 40 40" fill="none" className="h-8 w-8 shrink-0 sm:h-11 sm:w-11">
+        <rect width="40" height="40" rx="10" fill="#2563eb" />
+        <path d="M10 28V13l10 10 10-10v15" stroke="white" strokeWidth="3" strokeLinejoin="round" />
+        <path d="M26 9h5v5" stroke="#93c5fd" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+      <span className="flex flex-col">
+        <span className="whitespace-nowrap text-[1rem] font-bold leading-none tracking-[-0.045em] sm:text-[1.625rem]">
+          Marketplace<span className="font-medium text-blue-300">Beta</span>
+        </span>
+        <span className="mt-2 hidden text-xs font-medium tracking-[0.12em] text-slate-300 sm:block">COMMERCE. IN CONTEXT.</span>
+      </span>
     </Link>
   )
 }

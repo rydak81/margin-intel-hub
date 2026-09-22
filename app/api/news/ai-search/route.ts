@@ -4,23 +4,6 @@ import type { ClassifiedArticle } from '@/lib/ai-classifier'
 
 // In-memory cache for articles (populated by /api/articles)
 let cachedArticles: ClassifiedArticle[] = []
-let cacheTimestamp: number = 0
-const CACHE_DURATION_MS = 30 * 60 * 1000 // 30 minutes
-
-// Function to set cached articles (called from /api/articles)
-export function setCachedArticlesForSearch(articles: ClassifiedArticle[]) {
-  cachedArticles = articles
-  cacheTimestamp = Date.now()
-}
-
-// Function to get cached articles
-export function getCachedArticlesForSearch(): ClassifiedArticle[] {
-  return cachedArticles
-}
-
-export function isCacheValidForSearch(): boolean {
-  return cachedArticles.length > 0 && (Date.now() - cacheTimestamp) < CACHE_DURATION_MS
-}
 
 export async function POST(request: Request) {
   try {
@@ -72,7 +55,6 @@ export async function POST(request: Request) {
             keyStat: a.keyStat || null,
             rejectionReason: null
           }))
-          cacheTimestamp = Date.now()
         }
       } catch (fetchError) {
         console.error('[v0] Failed to fetch articles for search:', fetchError)

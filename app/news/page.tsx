@@ -43,7 +43,7 @@ export default async function NewsPage() {
   const topCoverage = articles.filter(a => !signalIds.has(a.id)).slice(0, 8)
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.14),transparent_18%),radial-gradient(circle_at_top_right,rgba(217,70,239,0.12),transparent_16%),linear-gradient(180deg,rgba(248,250,252,0.92),rgba(255,255,255,0.84)_18%,transparent_32%)] bg-background">
+    <div className="min-h-screen bg-background">
       <PremiumSiteHeader active="news" deskLabel="News Desk" backHref="/" backLabel="Home" />
 
       <main className="mx-auto max-w-7xl px-4 py-10">
@@ -78,13 +78,13 @@ export default async function NewsPage() {
                     key={metric.label}
                     className="rounded-[24px] border border-white/70 bg-white/82 p-5 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45"
                   >
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-300">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-300">
                       {metric.label}
                     </p>
                     <p className="mt-3 text-2xl font-black text-slate-950 dark:text-white">
                       {metric.value}
                     </p>
-                    <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                    <p className="mt-2 text-base leading-7 text-slate-600 dark:text-slate-300">
                       {metric.detail}
                     </p>
                   </div>
@@ -93,20 +93,20 @@ export default async function NewsPage() {
             </div>
 
             <div className="rounded-[30px] border border-white/70 bg-[linear-gradient(180deg,rgba(15,23,42,0.98),rgba(15,23,42,0.92))] p-6 text-white shadow-[0_30px_80px_-42px_rgba(15,23,42,0.55)]">
-              <div className="rounded-full border border-white/12 bg-white/8 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/62">
+              <div className="rounded-full border border-white/12 bg-white/8 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-white/62">
                 Today&apos;s operator actions
               </div>
               <div className="mt-6 space-y-4">
                 {briefing.actionItems.map((item) => (
                   <div key={item} className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
                     <Target className="mt-0.5 h-4 w-4 shrink-0 text-cyan-300" />
-                    <p className="text-sm leading-6 text-white/82">{item}</p>
+                    <p className="text-base leading-7 text-white/82">{item}</p>
                   </div>
                 ))}
               </div>
 
               <div className="mt-6 border-t border-white/10 pt-6">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/55">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">
                   Coverage mix
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
@@ -143,7 +143,7 @@ export default async function NewsPage() {
               {briefing.sellerAlerts.map((alert) => (
                 <div key={alert} className="flex items-start gap-3 rounded-2xl border border-slate-200/70 bg-slate-50/80 p-4 dark:border-white/10 dark:bg-white/[0.03]">
                   <BellRing className="mt-0.5 h-4 w-4 shrink-0 text-orange-500" />
-                  <p className="text-sm leading-6 text-slate-700 dark:text-slate-200">{alert}</p>
+                  <p className="text-base leading-7 text-slate-700 dark:text-slate-200">{alert}</p>
                 </div>
               ))}
             </div>
@@ -165,13 +165,13 @@ export default async function NewsPage() {
                     {signal.platforms.map((platform) => (
                       <Badge
                         key={platform}
-                        className="rounded-full border border-sky-300/25 bg-sky-500/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-sky-700 dark:text-sky-200"
+                        className="rounded-full border border-sky-300/25 bg-sky-500/10 px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-sky-700 dark:text-sky-200"
                       >
                         {platform}
                       </Badge>
                     ))}
                     {signal.impactLevel ? (
-                      <Badge className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 dark:border-white/10 dark:bg-white/[0.05] dark:text-slate-200">
+                      <Badge className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-600 dark:border-white/10 dark:bg-white/[0.05] dark:text-slate-200">
                         {signal.impactLevel} impact
                       </Badge>
                     ) : null}
@@ -179,10 +179,10 @@ export default async function NewsPage() {
                   <h3 className="mt-3 text-xl font-bold leading-tight text-slate-950 dark:text-white">
                     {signal.title}
                   </h3>
-                  <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                  <p className="mt-3 text-base leading-7 text-slate-600 dark:text-slate-300">
                     {signal.summary}
                   </p>
-                  <p className="mt-3 text-sm leading-6 text-slate-800 dark:text-slate-100">
+                  <p className="mt-3 text-base leading-7 text-slate-800 dark:text-slate-100">
                     <span className="font-semibold">Operator read:</span> {signal.whyItMatters}
                   </p>
                   <p className="mt-3 text-xs font-medium uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
@@ -199,11 +199,11 @@ export default async function NewsPage() {
         <section className="mt-16">
           <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-sky-700 dark:text-sky-300">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-700 dark:text-sky-300">
                 Source coverage
               </p>
               <h2 className="mt-2 text-3xl font-black text-slate-950 dark:text-white">Curated article coverage</h2>
-              <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
+              <p className="mt-2 max-w-3xl text-base leading-7 text-slate-600 dark:text-slate-300">
                 Below the briefing, MarketplaceBeta keeps the strongest supporting coverage so operators can click into the underlying reporting without wading through repeated versions of the same story.
               </p>
             </div>
@@ -240,7 +240,7 @@ export default async function NewsPage() {
                   </div>
                   <div className="p-5">
                     <div className="flex flex-wrap items-center gap-2">
-                      <Badge className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 dark:border-white/10 dark:bg-white/[0.05] dark:text-slate-200">
+                      <Badge className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-600 dark:border-white/10 dark:bg-white/[0.05] dark:text-slate-200">
                         {article.platforms?.[0] || "multi-platform"}
                       </Badge>
                       <span className="text-xs font-medium uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
@@ -250,7 +250,7 @@ export default async function NewsPage() {
                     <h3 className="mt-3 text-xl font-bold leading-tight text-slate-950 transition group-hover:text-sky-700 dark:text-white dark:group-hover:text-sky-200">
                       {article.title}
                     </h3>
-                    <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                    <p className="mt-3 text-base leading-7 text-slate-600 dark:text-slate-300">
                       {article.aiSummary || article.summary}
                     </p>
                     <div className="mt-4 flex items-center justify-between text-sm text-slate-500 dark:text-slate-400">
@@ -272,3 +272,4 @@ export default async function NewsPage() {
     </div>
   )
 }
+

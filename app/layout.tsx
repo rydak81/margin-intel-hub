@@ -1,8 +1,16 @@
 import type { Metadata, Viewport } from 'next'
+import localFont from 'next/font/local'
 import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
+
+const geist = localFont({
+  src: './fonts/geist-latin.woff2',
+  variable: '--font-geist',
+  display: 'swap',
+  weight: '100 900',
+})
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://marketplacebeta.com'
 const googleSiteVerification = process.env.GOOGLE_SITE_VERIFICATION
@@ -46,7 +54,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className={geist.variable} suppressHydrationWarning>
       <body className="font-sans antialiased text-base">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           {children}
