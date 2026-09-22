@@ -158,7 +158,7 @@ export default async function ArticlePage({
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.08),transparent_24%),radial-gradient(circle_at_top_right,rgba(20,184,166,0.08),transparent_22%),linear-gradient(180deg,rgba(248,250,252,0.7),transparent_30%)] bg-background">
+    <div className="min-h-screen bg-background">
       <Script
         id={`news-article-jsonld-${article.id}`}
         type="application/ld+json"
@@ -229,7 +229,7 @@ export default async function ArticlePage({
                       <highlight.icon className="h-4 w-4 text-primary" />
                       <span className="text-sm font-semibold uppercase tracking-[0.16em] text-primary">{highlight.label}</span>
                     </div>
-                    <p className="text-sm leading-7 text-muted-foreground">{highlight.content}</p>
+                    <p className="text-base leading-7 text-muted-foreground">{highlight.content}</p>
                   </CardContent>
                 </Card>
               ))}
@@ -244,13 +244,13 @@ export default async function ArticlePage({
                   </div>
                   <div className="grid gap-5 md:grid-cols-2">
                     <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Operational Impact</p>
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Operational Impact</p>
                       <p className="mt-3 text-base leading-8 text-foreground/90">
                         {article.impactDetail || "This story may require teams to revisit workflows, monitoring, or platform assumptions."}
                       </p>
                     </div>
                     <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Bottom Line</p>
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Bottom Line</p>
                       <p className="mt-3 text-base leading-8 text-foreground/90">
                         {article.bottomLine || "Treat this as an operator signal worth monitoring rather than a passive headline."}
                       </p>
@@ -263,21 +263,21 @@ export default async function ArticlePage({
             <Card className="mt-6 border-0 shadow-sm">
               <CardContent className="grid gap-4 p-6 md:grid-cols-3">
                 <div className="rounded-2xl border border-white/70 bg-white/80 p-4 dark:border-white/10 dark:bg-slate-950/45">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Source Lens</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Source Lens</p>
                   <p className="mt-2 text-sm font-semibold">{sourceIntelligence.label}</p>
-                  <p className="mt-2 text-sm leading-7 text-muted-foreground">{sourceIntelligence.description}</p>
+                  <p className="mt-2 text-base leading-7 text-muted-foreground">{sourceIntelligence.description}</p>
                 </div>
                 <div className="rounded-2xl border border-white/70 bg-white/80 p-4 dark:border-white/10 dark:bg-slate-950/45">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Impact Level</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Impact Level</p>
                   <p className="mt-2 text-sm font-semibold capitalize">{article.impactLevel || "medium"}</p>
-                  <p className="mt-2 text-sm leading-7 text-muted-foreground">
+                  <p className="mt-2 text-base leading-7 text-muted-foreground">
                     {article.bottomLine || "Use this briefing to decide whether your team needs an immediate workflow, policy, or reporting change."}
                   </p>
                 </div>
                 <div className="rounded-2xl border border-white/70 bg-white/80 p-4 dark:border-white/10 dark:bg-slate-950/45">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Key Stat / Trigger</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Key Stat / Trigger</p>
                   <p className="mt-2 text-sm font-semibold">{article.keyStat || "No single quantitative trigger surfaced in this report."}</p>
-                  <p className="mt-2 text-sm leading-7 text-muted-foreground">
+                  <p className="mt-2 text-base leading-7 text-muted-foreground">
                     Focus on the operational implication, not just the headline.
                   </p>
                 </div>
@@ -316,7 +316,7 @@ export default async function ArticlePage({
                       block.type === "paragraph" ? (
                         <p
                           key={`${article.id}-paragraph-${index}`}
-                          className="text-lg leading-relaxed text-slate-700 dark:text-slate-200"
+                          className="text-lg leading-8 text-slate-700 dark:text-slate-200 md:text-xl md:leading-9"
                         >
                           {block.content}
                         </p>
@@ -325,12 +325,12 @@ export default async function ArticlePage({
                           key={`${article.id}-list-${index}`}
                           className="rounded-2xl border border-white/70 bg-white/72 p-5 dark:border-white/10 dark:bg-white/5"
                         >
-                          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
                             Key points from the source
                           </p>
                           <ul className="mt-4 space-y-3">
                             {block.items.map((item) => (
-                              <li key={item} className="flex gap-3 text-[1.02rem] leading-8 text-slate-700 dark:text-slate-200">
+                              <li key={item} className="flex gap-3 text-lg leading-8 text-slate-700 dark:text-slate-200">
                                 <ChevronRight className="mt-2 h-4 w-4 flex-shrink-0 text-primary" />
                                 <span>{item}</span>
                               </li>
@@ -340,7 +340,7 @@ export default async function ArticlePage({
                       )
                     )
                 ) : (
-                    <p className="text-lg leading-relaxed text-slate-700 dark:text-slate-200">
+                    <p className="text-lg leading-8 text-slate-700 dark:text-slate-200 md:text-xl md:leading-9">
                       {contentText || article.summary}
                     </p>
                 )}
@@ -372,7 +372,7 @@ export default async function ArticlePage({
                   {article.keyTakeaways.map((takeaway) => (
                     <div key={takeaway} className="flex gap-3">
                       <ChevronRight className="mt-1 h-4 w-4 flex-shrink-0 text-primary" />
-                      <p className="text-sm leading-7 text-muted-foreground">{takeaway}</p>
+                      <p className="text-base leading-7 text-muted-foreground">{takeaway}</p>
                     </div>
                   ))}
                 </CardContent>
@@ -383,8 +383,8 @@ export default async function ArticlePage({
               <Card className="mt-8 border-0 shadow-sm">
                 <CardContent className="flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between">
                   <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Original Source</p>
-                    <p className="mt-2 text-sm leading-7 text-muted-foreground">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Original Source</p>
+                    <p className="mt-2 text-base leading-7 text-muted-foreground">
                       This briefing is based on reporting from <span className="font-semibold text-foreground">{article.sourceName}</span>. Use the original post for full primary-source context.
                     </p>
                   </div>
@@ -425,9 +425,9 @@ export default async function ArticlePage({
               </CardHeader>
               <CardContent className="space-y-3">
                 <Badge variant="secondary">{sourceIntelligence.label}</Badge>
-                <p className="text-sm leading-7 text-muted-foreground">{sourceIntelligence.description}</p>
+                <p className="text-base leading-7 text-muted-foreground">{sourceIntelligence.description}</p>
                 <div className="rounded-2xl border border-white/70 bg-white/76 p-4 text-sm dark:border-white/10 dark:bg-white/5">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Why it matters</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Why it matters</p>
                   <p className="mt-2 leading-7 text-muted-foreground">
                     MarketplaceBeta uses source quality to separate direct platform changes from community chatter and general industry context.
                   </p>
@@ -445,13 +445,13 @@ export default async function ArticlePage({
                     <div key={note.id} className="rounded-2xl border border-white/70 bg-white/76 p-4 dark:border-white/10 dark:bg-white/5">
                       <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
                         <Waves className="h-4 w-4 text-sky-600" />
-                        <span className="text-[11px] font-semibold uppercase tracking-[0.18em]">
+                        <span className="text-xs font-semibold uppercase tracking-[0.18em]">
                           {note.sourcePlatform.replace(/_/g, " ")}
                         </span>
                       </div>
                       <p className="mt-3 text-sm font-semibold leading-6">{note.title}</p>
                       {note.bodySnippet ? (
-                        <p className="mt-2 text-sm leading-7 text-muted-foreground">{note.bodySnippet}</p>
+                        <p className="mt-2 text-base leading-7 text-muted-foreground">{note.bodySnippet}</p>
                       ) : null}
                       <div className="mt-3 flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
                         <span>{note.upvotes} upvotes</span>
@@ -467,9 +467,9 @@ export default async function ArticlePage({
             {latestPulse ? (
               <Card className="border-white/70 bg-[linear-gradient(135deg,rgba(15,23,42,0.96),rgba(30,41,59,0.92))] text-white dark:border-white/10">
                 <CardContent className="p-6">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">Operator Pulse</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/50">Operator Pulse</p>
                   <h3 className="mt-2 text-lg font-bold">{latestPulse.title}</h3>
-                  <p className="mt-3 text-sm leading-7 text-white/76">{latestPulse.summary}</p>
+                  <p className="mt-3 text-base leading-7 text-white/76">{latestPulse.summary}</p>
                   <Button asChild variant="secondary" className="mt-4 w-full">
                     <Link href={`/news/${latestPulse.id}`}>Read the pulse</Link>
                   </Button>
@@ -542,3 +542,4 @@ export default async function ArticlePage({
     </div>
   )
 }
+

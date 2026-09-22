@@ -77,7 +77,7 @@ function formatCategoryLabel(category: string): string {
   return category.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
 }
 
-export default function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
+function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
   const { currentUser, metadata } = useAuthAccount()
   const preferenceProfile = useMemo(() => buildUserPreferenceProfile(metadata), [metadata])
   const newsDeskDefaults = useMemo(() => getNewsDeskDefaults(preferenceProfile), [preferenceProfile])
@@ -192,7 +192,7 @@ export default function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
   const categoryCount = Object.keys(facets.categories).length
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.14),transparent_18%),radial-gradient(circle_at_top_right,rgba(217,70,239,0.12),transparent_16%),linear-gradient(180deg,rgba(248,250,252,0.92),rgba(255,255,255,0.84)_18%,transparent_32%)] bg-background">
+    <div className="min-h-screen bg-background">
       <PremiumSiteHeader
         active={isNewsDesk ? "news" : "articles"}
         deskLabel={deskLabel}
@@ -226,21 +226,21 @@ export default function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
                 <div className="rounded-2xl border border-white/70 bg-white/78 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
                   <div className="flex items-center gap-2 text-slate-500 dark:text-slate-300">
                     <TrendingUp className="h-4 w-4 text-sky-600" />
-                    <span className="text-[11px] font-semibold uppercase tracking-[0.18em]">Results</span>
+                    <span className="text-xs font-semibold uppercase tracking-[0.18em]">Results</span>
                   </div>
                   <p className="mt-3 text-lg font-bold text-slate-950 dark:text-white">{totalCount || articles.length}</p>
                 </div>
                 <div className="rounded-2xl border border-white/70 bg-white/78 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
                   <div className="flex items-center gap-2 text-slate-500 dark:text-slate-300">
                     <BarChart3 className="h-4 w-4 text-sky-600" />
-                    <span className="text-[11px] font-semibold uppercase tracking-[0.18em]">Categories</span>
+                    <span className="text-xs font-semibold uppercase tracking-[0.18em]">Categories</span>
                   </div>
                   <p className="mt-3 text-lg font-bold text-slate-950 dark:text-white">{categoryCount || 'All'}</p>
                 </div>
                 <div className="rounded-2xl border border-white/70 bg-white/78 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
                   <div className="flex items-center gap-2 text-slate-500 dark:text-slate-300">
                     <Search className="h-4 w-4 text-sky-600" />
-                    <span className="text-[11px] font-semibold uppercase tracking-[0.18em]">Filters</span>
+                    <span className="text-xs font-semibold uppercase tracking-[0.18em]">Filters</span>
                   </div>
                   <p className="mt-3 text-lg font-bold text-slate-950 dark:text-white">{activeFilters || 0}</p>
                 </div>
@@ -249,7 +249,7 @@ export default function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
 
             <div className="mt-8 rounded-[26px] border border-white/70 bg-white/76 p-5 shadow-[0_20px_50px_-34px_rgba(15,23,42,0.28)] backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
               {currentUser && personalizationLabel ? (
-                <div className="mb-5 rounded-2xl border border-sky-400/15 bg-sky-500/5 px-4 py-3 text-sm leading-6 text-slate-600 dark:border-sky-300/15 dark:bg-slate-950/55 dark:text-slate-200">
+                <div className="mb-5 rounded-2xl border border-sky-400/15 bg-sky-500/5 px-4 py-3 text-base leading-7 text-slate-600 dark:border-sky-300/15 dark:bg-slate-950/55 dark:text-slate-200">
                   <span className="font-semibold text-slate-950 dark:text-white">Personalized desk:</span> {personalizationLabel}. MarketplaceBeta is preloading filters and ranking from your account preferences.
                 </div>
               ) : null}
@@ -266,7 +266,7 @@ export default function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
 
               <div className="mb-4 grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_220px_auto]">
                 <label className="space-y-2">
-                  <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-300">
+                  <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-300">
                     Category
                   </span>
                   <select
@@ -287,7 +287,7 @@ export default function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
                 </label>
 
                 <label className="space-y-2">
-                  <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-300">
+                  <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-300">
                     Impact
                   </span>
                   <select
@@ -308,7 +308,7 @@ export default function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
                 </label>
 
                 <label className="space-y-2">
-                  <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-300">
+                  <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-300">
                     Sort
                   </span>
                   <select
@@ -344,7 +344,7 @@ export default function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
               {Object.keys(facets.platforms).length > 0 ? (
                 <div className="mb-4 space-y-2">
                   <div className="flex items-center justify-between gap-3">
-                    <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-300">
+                    <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-300">
                       Platforms
                     </span>
                     {selectedPlatforms.length > 0 ? (
@@ -423,7 +423,7 @@ export default function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
                     </div>
                     <CardContent className="p-4 flex flex-col flex-grow">
                       <h3 className="mb-2 line-clamp-2 text-lg font-bold leading-7 transition-colors group-hover:text-primary">{article.title}</h3>
-                      <p className="mb-4 flex-grow line-clamp-3 text-sm leading-6 text-muted-foreground">{article.summary}</p>
+                      <p className="mb-4 flex-grow line-clamp-3 text-base leading-7 text-muted-foreground">{article.summary}</p>
                       <div className="flex flex-wrap gap-1 mb-3">
                         {article.platforms?.slice(0, 2).map(platform => (<Badge key={platform} variant="secondary" className="rounded-full border border-sky-400/10 bg-sky-500/8 text-xs">{platform.replace(/_/g, ' ')}</Badge>))}
                         {article.impactLevel && (
@@ -477,14 +477,14 @@ export default function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
 
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
                   <div className="rounded-[22px] border border-white/10 bg-white/8 p-4 backdrop-blur">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/48">Archive Depth</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/48">Archive Depth</p>
                     <p className="mt-3 text-3xl font-black text-white">{totalCount || articles.length}+</p>
-                    <p className="mt-2 text-sm leading-6 text-white/68">Search across reporting built for marketplace teams, operators, and partner-led growth.</p>
+                    <p className="mt-2 text-base leading-7 text-white/68">Search across reporting built for marketplace teams, operators, and partner-led growth.</p>
                   </div>
                   <div className="rounded-[22px] border border-white/10 bg-white/8 p-4 backdrop-blur">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/48">Best For</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/48">Best For</p>
                     <p className="mt-3 text-xl font-bold text-white">Decision-ready signal</p>
-                    <p className="mt-2 text-sm leading-6 text-white/68">Use the archive to prep outreach, brief leadership, and track the commerce moves that matter.</p>
+                    <p className="mt-2 text-base leading-7 text-white/68">Use the archive to prep outreach, brief leadership, and track the commerce moves that matter.</p>
                   </div>
                 </div>
               </div>
@@ -495,4 +495,8 @@ export default function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
       <PremiumSiteFooter />
     </div>
   )
+}
+
+export default function ArticlesRoute() {
+  return <ArticlesPage />
 }

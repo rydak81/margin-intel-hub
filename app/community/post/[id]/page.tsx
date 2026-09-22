@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Textarea } from "@/components/ui/textarea"
 import { Separator } from "@/components/ui/separator"
-import { SiteBrand } from "@/components/site-brand"
+import { PremiumSiteHeader } from "@/components/premium-site-header"
 import {
   Dialog,
   DialogContent,
@@ -602,17 +602,7 @@ What's everyone's strategy for dealing with these changes?`,
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur-sm">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" onClick={() => router.back()}>
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-              <SiteBrand href="/" logoClassName="h-10" iconClassName="h-9 w-9" />
-            </div>
-
-            <div className="flex items-center gap-3">
+      <PremiumSiteHeader active="community" backHref="/community" backLabel="Community" actions={<>
               {currentUser ? (
                 <div className="flex items-center gap-2">
                   <Avatar className="h-8 w-8">
@@ -620,17 +610,14 @@ What's everyone's strategy for dealing with these changes?`,
                       {getInitials(currentUser.display_name)}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="text-sm font-medium hidden sm:block">{currentUser.display_name}</span>
+                  <span className="hidden max-w-32 truncate text-sm font-medium sm:block">{currentUser.display_name}</span>
                 </div>
               ) : (
-                <Button onClick={() => setJoinDialogOpen(true)} size="sm">
+                <Button onClick={() => setJoinDialogOpen(true)} size="sm" className="hidden sm:inline-flex">
                   Join Community
                 </Button>
               )}
-            </div>
-          </div>
-        </div>
-      </header>
+      </>} mobileContent={!currentUser ? <button type="button" className="px-3 py-3 text-base" onClick={() => setJoinDialogOpen(true)}>Join the community</button> : undefined} />
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 py-8">
