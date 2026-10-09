@@ -1,0 +1,17 @@
+# Ecommerce editorial redesign
+
+Focus: ecommerce operator intelligence, retaining MarketplaceBeta. This release does not enable the earlier desktop manufacturing pivot.
+
+Design references inspected: https://www.theinformation.com/ (research alongside reporting), https://www.marketplacepulse.com/ (commerce focus), https://www.digitalcommerce360.com/ (topic discovery). Original implementation, no copied layouts or reporting.
+
+Shared masthead, research search entry, navigation, neutral surfaces, typography, footer, and responsive sizing across the public desks. Research pathways link to real category-filtered archive results; they do not claim a new predictive model or original analysis. Existing AI briefing is explicitly labeled as synthesis requiring source checks.
+
+Solutions, Partners, and Community (including descendants) temporarily redirect to Tools/Archive with 307 responses. Their source/data remain intact. Removed hidden routes from sitemap and public promotions.
+
+Archive: initial URL query/filter support, shareable URLs, explicit error/retry, latest-request response protection, and fixed load-more offset. Newsletter: removed unsupported subscriber/open-rate claims and fictional sample briefing; links to actual current briefing instead.
+
+Validation: TypeScript and production webpack build with placeholder backend configuration; local mobile layout inspection. Local checks covered desktop light/dark home, 390px mobile pages, fee detail layout, and redirects from hidden sections. Remote preview with actual data and final production verification remain pending: automatic approval review rejected the branch push because the previous monitoring instructions prohibit publishing/deployment. No remote changes were made.
+
+Known scope limits: this design change does not fix upstream feed failures, email sender verification, AI classification timeouts, or guarantee the accuracy of generated summaries. No newsletter/email submission in verification.
+
+User approved publication on the follow-up turn, with stronger card depth and bolder headlines. The refinement adds shared layered shadows, solid cards on a cool canvas, blue-tinted title panels, individually elevated research cards, and reduced-motion-aware hover lift. Production build passed; mobile tools/archive fit 390px. Deployment verification follows.

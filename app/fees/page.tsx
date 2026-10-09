@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { EditorialIntro } from "@/components/editorial-intro"
 import { PremiumSiteHeader } from "@/components/premium-site-header"
 import { PremiumSiteFooter } from "@/components/premium-site-footer"
 import { MARKETPLACES } from "@/lib/marketplace-fees"
@@ -25,30 +26,23 @@ export default function FeesIndexPage() {
   const totalCategories = MARKETPLACES.reduce((sum, m) => sum + m.categories.length, 0)
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950">
-      <PremiumSiteHeader />
+    <div className="min-h-screen bg-background">
+      <PremiumSiteHeader active="fees" />
 
-      <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-white">
-          Marketplace seller fees
-        </h1>
-        <p className="mt-4 text-lg leading-relaxed text-slate-700 dark:text-slate-200">
-          Referral rates for {totalCategories} categories across {MARKETPLACES.length} marketplaces,
-          each with a margin calculator that shows what you actually keep — and what the same product
-          would earn everywhere else.
-        </p>
+      <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <EditorialIntro eyebrow="Fee intelligence" title="Know what you keep." description={`Compare referral rates across ${totalCategories} categories and ${MARKETPLACES.length} marketplaces. Model unit economics, inspect the source dates, and test your assumptions before choosing a channel.`} />
 
-        <div className="mt-8 space-y-4">
+        <div className="mt-8 grid gap-4 md:grid-cols-2">
           {MARKETPLACES.map((marketplace) => {
             const rates = marketplace.categories.map((c) => c.referralPct)
             return (
               <Link
                 key={marketplace.slug}
                 href={`/fees/${marketplace.slug}`}
-                className="block rounded-2xl border border-slate-200 p-6 transition hover:border-sky-400 hover:bg-sky-50/50 dark:border-white/10 dark:hover:border-sky-400/60 dark:hover:bg-sky-400/5"
+                className="editorial-elevated editorial-lift bg-card block rounded-2xl border border-slate-200 p-6 transition hover:border-sky-400 hover:bg-sky-50/50 dark:border-white/10 dark:hover:border-sky-400/60 dark:hover:bg-sky-400/5"
               >
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
+                  <h2 className="text-xl font-bold text-slate-900 dark:text-white">
                     {marketplace.name}
                   </h2>
                   <span className="text-lg font-semibold tabular-nums text-sky-600 dark:text-sky-400">

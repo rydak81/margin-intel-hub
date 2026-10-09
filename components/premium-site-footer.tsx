@@ -1,31 +1,15 @@
 import Link from "next/link"
 import { SiteBrand } from "@/components/site-brand"
-
+import { SITE_NAVIGATION } from "@/lib/site-navigation"
 export function PremiumSiteFooter() {
-  return (
-    <footer className="relative mt-16 overflow-hidden border-t border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.22),transparent_24%),radial-gradient(circle_at_top_right,rgba(168,85,247,0.18),transparent_22%),radial-gradient(circle_at_bottom,rgba(20,184,166,0.1),transparent_20%),linear-gradient(180deg,rgba(2,6,23,0.98),rgba(15,23,42,1))] text-white">
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/45 to-transparent" />
-      <div className="mx-auto max-w-7xl px-4 py-8 md:py-10">
-        <div className="flex flex-col items-center justify-between gap-6 md:flex-row md:items-start">
-          <SiteBrand
-            href="/"
-            className="justify-center text-center md:justify-start md:text-left"
-            logoClassName="h-10"
-            iconClassName="h-7 w-7"
-          />
-          <div className="flex max-w-3xl flex-wrap items-center justify-center gap-x-5 gap-y-3 text-sm text-white/68 md:justify-end">
-            <Link href="/" className="hover:text-white transition-colors">Home</Link>
-            <Link href="/news" className="hover:text-white transition-colors">News</Link>
-            <Link href="/articles" className="hover:text-white transition-colors">Articles</Link>
-            <Link href="/community" className="hover:text-white transition-colors">Community</Link>
-            <Link href="/community/pulse" className="hover:text-white transition-colors">Pulse</Link>
-            <Link href="/partners" className="hover:text-white transition-colors">Partners</Link>
-            <Link href="/tools" className="hover:text-white transition-colors">Tools</Link>
-            <Link href="/events" className="hover:text-white transition-colors">Events</Link>
-            <Link href="/newsletter" className="hover:text-white transition-colors">Newsletter</Link>
-          </div>
-        </div>
+  return <footer className="mt-16 border-t border-slate-800 bg-slate-950 text-white">
+    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
+      <div className="grid gap-10 md:grid-cols-[1.2fr_1fr_1fr]">
+        <div><SiteBrand /><p className="mt-5 max-w-sm text-base leading-7 text-slate-300">News, context, and practical research for the people operating ecommerce businesses.</p></div>
+        <nav aria-label="Footer navigation"><p className="mb-4 text-xs font-semibold uppercase tracking-widest text-slate-400">Explore the desk</p><div className="grid grid-cols-2 gap-3">{SITE_NAVIGATION.map(item => <Link key={item.key} href={item.href} className="text-sm text-slate-300 hover:text-white">{item.label}</Link>)}</div></nav>
+        <div><p className="text-xs font-semibold uppercase tracking-widest text-slate-400">Stay informed</p><p className="mt-4 text-base leading-7 text-slate-300">Keep the developments that affect your next decision in view.</p><Link href="/newsletter" className="mt-4 inline-flex rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-500">Get the daily brief →</Link></div>
       </div>
-    </footer>
-  )
+      <div className="mt-10 flex flex-wrap justify-between gap-3 border-t border-white/10 pt-6 text-sm text-slate-400"><span>© {new Date().getFullYear()} MarketplaceBeta</span><span>Commerce. In context.</span></div>
+    </div>
+  </footer>
 }

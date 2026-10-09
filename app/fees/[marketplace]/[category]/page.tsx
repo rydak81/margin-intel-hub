@@ -125,12 +125,12 @@ export default async function FeeCategoryPage({ params }: PageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950">
+    <div className="min-h-screen bg-background">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <PremiumSiteHeader />
+      <PremiumSiteHeader active="fees" />
 
       <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
         <nav aria-label="Breadcrumb" className="text-sm text-slate-500 dark:text-slate-400">
@@ -186,7 +186,7 @@ export default async function FeeCategoryPage({ params }: PageProps) {
 
         {comparable.length > 0 && (
           <section className="mt-12">
-            <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
               {category.label} fees on other marketplaces
             </h2>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -229,7 +229,7 @@ export default async function FeeCategoryPage({ params }: PageProps) {
         )}
 
         <section className="mt-12">
-          <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
             Common questions
           </h2>
           <dl className="mt-4 space-y-5">
@@ -245,7 +245,7 @@ export default async function FeeCategoryPage({ params }: PageProps) {
         </section>
 
         <section className="mt-12">
-          <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
             All {marketplace.shortName} categories
           </h2>
           <div className="mt-4 flex flex-wrap gap-2">

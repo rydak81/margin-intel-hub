@@ -12,6 +12,8 @@ import { Separator } from "@/components/ui/separator"
 import { ArticleDetailModal } from "@/components/article-detail-modal"
 import { AuthModal } from "@/components/auth-modal"
 import { BackToTop } from "@/components/back-to-top"
+import { ResearchDesks } from "@/components/research-desks"
+import { PremiumSiteFooter } from "@/components/premium-site-footer"
 import { PremiumSiteHeader } from "@/components/premium-site-header"
 import { SiteBrand } from "@/components/site-brand"
 import { getArticleFallbackImage, getArticleImageUrl as resolveArticleImageUrl } from "@/lib/article-images"
@@ -419,77 +421,10 @@ export default function HomePageClient({
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Breaking News Ticker - Live updates */}
-      {breakingNews.length > 0 && <div className="relative overflow-hidden border-b border-white/10 bg-slate-900 text-white">
-        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2.5 sm:px-6">
-          <div className="flex shrink-0 items-center gap-2 px-0 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-blue-200">
-            <Zap className="h-3.5 w-3.5 text-sky-200" />
-            <span>In the briefing</span>
-          </div>
-          <div className="min-w-0 flex-1 overflow-hidden">
-            <div className="animate-ticker flex whitespace-nowrap">
-              {[...breakingNews, ...breakingNews].map((item, i) => (
-                <span key={`${item.id}-${i}`} className="mx-6 flex items-center gap-3 text-sm text-white/88">
-                  <span className="inline-flex h-1.5 w-1.5 rounded-full bg-sky-200" />
-                  <span className="font-medium text-white/95">{item.title}</span>
-                  <span className="hidden text-white/60 sm:inline">{formatTimeAgo(item.timestamp)}</span>
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      }
-
       <PremiumSiteHeader
         active="home"
         actions={
           <>
-              {/* Expandable Search */}
-              <div className="hidden lg:flex items-center">
-                <div className={`flex items-center transition-all duration-300 ${
-                  searchExpanded ? 'w-64' : 'w-11'
-                }`}>
-                  {searchExpanded ? (
-                    <div className="relative w-full">
-                      <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/50" />
-                      <Input
-                        ref={searchInputRef}
-                        placeholder="Search news..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        onBlur={() => {
-                          if (!searchQuery) setSearchExpanded(false)
-                        }}
-                        aria-label="Search news"
-                        className="h-11 border-white/10 bg-white/10 pl-9 pr-8 text-sm text-white shadow-sm backdrop-blur placeholder:text-white/45"
-                        autoFocus
-                      />
-                      <button 
-                        onClick={() => {
-                          setSearchQuery('')
-                          setSearchExpanded(false)
-                        }}
-                        aria-label="Clear search"
-                        className="absolute right-2 top-1/2 -translate-y-1/2 text-white/55 hover:text-white"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
-                    </div>
-                  ) : (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      aria-label="Open news search"
-                      onClick={() => setSearchExpanded(true)}
-                      className="h-11 w-11 rounded-lg text-slate-200 hover:bg-white/10 hover:text-white"
-                    >
-                      <Search className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              </div>
               <Button
                 variant="ghost"
                 size="icon"
@@ -525,29 +460,29 @@ export default function HomePageClient({
       />
 
       {/* Editorial masthead */}
-      <section className="border-b border-border bg-card">
-        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-10 sm:px-6 md:py-12 lg:grid-cols-[1fr_280px] lg:items-end lg:gap-16">
+      <section className="editorial-hero border-b border-border bg-card">
+        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-8 sm:px-6 md:py-10 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-end lg:gap-16">
           <div>
             <p className="mb-5 flex items-center gap-2.5 text-sm font-semibold tracking-wide text-blue-700 dark:text-blue-300">
               <span className="h-2 w-2 rounded-full bg-blue-600" />The marketplace intelligence desk
             </p>
-            <h1 className="max-w-4xl text-[2.5rem] font-semibold leading-[1.08] tracking-[-0.045em] text-slate-950 sm:text-5xl lg:text-[3.75rem] dark:text-white">
-              A clearer view of<br className="hidden sm:block" /> marketplace commerce.
+            <h1 className="max-w-4xl text-[2.5rem] font-bold leading-[1.08] tracking-[-0.045em] text-slate-950 sm:text-5xl lg:text-[3.25rem] dark:text-white">
+              The context behind<br className="hidden sm:block" /> your next move.
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600 md:text-xl dark:text-slate-300">
-              The news that matters. The context behind it. Essential insights and practical tools for the people building modern commerce.
+              Ecommerce news, source-backed research, and practical tools. Understand what changed, investigate the implications, and make a better operating decision.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button size="lg" asChild className="h-12 rounded-lg bg-blue-600 px-6 text-base font-semibold text-white hover:bg-blue-700">
                 <a href="#briefing">Explore the latest<ArrowRight className="ml-2 h-4 w-4" /></a>
               </Button>
               <Button size="lg" variant="outline" asChild className="h-12 rounded-lg border-border bg-card px-6 text-base">
-                <Link href="/newsletter">Get the daily brief</Link>
+                <Link href="/articles">Search the archive</Link>
               </Button>
             </div>
             {currentUser && personalizationLabel ? <p className="mt-5 text-sm text-muted-foreground">{personalizationLabel}. <Link href="/account" className="font-medium text-primary underline underline-offset-4">Edit your preferences</Link></p> : null}
           </div>
-          <div className="grid gap-5 border-t border-border pt-6 sm:grid-cols-3 lg:grid-cols-1 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
+          <div className="grid grid-cols-3 gap-4 border-t border-border pt-6 lg:grid-cols-1 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
             {heroSignals.map(signal => (
               <div key={signal.label}>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground"><signal.icon className="h-4 w-4 text-blue-600 dark:text-blue-300" />{signal.label}</div>
@@ -558,9 +493,10 @@ export default function HomePageClient({
         </div>
       </section>
 
+
       {/* Active Filter Indicator — only shows when a filter is active */}
       {selectedCategory !== "all" && (
-        <div className="border-b border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.82),rgba(248,250,252,0.76))] backdrop-blur dark:bg-[linear-gradient(180deg,rgba(2,6,23,0.84),rgba(15,23,42,0.8))]">
+        <div className="border-b border-white/10 bg-card backdrop-blur dark:bg-slate-900">
           <div className="max-w-7xl mx-auto flex flex-col items-start justify-between gap-3 px-4 py-3 sm:flex-row sm:items-center">
             <span className="text-sm text-slate-600 dark:text-slate-200">
               Filtered by:
@@ -590,7 +526,7 @@ export default function HomePageClient({
             <button
               type="button"
               onClick={() => { setSelectedArticle(featuredArticles[0]); setArticleModalOpen(true) }}
-              className="group block w-full overflow-hidden rounded-2xl border border-border bg-card text-left transition-shadow hover:shadow-lg"
+              className="editorial-elevated editorial-lift group block w-full overflow-hidden rounded-2xl border border-border bg-card text-left transition-shadow hover:shadow-lg"
             >
               <div className="grid md:grid-cols-2">
                 <div className="relative aspect-[16/10] overflow-hidden bg-muted md:aspect-auto md:min-h-[380px]">
@@ -610,7 +546,7 @@ export default function HomePageClient({
                     <span className="text-blue-700 dark:text-blue-300">The lead story</span>
                     <span className="text-muted-foreground">{featuredArticles[0].category.replace(/[-_]/g, ' ')}</span>
                   </div>
-                  <h2 className="text-2xl font-semibold leading-tight tracking-tight text-foreground group-hover:text-primary sm:text-3xl lg:text-4xl">{featuredArticles[0].title}</h2>
+                  <h2 className="text-2xl font-bold leading-tight tracking-tight text-foreground group-hover:text-primary sm:text-3xl lg:text-4xl">{featuredArticles[0].title}</h2>
                   <p className="mt-5 line-clamp-3 text-lg leading-8 text-muted-foreground">{featuredArticles[0].excerpt}</p>
                   <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
                     <span className="font-medium text-foreground">{featuredArticles[0].source}</span><span aria-hidden="true">·</span><span>{featuredArticles[0].readTime} min read</span>
@@ -640,14 +576,14 @@ export default function HomePageClient({
                       Top Story
                     </span>
                   </div>
-                  <div className="hidden rounded-full border border-sky-400/15 bg-white/75 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-600 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45 dark:text-slate-200 md:inline-flex">
+                  <div className="hidden rounded-full border border-sky-400/15 bg-white/75 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-600 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-900 dark:text-slate-200 md:inline-flex">
                     Editor&apos;s pick
                   </div>
                 </div>
                 
                 <button
                   type="button"
-                  className="group block w-full overflow-hidden rounded-2xl border border-border bg-card text-left transition-shadow hover:shadow-lg"
+                  className="editorial-elevated editorial-lift group block w-full overflow-hidden rounded-2xl border border-border bg-card text-left transition-shadow hover:shadow-lg"
                   onClick={() => {
                     setSelectedArticle(heroArticle)
                     setArticleModalOpen(true)
@@ -697,7 +633,7 @@ export default function HomePageClient({
                     </div>
                     
                     {/* Headline */}
-                    <h2 className="text-2xl md:text-3xl font-semibold text-foreground mb-3 leading-tight line-clamp-2 text-balance">
+                    <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3 leading-tight line-clamp-2 text-balance">
                       {heroArticle.title}
                     </h2>
                     
@@ -734,10 +670,10 @@ export default function HomePageClient({
             {loading && <CompactNewsletterSkeleton />}
 
             {!loading && filteredArticles.length > 3 && (
-              <div className="mb-6 overflow-hidden rounded-[24px] border border-white/60 bg-[linear-gradient(135deg,rgba(255,255,255,0.92),rgba(248,250,252,0.82)_50%,rgba(239,246,255,0.84)_100%)] p-4 shadow-[0_22px_60px_-38px_rgba(15,23,42,0.34)] dark:border-white/10 dark:bg-[linear-gradient(135deg,rgba(15,23,42,0.82),rgba(15,23,42,0.74)_50%,rgba(30,41,59,0.84)_100%)]">
+              <div className="mb-6 overflow-hidden rounded-xl border border-border bg-card p-4 editorial-elevated dark:border-white/10 dark:bg-slate-900">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                   <div className="flex items-center gap-4 flex-1">
-                    <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#0f3f96,#2563eb_62%,#7c3aed)] text-white shadow-[0_18px_40px_-24px_rgba(37,99,235,0.6)]">
+                    <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl  text-white editorial-elevated">
                       <Mail className="h-5 w-5" />
                     </div>
                     <div>
@@ -754,9 +690,9 @@ export default function HomePageClient({
                     placeholder="Email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="h-10 w-44 border-white/40 bg-white/85 text-sm shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45"
+                    className="h-10 w-44 border-border bg-white/85 text-sm shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-900"
                   />
-                  <Button type="submit" size="sm" className="h-10 border border-sky-400/20 bg-[linear-gradient(135deg,#0f3f96,#2563eb_62%,#4f46e5)] text-white shadow-[0_16px_36px_-24px_rgba(37,99,235,0.7)]" disabled={isSubscribing || subscribed}>
+                  <Button type="submit" size="sm" className="h-10 border border-sky-400/20  text-white editorial-elevated" disabled={isSubscribing || subscribed}>
                     {subscribed ? "Done" : isSubscribing ? <Loader2 className="h-3 w-3 animate-spin" /> : "Subscribe"}
                   </Button>
                   </form>
@@ -765,7 +701,7 @@ export default function HomePageClient({
             )}
 
             {/* Regular Articles Grid */}
-            <div className="mb-6 flex items-end justify-between gap-4 border-b border-white/40 pb-4 dark:border-white/10">
+            <div className="mb-6 flex items-end justify-between gap-4 border-b border-border pb-4 dark:border-white/10">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-300">
                   News Feed
@@ -777,7 +713,7 @@ export default function HomePageClient({
                   Curated for operators, sellers, agencies, and marketplace tech teams.
                 </p>
               </div>
-              <div className="rounded-full border border-white/60 bg-white/80 px-4 py-2 text-sm text-muted-foreground shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+              <div className="rounded-full border border-border bg-white/80 px-4 py-2 text-sm text-muted-foreground shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-900">
                 {loading ? '' : `${feedArticles.length} article${feedArticles.length !== 1 ? 's' : ''}`}
               </div>
             </div>
@@ -791,7 +727,7 @@ export default function HomePageClient({
                   <div className="h-24 w-24 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center">
                     <FileText className="h-12 w-12 text-muted-foreground/50" />
                   </div>
-                  <h3 className="text-lg font-semibold mb-2">No articles found</h3>
+                  <h3 className="text-lg font-bold mb-2">No articles found</h3>
                   <p className="text-muted-foreground mb-6 max-w-md mx-auto">
                     {searchQuery
                       ? `No results for "${searchQuery}". Try a different search term or browse by category.`
@@ -835,7 +771,7 @@ export default function HomePageClient({
                 {regularArticles.slice(0, visibleArticleCount).map((article, index) => (
                   <Fragment key={article.id}>
                     <div className="cursor-pointer rounded-xl focus-visible:outline-2 focus-visible:outline-primary" role="button" tabIndex={0} aria-label={`Read ${article.title}`} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSelectedArticle(article); setArticleModalOpen(true) } }} onClick={(e) => handleArticleClick(article, e)}>
-                      <Card className="group h-full cursor-pointer overflow-hidden rounded-xl border border-border bg-card shadow-none transition-shadow hover:shadow-md">
+                      <Card className="group h-full cursor-pointer overflow-hidden rounded-xl border border-border bg-card editorial-elevated transition-shadow hover:shadow-md">
                         <div className="relative aspect-[16/9] overflow-hidden bg-muted">
                           <img
                             src={getArticleImageUrl(article)}
@@ -880,7 +816,7 @@ export default function HomePageClient({
                             </span>
                           </div>
 
-                          <h3 className="mb-3 text-[1.4rem] font-semibold leading-snug text-slate-950 transition-colors group-hover:text-sky-700 md:text-[1.6rem] dark:text-white dark:group-hover:text-sky-200 text-balance line-clamp-2">
+                          <h3 className="mb-3 text-[1.4rem] font-bold leading-snug text-slate-950 transition-colors group-hover:text-sky-700 md:text-[1.6rem] dark:text-white dark:group-hover:text-sky-200 text-balance line-clamp-2">
                             {article.title}
                           </h3>
 
@@ -926,7 +862,7 @@ export default function HomePageClient({
                     {/* Inline Newsletter CTA after every 6th article */}
                     {(index + 1) % 6 === 0 && index < regularArticles.length - 1 && (
                       <div key={`newsletter-cta-${index}`} className="md:col-span-2">
-                        <Card className="overflow-hidden rounded-[24px] border border-white/60 bg-[linear-gradient(135deg,rgba(15,23,42,0.92),rgba(37,99,235,0.86)_58%,rgba(79,70,229,0.82))] text-white shadow-[0_26px_64px_-36px_rgba(15,23,42,0.62)] dark:border-white/10">
+                        <Card className="overflow-hidden rounded-xl border border-border bg-slate-950 text-white editorial-elevated dark:border-white/10">
                           <CardContent className="p-6">
                             <div className="flex flex-col sm:flex-row items-center gap-4">
                               <div className="flex items-center gap-3 flex-1">
@@ -957,32 +893,6 @@ export default function HomePageClient({
                       </div>
                     )}
                     
-                    {/* MarginPro CTA - shows in Seller Profitability category after every 8th article */}
-                    {selectedCategory === "profitability" && (index + 1) % 8 === 0 && index < regularArticles.length - 1 && (
-                      <div key={`marginpro-cta-${index}`} className="md:col-span-2">
-                        <Card className="overflow-hidden rounded-[24px] border border-emerald-500/20 bg-[linear-gradient(135deg,rgba(255,255,255,0.94),rgba(236,253,245,0.94)_55%,rgba(209,250,229,0.9))] shadow-[0_22px_60px_-38px_rgba(5,150,105,0.28)] dark:border-emerald-500/15 dark:bg-[linear-gradient(135deg,rgba(6,78,59,0.28),rgba(4,47,46,0.34)_55%,rgba(6,95,70,0.24))]">
-                          <CardContent className="p-6">
-                            <div className="flex flex-col sm:flex-row items-center gap-4">
-                              <div className="flex items-center gap-3 flex-1">
-                                <div className="h-10 w-10 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
-                                  <DollarSign className="h-5 w-5 text-emerald-600" />
-                                </div>
-                                <div>
-                                  <p className="font-semibold text-sm">Losing margin to Amazon billing errors?</p>
-                                  <p className="text-xs text-muted-foreground">MarginPro recovers an average of 1-3% of revenue from overcharges, shortages, and billing mistakes.</p>
-                                </div>
-                              </div>
-                              <Link href="/solutions">
-                                <Button variant="outline" size="sm" className="whitespace-nowrap border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10 dark:text-emerald-300">
-                                  Get a Free Audit
-                                  <ArrowRight className="h-3 w-3 ml-1" />
-                                </Button>
-                              </Link>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </div>
-                    )}
                   </Fragment>
                 ))}
               </div>
@@ -994,7 +904,7 @@ export default function HomePageClient({
                 <Button
                   variant="outline"
                   size="lg"
-                  className="rounded-full border-sky-400/20 bg-white/80 px-6 shadow-sm backdrop-blur hover:bg-white dark:border-white/10 dark:bg-slate-950/45 dark:hover:bg-slate-900"
+                  className="rounded-full border-sky-400/20 bg-white/80 px-6 shadow-sm backdrop-blur hover:bg-white dark:border-white/10 dark:bg-slate-900 dark:hover:bg-slate-900"
                   onClick={() => setVisibleArticleCount(prev => prev + 12)}
                 >
                   Load More Articles ({regularArticles.length - visibleArticleCount} remaining)
@@ -1017,7 +927,7 @@ export default function HomePageClient({
 
             {/* Trending This Week */}
             {!loading && (
-            <Card className="overflow-hidden rounded-[24px] border border-white/60 bg-white/82 shadow-[0_18px_48px_-34px_rgba(15,23,42,0.24)] dark:border-white/10 dark:bg-slate-950/45">
+            <Card className="overflow-hidden rounded-xl border border-border bg-white editorial-elevated dark:border-white/10 dark:bg-slate-900">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-primary" />
@@ -1046,7 +956,7 @@ export default function HomePageClient({
 
             {/* Upcoming Events */}
             {!loading && (
-            <Card className="overflow-hidden rounded-[24px] border border-white/60 bg-white/82 shadow-[0_18px_48px_-34px_rgba(15,23,42,0.24)] dark:border-white/10 dark:bg-slate-950/45">
+            <Card className="overflow-hidden rounded-xl border border-border bg-white editorial-elevated dark:border-white/10 dark:bg-slate-900">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-primary" />
@@ -1069,7 +979,7 @@ export default function HomePageClient({
                     </div>
                   </div>
                 ))}
-                <Button variant="outline" size="sm" className="w-full rounded-full border-sky-400/15 bg-white/75 shadow-sm backdrop-blur hover:bg-white dark:border-white/10 dark:bg-slate-950/45 dark:hover:bg-slate-900" asChild>
+                <Button variant="outline" size="sm" className="w-full rounded-full border-sky-400/15 bg-white/75 shadow-sm backdrop-blur hover:bg-white dark:border-white/10 dark:bg-slate-900 dark:hover:bg-slate-900" asChild>
                   <Link href="/events">
                     View All Events
                     <ChevronRight className="h-4 w-4 ml-1" />
@@ -1081,7 +991,7 @@ export default function HomePageClient({
 
             {/* Newsletter Signup - Sticky */}
             {!loading && (
-            <Card className="sticky top-32 overflow-hidden rounded-[24px] border border-white/10 bg-[linear-gradient(135deg,rgba(15,23,42,0.96),rgba(30,41,59,0.94)_52%,rgba(55,48,163,0.86))] text-primary-foreground shadow-[0_26px_70px_-36px_rgba(15,23,42,0.58)]">
+            <Card className="sticky top-32 overflow-hidden rounded-xl border border-white/10 bg-slate-950 text-primary-foreground editorial-elevated">
               <CardContent className="p-5">
                 <Mail className="mb-3 h-8 w-8 text-sky-300" />
                 <h3 className="mb-2 font-bold">Daily Marketplace Brief</h3>
@@ -1107,7 +1017,7 @@ export default function HomePageClient({
 
             {/* Quick Tools Access */}
             {!loading && (
-            <Card className="overflow-hidden rounded-[24px] border border-white/60 bg-white/82 shadow-[0_18px_48px_-34px_rgba(15,23,42,0.24)] dark:border-white/10 dark:bg-slate-950/45">
+            <Card className="overflow-hidden rounded-xl border border-border bg-white editorial-elevated dark:border-white/10 dark:bg-slate-900">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
                   <Wrench className="h-4 w-4 text-primary" />
@@ -1117,11 +1027,11 @@ export default function HomePageClient({
               <CardContent className="grid grid-cols-2 gap-2">
                 {[
                   { name: "Profit Calculator", icon: Calculator, href: "/tools#profit" },
-                  { name: "Profit Recovery", icon: DollarSign, href: "/solutions" },
+                  { name: "Fee Intelligence", icon: DollarSign, href: "/fees" },
                   { name: "Listing Optimizer", icon: Target, href: "/tools#listing" },
                   { name: "Keyword Research", icon: LineChart, href: "/tools#keywords" },
                 ].map((tool) => (
-                  <Button key={tool.name} variant="outline" size="sm" className="h-auto rounded-2xl border-white/60 bg-white/78 py-3 shadow-sm backdrop-blur hover:bg-white dark:border-white/10 dark:bg-slate-950/45 dark:hover:bg-slate-900" asChild>
+                  <Button key={tool.name} variant="outline" size="sm" className="h-auto rounded-2xl border-border bg-white py-3 shadow-sm backdrop-blur hover:bg-white dark:border-white/10 dark:bg-slate-900 dark:hover:bg-slate-900" asChild>
                     <Link href={tool.href}>
                       <tool.icon className="h-4 w-4" />
                       <span className="text-xs">{tool.name}</span>
@@ -1137,112 +1047,10 @@ export default function HomePageClient({
         </div>
       </main>
 
+      <div className="mx-auto max-w-7xl px-4 sm:px-6"><ResearchDesks /></div>
+
       {/* Footer */}
-      <footer className="relative overflow-hidden border-t border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.22),transparent_24%),radial-gradient(circle_at_top_right,rgba(168,85,247,0.18),transparent_22%),radial-gradient(circle_at_bottom,rgba(20,184,166,0.1),transparent_20%),linear-gradient(180deg,rgba(2,6,23,0.98),rgba(15,23,42,1))] text-white">
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/45 to-transparent" />
-        <div className="max-w-7xl mx-auto px-4 py-12">
-          <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-[1.3fr_0.8fr_0.9fr_1.2fr]">
-            {/* Brand */}
-            <div>
-              <SiteBrand href="/" logoClassName="h-11" iconClassName="h-9 w-9" className="mb-4" priority />
-              <p className="text-sm text-white/70 mb-4">
-                The intelligence hub for marketplace commerce. News, tools, and insights for e-commerce professionals.
-              </p>
-
-            </div>
-
-            {/* Categories */}
-            <div>
-              <h4 className="font-semibold mb-4">Categories</h4>
-              <ul className="space-y-2 text-sm text-white/70">
-                {CATEGORIES.slice(1, 7).map((cat) => (
-                  <li key={cat.id}>
-                    <button
-                      onClick={() => {
-                        setSelectedCategory(cat.id)
-                        window.scrollTo({ top: 0, behavior: 'smooth' })
-                      }}
-                      className="hover:text-white transition-colors"
-                    >
-                      {cat.label}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Company */}
-            <div>
-              <h4 className="font-semibold mb-4">Explore</h4>
-              <ul className="space-y-2 text-sm text-white/70">
-                <li><Link href="/partners" className="hover:text-white transition-colors">Partner Marketplace</Link></li>
-                <li><Link href="/community" className="hover:text-white transition-colors">Operator Network</Link></li>
-                <li><Link href="/tools" className="hover:text-white transition-colors">Seller Tools</Link></li>
-                <li><Link href="/articles" className="hover:text-white transition-colors">Search Articles</Link></li>
-              </ul>
-            </div>
-
-            {/* Newsletter */}
-            <div>
-              <h4 className="font-semibold mb-4">Newsletter</h4>
-              <p className="text-sm text-white/70 mb-4">
-                Get the daily brief delivered to your inbox every morning.
-              </p>
-              <form onSubmit={handleSubscribe} className="flex gap-2">
-                <Input
-                  type="email"
-                    aria-label="Email address"
-                  placeholder="Your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="flex-1 border-white/10 bg-white/8 text-white placeholder:text-white/45"
-                />
-                <Button type="submit" disabled={isSubscribing || subscribed} className="bg-white text-slate-950 hover:bg-white/90">
-                  {subscribed ? "Done" : "Go"}
-                </Button>
-              </form>
-            </div>
-          </div>
-
-          <Separator className="my-8 bg-white/10" />
-
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-white/60">
-            <div className="flex flex-col items-center md:items-start gap-2">
-              <p>2026 MarketplaceBeta. All rights reserved.</p>
-              <p className="text-xs italic">Built for the marketplace commerce community</p>
-            </div>
-            <div className="flex items-center gap-6">
-              <div className="flex gap-3">
-                <a 
-                  href="https://twitter.com/ecomintel" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="hover:text-white transition-colors"
-                  aria-label="Twitter"
-                >
-                  <Twitter className="h-4 w-4" />
-                </a>
-                <a 
-                  href="https://linkedin.com/company/ecom-intel-hub" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="hover:text-white transition-colors"
-                  aria-label="LinkedIn"
-                >
-                  <Linkedin className="h-4 w-4" />
-                </a>
-              </div>
-              <div className="flex gap-6">
-                <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
-                <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
-              </div>
-            </div>
-          </div>
-          <div className="mt-4 text-center text-xs text-white/45">
-            News updates throughout the day
-          </div>
-        </div>
-      </footer>
+      <PremiumSiteFooter />
 
       {/* Article Detail Modal */}
       <ArticleDetailModal
@@ -1257,7 +1065,7 @@ export default function HomePageClient({
         onOpenChange={setAuthDialogOpen}
         redirectTo="/account"
         title="Sign in to personalize MarketplaceBeta"
-        description="Create an account to unlock community participation, saved preferences, and a smarter digest over time."
+        description="Create an account to save your preferences and personalize your research."
       />
 
       {/* Back to Top Button */}

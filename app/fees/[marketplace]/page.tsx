@@ -51,8 +51,8 @@ export default async function MarketplaceFeesPage({ params }: PageProps) {
   const highest = Math.max(...rates)
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950">
-      <PremiumSiteHeader />
+    <div className="min-h-screen bg-background">
+      <PremiumSiteHeader active="fees" />
 
       <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
         <nav aria-label="Breadcrumb" className="text-sm text-slate-500 dark:text-slate-400">
@@ -93,7 +93,7 @@ export default async function MarketplaceFeesPage({ params }: PageProps) {
 
         {(marketplace.accountFee || marketplace.perOrderFee || marketplace.listingFee) && (
           <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5">
-            <h2 className="text-sm font-semibold text-slate-900 dark:text-white">
+            <h2 className="text-sm font-bold text-slate-900 dark:text-white">
               Charged on top of the {marketplace.feeName}
             </h2>
             <ul className="mt-2 space-y-1 text-sm text-slate-600 dark:text-slate-300">
@@ -159,7 +159,7 @@ export default async function MarketplaceFeesPage({ params }: PageProps) {
         </div>
 
         <section className="mt-12">
-          <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
             Compare other marketplaces
           </h2>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -167,7 +167,7 @@ export default async function MarketplaceFeesPage({ params }: PageProps) {
               <Link
                 key={other.slug}
                 href={`/fees/${other.slug}`}
-                className="rounded-xl border border-slate-200 p-4 transition hover:border-sky-400 hover:bg-sky-50/50 dark:border-white/10 dark:hover:border-sky-400/60 dark:hover:bg-sky-400/5"
+                className="editorial-elevated editorial-lift bg-card rounded-xl border border-slate-200 p-4 transition hover:border-sky-400 hover:bg-sky-50/50 dark:border-white/10 dark:hover:border-sky-400/60 dark:hover:bg-sky-400/5"
               >
                 <p className="font-medium text-slate-900 dark:text-white">{other.name}</p>
                 <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">
