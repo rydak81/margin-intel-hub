@@ -1,3 +1,4 @@
+import { isOperatorRelevant } from "@/lib/operator-editorial-policy"
 import type { ClassifiedArticle } from "@/lib/ai-classifier"
 import { getArticleDeskScore, getSourceIntelligence } from "@/lib/source-intelligence"
 
@@ -102,8 +103,8 @@ function areTopicMatches(a: CuratableArticle, b: CuratableArticle): boolean {
   if (similarity >= 0.72) return true
   if (similarity >= 0.56 && (categoryMatch || platformOverlap > 0)) return true
 
-  const sharedDistinctiveTokens = tokensA.filter((token) => tokensB.includes(token))
-  return sharedDistinctiveTokens.length >= 4 && (categoryMatch || platformOverlap > 0)
+  const sharedDistinctiveTokens = [...new Set(tokensA)].filter((token) => tokensB.includes(token))
+  return sharedDistinctiveTokens.length >= 4 && similarity >= 0.45 && (categoryMatch || platformOverlap > 0)
 }
 
 function compareWithinTopic<T extends CuratableArticle>(a: T, b: T) {
@@ -168,7 +169,8 @@ export function curateArticleFeed<T extends CuratableArticle>(
   articles: T[],
   options: CurateOptions = {}
 ): T[] {
-  const maxPerTopic = options.maxPerTopic ?? 2
+  articles = articles.filter(isOperatorRelevant)
+  const maxPerTopic = options.maxPerTopic ?? 1
 
   if (options.preserveOrder) {
     // Greedy pass in input order: keep the first maxPerTopic articles of each

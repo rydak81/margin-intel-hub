@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { SITE_NAVIGATION } from "@/lib/site-navigation"
 import { SiteBrand } from "@/components/site-brand"
 
-type NavKey = "home" | "articles" | "news" | "partners" | "tools" | "fees" | "community" | "events" | "solutions" | "newsletter"
+type NavKey = "guides" | "intelligence" | "home" | "articles" | "news" | "partners" | "tools" | "fees" | "community" | "events" | "solutions" | "newsletter"
 
 interface PremiumSiteHeaderProps {
   active?: NavKey
@@ -52,7 +52,7 @@ export function PremiumSiteHeader({
           </div>
         </div>
         <nav aria-label="Main navigation" className="hidden items-center justify-between gap-4 border-t border-white/10 lg:flex">
-          <div className="flex items-center gap-7">
+          <div className="flex items-center gap-5 xl:gap-7">
             {NAV_ITEMS.map(item => (
               <Link key={item.key} href={item.href} aria-current={active === item.key ? "page" : undefined} className={`border-b-2 py-4 text-sm font-medium transition-colors hover:text-white ${active === item.key ? "border-blue-400 text-white" : "border-transparent text-slate-300"}`}>
                 {item.label}

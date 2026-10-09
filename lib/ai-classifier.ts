@@ -20,7 +20,7 @@ const ArticleClassificationSchema = z.object({
   ]),
   platforms: z.array(z.enum([
     'amazon', 'walmart', 'tiktok', 'shopify', 'ebay',
-    'etsy', 'target', 'temu', 'shein', 'multi_platform'
+    'etsy', 'target', 'temu', 'shein', 'alibaba', 'aliexpress', 'multi_platform'
   ])),
   summary: z.string(),
   is_breaking: z.boolean(),
@@ -50,7 +50,7 @@ Your job is to evaluate news articles and provide INTELLIGENT ANALYSIS:
 4. Identify specific implications, opportunities, and risks for sellers
 
 RELEVANT articles cover:
-- Selling on Amazon, Walmart, eBay, TikTok Shop, Shopify, Target+, Etsy, Temu, Shein
+- Selling on Amazon, Walmart, eBay, TikTok Shop, Shopify, Target+, Etsy, Temu, Shein, Alibaba, AliExpress
 - Marketplace fees, policies, algorithms, or program changes
 - Seller tools, SaaS products, or technology for e-commerce
 - E-commerce advertising (Amazon Ads, Walmart Connect, retail media networks)
@@ -151,6 +151,8 @@ function detectPlatformsFromText(text: string): string[] {
   if (text.match(/target\+|target plus|target marketplace/i)) platforms.push('target')
   if (text.match(/etsy|etsy seller/i)) platforms.push('etsy')
   if (text.match(/temu/i)) platforms.push('temu')
+  if (text.match(/\balibaba\b/i)) platforms.push('alibaba')
+  if (text.match(/\baliexpress\b/i)) platforms.push('aliexpress')
   if (text.match(/shein/i)) platforms.push('shein')
   if (platforms.length === 0) platforms.push('multi_platform')
   return platforms
@@ -232,7 +234,7 @@ Return this exact JSON structure (array of objects):
     "relevant": true or false,
     "relevance_score": 0-100,
     "category": "one of: breaking, market_metrics, platform_updates, profitability, mergers_acquisitions, tools_technology, advertising, logistics, events, tactics",
-    "platforms": ["amazon", "walmart", "tiktok", "shopify", "ebay", "etsy", "target", "temu", "shein", "multi_platform"],
+    "platforms": ["amazon", "walmart", "tiktok", "shopify", "ebay", "etsy", "target", "temu", "shein", "alibaba", "aliexpress", "multi_platform"],
     "summary": "One clear sentence on why this matters to e-commerce professionals",
     "is_breaking": true or false,
     "audience": ["sellers", "agencies", "saas", "investors", "service_providers"],

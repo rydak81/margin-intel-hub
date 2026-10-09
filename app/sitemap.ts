@@ -1,3 +1,5 @@
+import { GUIDE_UPDATED, OPERATOR_GUIDES } from '@/lib/operator-guides'
+import { isOperatorRelevant } from '@/lib/operator-editorial-policy'
 import type { MetadataRoute } from 'next'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { MARKETPLACES, getAllFeeRoutes } from '@/lib/marketplace-fees'
@@ -47,6 +49,10 @@ const staticRoutes: MetadataRoute.Sitemap = [
 
 type SitemapArticleRow = {
   id: string
+  title: string
+  category: string
+  summary: string | null
+  ai_summary: string | null
   published_at: string | null
 }
 
@@ -62,7 +68,7 @@ async function getArticleRoutes(): Promise<MetadataRoute.Sitemap> {
     const supabase = createAdminClient()
     const { data, error } = await supabase
       .from('articles')
-      .select('id, published_at')
+      .select('id, title, category, summary, ai_summary, published_at')
       .eq('relevant', true)
       .gte('relevance_score', 40)
       .order('published_at', { ascending: false })
@@ -73,7 +79,7 @@ async function getArticleRoutes(): Promise<MetadataRoute.Sitemap> {
       return []
     }
 
-    return ((data ?? []) as SitemapArticleRow[]).map((article) => ({
+    return ((data ?? []) as SitemapArticleRow[]).filter(article => isOperatorRelevant({ ...article, summary: article.summary || "", aiSummary: article.ai_summary || "" })).map((article) => ({
       url: `${siteUrl}/news/${article.id}`,
       lastModified: article.published_at ? new Date(article.published_at) : new Date(),
       changeFrequency: 'weekly',
@@ -118,5 +124,8 @@ function getFeeRoutes(): MetadataRoute.Sitemap {
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const articleRoutes = await getArticleRoutes()
 
-  return [...staticRoutes, ...getFeeRoutes(), ...articleRoutes]
+  return [...staticRoutes,
+    { url: `${siteUrl}/intelligence`, changeFrequency: 'daily', priority: 0.9 },
+    ...['guides', 'about', 'editorial-policy', ...OPERATOR_GUIDES.map(guide => `guides/${guide.slug}`)].map(path => ({ url: `${siteUrl}/${path}`, lastModified: new Date(GUIDE_UPDATED), changeFrequency: 'monthly' as const, priority: path.startsWith('guides') ? 0.8 : 0.5 })),
+    ...getFeeRoutes(), ...articleRoutes]
 }

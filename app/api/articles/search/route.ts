@@ -247,8 +247,8 @@ export async function GET(request: NextRequest) {
     // the rows arrive already ordered (query rank, explicit oldest/impact),
     // curation must only deduplicate, never re-sort by desk score.
     const curatedArticles = curateArticleFeed(allArticles, {
-      maxPerTopic: q ? 4 : (category || platforms.length > 0 ? 3 : 2),
-      preserveOrder: Boolean(q) || sort === 'oldest' || sort === 'impact',
+      maxPerTopic: q ? 3 : (category || platforms.length > 0 ? 2 : 1),
+      preserveOrder: true,
     })
     const articles = curatedArticles.slice(offset, offset + limit)
 

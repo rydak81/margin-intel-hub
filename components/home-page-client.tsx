@@ -1,6 +1,8 @@
 "use client"
 
 import { useState, useEffect, useCallback, useRef, Fragment, useMemo } from "react"
+import { GuideCards } from "@/components/guide-cards"
+import { trackResourceEvent } from "@/lib/resource-analytics"
 import Image from "next/image"
 import Link from "next/link"
 import { useTheme } from "next-themes"
@@ -408,6 +410,7 @@ export default function HomePageClient({
       
       // Consider "already subscribed" as success for the widget
       if (response.ok || data.error === "already_subscribed") {
+        if (response.ok) trackResourceEvent("newsletter_signup", "homepage")
         setSubscribed(true)
       }
     } catch (error) {
@@ -477,7 +480,7 @@ export default function HomePageClient({
                 <a href="#briefing">Explore the latest<ArrowRight className="ml-2 h-4 w-4" /></a>
               </Button>
               <Button size="lg" variant="outline" asChild className="h-12 rounded-lg border-border bg-card px-6 text-base">
-                <Link href="/articles">Search the archive</Link>
+                <Link href="/intelligence">Open the intelligence dashboard</Link>
               </Button>
             </div>
             {currentUser && personalizationLabel ? <p className="mt-5 text-sm text-muted-foreground">{personalizationLabel}. <Link href="/account" className="font-medium text-primary underline underline-offset-4">Edit your preferences</Link></p> : null}
@@ -493,6 +496,11 @@ export default function HomePageClient({
         </div>
       </section>
 
+
+      <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6" aria-labelledby="operator-library-title">
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-3"><div><p className="editorial-eyebrow">The operator library</p><h2 id="operator-library-title" className="mt-2 text-3xl font-bold">Turn the context into a decision.</h2></div><Link href="/guides" className="text-sm font-semibold text-primary">All guides & free worksheets →</Link></div>
+        <GuideCards />
+      </section>
 
       {/* Active Filter Indicator — only shows when a filter is active */}
       {selectedCategory !== "all" && (

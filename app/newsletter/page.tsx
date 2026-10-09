@@ -1,5 +1,6 @@
 "use client"
 
+import { trackResourceEvent } from "@/lib/resource-analytics"
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
@@ -128,6 +129,7 @@ export default function NewsletterPage() {
         return
       }
 
+      trackResourceEvent("newsletter_signup", "newsletter_page")
       setSubmitted(true)
     } catch (submitError) {
       console.error("Subscribe error:", submitError)
