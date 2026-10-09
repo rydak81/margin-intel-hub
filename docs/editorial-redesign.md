@@ -10,6 +10,6 @@ Solutions, Partners, and Community (including descendants) temporarily redirect 
 
 Archive: initial URL query/filter support, shareable URLs, explicit error/retry, latest-request response protection, and fixed load-more offset. Newsletter: removed unsupported subscriber/open-rate claims and fictional sample briefing; links to actual current briefing instead.
 
-Validation: TypeScript and production webpack build with placeholder backend configuration; local mobile layout inspection. Remote preview with actual data and final production verification are recorded in the task release notes.
+Validation: TypeScript and production webpack build with placeholder backend configuration; local mobile layout inspection. Local checks covered desktop light/dark home, 390px mobile pages, fee detail layout, and redirects from hidden sections. Remote preview with actual data and final production verification remain pending: automatic approval review rejected the branch push because the previous monitoring instructions prohibit publishing/deployment. No remote changes were made.
 
 Known scope limits: this design change does not fix upstream feed failures, email sender verification, AI classification timeouts, or guarantee the accuracy of generated summaries. No newsletter/email submission in verification.
