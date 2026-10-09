@@ -1,9 +1,11 @@
 export const SITE_NAVIGATION = [
   { key: "home", href: "/", label: "Latest" },
+  { key: "intelligence", href: "/intelligence", label: "Intelligence" },
   { key: "news", href: "/news", label: "The briefing" },
-  { key: "articles", href: "/articles", label: "Research archive" },
-  { key: "tools", href: "/tools", label: "Operator tools" },
-  { key: "fees", href: "/fees", label: "Fee intelligence" },
+  { key: "articles", href: "/articles", label: "Archive" },
+  { key: "tools", href: "/tools", label: "Tools" },
+  { key: "fees", href: "/fees", label: "Fees" },
+  { key: "guides", href: "/guides", label: "Guides" },
   { key: "events", href: "/events", label: "Events" },
 ] as const
 

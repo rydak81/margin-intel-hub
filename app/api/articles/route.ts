@@ -62,7 +62,7 @@ export async function GET(request: Request) {
         console.log(`[articles] Loaded ${dbArticles.length} articles from Supabase`)
         // Convert DB rows to cache format and store
         const mapped = dbArticles.map(dbRowToArticle)
-        setArticlesCache(curateArticleFeed(mapped, { limit: 180, maxPerTopic: 2 }))
+        setArticlesCache(curateArticleFeed(mapped, { limit: 180, maxPerTopic: 1 }))
       } else {
         console.log('[articles] No articles in database — cron job will populate soon')
       }
@@ -86,7 +86,7 @@ export async function GET(request: Request) {
     }
 
     articles = curateArticleFeed(articles, {
-      maxPerTopic: category || platform || audience || impactLevel ? 3 : 2,
+      maxPerTopic: category || platform || audience || impactLevel ? 2 : 1,
     })
     articles.sort((a, b) => getArticleDeskScore(b) - getArticleDeskScore(a))
 

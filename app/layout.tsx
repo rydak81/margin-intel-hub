@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import localFont from 'next/font/local'
-import { Analytics } from '@vercel/analytics/next'
+import { SiteAnalytics } from '@/components/site-analytics'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
@@ -63,7 +63,7 @@ export default function RootLayout({
       <body className="font-sans antialiased text-base">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           {children}
-          <Analytics />
+          <SiteAnalytics />
           <SpeedInsights />
         </ThemeProvider>
       </body>

@@ -129,7 +129,7 @@ export async function loadArticlesFromDB(options?: {
 
     return curateArticleFeed(articles, {
       limit: requestedLimit,
-      maxPerTopic: options?.search ? 3 : 2,
+      maxPerTopic: options?.search ? 3 : 1,
     })
   } catch (err) {
     console.warn('[ArticleStore] Failed to load from Supabase:', err)
@@ -214,7 +214,7 @@ export async function getRelatedArticles(articleId: string, category: string, li
     .filter(a => a.id !== articleId && a.category === category)
   const curatedFromCache = curateArticleFeed(fromCache, {
     limit,
-    maxPerTopic: 2,
+    maxPerTopic: 1,
   })
 
   if (curatedFromCache.length >= limit) return curatedFromCache
@@ -235,7 +235,7 @@ export async function getRelatedArticles(articleId: string, category: string, li
     if (error || !data) return curatedFromCache
     return curateArticleFeed(data.map(dbRowToArticle), {
       limit,
-      maxPerTopic: 2,
+      maxPerTopic: 1,
     })
   } catch {
     return curatedFromCache
