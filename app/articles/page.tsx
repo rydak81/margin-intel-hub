@@ -1,7 +1,10 @@
 "use client"
 
-import { useState, useEffect, useCallback, useMemo, useRef } from "react"
+import { Suspense, useState, useEffect, useCallback, useMemo, useRef } from "react"
 import Link from "next/link"
+import { useSearchParams } from "next/navigation"
+import { EditorialIntro } from "@/components/editorial-intro"
+import { ResearchDesks } from "@/components/research-desks"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
@@ -93,15 +96,18 @@ function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
     ? "Track the latest MarketplaceBeta reporting by topic, platform, and impact level so operators, agencies, and SaaS teams can stay current without losing the premium desk experience."
     : "Explore every MarketplaceBeta story by topic, platform, and impact level so operators, agencies, and SaaS teams can find the exact signal they need fast."
 
-  const [query, setQuery] = useState("")
+  const searchParams = useSearchParams()
+  const [query, setQuery] = useState(searchParams.get("q") || "")
+  const [searchError, setSearchError] = useState<string | null>(null)
+  const requestId = useRef(0)
   // Debounced copy of the query drives fetching, so we don't fire a request
   // per keystroke against a 7,900-article search.
-  const [debouncedQuery, setDebouncedQuery] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
-  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([])
-  const [selectedImpact, setSelectedImpact] = useState<string | null>(null)
-  const [selectedAudience, setSelectedAudience] = useState<string | null>(null)
-  const [sortBy, setSortBy] = useState<"newest" | "oldest" | "relevant" | "impact">("newest")
+  const [debouncedQuery, setDebouncedQuery] = useState(searchParams.get("q") || "")
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(searchParams.get("category"))
+  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>((searchParams.get("platforms") || "").split(",").filter(Boolean))
+  const [selectedImpact, setSelectedImpact] = useState<string | null>(searchParams.get("impact"))
+  const [selectedAudience, setSelectedAudience] = useState<string | null>(searchParams.get("audience"))
+  const [sortBy, setSortBy] = useState<"newest" | "oldest" | "relevant" | "impact">(((["newest", "oldest", "relevant", "impact"].includes(searchParams.get("sort") || "") ? searchParams.get("sort") : searchParams.get("q") ? "relevant" : "newest") as "newest" | "oldest" | "relevant" | "impact"))
   const [articles, setArticles] = useState<Article[]>([])
   const [totalCount, setTotalCount] = useState(0)
   const [facets, setFacets] = useState({
@@ -154,8 +160,10 @@ function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
 
   const fetchArticles = useCallback(
     async (resetOffset = true) => {
+      const id = ++requestId.current
       setLoading(true)
-      const newOffset = resetOffset ? 0 : offset
+      setSearchError(null)
+      const newOffset = resetOffset ? 0 : offset + limit
       if (resetOffset) setOffset(0)
       try {
         const params = new URLSearchParams({
@@ -168,16 +176,20 @@ function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
 
         const response = await fetch(`/api/articles/search?${params.toString()}`)
         const data: SearchResponse = await response.json()
+        if (id !== requestId.current) return
+        if (!response.ok || !data.success) throw new Error("Search unavailable")
         if (data.success) {
+          setOffset(newOffset)
           if (resetOffset) { setArticles(data.articles) } else { setArticles(prev => [...prev, ...data.articles]) }
           setTotalCount(data.total)
           setFacets(data.facets)
           setHasMore(newOffset + data.articles.length < data.total)
         }
       } catch (error) {
+        if (id === requestId.current) setSearchError("The archive could not be loaded. Please try again.")
         console.error("Failed to fetch articles:", error)
       } finally {
-        setLoading(false)
+        if (id === requestId.current) setLoading(false)
       }
     },
     [debouncedQuery, selectedCategory, selectedPlatforms, selectedImpact, selectedAudience, sortBy, offset]
@@ -185,7 +197,18 @@ function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
 
   useEffect(() => { fetchArticles(true) }, [debouncedQuery, selectedCategory, selectedPlatforms, selectedImpact, selectedAudience, sortBy])
 
-  const loadMore = () => { const newOffset = offset + limit; setOffset(newOffset); fetchArticles(false) }
+  useEffect(() => {
+    const params = new URLSearchParams()
+    if (debouncedQuery) params.set("q", debouncedQuery)
+    if (selectedCategory) params.set("category", selectedCategory)
+    if (selectedPlatforms.length) params.set("platforms", selectedPlatforms.join(","))
+    if (selectedImpact) params.set("impact", selectedImpact)
+    if (selectedAudience) params.set("audience", selectedAudience)
+    params.set("sort", sortBy)
+    window.history.replaceState(null, "", `${window.location.pathname}?${params}`)
+  }, [debouncedQuery, selectedCategory, selectedPlatforms, selectedImpact, selectedAudience, sortBy])
+
+  const loadMore = () => { if (!loading) fetchArticles(false) }
   const clearFilters = () => { setQuery(""); setSelectedCategory(null); setSelectedPlatforms([]); setSelectedImpact(null); setSelectedAudience(null); setSortBy("newest"); setOffset(0) }
   const togglePlatform = (platform: string) => { setSelectedPlatforms(prev => prev.includes(platform) ? prev.filter(p => p !== platform) : [...prev, platform]); setOffset(0) }
   const activeFilters = [query, selectedCategory, selectedPlatforms.length > 0, selectedImpact, selectedAudience].filter(Boolean).length
@@ -200,54 +223,12 @@ function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
         backLabel="Home"
       />
 
-      <main className="max-w-7xl mx-auto px-4 py-10">
+      <main className="max-w-7xl mx-auto px-4 py-10 sm:px-6">
+        {searchError && <div role="alert" className="mb-6 rounded-lg border border-red-300 p-4">{searchError} <button className="font-semibold underline" onClick={() => fetchArticles(true)}>Retry search</button></div>}
         <section className="mb-10">
-          <div className="rounded-[32px] border border-white/60 bg-[linear-gradient(135deg,rgba(255,255,255,0.94),rgba(248,250,252,0.84)_48%,rgba(239,246,255,0.82))] p-6 shadow-[0_30px_80px_-42px_rgba(15,23,42,0.34)] backdrop-blur dark:border-white/10 dark:bg-[linear-gradient(135deg,rgba(15,23,42,0.82),rgba(15,23,42,0.72)_48%,rgba(30,41,59,0.8))] md:p-8">
-            <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-end">
-              <div>
-                <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/15 bg-white/76 px-3 py-1.5 text-sm shadow-sm backdrop-blur dark:border-sky-300/15 dark:bg-slate-950/60">
-                  <Search className="h-4 w-4 text-sky-600" />
-                  <span className="text-slate-600 dark:text-slate-200">
-                    {heroPillCopy}
-                  </span>
-                </div>
-                <h1 className="mt-5 text-4xl font-black tracking-tight text-balance md:text-5xl lg:text-6xl">
-                  Search the{" "}
-                  <span className="bg-[linear-gradient(135deg,#0f3f96_0%,#2563eb_38%,#7c3aed_72%,#d946ef_100%)] bg-clip-text text-transparent">
-                    {heroHeadlineAccent}
-                  </span>
-                </h1>
-                <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-600 dark:text-slate-300">
-                  {heroDescription}
-                </p>
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
-                <div className="rounded-2xl border border-white/70 bg-white/78 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
-                  <div className="flex items-center gap-2 text-slate-500 dark:text-slate-300">
-                    <TrendingUp className="h-4 w-4 text-sky-600" />
-                    <span className="text-xs font-semibold uppercase tracking-[0.18em]">Results</span>
-                  </div>
-                  <p className="mt-3 text-lg font-bold text-slate-950 dark:text-white">{totalCount || articles.length}</p>
-                </div>
-                <div className="rounded-2xl border border-white/70 bg-white/78 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
-                  <div className="flex items-center gap-2 text-slate-500 dark:text-slate-300">
-                    <BarChart3 className="h-4 w-4 text-sky-600" />
-                    <span className="text-xs font-semibold uppercase tracking-[0.18em]">Categories</span>
-                  </div>
-                  <p className="mt-3 text-lg font-bold text-slate-950 dark:text-white">{categoryCount || 'All'}</p>
-                </div>
-                <div className="rounded-2xl border border-white/70 bg-white/78 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
-                  <div className="flex items-center gap-2 text-slate-500 dark:text-slate-300">
-                    <Search className="h-4 w-4 text-sky-600" />
-                    <span className="text-xs font-semibold uppercase tracking-[0.18em]">Filters</span>
-                  </div>
-                  <p className="mt-3 text-lg font-bold text-slate-950 dark:text-white">{activeFilters || 0}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-8 rounded-[26px] border border-white/70 bg-white/76 p-5 shadow-[0_20px_50px_-34px_rgba(15,23,42,0.28)] backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+          <div className="rounded-xl border border-border bg-card p-6 shadow-none backdrop-blur dark:border-white/10 dark:bg-slate-900 md:p-8">
+            <EditorialIntro eyebrow="Research archive" title="Find the context. Make the call." description="Search the reporting behind the headlines. Explore by business decision, marketplace, topic, or impact, then follow the original sources." />
+            <div className="mt-8 rounded-xl border border-border bg-white/76 p-5 shadow-none backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
               {currentUser && personalizationLabel ? (
                 <div className="mb-5 rounded-2xl border border-sky-400/15 bg-sky-500/5 px-4 py-3 text-base leading-7 text-slate-600 dark:border-sky-300/15 dark:bg-slate-950/55 dark:text-slate-200">
                   <span className="font-semibold text-slate-950 dark:text-white">Personalized desk:</span> {personalizationLabel}. MarketplaceBeta is preloading filters and ranking from your account preferences.
@@ -257,10 +238,11 @@ function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
               <div className="relative mb-5">
                 <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                 <Input
-                  placeholder='Search 7,900+ articles — try "fba fees", walmart fulfillment, tiktok -ads'
+                  aria-label="Search the article archive"
+                  placeholder='Search the archive — try "fba fees" or walmart fulfillment'
                   value={query}
                   onChange={(e) => { setQuery(e.target.value); setOffset(0) }}
-                  className="h-12 border-white/40 bg-white/85 pl-10 text-base shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45"
+                  className="h-12 border-border bg-white/85 pl-10 text-base shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45"
                 />
               </div>
 
@@ -275,7 +257,7 @@ function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
                       setSelectedCategory(e.target.value || null)
                       setOffset(0)
                     }}
-                    className="h-11 w-full rounded-2xl border border-white/50 bg-white/80 px-4 text-sm font-medium text-slate-900 shadow-sm backdrop-blur outline-none transition focus:border-sky-400/30 dark:border-white/10 dark:bg-slate-950/45 dark:text-white"
+                    className="h-11 w-full rounded-2xl border border-border bg-white/80 px-4 text-sm font-medium text-slate-900 shadow-sm backdrop-blur outline-none transition focus:border-sky-400/30 dark:border-white/10 dark:bg-slate-950/45 dark:text-white"
                   >
                     <option value="">All Categories</option>
                     {Object.entries(facets.categories).map(([cat, count]) => (
@@ -296,7 +278,7 @@ function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
                       setSelectedImpact(e.target.value || null)
                       setOffset(0)
                     }}
-                    className="h-11 w-full rounded-2xl border border-white/50 bg-white/80 px-4 text-sm font-medium text-slate-900 shadow-sm backdrop-blur outline-none transition focus:border-sky-400/30 dark:border-white/10 dark:bg-slate-950/45 dark:text-white"
+                    className="h-11 w-full rounded-2xl border border-border bg-white/80 px-4 text-sm font-medium text-slate-900 shadow-sm backdrop-blur outline-none transition focus:border-sky-400/30 dark:border-white/10 dark:bg-slate-950/45 dark:text-white"
                   >
                     <option value="">All Levels</option>
                     {Object.entries(facets.impactLevels).map(([level, count]) => (
@@ -320,7 +302,7 @@ function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
                       setSortBy(e.target.value as "newest" | "oldest" | "relevant" | "impact")
                       setOffset(0)
                     }}
-                    className="h-11 w-full rounded-2xl border border-white/50 bg-white/80 px-4 text-sm font-medium text-slate-900 shadow-sm backdrop-blur outline-none transition focus:border-sky-400/30 dark:border-white/10 dark:bg-slate-950/45 dark:text-white"
+                    className="h-11 w-full rounded-2xl border border-border bg-white/80 px-4 text-sm font-medium text-slate-900 shadow-sm backdrop-blur outline-none transition focus:border-sky-400/30 dark:border-white/10 dark:bg-slate-950/45 dark:text-white"
                   >
                     <option value="newest">Newest First</option>
                     <option value="oldest">Oldest First</option>
@@ -367,11 +349,12 @@ function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
                         <button
                           key={platform}
                           type="button"
+                          aria-pressed={selected}
                           onClick={() => togglePlatform(platform)}
                           className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-2 text-sm font-medium transition ${
                             selected
                               ? "border-sky-400/25 bg-sky-500/10 text-sky-700 dark:border-sky-300/20 dark:bg-sky-400/10 dark:text-sky-200"
-                              : "border-white/50 bg-white/78 text-slate-700 hover:bg-white dark:border-white/10 dark:bg-slate-950/45 dark:text-slate-200 dark:hover:bg-slate-900"
+                              : "border-border bg-white/78 text-slate-700 hover:bg-white dark:border-white/10 dark:bg-slate-950/45 dark:text-slate-200 dark:hover:bg-slate-900"
                           }`}
                         >
                           <span>{platform.replace(/_/g, " ")}</span>
@@ -384,7 +367,7 @@ function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
               ) : null}
 
               <p className="text-sm text-muted-foreground">
-                {totalCount > 0 ? `Showing ${Math.min(offset + limit, totalCount)} of ${totalCount} articles` : "No articles found"}
+                {loading ? "Searching the archive…" : searchError ? "Search unavailable" : totalCount > 0 ? `Showing ${articles.length} of ${totalCount} articles` : "No articles found"}
               </p>
             </div>
           </div>
@@ -394,8 +377,8 @@ function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
           <div className="flex justify-center items-center py-16">
             <div className="flex flex-col items-center gap-4"><Loader2 className="h-8 w-8 animate-spin text-primary" /><p className="text-muted-foreground">Searching articles...</p></div>
           </div>
-        ) : articles.length === 0 ? (
-          <div className="rounded-[28px] border border-white/60 bg-white/84 py-16 text-center shadow-[0_22px_60px_-38px_rgba(15,23,42,0.26)] dark:border-white/10 dark:bg-slate-950/45">
+        ) : searchError && articles.length === 0 ? null : articles.length === 0 ? (
+          <div className="rounded-xl border border-border bg-white/84 py-16 text-center shadow-none dark:border-white/10 dark:bg-slate-950/45">
             <p className="mb-4 text-muted-foreground">No articles match your filters.</p>
             <Button variant="outline" onClick={clearFilters} className="rounded-full">Clear filters</Button>
           </div>
@@ -404,7 +387,7 @@ function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               {articles.map(article => (
                 <Link key={article.id} href={`/news/${article.id}`}>
-                  <Card className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-[24px] border border-white/60 bg-white/84 shadow-[0_22px_54px_-34px_rgba(15,23,42,0.28)] transition-all hover:-translate-y-1 hover:shadow-[0_26px_70px_-36px_rgba(15,23,42,0.42)] dark:border-white/10 dark:bg-slate-950/45">
+                  <Card className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-xl border border-border bg-white/84 shadow-none transition-all hover:-translate-y-1 hover:shadow-none dark:border-white/10 dark:bg-slate-950/45">
                     <div className="relative aspect-video overflow-hidden bg-muted">
                       <ArticleImage
                         src={article.imageUrl}
@@ -432,7 +415,7 @@ function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
                           </Badge>
                         )}
                       </div>
-                      <div className="flex items-center justify-between border-t border-white/50 pt-3 text-xs text-muted-foreground dark:border-white/10">
+                      <div className="flex items-center justify-between border-t border-border pt-3 text-xs text-muted-foreground dark:border-white/10">
                         <p>{article.sourceName} • {formatDate(article.publishedAt)}</p>
                         <span className="font-semibold text-primary">Read story</span>
                       </div>
@@ -450,13 +433,13 @@ function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
             )}
 
             <section className="mb-8 mt-12">
-              <div className="grid gap-6 rounded-[30px] border border-white/60 bg-[linear-gradient(135deg,rgba(15,23,42,0.96),rgba(30,41,59,0.92)_52%,rgba(55,48,163,0.88))] p-6 text-white shadow-[0_32px_90px_-42px_rgba(15,23,42,0.68)] md:p-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-end">
+              <div className="grid gap-6 rounded-xl border border-border bg-slate-950 p-6 text-white shadow-none md:p-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-end">
                 <div>
                   <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1.5 text-sm font-medium text-white/82 backdrop-blur">
                     <Sparkles className="h-4 w-4 text-sky-300" />
                     Premium marketplace intelligence for operators, agencies, and SaaS teams
                   </div>
-                  <h2 className="mt-5 text-3xl font-black tracking-tight text-balance md:text-4xl">
+                  <h2 className="mt-5 text-3xl font-semibold tracking-tight text-balance md:text-4xl">
                     Turn the archive into a daily operating advantage.
                   </h2>
                   <p className="mt-4 max-w-2xl text-base leading-7 text-white/72 md:text-lg">
@@ -476,12 +459,12 @@ function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
                 </div>
 
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-                  <div className="rounded-[22px] border border-white/10 bg-white/8 p-4 backdrop-blur">
+                  <div className="rounded-xl border border-white/10 bg-white/8 p-4 backdrop-blur">
                     <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/48">Archive Depth</p>
-                    <p className="mt-3 text-3xl font-black text-white">{totalCount || articles.length}+</p>
+                    <p className="mt-3 text-3xl font-semibold text-white">{totalCount || articles.length}+</p>
                     <p className="mt-2 text-base leading-7 text-white/68">Search across reporting built for marketplace teams, operators, and partner-led growth.</p>
                   </div>
-                  <div className="rounded-[22px] border border-white/10 bg-white/8 p-4 backdrop-blur">
+                  <div className="rounded-xl border border-white/10 bg-white/8 p-4 backdrop-blur">
                     <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/48">Best For</p>
                     <p className="mt-3 text-xl font-bold text-white">Decision-ready signal</p>
                     <p className="mt-2 text-base leading-7 text-white/68">Use the archive to prep outreach, brief leadership, and track the commerce moves that matter.</p>
@@ -491,6 +474,7 @@ function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
             </section>
           </>
         )}
+        <ResearchDesks compact />
       </main>
       <PremiumSiteFooter />
     </div>
@@ -498,5 +482,5 @@ function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
 }
 
 export default function ArticlesRoute() {
-  return <ArticlesPage />
+  return <Suspense fallback={<div className="p-8" role="status">Loading research archive…</div>}><ArticlesPage /></Suspense>
 }

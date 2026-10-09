@@ -38,34 +38,10 @@ const staticRoutes: MetadataRoute.Sitemap = [
     priority: 0.7,
   },
   {
-    url: `${siteUrl}/partners`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly',
-    priority: 0.7,
-  },
-  {
     url: `${siteUrl}/events`,
     lastModified: new Date(),
     changeFrequency: 'weekly',
     priority: 0.6,
-  },
-  {
-    url: `${siteUrl}/community`,
-    lastModified: new Date(),
-    changeFrequency: 'daily',
-    priority: 0.7,
-  },
-  {
-    url: `${siteUrl}/community/pulse`,
-    lastModified: new Date(),
-    changeFrequency: 'daily',
-    priority: 0.7,
-  },
-  {
-    url: `${siteUrl}/solutions`,
-    lastModified: new Date(),
-    changeFrequency: 'monthly',
-    priority: 0.5,
   },
 ]
 

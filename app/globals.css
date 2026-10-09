@@ -233,3 +233,19 @@
   .animate-ticker, .animate-ping { animation: none; }
   html { scroll-behavior: auto; }
 }
+
+/* Editorial system shared by every public desk. */
+@layer base {
+  body { background: var(--background); }
+  main, section, article, aside, .grid > *, .flex > * { min-width: 0; }
+  h1, h2, h3, p { overflow-wrap: break-word; }
+  input, select, textarea { max-width: 100%; }
+  input { min-width: 0; }
+  main { scroll-margin-top: 10rem; }
+}
+.editorial-eyebrow { font-size: .8125rem; font-weight: 650; letter-spacing: .14em; text-transform: uppercase; color: var(--primary); }
+.site-masthead { box-shadow: 0 1px 0 rgba(15,23,42,.06); }
+@media (max-width: 639px) {
+  main { padding-top: 1.5rem; }
+  h1 { font-size: 2.25rem; line-height: 1.14; }
+}

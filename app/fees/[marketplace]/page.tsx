@@ -52,7 +52,7 @@ export default async function MarketplaceFeesPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950">
-      <PremiumSiteHeader />
+      <PremiumSiteHeader active="fees" />
 
       <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
         <nav aria-label="Breadcrumb" className="text-sm text-slate-500 dark:text-slate-400">
