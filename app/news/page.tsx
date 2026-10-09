@@ -48,14 +48,14 @@ export default async function NewsPage() {
       <PremiumSiteHeader active="news" deskLabel="News Desk" backHref="/" backLabel="Home" />
 
       <main className="mx-auto max-w-7xl px-4 py-10">
-        <section className="rounded-xl border border-border bg-card p-6 shadow-none backdrop-blur dark:border-white/10 dark:bg-slate-900 md:p-8">
+        <section className="rounded-xl border border-border bg-card p-6 editorial-elevated backdrop-blur dark:border-white/10 dark:bg-slate-900 md:p-8">
           <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px]">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/20 bg-white/75 px-3 py-1.5 text-sm text-slate-600 shadow-sm backdrop-blur dark:border-sky-300/15 dark:bg-slate-950/50 dark:text-slate-200">
                 <Sparkles className="h-4 w-4 text-sky-600" />
                 The operator briefing
               </div>
-              <h1 className="mt-5 text-4xl font-semibold tracking-tight text-balance text-slate-950 dark:text-white md:text-5xl">
+              <h1 className="mt-5 text-4xl font-bold tracking-tight text-balance text-slate-950 dark:text-white md:text-5xl">
                 {briefing.headline}
               </h1>
               <p className="mt-4 max-w-3xl text-lg leading-8 text-slate-600 dark:text-slate-300">
@@ -78,7 +78,7 @@ export default async function NewsPage() {
                 {briefing.metrics.map((metric) => (
                   <div
                     key={metric.label}
-                    className="rounded-xl border border-border bg-white/82 p-5 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45"
+                    className="rounded-xl border border-border bg-white p-5 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-900"
                   >
                     <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-300">
                       {metric.label}
@@ -94,7 +94,7 @@ export default async function NewsPage() {
               </div>
             </div>
 
-            <div className="rounded-xl border border-border bg-slate-950 p-6 text-white shadow-none">
+            <div className="rounded-xl border border-border bg-slate-950 p-6 text-white editorial-elevated">
               <div className="rounded-full border border-white/12 bg-white/8 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-white/62">
                 Today&apos;s operator actions
               </div>
@@ -136,10 +136,10 @@ export default async function NewsPage() {
         </section>
 
         <section className="mt-16 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-          <div className="rounded-xl border border-border bg-white/82 p-6 shadow-none backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+          <div className="rounded-xl border border-border bg-white p-6 editorial-elevated backdrop-blur dark:border-white/10 dark:bg-slate-900">
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-sky-600" />
-              <h2 className="text-2xl font-semibold text-slate-950 dark:text-white">Seller alerts</h2>
+              <h2 className="text-2xl font-bold text-slate-950 dark:text-white">Seller alerts</h2>
             </div>
             <div className="mt-5 space-y-3">
               {briefing.sellerAlerts.map((alert) => (
@@ -151,10 +151,10 @@ export default async function NewsPage() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-border bg-white/82 p-6 shadow-none backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+          <div className="rounded-xl border border-border bg-white p-6 editorial-elevated backdrop-blur dark:border-white/10 dark:bg-slate-900">
             <div className="flex items-center gap-2">
               <CircleDot className="h-5 w-5 text-sky-600" />
-              <h2 className="text-2xl font-semibold text-slate-950 dark:text-white">Top signals today</h2>
+              <h2 className="text-2xl font-bold text-slate-950 dark:text-white">Top signals today</h2>
             </div>
             <div className="mt-5 space-y-4">
               {briefing.signals.map((signal) => (
@@ -204,7 +204,7 @@ export default async function NewsPage() {
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-700 dark:text-sky-300">
                 Source coverage
               </p>
-              <h2 className="mt-2 text-3xl font-semibold text-slate-950 dark:text-white">Curated article coverage</h2>
+              <h2 className="mt-2 text-3xl font-bold text-slate-950 dark:text-white">Curated article coverage</h2>
               <p className="mt-2 max-w-3xl text-base leading-7 text-slate-600 dark:text-slate-300">
                 Below the briefing, MarketplaceBeta keeps the strongest supporting coverage so operators can click into the underlying reporting without wading through repeated versions of the same story.
               </p>
@@ -228,7 +228,7 @@ export default async function NewsPage() {
                 <Link
                   key={article.id}
                   href={`/news/${article.id}`}
-                  className="group overflow-hidden rounded-xl border border-border bg-white/88 shadow-none transition hover:-translate-y-0.5 hover:shadow-none dark:border-white/10 dark:bg-slate-950/45"
+                  className="group overflow-hidden rounded-xl border border-border bg-white editorial-elevated transition hover:-translate-y-0.5 hover:shadow-xl dark:border-white/10 dark:bg-slate-900"
                 >
                   <div className="relative aspect-[16/10] overflow-hidden bg-slate-100 dark:bg-slate-900">
                     <ArticleImage

@@ -154,10 +154,10 @@ export function AccountPageClient() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-card bg-background">
+      <div className="min-h-screen bg-background">
         <PremiumSiteHeader active="articles" deskLabel="Account" backHref="/" backLabel="Home" />
         <main className="mx-auto max-w-4xl px-4 py-12">
-          <Card className="border-border bg-white/82 dark:border-white/10 dark:bg-slate-950/45">
+          <Card className="border-border bg-white dark:border-white/10 dark:bg-slate-900">
             <CardContent className="p-6 md:p-8">
               <AuthPanel
                 redirectTo="/account"
@@ -173,20 +173,20 @@ export function AccountPageClient() {
   }
 
   return (
-    <div className="min-h-screen bg-card bg-background">
+    <div className="min-h-screen bg-background">
       <PremiumSiteHeader active="articles" deskLabel="Account" backHref="/" backLabel="Home" />
 
       <main className="mx-auto max-w-6xl px-4 py-10">
-        <section className="rounded-xl border border-border bg-card p-6 shadow-none backdrop-blur dark:border-white/10 dark:bg-slate-900 md:p-8">
+        <section className="rounded-xl border border-border bg-card p-6 editorial-elevated backdrop-blur dark:border-white/10 dark:bg-slate-900 md:p-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/15 bg-white/76 px-3 py-1.5 text-sm shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+              <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/15 bg-white px-3 py-1.5 text-sm shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-900">
                 <Sparkles className="h-4 w-4 text-sky-600" />
                 <span className="text-muted-foreground">
                   Personalized operator workspace
                 </span>
               </div>
-              <h1 className="mt-5 text-4xl font-semibold tracking-tight md:text-5xl">
+              <h1 className="mt-5 text-4xl font-bold tracking-tight md:text-5xl">
                 Your MarketplaceBeta account
               </h1>
               <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-600 dark:text-slate-300">
@@ -208,7 +208,7 @@ export function AccountPageClient() {
 
         <div className="mt-8 grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px]">
           <form onSubmit={handleSave} className="space-y-6">
-            <Card className="border-border bg-white/82 dark:border-white/10 dark:bg-slate-950/45">
+            <Card className="border-border bg-white dark:border-white/10 dark:bg-slate-900">
               <CardHeader>
                 <CardTitle>Profile</CardTitle>
               </CardHeader>
@@ -251,7 +251,7 @@ export function AccountPageClient() {
               </CardContent>
             </Card>
 
-            <Card className="border-border bg-white/82 dark:border-white/10 dark:bg-slate-950/45">
+            <Card className="border-border bg-white dark:border-white/10 dark:bg-slate-900">
               <CardHeader>
                 <CardTitle>Preferences</CardTitle>
               </CardHeader>
@@ -325,7 +325,7 @@ export function AccountPageClient() {
           </form>
 
           <aside className="space-y-6">
-            <Card className="border-border bg-white/82 dark:border-white/10 dark:bg-slate-950/45">
+            <Card className="border-border bg-white dark:border-white/10 dark:bg-slate-900">
               <CardHeader>
                 <CardTitle className="text-base">What this unlocks</CardTitle>
               </CardHeader>

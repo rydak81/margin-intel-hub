@@ -460,13 +460,13 @@ export default function HomePageClient({
       />
 
       {/* Editorial masthead */}
-      <section className="border-b border-border bg-card">
+      <section className="editorial-hero border-b border-border bg-card">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-8 sm:px-6 md:py-10 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-end lg:gap-16">
           <div>
             <p className="mb-5 flex items-center gap-2.5 text-sm font-semibold tracking-wide text-blue-700 dark:text-blue-300">
               <span className="h-2 w-2 rounded-full bg-blue-600" />The marketplace intelligence desk
             </p>
-            <h1 className="max-w-4xl text-[2.5rem] font-semibold leading-[1.08] tracking-[-0.045em] text-slate-950 sm:text-5xl lg:text-[3.25rem] dark:text-white">
+            <h1 className="max-w-4xl text-[2.5rem] font-bold leading-[1.08] tracking-[-0.045em] text-slate-950 sm:text-5xl lg:text-[3.25rem] dark:text-white">
               The context behind<br className="hidden sm:block" /> your next move.
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600 md:text-xl dark:text-slate-300">
@@ -526,7 +526,7 @@ export default function HomePageClient({
             <button
               type="button"
               onClick={() => { setSelectedArticle(featuredArticles[0]); setArticleModalOpen(true) }}
-              className="group block w-full overflow-hidden rounded-2xl border border-border bg-card text-left transition-shadow hover:shadow-lg"
+              className="editorial-elevated editorial-lift group block w-full overflow-hidden rounded-2xl border border-border bg-card text-left transition-shadow hover:shadow-lg"
             >
               <div className="grid md:grid-cols-2">
                 <div className="relative aspect-[16/10] overflow-hidden bg-muted md:aspect-auto md:min-h-[380px]">
@@ -546,7 +546,7 @@ export default function HomePageClient({
                     <span className="text-blue-700 dark:text-blue-300">The lead story</span>
                     <span className="text-muted-foreground">{featuredArticles[0].category.replace(/[-_]/g, ' ')}</span>
                   </div>
-                  <h2 className="text-2xl font-semibold leading-tight tracking-tight text-foreground group-hover:text-primary sm:text-3xl lg:text-4xl">{featuredArticles[0].title}</h2>
+                  <h2 className="text-2xl font-bold leading-tight tracking-tight text-foreground group-hover:text-primary sm:text-3xl lg:text-4xl">{featuredArticles[0].title}</h2>
                   <p className="mt-5 line-clamp-3 text-lg leading-8 text-muted-foreground">{featuredArticles[0].excerpt}</p>
                   <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
                     <span className="font-medium text-foreground">{featuredArticles[0].source}</span><span aria-hidden="true">·</span><span>{featuredArticles[0].readTime} min read</span>
@@ -576,14 +576,14 @@ export default function HomePageClient({
                       Top Story
                     </span>
                   </div>
-                  <div className="hidden rounded-full border border-sky-400/15 bg-white/75 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-600 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45 dark:text-slate-200 md:inline-flex">
+                  <div className="hidden rounded-full border border-sky-400/15 bg-white/75 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-600 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-900 dark:text-slate-200 md:inline-flex">
                     Editor&apos;s pick
                   </div>
                 </div>
                 
                 <button
                   type="button"
-                  className="group block w-full overflow-hidden rounded-2xl border border-border bg-card text-left transition-shadow hover:shadow-lg"
+                  className="editorial-elevated editorial-lift group block w-full overflow-hidden rounded-2xl border border-border bg-card text-left transition-shadow hover:shadow-lg"
                   onClick={() => {
                     setSelectedArticle(heroArticle)
                     setArticleModalOpen(true)
@@ -633,7 +633,7 @@ export default function HomePageClient({
                     </div>
                     
                     {/* Headline */}
-                    <h2 className="text-2xl md:text-3xl font-semibold text-foreground mb-3 leading-tight line-clamp-2 text-balance">
+                    <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3 leading-tight line-clamp-2 text-balance">
                       {heroArticle.title}
                     </h2>
                     
@@ -670,10 +670,10 @@ export default function HomePageClient({
             {loading && <CompactNewsletterSkeleton />}
 
             {!loading && filteredArticles.length > 3 && (
-              <div className="mb-6 overflow-hidden rounded-xl border border-border bg-card p-4 shadow-none dark:border-white/10 dark:bg-slate-900">
+              <div className="mb-6 overflow-hidden rounded-xl border border-border bg-card p-4 editorial-elevated dark:border-white/10 dark:bg-slate-900">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                   <div className="flex items-center gap-4 flex-1">
-                    <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl  text-white shadow-none">
+                    <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl  text-white editorial-elevated">
                       <Mail className="h-5 w-5" />
                     </div>
                     <div>
@@ -690,9 +690,9 @@ export default function HomePageClient({
                     placeholder="Email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="h-10 w-44 border-border bg-white/85 text-sm shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45"
+                    className="h-10 w-44 border-border bg-white/85 text-sm shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-900"
                   />
-                  <Button type="submit" size="sm" className="h-10 border border-sky-400/20  text-white shadow-none" disabled={isSubscribing || subscribed}>
+                  <Button type="submit" size="sm" className="h-10 border border-sky-400/20  text-white editorial-elevated" disabled={isSubscribing || subscribed}>
                     {subscribed ? "Done" : isSubscribing ? <Loader2 className="h-3 w-3 animate-spin" /> : "Subscribe"}
                   </Button>
                   </form>
@@ -713,7 +713,7 @@ export default function HomePageClient({
                   Curated for operators, sellers, agencies, and marketplace tech teams.
                 </p>
               </div>
-              <div className="rounded-full border border-border bg-white/80 px-4 py-2 text-sm text-muted-foreground shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+              <div className="rounded-full border border-border bg-white/80 px-4 py-2 text-sm text-muted-foreground shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-900">
                 {loading ? '' : `${feedArticles.length} article${feedArticles.length !== 1 ? 's' : ''}`}
               </div>
             </div>
@@ -727,7 +727,7 @@ export default function HomePageClient({
                   <div className="h-24 w-24 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center">
                     <FileText className="h-12 w-12 text-muted-foreground/50" />
                   </div>
-                  <h3 className="text-lg font-semibold mb-2">No articles found</h3>
+                  <h3 className="text-lg font-bold mb-2">No articles found</h3>
                   <p className="text-muted-foreground mb-6 max-w-md mx-auto">
                     {searchQuery
                       ? `No results for "${searchQuery}". Try a different search term or browse by category.`
@@ -771,7 +771,7 @@ export default function HomePageClient({
                 {regularArticles.slice(0, visibleArticleCount).map((article, index) => (
                   <Fragment key={article.id}>
                     <div className="cursor-pointer rounded-xl focus-visible:outline-2 focus-visible:outline-primary" role="button" tabIndex={0} aria-label={`Read ${article.title}`} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSelectedArticle(article); setArticleModalOpen(true) } }} onClick={(e) => handleArticleClick(article, e)}>
-                      <Card className="group h-full cursor-pointer overflow-hidden rounded-xl border border-border bg-card shadow-none transition-shadow hover:shadow-md">
+                      <Card className="group h-full cursor-pointer overflow-hidden rounded-xl border border-border bg-card editorial-elevated transition-shadow hover:shadow-md">
                         <div className="relative aspect-[16/9] overflow-hidden bg-muted">
                           <img
                             src={getArticleImageUrl(article)}
@@ -816,7 +816,7 @@ export default function HomePageClient({
                             </span>
                           </div>
 
-                          <h3 className="mb-3 text-[1.4rem] font-semibold leading-snug text-slate-950 transition-colors group-hover:text-sky-700 md:text-[1.6rem] dark:text-white dark:group-hover:text-sky-200 text-balance line-clamp-2">
+                          <h3 className="mb-3 text-[1.4rem] font-bold leading-snug text-slate-950 transition-colors group-hover:text-sky-700 md:text-[1.6rem] dark:text-white dark:group-hover:text-sky-200 text-balance line-clamp-2">
                             {article.title}
                           </h3>
 
@@ -862,7 +862,7 @@ export default function HomePageClient({
                     {/* Inline Newsletter CTA after every 6th article */}
                     {(index + 1) % 6 === 0 && index < regularArticles.length - 1 && (
                       <div key={`newsletter-cta-${index}`} className="md:col-span-2">
-                        <Card className="overflow-hidden rounded-xl border border-border bg-slate-950 text-white shadow-none dark:border-white/10">
+                        <Card className="overflow-hidden rounded-xl border border-border bg-slate-950 text-white editorial-elevated dark:border-white/10">
                           <CardContent className="p-6">
                             <div className="flex flex-col sm:flex-row items-center gap-4">
                               <div className="flex items-center gap-3 flex-1">
@@ -904,7 +904,7 @@ export default function HomePageClient({
                 <Button
                   variant="outline"
                   size="lg"
-                  className="rounded-full border-sky-400/20 bg-white/80 px-6 shadow-sm backdrop-blur hover:bg-white dark:border-white/10 dark:bg-slate-950/45 dark:hover:bg-slate-900"
+                  className="rounded-full border-sky-400/20 bg-white/80 px-6 shadow-sm backdrop-blur hover:bg-white dark:border-white/10 dark:bg-slate-900 dark:hover:bg-slate-900"
                   onClick={() => setVisibleArticleCount(prev => prev + 12)}
                 >
                   Load More Articles ({regularArticles.length - visibleArticleCount} remaining)
@@ -927,7 +927,7 @@ export default function HomePageClient({
 
             {/* Trending This Week */}
             {!loading && (
-            <Card className="overflow-hidden rounded-xl border border-border bg-white/82 shadow-none dark:border-white/10 dark:bg-slate-950/45">
+            <Card className="overflow-hidden rounded-xl border border-border bg-white editorial-elevated dark:border-white/10 dark:bg-slate-900">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-primary" />
@@ -956,7 +956,7 @@ export default function HomePageClient({
 
             {/* Upcoming Events */}
             {!loading && (
-            <Card className="overflow-hidden rounded-xl border border-border bg-white/82 shadow-none dark:border-white/10 dark:bg-slate-950/45">
+            <Card className="overflow-hidden rounded-xl border border-border bg-white editorial-elevated dark:border-white/10 dark:bg-slate-900">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-primary" />
@@ -979,7 +979,7 @@ export default function HomePageClient({
                     </div>
                   </div>
                 ))}
-                <Button variant="outline" size="sm" className="w-full rounded-full border-sky-400/15 bg-white/75 shadow-sm backdrop-blur hover:bg-white dark:border-white/10 dark:bg-slate-950/45 dark:hover:bg-slate-900" asChild>
+                <Button variant="outline" size="sm" className="w-full rounded-full border-sky-400/15 bg-white/75 shadow-sm backdrop-blur hover:bg-white dark:border-white/10 dark:bg-slate-900 dark:hover:bg-slate-900" asChild>
                   <Link href="/events">
                     View All Events
                     <ChevronRight className="h-4 w-4 ml-1" />
@@ -991,7 +991,7 @@ export default function HomePageClient({
 
             {/* Newsletter Signup - Sticky */}
             {!loading && (
-            <Card className="sticky top-32 overflow-hidden rounded-xl border border-white/10 bg-slate-950 text-primary-foreground shadow-none">
+            <Card className="sticky top-32 overflow-hidden rounded-xl border border-white/10 bg-slate-950 text-primary-foreground editorial-elevated">
               <CardContent className="p-5">
                 <Mail className="mb-3 h-8 w-8 text-sky-300" />
                 <h3 className="mb-2 font-bold">Daily Marketplace Brief</h3>
@@ -1017,7 +1017,7 @@ export default function HomePageClient({
 
             {/* Quick Tools Access */}
             {!loading && (
-            <Card className="overflow-hidden rounded-xl border border-border bg-white/82 shadow-none dark:border-white/10 dark:bg-slate-950/45">
+            <Card className="overflow-hidden rounded-xl border border-border bg-white editorial-elevated dark:border-white/10 dark:bg-slate-900">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
                   <Wrench className="h-4 w-4 text-primary" />
@@ -1031,7 +1031,7 @@ export default function HomePageClient({
                   { name: "Listing Optimizer", icon: Target, href: "/tools#listing" },
                   { name: "Keyword Research", icon: LineChart, href: "/tools#keywords" },
                 ].map((tool) => (
-                  <Button key={tool.name} variant="outline" size="sm" className="h-auto rounded-2xl border-border bg-white/78 py-3 shadow-sm backdrop-blur hover:bg-white dark:border-white/10 dark:bg-slate-950/45 dark:hover:bg-slate-900" asChild>
+                  <Button key={tool.name} variant="outline" size="sm" className="h-auto rounded-2xl border-border bg-white py-3 shadow-sm backdrop-blur hover:bg-white dark:border-white/10 dark:bg-slate-900 dark:hover:bg-slate-900" asChild>
                     <Link href={tool.href}>
                       <tool.icon className="h-4 w-4" />
                       <span className="text-xs">{tool.name}</span>

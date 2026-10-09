@@ -138,19 +138,19 @@ export default function NewsletterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-card bg-background">
+    <div className="min-h-screen bg-background">
       <PremiumSiteHeader active="newsletter" deskLabel="Daily Brief" backHref="/" backLabel="Home" />
 
       <main className="mx-auto max-w-7xl px-4 py-10">
         {submitted ? (
           <div className="mx-auto max-w-3xl">
-            <Card className="overflow-hidden rounded-xl border border-white/10 bg-slate-950 text-white shadow-none">
+            <Card className="overflow-hidden rounded-xl border border-white/10 bg-slate-950 text-white editorial-elevated">
               <CardContent className="p-8 text-center md:p-12">
-                <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500 shadow-none">
+                <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500 editorial-elevated">
                   <Check className="h-10 w-10 text-white" />
                 </div>
                 <Badge className="border-white/10 bg-white/10 text-white">Subscription confirmed</Badge>
-                <h1 className="mt-5 text-4xl font-semibold tracking-tight md:text-5xl">You&apos;re in.</h1>
+                <h1 className="mt-5 text-4xl font-bold tracking-tight md:text-5xl">You&apos;re in.</h1>
                 <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-white/74">
                   Welcome to the Daily Marketplace Brief. Check your inbox for a confirmation message. Your first edition will land at 7am ET with the top platform shifts, operator signals, and commerce moves to know.
                 </p>
@@ -167,13 +167,13 @@ export default function NewsletterPage() {
           </div>
         ) : alreadySubscribed ? (
           <div className="mx-auto max-w-3xl">
-            <Card className="overflow-hidden rounded-xl border border-white/10 bg-slate-950 text-white shadow-none">
+            <Card className="overflow-hidden rounded-xl border border-white/10 bg-slate-950 text-white editorial-elevated">
               <CardContent className="p-8 text-center md:p-12">
                 <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-white/10">
                   <Mail className="h-10 w-10 text-sky-300" />
                 </div>
                 <Badge className="border-white/10 bg-white/10 text-white">Already subscribed</Badge>
-                <h1 className="mt-5 text-4xl font-semibold tracking-tight md:text-5xl">You&apos;re already on the list.</h1>
+                <h1 className="mt-5 text-4xl font-bold tracking-tight md:text-5xl">You&apos;re already on the list.</h1>
                 <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-white/74">
                   Great news. You should already be receiving the Daily Marketplace Brief each weekday at 7am ET. If you don&apos;t see it, check spam or promotions first.
                 </p>
@@ -205,14 +205,14 @@ export default function NewsletterPage() {
                 <Card className="rounded-xl border border-slate-800 bg-slate-950 text-white">
                   <CardContent className="p-6 md:p-7">
                     <p className="text-xs font-semibold uppercase tracking-widest text-blue-200">Read before you subscribe</p>
-                    <h2 className="mt-4 text-2xl font-semibold">The operator briefing, on the web.</h2>
+                    <h2 className="mt-4 text-2xl font-bold">The operator briefing, on the web.</h2>
                     <p className="mt-4 leading-7 text-slate-300">Explore the current briefing and its supporting coverage. Follow the source links to investigate the developments relevant to your business.</p>
                     <Button asChild className="mt-6 bg-white text-slate-950 hover:bg-slate-100"><Link href="/news">Read the current briefing →</Link></Button>
                   </CardContent>
                 </Card>
 
                 <div className="space-y-4">
-                  <Card className="rounded-xl border border-border bg-white/82 shadow-none backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+                  <Card className="rounded-xl border border-border bg-white editorial-elevated backdrop-blur dark:border-white/10 dark:bg-slate-900">
                     <CardContent className="p-6">
                       <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-white/48">What you get</p>
                       <div className="mt-4 space-y-3">
@@ -228,7 +228,7 @@ export default function NewsletterPage() {
                     </CardContent>
                   </Card>
 
-                  <Card className="rounded-xl border border-border bg-white/82 shadow-none backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+                  <Card className="rounded-xl border border-border bg-white editorial-elevated backdrop-blur dark:border-white/10 dark:bg-slate-900">
                     <CardContent className="p-6">
                       <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-white/48">Why teams subscribe</p>
                       <div className="mt-4 space-y-4">
@@ -270,7 +270,7 @@ export default function NewsletterPage() {
                     body: "Market shifts, operator pain points, and ecosystem changes that help shape product and positioning.",
                   },
                 ].map((item) => (
-                  <Card key={item.title} className="rounded-xl border border-border bg-white/82 shadow-none backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+                  <Card key={item.title} className="rounded-xl border border-border bg-white editorial-elevated backdrop-blur dark:border-white/10 dark:bg-slate-900">
                     <CardContent className="p-6">
                       <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10">
                         <item.icon className="h-5 w-5 text-primary" />
@@ -284,12 +284,12 @@ export default function NewsletterPage() {
             </div>
 
             <div className="xl:sticky xl:top-24">
-              <Card className="overflow-hidden rounded-xl border border-white/10 bg-slate-950 text-white shadow-none">
+              <Card className="overflow-hidden rounded-xl border border-white/10 bg-slate-950 text-white editorial-elevated">
                 <CardContent className="p-7">
                   <div className="flex items-center justify-between gap-3">
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/48">Subscribe Free</p>
-                      <h2 className="mt-2 text-3xl font-semibold tracking-tight">Join the brief</h2>
+                      <h2 className="mt-2 text-3xl font-bold tracking-tight">Join the brief</h2>
                     </div>
                     <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/8">
                       <Mail className="h-5 w-5 text-sky-300" />

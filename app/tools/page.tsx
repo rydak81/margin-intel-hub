@@ -81,7 +81,7 @@ export default function ToolsPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-card bg-background">
+    <div className="min-h-screen bg-background">
       <PremiumSiteHeader active="tools" deskLabel="Operator Tool Suite" backHref="/" backLabel="Home" />
 
       <div className="mx-auto max-w-7xl px-4 pt-10 sm:px-6">
@@ -98,10 +98,10 @@ export default function ToolsPage() {
               key={tab.id}
               aria-pressed={activeTab === tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`rounded-xl border p-4 text-left transition-all ${
+              className={`editorial-lift tool-selector rounded-xl border p-4 text-left transition-all ${
                 activeTab === tab.id
-                  ? "border-white/10 bg-slate-950 text-white shadow-none"
-                  : "border-border bg-white/82 shadow-none hover:-translate-y-0.5 hover:border-sky-400/20 hover:bg-white/94 dark:border-white/10 dark:bg-slate-950/45"
+                  ? "border-white/10 bg-slate-950 text-white editorial-elevated"
+                  : "border-border bg-white editorial-elevated hover:-translate-y-0.5 hover:border-sky-400/20 hover:bg-white/94 dark:border-white/10 dark:bg-slate-900"
               }`}
             >
               <div className="flex items-center gap-3 mb-2">
@@ -116,7 +116,7 @@ export default function ToolsPage() {
         </div>
 
         {/* Tab Content */}
-        <div className="rounded-xl border border-border bg-white/82 p-5 shadow-none backdrop-blur dark:border-white/10 dark:bg-slate-950/45 md:p-6">
+        <div className="rounded-xl border border-border bg-white p-5 editorial-elevated backdrop-blur dark:border-white/10 dark:bg-slate-900 md:p-6">
           {activeTab === "calculator" && (
             <div id="profit">
               <div className="mb-6 rounded-xl border border-border bg-card p-5 shadow-sm dark:border-white/10 dark:bg-slate-900">
@@ -204,9 +204,9 @@ export default function ToolsPage() {
         </div>
 
         {/* Newsletter CTA */}
-        <div className="mt-12 rounded-xl border border-white/10 bg-slate-950 p-8 text-center text-white shadow-none">
+        <div className="mt-12 rounded-xl border border-white/10 bg-slate-950 p-8 text-center text-white editorial-elevated">
           <Mail className="h-10 w-10 mx-auto mb-4 text-sky-300" />
-          <h3 className="text-2xl font-semibold mb-2">Get Daily E-commerce Insights</h3>
+          <h3 className="text-2xl font-bold mb-2">Get Daily E-commerce Insights</h3>
           <p className="text-white/72 mb-6 max-w-xl mx-auto leading-7">
             Join sellers, operators, and partner teams who use the daily marketplace brief for news, tool updates, and sharper commercial decisions.
           </p>

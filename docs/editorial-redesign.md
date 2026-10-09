@@ -13,3 +13,5 @@ Archive: initial URL query/filter support, shareable URLs, explicit error/retry,
 Validation: TypeScript and production webpack build with placeholder backend configuration; local mobile layout inspection. Local checks covered desktop light/dark home, 390px mobile pages, fee detail layout, and redirects from hidden sections. Remote preview with actual data and final production verification remain pending: automatic approval review rejected the branch push because the previous monitoring instructions prohibit publishing/deployment. No remote changes were made.
 
 Known scope limits: this design change does not fix upstream feed failures, email sender verification, AI classification timeouts, or guarantee the accuracy of generated summaries. No newsletter/email submission in verification.
+
+User approved publication on the follow-up turn, with stronger card depth and bolder headlines. The refinement adds shared layered shadows, solid cards on a cool canvas, blue-tinted title panels, individually elevated research cards, and reduced-motion-aware hover lift. Production build passed; mobile tools/archive fit 390px. Deployment verification follows.

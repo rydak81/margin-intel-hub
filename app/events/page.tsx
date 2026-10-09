@@ -80,7 +80,7 @@ function EventFeatureCard({ event }: { event: MarketplaceEvent }) {
   const countdown = getCountdownLabel(event)
 
   return (
-    <Card className="group overflow-hidden rounded-xl border border-white/10 bg-slate-950 text-white shadow-none">
+    <Card className="group overflow-hidden rounded-xl border border-white/10 bg-slate-950 text-white editorial-elevated">
       <CardContent className="relative flex h-full flex-col p-6">
         <div className={`absolute inset-0 bg-gradient-to-br ${visual.gradient}`} />
         <div className={`absolute -right-10 top-6 h-32 w-32 rounded-full ${visual.glow} blur-3xl`} />
@@ -106,7 +106,7 @@ function EventFeatureCard({ event }: { event: MarketplaceEvent }) {
           </div>
 
           <div className="mt-6">
-            <h2 className="text-2xl font-semibold tracking-tight text-balance">{event.name}</h2>
+            <h2 className="text-2xl font-bold tracking-tight text-balance">{event.name}</h2>
             <p className="mt-3 text-sm leading-7 text-white/72">{event.description}</p>
           </div>
 
@@ -136,7 +136,7 @@ function EventFeatureCard({ event }: { event: MarketplaceEvent }) {
             </div>
             <Button
               asChild
-              className="border border-white/10 bg-white text-slate-950 shadow-none hover:bg-white/92"
+              className="border border-white/10 bg-white text-slate-950 editorial-elevated hover:bg-white/92"
             >
               <a href={event.registrationUrl} target="_blank" rel="noopener noreferrer">
                 View Event
@@ -156,7 +156,7 @@ function EventListCard({ event }: { event: MarketplaceEvent }) {
   const countdown = getCountdownLabel(event)
 
   return (
-    <Card className="overflow-hidden rounded-xl border border-border bg-white/84 shadow-none backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+    <Card className="overflow-hidden rounded-xl border border-border bg-white editorial-elevated backdrop-blur dark:border-white/10 dark:bg-slate-900">
       <CardContent className="p-0">
         <div className="flex h-full flex-col md:flex-row">
           <div className="relative flex min-h-[172px] items-end overflow-hidden border-b border-white/10 bg-slate-950 p-5 text-white md:min-h-0 md:w-[220px] md:border-b-0 md:border-r">
@@ -208,7 +208,7 @@ function EventListCard({ event }: { event: MarketplaceEvent }) {
 
               <Button
                 asChild
-                className="border border-white/10 bg-card text-white shadow-none hover:opacity-95"
+                className="border border-white/10 bg-card text-white editorial-elevated hover:opacity-95"
               >
                 <a href={event.registrationUrl} target="_blank" rel="noopener noreferrer">
                   Visit official event page
@@ -250,7 +250,7 @@ export default function EventsPage() {
   const remainingEvents = upcomingEvents.filter((event) => !featuredEvents.some((featured) => featured.id === event.id))
 
   return (
-    <div className="min-h-screen bg-card bg-background">
+    <div className="min-h-screen bg-background">
       <PremiumSiteHeader active="events" deskLabel="Events Desk" backHref="/" backLabel="Home" />
 
       <main className="mx-auto max-w-7xl px-4 py-10">
@@ -261,14 +261,14 @@ export default function EventsPage() {
               <div className="mt-8 flex flex-wrap gap-3">
                 <Button
                   asChild
-                  className="border border-white/10 bg-card text-white shadow-none hover:opacity-95"
+                  className="border border-white/10 bg-card text-white editorial-elevated hover:opacity-95"
                 >
                   <Link href="/newsletter">Get The Daily Brief</Link>
                 </Button>
                 <Button
                   variant="outline"
                   asChild
-                  className="border-slate-200 bg-white/72 text-slate-800 hover:bg-white dark:border-white/10 dark:bg-slate-950/45 dark:text-white dark:hover:bg-slate-950/55"
+                  className="border-slate-200 bg-white/72 text-slate-800 hover:bg-white dark:border-white/10 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-950/55"
                 >
                   <a href="mailto:hello@marketplacebeta.com?subject=Submit%20an%20event%20to%20MarketplaceBeta">
                     Submit an Event
@@ -278,22 +278,22 @@ export default function EventsPage() {
               </div>
 
               <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                <div className="rounded-2xl border border-border bg-white/78 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+                <div className="rounded-2xl border border-border bg-white p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-900">
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-white/52">Upcoming</p>
                   <p className="mt-3 text-2xl font-bold text-slate-950 dark:text-white">{sortedEvents.filter((event) => !isPastEvent(event)).length}</p>
                 </div>
-                <div className="rounded-2xl border border-border bg-white/78 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+                <div className="rounded-2xl border border-border bg-white p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-900">
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-white/52">Official Links</p>
                   <p className="mt-3 text-2xl font-bold text-slate-950 dark:text-white">{EVENTS.length}</p>
                 </div>
-                <div className="rounded-2xl border border-border bg-white/78 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+                <div className="rounded-2xl border border-border bg-white p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-900">
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-white/52">Verified</p>
                   <p className="mt-3 text-2xl font-bold text-slate-950 dark:text-white">Mar 31</p>
                 </div>
               </div>
             </div>
 
-            <div className="rounded-xl border border-white/10 bg-slate-950 p-6 text-white shadow-none">
+            <div className="rounded-xl border border-white/10 bg-slate-950 p-6 text-white editorial-elevated">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/48">Calendar Standard</p>
               <h2 className="mt-4 text-2xl font-bold tracking-tight">Only active events stay in the upcoming feed.</h2>
               <div className="mt-5 space-y-3">
@@ -311,7 +311,7 @@ export default function EventsPage() {
           </div>
         </section>
 
-        <section className="mt-8 rounded-xl border border-border bg-white/82 p-5 shadow-none backdrop-blur dark:border-white/10 dark:bg-slate-950/45 md:p-6">
+        <section className="mt-8 rounded-xl border border-border bg-white p-5 editorial-elevated backdrop-blur dark:border-white/10 dark:bg-slate-900 md:p-6">
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_220px_220px]">
             <div className="relative">
               <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -356,7 +356,7 @@ export default function EventsPage() {
             <div className="mb-5 flex items-end justify-between gap-4">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">Featured Now</p>
-                <h2 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950 dark:text-white">High-signal upcoming events</h2>
+                <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-950 dark:text-white">High-signal upcoming events</h2>
               </div>
               <p className="hidden max-w-md text-right text-sm leading-6 text-slate-500 dark:text-slate-400 md:block">
                 These are the events most likely to matter if you are tracking marketplace strategy, operator workflow, or growth channels this year.
@@ -374,7 +374,7 @@ export default function EventsPage() {
           <div className="mb-5 flex items-end justify-between gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">Upcoming Schedule</p>
-              <h2 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950 dark:text-white">
+              <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-950 dark:text-white">
                 {upcomingEvents.length > 0 ? "Plan around what is actually ahead" : "No upcoming events match those filters"}
               </h2>
             </div>
@@ -390,7 +390,7 @@ export default function EventsPage() {
               ))}
             </div>
           ) : (
-            <Card className="rounded-xl border border-border bg-white/82 shadow-none backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+            <Card className="rounded-xl border border-border bg-white editorial-elevated backdrop-blur dark:border-white/10 dark:bg-slate-900">
               <CardContent className="p-8 text-center">
                 <p className="text-lg font-semibold text-slate-950 dark:text-white">No events match the current filters.</p>
                 <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
@@ -405,14 +405,14 @@ export default function EventsPage() {
           <section className="mt-12">
             <div className="mb-5">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">Archive</p>
-              <h2 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950 dark:text-white">Completed events</h2>
+              <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-950 dark:text-white">Completed events</h2>
             </div>
 
             <div className="grid gap-4 lg:grid-cols-3">
               {pastEvents.map((event) => (
                 <Card
                   key={event.id}
-                  className="rounded-xl border border-white/10 bg-slate-950 text-white shadow-none"
+                  className="rounded-xl border border-white/10 bg-slate-950 text-white editorial-elevated"
                 >
                   <CardContent className="relative overflow-hidden p-5">
                     <div className={`absolute inset-0 bg-gradient-to-br ${getEventVisual(event.id).gradient}`} />
@@ -440,11 +440,11 @@ export default function EventsPage() {
         ) : null}
 
         <section className="mt-12">
-          <Card className="overflow-hidden rounded-xl border border-white/10 bg-slate-950 text-white shadow-none">
+          <Card className="overflow-hidden rounded-xl border border-white/10 bg-slate-950 text-white editorial-elevated">
             <CardContent className="grid gap-6 p-8 md:grid-cols-[minmax(0,1fr)_220px] md:items-end">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/48">Need an event featured?</p>
-                <h2 className="mt-3 text-3xl font-semibold tracking-tight">Submit a marketplace or ecommerce event for review.</h2>
+                <h2 className="mt-3 text-3xl font-bold tracking-tight">Submit a marketplace or ecommerce event for review.</h2>
                 <p className="mt-4 max-w-2xl text-sm leading-7 text-white/72">
                   If it serves sellers, operators, agencies, or commerce software teams, send it over. We are prioritizing events with official landing pages, useful operator value, and credible ecommerce relevance.
                 </p>

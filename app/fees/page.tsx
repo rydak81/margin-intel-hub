@@ -26,7 +26,7 @@ export default function FeesIndexPage() {
   const totalCategories = MARKETPLACES.reduce((sum, m) => sum + m.categories.length, 0)
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950">
+    <div className="min-h-screen bg-background">
       <PremiumSiteHeader active="fees" />
 
       <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
@@ -39,10 +39,10 @@ export default function FeesIndexPage() {
               <Link
                 key={marketplace.slug}
                 href={`/fees/${marketplace.slug}`}
-                className="block rounded-2xl border border-slate-200 p-6 transition hover:border-sky-400 hover:bg-sky-50/50 dark:border-white/10 dark:hover:border-sky-400/60 dark:hover:bg-sky-400/5"
+                className="editorial-elevated editorial-lift bg-card block rounded-2xl border border-slate-200 p-6 transition hover:border-sky-400 hover:bg-sky-50/50 dark:border-white/10 dark:hover:border-sky-400/60 dark:hover:bg-sky-400/5"
               >
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
+                  <h2 className="text-xl font-bold text-slate-900 dark:text-white">
                     {marketplace.name}
                   </h2>
                   <span className="text-lg font-semibold tabular-nums text-sky-600 dark:text-sky-400">

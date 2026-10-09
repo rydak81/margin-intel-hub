@@ -226,9 +226,9 @@ function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
       <main className="max-w-7xl mx-auto px-4 py-10 sm:px-6">
         {searchError && <div role="alert" className="mb-6 rounded-lg border border-red-300 p-4">{searchError} <button className="font-semibold underline" onClick={() => fetchArticles(true)}>Retry search</button></div>}
         <section className="mb-10">
-          <div className="rounded-xl border border-border bg-card p-6 shadow-none backdrop-blur dark:border-white/10 dark:bg-slate-900 md:p-8">
+          <div>
             <EditorialIntro eyebrow="Research archive" title="Find the context. Make the call." description="Search the reporting behind the headlines. Explore by business decision, marketplace, topic, or impact, then follow the original sources." />
-            <div className="mt-8 rounded-xl border border-border bg-white/76 p-5 shadow-none backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+            <div className="mt-8 rounded-xl border border-border bg-white p-5 editorial-elevated backdrop-blur dark:border-white/10 dark:bg-slate-900">
               {currentUser && personalizationLabel ? (
                 <div className="mb-5 rounded-2xl border border-sky-400/15 bg-sky-500/5 px-4 py-3 text-base leading-7 text-slate-600 dark:border-sky-300/15 dark:bg-slate-950/55 dark:text-slate-200">
                   <span className="font-semibold text-slate-950 dark:text-white">Personalized desk:</span> {personalizationLabel}. MarketplaceBeta is preloading filters and ranking from your account preferences.
@@ -242,7 +242,7 @@ function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
                   placeholder='Search the archive — try "fba fees" or walmart fulfillment'
                   value={query}
                   onChange={(e) => { setQuery(e.target.value); setOffset(0) }}
-                  className="h-12 border-border bg-white/85 pl-10 text-base shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45"
+                  className="h-12 border-border bg-white/85 pl-10 text-base shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-900"
                 />
               </div>
 
@@ -257,7 +257,7 @@ function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
                       setSelectedCategory(e.target.value || null)
                       setOffset(0)
                     }}
-                    className="h-11 w-full rounded-2xl border border-border bg-white/80 px-4 text-sm font-medium text-slate-900 shadow-sm backdrop-blur outline-none transition focus:border-sky-400/30 dark:border-white/10 dark:bg-slate-950/45 dark:text-white"
+                    className="h-11 w-full rounded-2xl border border-border bg-white/80 px-4 text-sm font-medium text-slate-900 shadow-sm backdrop-blur outline-none transition focus:border-sky-400/30 dark:border-white/10 dark:bg-slate-900 dark:text-white"
                   >
                     <option value="">All Categories</option>
                     {Object.entries(facets.categories).map(([cat, count]) => (
@@ -278,7 +278,7 @@ function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
                       setSelectedImpact(e.target.value || null)
                       setOffset(0)
                     }}
-                    className="h-11 w-full rounded-2xl border border-border bg-white/80 px-4 text-sm font-medium text-slate-900 shadow-sm backdrop-blur outline-none transition focus:border-sky-400/30 dark:border-white/10 dark:bg-slate-950/45 dark:text-white"
+                    className="h-11 w-full rounded-2xl border border-border bg-white/80 px-4 text-sm font-medium text-slate-900 shadow-sm backdrop-blur outline-none transition focus:border-sky-400/30 dark:border-white/10 dark:bg-slate-900 dark:text-white"
                   >
                     <option value="">All Levels</option>
                     {Object.entries(facets.impactLevels).map(([level, count]) => (
@@ -302,7 +302,7 @@ function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
                       setSortBy(e.target.value as "newest" | "oldest" | "relevant" | "impact")
                       setOffset(0)
                     }}
-                    className="h-11 w-full rounded-2xl border border-border bg-white/80 px-4 text-sm font-medium text-slate-900 shadow-sm backdrop-blur outline-none transition focus:border-sky-400/30 dark:border-white/10 dark:bg-slate-950/45 dark:text-white"
+                    className="h-11 w-full rounded-2xl border border-border bg-white/80 px-4 text-sm font-medium text-slate-900 shadow-sm backdrop-blur outline-none transition focus:border-sky-400/30 dark:border-white/10 dark:bg-slate-900 dark:text-white"
                   >
                     <option value="newest">Newest First</option>
                     <option value="oldest">Oldest First</option>
@@ -354,7 +354,7 @@ function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
                           className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-2 text-sm font-medium transition ${
                             selected
                               ? "border-sky-400/25 bg-sky-500/10 text-sky-700 dark:border-sky-300/20 dark:bg-sky-400/10 dark:text-sky-200"
-                              : "border-border bg-white/78 text-slate-700 hover:bg-white dark:border-white/10 dark:bg-slate-950/45 dark:text-slate-200 dark:hover:bg-slate-900"
+                              : "border-border bg-white text-slate-700 hover:bg-white dark:border-white/10 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-900"
                           }`}
                         >
                           <span>{platform.replace(/_/g, " ")}</span>
@@ -378,7 +378,7 @@ function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
             <div className="flex flex-col items-center gap-4"><Loader2 className="h-8 w-8 animate-spin text-primary" /><p className="text-muted-foreground">Searching articles...</p></div>
           </div>
         ) : searchError && articles.length === 0 ? null : articles.length === 0 ? (
-          <div className="rounded-xl border border-border bg-white/84 py-16 text-center shadow-none dark:border-white/10 dark:bg-slate-950/45">
+          <div className="rounded-xl border border-border bg-white py-16 text-center editorial-elevated dark:border-white/10 dark:bg-slate-900">
             <p className="mb-4 text-muted-foreground">No articles match your filters.</p>
             <Button variant="outline" onClick={clearFilters} className="rounded-full">Clear filters</Button>
           </div>
@@ -387,7 +387,7 @@ function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               {articles.map(article => (
                 <Link key={article.id} href={`/news/${article.id}`}>
-                  <Card className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-xl border border-border bg-white/84 shadow-none transition-all hover:-translate-y-1 hover:shadow-none dark:border-white/10 dark:bg-slate-950/45">
+                  <Card className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-xl border border-border bg-white editorial-elevated transition-all hover:-translate-y-1 hover:shadow-xl dark:border-white/10 dark:bg-slate-900">
                     <div className="relative aspect-video overflow-hidden bg-muted">
                       <ArticleImage
                         src={article.imageUrl}
@@ -426,20 +426,20 @@ function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
             </div>
             {hasMore && (
               <div className="flex justify-center mb-8">
-                <Button variant="outline" onClick={loadMore} disabled={loading} className="gap-2 rounded-full border-sky-400/20 bg-white/84 px-6 shadow-sm backdrop-blur hover:bg-white dark:border-white/10 dark:bg-slate-950/45 dark:hover:bg-slate-900">
+                <Button variant="outline" onClick={loadMore} disabled={loading} className="gap-2 rounded-full border-sky-400/20 bg-white px-6 shadow-sm backdrop-blur hover:bg-white dark:border-white/10 dark:bg-slate-900 dark:hover:bg-slate-900">
                   {loading ? (<><Loader2 className="h-4 w-4 animate-spin" />Loading...</>) : (<><TrendingUp className="h-4 w-4" />Load More Articles</>)}
                 </Button>
               </div>
             )}
 
             <section className="mb-8 mt-12">
-              <div className="grid gap-6 rounded-xl border border-border bg-slate-950 p-6 text-white shadow-none md:p-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-end">
+              <div className="grid gap-6 rounded-xl border border-border bg-slate-950 p-6 text-white editorial-elevated md:p-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-end">
                 <div>
                   <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1.5 text-sm font-medium text-white/82 backdrop-blur">
                     <Sparkles className="h-4 w-4 text-sky-300" />
                     Premium marketplace intelligence for operators, agencies, and SaaS teams
                   </div>
-                  <h2 className="mt-5 text-3xl font-semibold tracking-tight text-balance md:text-4xl">
+                  <h2 className="mt-5 text-3xl font-bold tracking-tight text-balance md:text-4xl">
                     Turn the archive into a daily operating advantage.
                   </h2>
                   <p className="mt-4 max-w-2xl text-base leading-7 text-white/72 md:text-lg">

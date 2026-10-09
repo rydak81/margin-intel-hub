@@ -204,7 +204,7 @@ export default async function ArticlePage({
             </div>
 
             {standfirst ? (
-              <div className="mt-8 rounded-xl border border-border bg-white/82 p-6 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+              <div className="mt-8 rounded-xl border border-border bg-white p-6 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-900">
                 <div className="flex items-center gap-2 text-primary">
                   <Sparkles className="h-4 w-4" />
                   <span className="text-sm font-semibold uppercase tracking-[0.16em]">Executive Summary</span>
@@ -256,19 +256,19 @@ export default async function ArticlePage({
 
             <Card className="mt-6 border-0 shadow-sm">
               <CardContent className="grid gap-4 p-6 md:grid-cols-3">
-                <div className="rounded-2xl border border-border bg-white/80 p-4 dark:border-white/10 dark:bg-slate-950/45">
+                <div className="rounded-2xl border border-border bg-white/80 p-4 dark:border-white/10 dark:bg-slate-900">
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Source Lens</p>
                   <p className="mt-2 text-sm font-semibold">{sourceIntelligence.label}</p>
                   <p className="mt-2 text-base leading-7 text-muted-foreground">{sourceIntelligence.description}</p>
                 </div>
-                <div className="rounded-2xl border border-border bg-white/80 p-4 dark:border-white/10 dark:bg-slate-950/45">
+                <div className="rounded-2xl border border-border bg-white/80 p-4 dark:border-white/10 dark:bg-slate-900">
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Impact Level</p>
                   <p className="mt-2 text-sm font-semibold capitalize">{article.impactLevel || "medium"}</p>
                   <p className="mt-2 text-base leading-7 text-muted-foreground">
                     {article.bottomLine || "Use this briefing to decide whether your team needs an immediate workflow, policy, or reporting change."}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-border bg-white/80 p-4 dark:border-white/10 dark:bg-slate-950/45">
+                <div className="rounded-2xl border border-border bg-white/80 p-4 dark:border-white/10 dark:bg-slate-900">
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Key Stat / Trigger</p>
                   <p className="mt-2 text-sm font-semibold">{article.keyStat || "No single quantitative trigger surfaced in this report."}</p>
                   <p className="mt-2 text-base leading-7 text-muted-foreground">
@@ -303,7 +303,7 @@ export default async function ArticlePage({
                 <BookOpen className="h-5 w-5 text-primary" />
                 <h2 className="text-2xl font-bold">Full Coverage</h2>
               </div>
-              <div className="rounded-xl border border-border bg-white/86 p-6 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45 md:p-8">
+              <div className="rounded-xl border border-border bg-white/86 p-6 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-900 md:p-8">
                 <div className="mx-auto max-w-3xl space-y-7">
                   {contentBlocks.length > 0 ? (
                     contentBlocks.map((block, index) =>
@@ -413,14 +413,14 @@ export default async function ArticlePage({
           </article>
 
           <aside className="space-y-6">
-            <Card className="border-border bg-white/82 dark:border-white/10 dark:bg-slate-950/45">
+            <Card className="border-border bg-white dark:border-white/10 dark:bg-slate-900">
               <CardHeader>
                 <CardTitle className="text-base">Source Intelligence</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <Badge variant="secondary">{sourceIntelligence.label}</Badge>
                 <p className="text-base leading-7 text-muted-foreground">{sourceIntelligence.description}</p>
-                <div className="rounded-2xl border border-border bg-white/76 p-4 text-sm dark:border-white/10 dark:bg-white/5">
+                <div className="rounded-2xl border border-border bg-white p-4 text-sm dark:border-white/10 dark:bg-white/5">
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Why it matters</p>
                   <p className="mt-2 leading-7 text-muted-foreground">
                     MarketplaceBeta uses source quality to separate direct platform changes from community chatter and general industry context.
