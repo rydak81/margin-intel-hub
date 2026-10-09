@@ -1,7 +1,7 @@
 import { unstable_cache } from 'next/cache'
 import { createAdminClient, hasAdminConfig } from '@/lib/supabase/admin'
 import { curateArticleFeed } from '@/lib/feed-curation'
-import type { IntelligenceSnapshot } from '@/lib/intelligence'
+import { normalizeIntelligenceTags, type IntelligenceSnapshot } from '@/lib/intelligence'
 
 export const loadIntelligenceSnapshot = unstable_cache(async (): Promise<IntelligenceSnapshot> => {
   const checkedAt = new Date().toISOString()
@@ -18,8 +18,8 @@ export const loadIntelligenceSnapshot = unstable_cache(async (): Promise<Intelli
       id: row.id as string, title: row.title as string,
       summary: String(row.ai_summary || row.summary || '').slice(0, 600),
       sourceName: String(row.source_name || 'Unspecified source'), sourceUrl: String(row.source_url || ''),
-      publishedAt: row.published_at as string, category: String(row.category || 'general'),
-      platforms: (row.platforms || []) as string[], audience: (row.audience || []) as string[],
+      publishedAt: row.published_at as string,
+      ...normalizeIntelligenceTags({ title: String(row.title || ''), category: String(row.category || 'general'), platforms: (row.platforms || []) as string[], audience: (row.audience || []) as string[] }),
       impactLevel: (row.impact_level || 'medium') as 'high' | 'medium' | 'low',
       actionItem: String(row.action_item || '').slice(0, 400), relevanceScore: Number(row.relevance_score || 0),
       isBreaking: Boolean(row.is_breaking), sourceType: (row.source_type === 'google' ? 'google' : 'industry') as 'google' | 'industry',
@@ -28,4 +28,4 @@ export const loadIntelligenceSnapshot = unstable_cache(async (): Promise<Intelli
       .map(({ relevanceScore: _score, isBreaking: _breaking, sourceType: _sourceType, ...article }) => article)
     return { status: 'ready', checkedAt, sampledCount: candidates.length, capped: candidates.length === 500, articles }
   } catch { return unavailable }
-}, ['operator-intelligence-v1'], { revalidate: 300 })
+}, ['operator-intelligence-v2'], { revalidate: 300 })

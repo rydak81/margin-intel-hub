@@ -22,3 +22,14 @@ test('only renders safe outbound source protocols', () => {
   assert.equal(safeSourceUrl('/relative'), null)
   assert.equal(safeSourceUrl('https://example.com/report'), 'https://example.com/report')
 })
+
+// @ts-expect-error Native TS runner uses explicit extensions.
+import { normalizeIntelligenceTags } from '../lib/intelligence.ts'
+test('legacy broad tags remain usable without pretending rule routing is source classification', () => {
+  const legacy = { title: 'Retail media advertising costs', category: 'ecommerce', platforms: ['general'], audience: ['brand_sellers', 'brands'] }
+  assert.deepEqual(normalizeIntelligenceTags(legacy), { category: 'advertising', categoryBasis: 'headline_rule', platforms: ['multi_platform'], audience: ['sellers'] })
+  assert.equal(normalizeIntelligenceTags({ ...legacy, title: 'Executive appointments' }).category, 'commerce_context')
+  assert.equal(normalizeIntelligenceTags({ ...legacy, category: 'logistics' }).categoryBasis, 'stored')
+  const tech = { ...base, category: 'tools_technology', audience: [] }
+  assert.equal(filterIntelligence([tech], { ...all, audience: 'saas' }, now).length, 1)
+})
