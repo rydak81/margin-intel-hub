@@ -43,8 +43,13 @@ export const metadata: Metadata = {
     description: 'The Intelligence Hub for Marketplace Commerce',
   },
   icons: {
-    icon: '/brand-icon.png',
-    apple: '/apple-icon.png',
+    icon: [
+      { url: '/icon.svg?v=20261009', type: 'image/svg+xml', sizes: 'any' },
+      { url: '/icon-light-32x32.png?v=20261009', type: 'image/png', sizes: '32x32' },
+      { url: '/icon-192.png?v=20261009', type: 'image/png', sizes: '192x192' },
+    ],
+    shortcut: '/favicon.ico?v=20261009',
+    apple: [{ url: '/apple-icon.png?v=20261009', sizes: '180x180', type: 'image/png' }],
   },
 }
 
