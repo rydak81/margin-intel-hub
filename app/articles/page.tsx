@@ -453,7 +453,7 @@ function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
                       </Link>
                     </Button>
                     <Button asChild size="lg" variant="outline" className="rounded-full border-white/20 bg-white/8 text-white hover:bg-white/12">
-                      <Link href="/partners">Explore Partners</Link>
+                      <Link href="/tools">Explore Operator Tools</Link>
                     </Button>
                   </div>
                 </div>
