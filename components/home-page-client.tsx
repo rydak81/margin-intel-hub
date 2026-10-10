@@ -311,12 +311,11 @@ export default function HomePageClient({
       return true
     })
 
-    return personalizeArticles(baseArticles, preferenceProfile)
+    return [...baseArticles].sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt))
   })()
 
-  // Select hero article: prioritize articles with REAL images (not stock fallbacks)
-  // The hasRealImage flag is set by the API based on whether the RSS feed had a valid image
-  const heroArticle = filteredArticles.find(a => a.hasRealImage) || filteredArticles[0]
+  // The newest report leads the current feed.
+  const heroArticle = filteredArticles[0]
 
   // Remove hero from regular feed so it doesn't show twice
   const feedArticles = filteredArticles.filter(a => a.id !== heroArticle?.id)
@@ -335,7 +334,7 @@ export default function HomePageClient({
     })
   })()
 
-  const featuredArticles = deduplicatedFeed.filter(a => a.featured).slice(0, 3)
+  const featuredArticles = deduplicatedFeed.filter(a => a.featured && Date.now() - Date.parse(a.publishedAt) < 3 * 86400000).slice(0, 3)
   // Show ALL articles in the main grid — the old filter(a => !a.featured) was hiding
   // 95%+ of content because most articles score >= 80 (the "featured" threshold).
   // Featured articles still get priority placement in the sidebar/hero sections.
@@ -346,9 +345,6 @@ export default function HomePageClient({
     const seen = new Set<string>()
     return [...articles]
       .sort((a, b) => {
-        const priorityA = Number(a.breaking || a.featured)
-        const priorityB = Number(b.breaking || b.featured)
-        if (priorityA !== priorityB) return priorityB - priorityA
         return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
       })
       .filter(a => {
@@ -685,7 +681,7 @@ export default function HomePageClient({
                   {searchQuery ? `Search Results` : 'Latest News'}
                 </h2>
                 <p className="mt-1 text-base text-muted-foreground">
-                  Curated for operators, sellers, agencies, and marketplace tech teams.
+                  {searchQuery ? "Matching coverage from the searchable archive." : "Newest first · Past 14 days · Curated for marketplace operators."}
                 </p>
               </div>
               <div className="rounded-full border border-border bg-white/80 px-4 py-2 text-sm text-muted-foreground shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-900">
@@ -900,13 +896,13 @@ export default function HomePageClient({
               </>
             )}
 
-            {/* Trending This Week */}
+            {/* Recent coverage */}
             {!loading && (
             <Card className="overflow-hidden rounded-xl border border-border bg-white editorial-elevated dark:border-white/10 dark:bg-slate-900">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-primary" />
-                  Trending This Week
+                  Recent coverage
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">

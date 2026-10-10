@@ -11,37 +11,31 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://marketplacebeta.com
 const staticRoutes: MetadataRoute.Sitemap = [
   {
     url: siteUrl,
-    lastModified: new Date(),
     changeFrequency: 'daily',
     priority: 1,
   },
   {
     url: `${siteUrl}/articles`,
-    lastModified: new Date(),
     changeFrequency: 'daily',
     priority: 0.9,
   },
   {
     url: `${siteUrl}/news`,
-    lastModified: new Date(),
     changeFrequency: 'daily',
     priority: 0.9,
   },
   {
     url: `${siteUrl}/newsletter`,
-    lastModified: new Date(),
     changeFrequency: 'monthly',
     priority: 0.8,
   },
   {
     url: `${siteUrl}/tools`,
-    lastModified: new Date(),
     changeFrequency: 'monthly',
     priority: 0.7,
   },
   {
     url: `${siteUrl}/events`,
-    lastModified: new Date(),
     changeFrequency: 'weekly',
     priority: 0.6,
   },
@@ -81,7 +75,7 @@ async function getArticleRoutes(): Promise<MetadataRoute.Sitemap> {
 
     return ((data ?? []) as SitemapArticleRow[]).filter(article => isOperatorRelevant({ ...article, summary: article.summary || "", aiSummary: article.ai_summary || "" })).map((article) => ({
       url: `${siteUrl}/news/${article.id}`,
-      lastModified: article.published_at ? new Date(article.published_at) : new Date(),
+      ...(article.published_at && Number.isFinite(Date.parse(article.published_at)) ? { lastModified: new Date(article.published_at) } : {}),
       changeFrequency: 'weekly',
       priority: 0.8,
     }))
@@ -99,7 +93,6 @@ function getFeeRoutes(): MetadataRoute.Sitemap {
   const hub: MetadataRoute.Sitemap = [
     {
       url: `${siteUrl}/fees`,
-      lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.9,
     },
@@ -113,7 +106,7 @@ function getFeeRoutes(): MetadataRoute.Sitemap {
 
   const categories: MetadataRoute.Sitemap = getAllFeeRoutes().map((route) => ({
     url: `${siteUrl}/fees/${route.marketplace}/${route.category}`,
-    lastModified: new Date(),
+    lastModified: new Date(MARKETPLACES.find(m => m.slug === route.marketplace)!.lastVerified),
     changeFrequency: 'weekly',
     priority: 0.7,
   }))
@@ -126,6 +119,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [...staticRoutes,
     { url: `${siteUrl}/intelligence`, changeFrequency: 'daily', priority: 0.9 },
-    ...['guides', 'about', 'editorial-policy', ...OPERATOR_GUIDES.map(guide => `guides/${guide.slug}`)].map(path => ({ url: `${siteUrl}/${path}`, lastModified: new Date(GUIDE_UPDATED), changeFrequency: 'monthly' as const, priority: path.startsWith('guides') ? 0.8 : 0.5 })),
+    ...['guides', ...OPERATOR_GUIDES.map(guide => `guides/${guide.slug}`)].map(path => ({ url: `${siteUrl}/${path}`, lastModified: new Date(GUIDE_UPDATED), changeFrequency: 'monthly' as const, priority: path.startsWith('guides') ? 0.8 : 0.5 })),
+    ...['about', 'editorial-policy'].map(path => ({ url: `${siteUrl}/${path}`, changeFrequency: 'monthly' as const, priority: 0.5 })),
     ...getFeeRoutes(), ...articleRoutes]
 }

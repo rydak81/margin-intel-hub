@@ -25,3 +25,7 @@ test('respects explicit relevance decisions and classifier rejection in summarie
   assert.equal(isOperatorRelevant({title:'Amazon news',summary:'This has zero direct operational impact on sellers.'}),false)
   assert.equal(isOperatorRelevant({title:'Amazon fees',summary:'This may affect seller margins.'}),true)
 })
+test('excludes corporate hardware and consumer promotions, keeps fulfillment investments', () => {
+  for (const title of ['Inside the AWS lab', 'Ring introduces new cameras', 'Best deals to shop today', 'Amazon data centers in our communities']) assert.equal(isOperatorRelevant({title}), false, title)
+  for (const title of ['Amazon is investing in fulfillment capacity', 'Amazon sellers prepare for holiday orders']) assert.equal(isOperatorRelevant({title}), true, title)
+})

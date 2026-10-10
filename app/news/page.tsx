@@ -8,6 +8,7 @@ import { PremiumSiteFooter } from "@/components/premium-site-footer"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { getArticleImageUrl } from "@/lib/article-images"
+import { datedSummary } from '@/lib/news-freshness'
 import { getDailyOperatorBriefing } from "@/lib/news-briefing"
 
 export const metadata: Metadata = {
@@ -61,12 +62,12 @@ export default async function NewsPage() {
               <p className="mt-4 max-w-3xl text-lg leading-8 text-slate-600 dark:text-slate-300">
                 {briefing.dek}
               </p>
-              <p className="mt-4 text-sm text-muted-foreground">AI-assisted synthesis of the coverage below. Check original sources, dates, and your own operating data before acting.</p>
+              <p className="mt-4 text-sm text-muted-foreground">Dated digest using AI-assisted article summaries and automated classifications. Check original sources, dates, and your own operating data before acting.</p>
 
               <div className="mt-5 flex flex-wrap items-center gap-3 text-sm text-slate-500 dark:text-slate-300">
                 <span className="inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-white/75 px-3 py-1.5 dark:border-white/10 dark:bg-slate-950/40">
                   <CalendarDays className="h-4 w-4 text-sky-600" />
-                  {formatDate(briefing.generatedAt)}
+                  Snapshot checked {formatDate(briefing.generatedAt)}
                 </span>
                 <span className="inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-white/75 px-3 py-1.5 dark:border-white/10 dark:bg-slate-950/40">
                   <BookOpenText className="h-4 w-4 text-sky-600" />
@@ -96,7 +97,7 @@ export default async function NewsPage() {
 
             <div className="rounded-xl border border-border bg-slate-950 p-6 text-white editorial-elevated">
               <div className="rounded-full border border-white/12 bg-white/8 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-white/62">
-                Today&apos;s operator actions
+                Checks before acting
               </div>
               <div className="mt-6 space-y-4">
                 {briefing.actionItems.map((item) => (
@@ -139,9 +140,10 @@ export default async function NewsPage() {
           <div className="rounded-xl border border-border bg-white p-6 editorial-elevated backdrop-blur dark:border-white/10 dark:bg-slate-900">
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-sky-600" />
-              <h2 className="text-2xl font-bold text-slate-950 dark:text-white">Seller alerts</h2>
+              <h2 className="text-2xl font-bold text-slate-950 dark:text-white">Reports to review</h2>
             </div>
             <div className="mt-5 space-y-3">
+              {briefing.sellerAlerts.length === 0 && <p className="text-muted-foreground">No high-impact reports are included in this snapshot. This is not confirmation that no risks exist.</p>}
               {briefing.sellerAlerts.map((alert) => (
                 <div key={alert} className="flex items-start gap-3 rounded-2xl border border-slate-200/70 bg-slate-50/80 p-4 dark:border-white/10 dark:bg-white/[0.03]">
                   <BellRing className="mt-0.5 h-4 w-4 shrink-0 text-orange-500" />
@@ -154,7 +156,7 @@ export default async function NewsPage() {
           <div className="rounded-xl border border-border bg-white p-6 editorial-elevated backdrop-blur dark:border-white/10 dark:bg-slate-900">
             <div className="flex items-center gap-2">
               <CircleDot className="h-5 w-5 text-sky-600" />
-              <h2 className="text-2xl font-bold text-slate-950 dark:text-white">Top signals today</h2>
+              <h2 className="text-2xl font-bold text-slate-950 dark:text-white">Latest signals · seven days</h2>
             </div>
             <div className="mt-5 space-y-4">
               {briefing.signals.map((signal) => (
@@ -188,7 +190,7 @@ export default async function NewsPage() {
                     <span className="font-semibold">Operator read:</span> {signal.whyItMatters}
                   </p>
                   <p className="mt-3 text-xs font-medium uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
-                    {signal.source}
+                    {signal.source} · Published <time dateTime={signal.publishedAt}>{formatDate(signal.publishedAt)}</time>
                   </p>
                 </Link>
               ))}
@@ -253,7 +255,7 @@ export default async function NewsPage() {
                       {article.title}
                     </h3>
                     <p className="mt-3 text-base leading-7 text-slate-600 dark:text-slate-300">
-                      {article.aiSummary || article.summary}
+                      {datedSummary(article.aiSummary || article.summary, article.publishedAt)}
                     </p>
                     <div className="mt-4 flex items-center justify-between text-sm text-slate-500 dark:text-slate-400">
                       <span>{article.sourceName}</span>

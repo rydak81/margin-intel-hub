@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { getArticleImageUrl, isGoodArticleImage } from "@/lib/article-images"
 import { curateArticleFeed } from "@/lib/feed-curation"
-import { getArticleDeskScore } from "@/lib/source-intelligence"
+import { recentArticles } from "@/lib/news-freshness"
 import { createAdminClient, hasAdminConfig } from "@/lib/supabase/admin"
 import {
   getArticlesCache,
@@ -62,7 +62,7 @@ export async function GET(request: Request) {
         console.log(`[articles] Loaded ${dbArticles.length} articles from Supabase`)
         // Convert DB rows to cache format and store
         const mapped = dbArticles.map(dbRowToArticle)
-        setArticlesCache(curateArticleFeed(mapped, { limit: 180, maxPerTopic: 1 }))
+        setArticlesCache(curateArticleFeed(mapped, { limit: 180, maxPerTopic: 1, preserveOrder: true }))
       } else {
         console.log('[articles] No articles in database — cron job will populate soon')
       }
@@ -85,10 +85,10 @@ export async function GET(request: Request) {
       articles = articles.filter(a => a.impactLevel === impactLevel)
     }
 
-    articles = curateArticleFeed(articles, {
+    articles = curateArticleFeed(recentArticles(articles, 14), {
+      preserveOrder: true,
       maxPerTopic: category || platform || audience || impactLevel ? 2 : 1,
     })
-    articles.sort((a, b) => getArticleDeskScore(b) - getArticleDeskScore(a))
 
     // Calculate breakdown stats
     const byCategory: Record<string, number> = {}

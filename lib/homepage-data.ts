@@ -1,3 +1,4 @@
+import { recentArticles, datedSummary } from '@/lib/news-freshness'
 import type { ClassifiedArticle } from "@/lib/ai-classifier"
 import { getArticleImageUrl, isGoodArticleImage } from "@/lib/article-images"
 import { loadArticlesFromDB } from "@/lib/article-store"
@@ -115,7 +116,7 @@ export function mapAICategory(aiCategory: string | undefined): string {
 
 export function toNewsArticle(article: HomepageArticleSource): NewsArticle {
   const summary = stripHtmlTags(article.summary || "")
-  const aiSummary = stripHtmlTags(article.aiSummary || "") || summary
+  const aiSummary = datedSummary(stripHtmlTags(article.aiSummary || "") || summary, article.publishedAt)
   const resolvedCategory = mapAICategory(article.category)
   const resolvedImageUrl = getArticleImageUrl(
     article.imageUrl,
@@ -138,7 +139,7 @@ export function toNewsArticle(article: HomepageArticleSource): NewsArticle {
     readTime: Math.ceil(((summary || aiSummary).length || 200) / 200),
     tags: [],
     featured: (article.relevanceScore || 0) >= 80,
-    breaking: Boolean(article.isBreaking || ((article.relevanceScore || 0) >= 90 && article.tier === 1)),
+    breaking: Boolean(article.isBreaking && Date.now() - Date.parse(article.publishedAt) >= 0 && Date.now() - Date.parse(article.publishedAt) < 86400000),
     imageUrl: resolvedImageUrl,
     hasRealImage: isGoodArticleImage(article.imageUrl),
     platforms: article.platforms || [],
@@ -176,8 +177,8 @@ export async function loadHomepageData(limit = 50): Promise<{
   initialArticles: NewsArticle[]
   initialBreakingNews: BreakingNews[]
 }> {
-  const articles = await loadArticlesFromDB({ limit })
-  const initialArticles = articles.map(toNewsArticle)
+  const articles = await loadArticlesFromDB({ limit: Math.max(limit, 120), newestFirst: true })
+  const initialArticles = recentArticles(articles, 14).slice(0, limit).map(toNewsArticle)
 
   return {
     initialArticles,
