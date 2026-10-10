@@ -410,7 +410,7 @@ export default function HomePageClient({
                 size="icon"
                 aria-label="Toggle color theme"
                 onClick={() => setTheme(isDark ? "light" : "dark")}
-                className="h-11 w-11 rounded-lg text-slate-200 hover:bg-white/10 hover:text-white"
+                className="hidden h-11 w-11 rounded-lg text-slate-200 hover:bg-white/10 hover:text-white sm:inline-flex"
               >
                 {themeMounted && isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </Button>
@@ -433,6 +433,7 @@ export default function HomePageClient({
         }
         mobileContent={
           <div className="mt-3 space-y-3 px-3">
+            <button type="button" onClick={() => setTheme(isDark ? "light" : "dark")} className="block py-2 text-base font-semibold">Switch to {themeMounted && isDark ? "light" : "dark"} theme</button>
             <Input aria-label="Search news" placeholder="Search news..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="h-12 border-white/20 bg-white/5 text-white placeholder:text-slate-400" />
             {currentUser ? <Link href="/account" className="block py-2">Your account</Link> : <button type="button" className="py-2 text-base font-semibold" onClick={() => setAuthDialogOpen(true)}>Sign in</button>}
           </div>
