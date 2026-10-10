@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 }
 export default function GuidesPage() {
   return <div className="min-h-screen bg-background"><PremiumSiteHeader active="guides" />
-    <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+    <main className="mx-auto site-width px-4 py-10 sm:px-6">
       <EditorialIntro eyebrow="The operator library" title="Make the next decision with better numbers." description="Original worked examples, practical checklists, and tools for the decisions behind an ecommerce business. Free to read and download." />
       <section className="mt-10" aria-label="Operator guides"><GuideCards /></section>
       <section className="mt-12 rounded-2xl border border-border bg-card p-6 sm:p-9 editorial-elevated" aria-labelledby="downloads-title">

@@ -2,7 +2,7 @@
 
 import { useState, type ReactNode } from "react"
 import Link from "next/link"
-import { ArrowLeft, ArrowUpRight, Menu, X, Search } from "lucide-react"
+import { ArrowLeft, ArrowUpRight, Menu, X, Search, LayoutDashboard } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { SITE_NAVIGATION } from "@/lib/site-navigation"
 import { SiteBrand } from "@/components/site-brand"
@@ -31,7 +31,7 @@ export function PremiumSiteHeader({
 
   return (
     <header className="site-masthead sticky top-0 z-50 border-b border-slate-800 bg-slate-950 text-white">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+      <div className="mx-auto site-width px-4 sm:px-6">
         <div className="flex min-h-20 items-center justify-between gap-3 py-4 sm:min-h-24">
           <SiteBrand />
           <div className="flex shrink-0 items-center gap-2 sm:gap-3">
@@ -40,7 +40,8 @@ export function PremiumSiteHeader({
                 <ArrowLeft className="h-4 w-4" />{backLabel}
               </Link>
             )}
-            <Link href="/articles" aria-label="Search the research archive" className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-white hover:bg-white/10"><Search className="h-5 w-5" /></Link>
+            <Link href="/articles" aria-label="Search the research archive" className="hidden h-11 w-11 items-center justify-center rounded-lg text-white hover:bg-white/10 sm:inline-flex"><Search className="h-5 w-5" /></Link>
+            <Link href="/intelligence" aria-label="Open intelligence dashboard" title="Intelligence dashboard" className="inline-flex h-11 shrink-0 items-center gap-2 rounded-lg border border-blue-400/40 bg-blue-500/15 px-3 text-sm font-semibold text-blue-100 hover:bg-blue-500/30"><LayoutDashboard className="h-5 w-5" /><span className="hidden sm:inline">Dashboard</span></Link>
             {actions ?? (
               <Button asChild className="hidden h-11 rounded-lg bg-blue-600 px-5 text-sm font-semibold text-white hover:bg-blue-500 sm:inline-flex">
                 <Link href={ctaHref}>{ctaLabel}<ArrowUpRight className="ml-2 h-4 w-4" /></Link>
@@ -55,7 +56,7 @@ export function PremiumSiteHeader({
           <div className="flex items-center gap-5 xl:gap-7">
             {NAV_ITEMS.map(item => (
               <Link key={item.key} href={item.href} aria-current={active === item.key ? "page" : undefined} className={`border-b-2 py-4 text-sm font-medium transition-colors hover:text-white ${active === item.key ? "border-blue-400 text-white" : "border-transparent text-slate-300"}`}>
-                {item.label}
+                {item.key === "intelligence" ? <span className="rounded-md bg-blue-500/20 px-2.5 py-1 text-blue-100">{item.label}</span> : item.label}
               </Link>
             ))}
           </div>

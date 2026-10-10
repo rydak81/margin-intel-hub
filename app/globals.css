@@ -289,3 +289,26 @@
 @media (prefers-reduced-motion: reduce) {
   .editorial-lift, [data-slot="card"].cursor-pointer { transition: none; transform: none; }
 }
+
+/* A wider workspace for information; readable measures for long-form copy. */
+.site-width { width: 100%; max-width: 1600px; }
+.editorial-hero { border-bottom: 1px solid var(--border); }
+.editorial-intro { isolation: isolate; overflow: hidden; }
+.editorial-intro > :not(.editorial-orbit) { position: relative; z-index: 1; }
+.editorial-orbit { position: absolute; z-index: 0; pointer-events: none; width: 430px; height: 430px; right: -140px; top: -145px; border: 1px solid rgb(59 130 246 / .13); border-radius: 50%; box-shadow: 0 0 0 45px rgb(59 130 246 / .045), 0 0 0 90px rgb(59 130 246 / .035), 0 0 0 135px rgb(59 130 246 / .025); }
+.dashboard-spotlight { background-image: radial-gradient(ellipse at 95% 0%, rgb(37 99 235 / .38), transparent 65%), linear-gradient(135deg, #101d36, #080f21); box-shadow: 0 2px 0 rgb(255 255 255 / .12) inset, 0 12px 0 -6px #d4def2, 0 30px 65px -25px rgb(22 48 104 / .5); }
+.dark .dashboard-spotlight { box-shadow: 0 2px 0 rgb(255 255 255 / .12) inset, 0 12px 0 -6px #172642, 0 30px 60px -20px rgb(0 0 0 / .65); }
+.workspace-card { overflow: hidden; box-shadow: var(--editorial-shadow); border-top: 3px solid #315aee; }
+.workspace-card:nth-child(2) { border-top-color: #0891b2; }
+.workspace-card:nth-child(3) { border-top-color: #7c3aed; }
+.workspace-card:nth-child(4) { border-top-color: #0d9488; }
+.workspace-card::after { content: ''; position: absolute; pointer-events: none; width: 100px; height: 100px; right: -40px; bottom: -50px; border: 16px solid rgb(59 130 246 / .06); border-radius: 50%; }
+.guide-copy > section, .guide-copy > div { max-width: 76ch; margin-inline: auto; }
+@media (min-width: 1536px) { .site-width { padding-inline: 2.5rem; } }
+@media (max-width: 639px) { .editorial-orbit { opacity: .5; right: -280px; } }
+
+.intelligence-stats > div { border-top: 3px solid #0d9488; }
+.intelligence-stats > div:first-child { background: linear-gradient(130deg, #172b59, #0e1934); color: white; border-color: #355eb1; }
+.intelligence-stats > div:first-child .text-muted-foreground { color: #c0cee4; }
+.intelligence-stats > div:first-child svg { color: #93c5fd; }
+.intelligence-stats > div:nth-child(2) { border-top-color: #d97706; }
