@@ -29,7 +29,7 @@ export default function FeesIndexPage() {
     <div className="min-h-screen bg-background">
       <PremiumSiteHeader active="fees" />
 
-      <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <main className="mx-auto site-width px-4 py-10 sm:px-6 lg:px-8">
         <EditorialIntro eyebrow="Fee intelligence" title="Know what you keep." description={`Compare referral rates across ${totalCategories} categories and ${MARKETPLACES.length} marketplaces. Model unit economics, inspect the source dates, and test your assumptions before choosing a channel.`} />
 
         <div className="mt-8 grid gap-4 md:grid-cols-2">

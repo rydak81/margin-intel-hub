@@ -253,7 +253,7 @@ export default function EventsPage() {
     <div className="min-h-screen bg-background">
       <PremiumSiteHeader active="events" deskLabel="Events Desk" backHref="/" backLabel="Home" />
 
-      <main className="mx-auto max-w-7xl px-4 py-10">
+      <main className="mx-auto site-width px-4 py-10">
         <section className="border-b border-border pb-8">
           <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-end">
             <div>

@@ -143,7 +143,7 @@ export default function NewsletterPage() {
     <div className="min-h-screen bg-background">
       <PremiumSiteHeader active="newsletter" deskLabel="Daily Brief" backHref="/" backLabel="Home" />
 
-      <main className="mx-auto max-w-7xl px-4 py-10">
+      <main className="mx-auto site-width px-4 py-10">
         {submitted ? (
           <div className="mx-auto max-w-3xl">
             <Card className="overflow-hidden rounded-xl border border-white/10 bg-slate-950 text-white editorial-elevated">

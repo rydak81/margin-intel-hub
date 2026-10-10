@@ -1,20 +1,50 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { ArrowUpRight, Activity, Layers3, Radio, Search } from 'lucide-react'
+import { DEFAULT_INTELLIGENCE_VIEW, INTELLIGENCE_VIEW_KEY, validateIntelligenceView, viewSearch, type IntelligenceView } from '@/lib/intelligence-view'
 import { EditorialIntro } from '@/components/editorial-intro'
 import { DECISION_PROMPTS, filterIntelligence, INTELLIGENCE_AUDIENCES, INTELLIGENCE_CATEGORIES, INTELLIGENCE_PLATFORMS, safeSourceUrl, signalLabel, type IntelligenceSnapshot } from '@/lib/intelligence'
 
-const INITIAL_FILTERS = { days: 7, platform: 'all', audience: 'all', category: 'all', query: '' }
+const INITIAL_FILTERS = DEFAULT_INTELLIGENCE_VIEW
 const utcDate = (value: string) => new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' }).format(new Date(value))
 const fieldClass = 'mt-2 h-12 w-full rounded-lg border border-border bg-background px-3 text-base font-normal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
 
-export function IntelligenceDashboard({ snapshot }: { snapshot: IntelligenceSnapshot }) {
-  const [filters, setFilters] = useState(INITIAL_FILTERS)
+export function IntelligenceDashboard({ snapshot, initialView }: { snapshot: IntelligenceSnapshot; initialView: IntelligenceView | null }) {
+  const [filters, setFilters] = useState(initialView || INITIAL_FILTERS)
+  const [viewMessage, setViewMessage] = useState('')
+  const [hasSavedView, setHasSavedView] = useState(false)
   const [visibleCount, setVisibleCount] = useState(12)
+  useEffect(() => {
+    setFilters(initialView || INITIAL_FILTERS)
+    setVisibleCount(12)
+    setViewMessage('')
+    setHasSavedView(false)
+    try {
+      const stored = localStorage.getItem(INTELLIGENCE_VIEW_KEY)
+      if (!stored || stored.length > 2000) return
+      const saved = JSON.parse(stored)
+      if (saved.version !== 1 || !saved.filters || typeof saved.filters !== 'object') return
+      setHasSavedView(true)
+      if (!initialView) { setFilters(validateIntelligenceView(saved.filters)); setViewMessage('Your saved view is ready. Time windows use the latest available snapshot.') }
+    } catch { /* Storage can be disabled; the dashboard still works. */ }
+  }, [initialView])
   const rows = useMemo(() => filterIntelligence(snapshot.articles, filters, Date.parse(snapshot.checkedAt)), [snapshot, filters])
-  const update = (patch: Partial<typeof INITIAL_FILTERS>) => { setFilters(current => ({ ...current, ...patch })); setVisibleCount(12) }
+  const update = (patch: Partial<IntelligenceView>) => {
+    const next = { ...filters, ...patch }
+    setFilters(next); setVisibleCount(12); setViewMessage('')
+    const query = viewSearch(next)
+    window.history.replaceState(window.history.state, '', `${window.location.pathname}${query ? '?' + query : ''}`)
+  }
+  const saveView = () => {
+    try { localStorage.setItem(INTELLIGENCE_VIEW_KEY, JSON.stringify({ version: 1, filters })); setHasSavedView(true); setViewMessage('View saved on this browser. Open the dashboard next time to pick up here.') }
+    catch { setViewMessage('This browser could not save the view. You can bookmark the filtered page instead.') }
+  }
+  const forgetView = () => {
+    try { localStorage.removeItem(INTELLIGENCE_VIEW_KEY); setHasSavedView(false); setViewMessage('Saved view removed from this browser.') }
+    catch { setViewMessage('This browser could not remove the saved view. Check your browser storage settings.') }
+  }
   const sources = new Set(rows.map(row => row.sourceName)).size
   const highImpact = rows.filter(row => row.impactLevel === 'high').length
   const platformCounts = INTELLIGENCE_PLATFORMS.map(([key, label]) => ({ key, label, count: rows.filter(row => row.platforms.includes(key)).length }))
@@ -37,10 +67,12 @@ export function IntelligenceDashboard({ snapshot }: { snapshot: IntelligenceSnap
         <label className="text-sm font-semibold">Your perspective<select className={fieldClass} value={filters.audience} onChange={e => update({ audience: e.target.value })}><option value="all">All operators</option>{INTELLIGENCE_AUDIENCES.map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label>
         <label className="text-sm font-semibold">Decision area<select className={fieldClass} value={filters.category} onChange={e => update({ category: e.target.value })}><option value="all">All topics</option>{INTELLIGENCE_CATEGORIES.map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label>
       </div>
-      <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-end"><label className="flex-1 text-sm font-semibold"><span className="flex items-center gap-2"><Search className="h-4 w-4" />Search this snapshot</span><input type="search" className={fieldClass} value={filters.query} onChange={e => update({ query: e.target.value })} placeholder="Search headlines, context, or sources" /></label><button type="button" className="h-12 rounded-lg border border-border px-5 text-sm font-semibold hover:bg-muted" onClick={() => { setFilters(INITIAL_FILTERS); setVisibleCount(12) }}>Reset filters</button></div>
+      <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-end"><label className="flex-1 text-sm font-semibold"><span className="flex items-center gap-2"><Search className="h-4 w-4" />Search this snapshot</span><input type="search" className={fieldClass} value={filters.query} onChange={e => update({ query: e.target.value })} placeholder="Search headlines, context, or sources" /></label><button type="button" className="h-12 rounded-lg border border-border px-5 text-sm font-semibold hover:bg-muted" onClick={() => update(INITIAL_FILTERS)}>Reset filters</button></div>
+      <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-border pt-5"><button type="button" onClick={saveView} className="rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90">Save this view</button>{hasSavedView ? <button type="button" onClick={forgetView} className="rounded-lg border border-border px-4 py-2.5 text-sm font-semibold">Forget saved view</button> : null}<span className="text-sm text-muted-foreground">Keep your filters on this browser. No account needed.</span></div>
+      <p role="status" className="mt-3 text-sm text-primary">{viewMessage}</p>
     </section>
 
-    <section aria-label="Filtered news overview" className="mt-7 grid gap-4 sm:grid-cols-3" aria-live="polite">
+    <section aria-label="Filtered news overview" className="intelligence-stats mt-7 grid gap-4 sm:grid-cols-3" aria-live="polite">
       {[{ title: 'Curated stories', value: rows.length, detail: 'After relevance and topic filtering', icon: Layers3 }, { title: 'Marked high impact', value: highImpact, detail: 'Automated editorial tags; verify relevance', icon: Activity }, { title: 'Named sources', value: sources, detail: 'Source labels, not verified independent reports', icon: Radio }].map(stat => <div key={stat.title} className="editorial-elevated rounded-2xl border border-border bg-card p-6"><div className="flex items-center justify-between text-sm font-semibold text-muted-foreground">{stat.title}<stat.icon className="h-5 w-5 text-primary" /></div><p className="mt-3 text-5xl font-bold tracking-tight">{snapshot.status === 'ready' ? stat.value : '—'}</p><p className="mt-3 text-sm text-muted-foreground">{stat.detail}</p></div>)}
     </section>
 

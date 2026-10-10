@@ -47,7 +47,7 @@ export default async function NewsPage() {
     <div className="min-h-screen bg-background">
       <PremiumSiteHeader active="news" deskLabel="News Desk" backHref="/" backLabel="Home" />
 
-      <main className="mx-auto max-w-7xl px-4 py-10">
+      <main className="mx-auto site-width px-4 py-10">
         <section className="rounded-xl border border-border bg-card p-6 editorial-elevated backdrop-blur dark:border-white/10 dark:bg-slate-900 md:p-8">
           <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px]">
             <div>

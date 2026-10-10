@@ -21,7 +21,7 @@ export default async function GuidePage({ params }: Props) {
   const schema = { '@context': 'https://schema.org', '@type': 'Article', headline: guide.title, description: guide.description, datePublished: GUIDE_UPDATED, dateModified: GUIDE_UPDATED, mainEntityOfPage: `${siteUrl}/guides/${slug}`, author: { '@type': 'Organization', name: 'MarketplaceBeta', url: `${siteUrl}/about` }, publisher: { '@type': 'Organization', name: 'MarketplaceBeta', logo: { '@type': 'ImageObject', url: `${siteUrl}/brand-icon.png` } } }
   return <div className="min-h-screen bg-background"><PremiumSiteHeader active="guides" />
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema).replace(/</g, '\\u003c') }} />
-    <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+    <main className="mx-auto site-width px-4 py-10 sm:px-6">
       <nav aria-label="Breadcrumb" className="mb-6 text-sm text-muted-foreground"><Link href="/guides" className="font-semibold text-primary">Operator guides</Link><span aria-hidden="true"> / </span>{guide.category}</nav>
       <header className="editorial-intro rounded-2xl border border-border p-6 sm:p-10">
         <p className="editorial-eyebrow">{guide.category} · Practical guide</p><h1 className="mt-4 max-w-4xl text-4xl font-bold leading-tight sm:text-5xl">{guide.title}</h1>

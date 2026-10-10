@@ -1,6 +1,6 @@
 export const SITE_NAVIGATION = [
   { key: "home", href: "/", label: "Latest" },
-  { key: "intelligence", href: "/intelligence", label: "Intelligence" },
+  { key: "intelligence", href: "/intelligence", label: "Dashboard" },
   { key: "news", href: "/news", label: "The briefing" },
   { key: "articles", href: "/articles", label: "Archive" },
   { key: "tools", href: "/tools", label: "Tools" },

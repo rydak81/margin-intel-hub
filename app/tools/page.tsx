@@ -84,14 +84,14 @@ export default function ToolsPage() {
     <div className="min-h-screen bg-background">
       <PremiumSiteHeader active="tools" deskLabel="Operator Tool Suite" backHref="/" backLabel="Home" />
 
-      <div className="mx-auto max-w-7xl px-4 pt-10 sm:px-6">
+      <div className="mx-auto site-width px-4 pt-10 sm:px-6">
         <EditorialIntro eyebrow="Operator tools" title="Put the numbers to work." description="Model profitability, compare scenarios, and evaluate your next operating decision. Calculations are estimates; verify inputs against your own costs." />
         <p className="mt-5 text-muted-foreground">Need a worked example? <Link href="/guides" className="font-semibold text-primary underline underline-offset-4">Explore the operator guides and free worksheets →</Link></p>
         <p className="mt-5 rounded-lg border border-amber-500/30 bg-amber-500/5 p-4 text-sm">Keyword Research and Hot Products use modeled preview signals, not measured live demand. Profit Calculator and Listing Optimizer are available below.</p>
       </div>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className="site-width mx-auto px-4 py-8">
         {/* Feature Cards - Desktop Only */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
           {tabs.map((tab) => (

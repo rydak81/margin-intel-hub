@@ -160,7 +160,7 @@ export default async function ArticlePage({
       />
       <PremiumSiteHeader active="news" deskLabel="Intelligence Brief" backHref="/news" backLabel="News Desk" />
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className="site-width mx-auto px-4 py-8">
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
           <article className="min-w-0">
             <div className="mb-6 flex flex-wrap items-center gap-3">

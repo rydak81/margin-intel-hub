@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback, useRef, Fragment, useMemo } from "react"
+import { IntelligenceSpotlight } from "@/components/intelligence-spotlight"
 import { GuideCards } from "@/components/guide-cards"
 import { trackResourceEvent } from "@/lib/resource-analytics"
 import Image from "next/image"
@@ -358,30 +359,6 @@ export default function HomePageClient({
       })
       .slice(0, 5)
   })()
-  const sourceCount = new Set(articles.map((article) => article.source).filter(Boolean)).size
-  const freshStoryCount = articles.filter((article) => {
-    const publishedAt = new Date(article.publishedAt).getTime()
-    const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000
-    return publishedAt >= oneDayAgo && publishedAt <= Date.now()
-  }).length
-  const heroSignals = [
-    {
-      label: "Stories in the past 24 hours",
-      value: String(freshStoryCount),
-      icon: Sparkles,
-    },
-    {
-      label: "Sources in this briefing",
-      value: String(sourceCount),
-      icon: LineChart,
-    },
-    {
-      label: "Operator focus",
-      value: "Seller to SaaS",
-      icon: Target,
-    },
-  ]
-
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email) return
@@ -464,7 +441,7 @@ export default function HomePageClient({
 
       {/* Editorial masthead */}
       <section className="editorial-hero border-b border-border bg-card">
-        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-8 sm:px-6 md:py-10 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-end lg:gap-16">
+        <div className="mx-auto grid site-width gap-10 px-4 py-8 sm:px-6 md:py-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(360px,.9fr)] lg:items-center lg:gap-12">
           <div>
             <p className="mb-5 flex items-center gap-2.5 text-sm font-semibold tracking-wide text-blue-700 dark:text-blue-300">
               <span className="h-2 w-2 rounded-full bg-blue-600" />The marketplace intelligence desk
@@ -477,35 +454,24 @@ export default function HomePageClient({
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button size="lg" asChild className="h-12 rounded-lg bg-blue-600 px-6 text-base font-semibold text-white hover:bg-blue-700">
-                <a href="#briefing">Explore the latest<ArrowRight className="ml-2 h-4 w-4" /></a>
+                <Link href="/intelligence">Open your dashboard<ArrowRight className="ml-2 h-4 w-4" /></Link>
               </Button>
               <Button size="lg" variant="outline" asChild className="h-12 rounded-lg border-border bg-card px-6 text-base">
-                <Link href="/intelligence">Open the intelligence dashboard</Link>
+                <a href="#briefing">Explore the latest news</a>
               </Button>
             </div>
             {currentUser && personalizationLabel ? <p className="mt-5 text-sm text-muted-foreground">{personalizationLabel}. <Link href="/account" className="font-medium text-primary underline underline-offset-4">Edit your preferences</Link></p> : null}
           </div>
-          <div className="grid grid-cols-3 gap-4 border-t border-border pt-6 lg:grid-cols-1 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
-            {heroSignals.map(signal => (
-              <div key={signal.label}>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground"><signal.icon className="h-4 w-4 text-blue-600 dark:text-blue-300" />{signal.label}</div>
-                <p className="mt-1 text-lg font-semibold tracking-tight">{signal.value}</p>
-              </div>
-            ))}
-          </div>
+          <IntelligenceSpotlight articles={articles} />
         </div>
       </section>
 
 
-      <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6" aria-labelledby="operator-library-title">
-        <div className="mb-6 flex flex-wrap items-end justify-between gap-3"><div><p className="editorial-eyebrow">The operator library</p><h2 id="operator-library-title" className="mt-2 text-3xl font-bold">Turn the context into a decision.</h2></div><Link href="/guides" className="text-sm font-semibold text-primary">All guides & free worksheets →</Link></div>
-        <GuideCards />
-      </section>
 
       {/* Active Filter Indicator — only shows when a filter is active */}
       {selectedCategory !== "all" && (
         <div className="border-b border-white/10 bg-card backdrop-blur dark:bg-slate-900">
-          <div className="max-w-7xl mx-auto flex flex-col items-start justify-between gap-3 px-4 py-3 sm:flex-row sm:items-center">
+          <div className="site-width mx-auto flex flex-col items-start justify-between gap-3 px-4 py-3 sm:flex-row sm:items-center">
             <span className="text-sm text-slate-600 dark:text-slate-200">
               Filtered by:
               <Badge variant="secondary" className="ml-2 rounded-full border border-sky-400/15 bg-white/85 px-3 py-1 text-slate-700 dark:border-sky-300/15 dark:bg-slate-950/60 dark:text-slate-100">
@@ -521,7 +487,7 @@ export default function HomePageClient({
       )}
 
       {/* Main Content */}
-      <main id="briefing" className="max-w-7xl mx-auto px-4 py-10 sm:px-6">
+      <main id="briefing" className="site-width mx-auto px-4 py-10 sm:px-6">
         {/* Hero Featured Article - Full Width (outside flex layout) */}
         {loading && selectedCategory === "all" && (
           <div className="mb-8">
@@ -1055,7 +1021,12 @@ export default function HomePageClient({
         </div>
       </main>
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6"><ResearchDesks /></div>
+      <section className="mx-auto site-width px-4 py-10 sm:px-6" aria-labelledby="operator-library-title">
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-3"><div><p className="editorial-eyebrow">The operator library</p><h2 id="operator-library-title" className="mt-2 text-3xl font-bold">Turn the context into a decision.</h2></div><Link href="/guides" className="text-sm font-semibold text-primary">All guides & free worksheets →</Link></div>
+        <GuideCards />
+      </section>
+
+      <div className="mx-auto site-width px-4 sm:px-6"><ResearchDesks /></div>
 
       {/* Footer */}
       <PremiumSiteFooter />

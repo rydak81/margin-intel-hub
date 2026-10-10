@@ -223,7 +223,7 @@ function ArticlesPage({ mode = "articles" }: ArticlesPageProps) {
         backLabel="Home"
       />
 
-      <main className="max-w-7xl mx-auto px-4 py-10 sm:px-6">
+      <main className="site-width mx-auto px-4 py-10 sm:px-6">
         {searchError && <div role="alert" className="mb-6 rounded-lg border border-red-300 p-4">{searchError} <button className="font-semibold underline" onClick={() => fetchArticles(true)}>Retry search</button></div>}
         <section className="mb-10">
           <div>
