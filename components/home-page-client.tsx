@@ -964,9 +964,9 @@ export default function HomePageClient({
             </Card>
             )}
 
-            {/* Newsletter Signup - Sticky */}
+            {/* Keep signup in normal flow so subsequent sidebar tools cannot overlap it. */}
             {!loading && (
-            <Card className="sticky top-32 overflow-hidden rounded-xl border border-white/10 bg-slate-950 text-primary-foreground editorial-elevated">
+            <Card className="overflow-hidden rounded-xl border border-white/10 bg-slate-950 text-primary-foreground editorial-elevated">
               <CardContent className="p-5">
                 <Mail className="mb-3 h-8 w-8 text-sky-300" />
                 <h3 className="mb-2 font-bold">Daily Marketplace Brief</h3>
