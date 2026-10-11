@@ -1,5 +1,16 @@
 import Parser from 'rss-parser'
-import { MANUFACTURING_SOURCES, normalizeManufacturingItems, dedupeManufacturingStories, type ManufacturingSnapshot, type ManufacturingSource } from '@/lib/manufacturing'
+import { MANUFACTURING_SOURCES, normalizeManufacturingItems, dedupeManufacturingStories, type ManufacturingFeedItem, type ManufacturingSnapshot, type ManufacturingSource } from '@/lib/manufacturing'
+
+// Surface the fields cover-image extraction reads; rss-parser drops unmapped namespaced tags.
+const newParser = () => new Parser<Record<string, unknown>, ManufacturingFeedItem>({
+  customFields: {
+    item: [
+      ['media:content', 'mediaContent', { keepArray: true }],
+      ['media:thumbnail', 'mediaThumbnail'],
+      ['content:encoded', 'contentEncoded'],
+    ],
+  },
+})
 
 const MAX_FEED_BYTES = 2_000_000
 export async function readManufacturingFeed(source: ManufacturingSource, now: number, fetcher: typeof fetch = fetch) {
@@ -21,9 +32,10 @@ export async function readManufacturingFeed(source: ManufacturingSource, now: nu
   } finally { reader.releaseLock() }
   const xml = Buffer.concat(chunks).toString('utf8')
   if (/<!DOCTYPE|<!ENTITY/i.test(xml)) throw new Error('Unsupported XML declaration')
-  const feed = await new Parser().parseString(xml)
+  const feed = await newParser().parseString(xml)
   if (!Array.isArray(feed.items)) throw new Error('Invalid feed')
-  // Headline, date, classification, and original link only. Never republish body or images.
+  // Headline, date, classification, original link, a validated cover image, and a short
+  // excerpt for the on-site brief. Never republish the full article body.
   return normalizeManufacturingItems(feed.items, source, now)
 }
 export async function buildManufacturingSnapshot(now = Date.now(), fetcher: typeof fetch = fetch): Promise<ManufacturingSnapshot> {

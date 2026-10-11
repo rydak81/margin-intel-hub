@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-label="Industry context">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#1e3a8a"/>
+    </linearGradient>
+    <linearGradient id="bar" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#0ea5e9" stop-opacity=".25"/>
+      <stop offset="1" stop-color="#22d3ee" stop-opacity=".85"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#bg)"/>
+  <g stroke="#38bdf8" stroke-opacity=".08">
+    <path d="M0 135H1200M0 270H1200M0 405H1200M0 540H1200"/>
+    <path d="M200 0V675M400 0V675M600 0V675M800 0V675M1000 0V675"/>
+  </g>
+  <circle cx="240" cy="520" r="260" fill="#6366f1" fill-opacity=".08"/>
+  <g transform="translate(330 120)">
+    <!-- factory silhouette -->
+    <path d="M0 372 V 300 L 70 258 V 300 L 140 258 V 300 L 210 258 V 372 Z" fill="#172554" stroke="#60a5fa" stroke-width="6" stroke-linejoin="round"/>
+    <rect x="30" y="316" width="34" height="30" rx="5" fill="#1d4ed8"/>
+    <rect x="96" y="316" width="34" height="30" rx="5" fill="#1d4ed8"/>
+    <rect x="162" y="316" width="34" height="30" rx="5" fill="#1d4ed8"/>
+    <rect x="22" y="196" width="26" height="62" rx="6" fill="#172554" stroke="#60a5fa" stroke-width="6"/>
+    <!-- chart bars -->
+    <g fill="url(#bar)">
+      <rect x="280" y="236" width="52" height="136" rx="8"/>
+      <rect x="352" y="188" width="52" height="184" rx="8"/>
+      <rect x="424" y="256" width="52" height="116" rx="8"/>
+      <rect x="496" y="132" width="52" height="240" rx="8"/>
+    </g>
+    <!-- trend line -->
+    <path d="M280 192 L 378 148 L 450 204 L 548 84" fill="none" stroke="#a5f3fc" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    <g fill="#ecfeff">
+      <circle cx="280" cy="192" r="9"/>
+      <circle cx="378" cy="148" r="9"/>
+      <circle cx="450" cy="204" r="9"/>
+      <circle cx="548" cy="84" r="9"/>
+    </g>
+    <rect x="-30" y="372" width="610" height="14" rx="7" fill="#1e40af" fill-opacity=".6"/>
+  </g>
+  <text x="72" y="580" font-family="Arial, Helvetica, sans-serif" font-size="26" letter-spacing="6" fill="#93c5fd" font-weight="bold">MARKETPLACEBETA · MANUFACTURING DESK</text>
+  <text x="72" y="628" font-family="Arial, Helvetica, sans-serif" font-size="40" fill="#f8fafc" font-weight="bold">Industry context</text>
+</svg>

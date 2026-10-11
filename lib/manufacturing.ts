@@ -1,3 +1,5 @@
+import { isGoodArticleImage, normalizeArticleImageUrl } from '@/lib/article-images'
+
 export const MANUFACTURING_SOURCES = [
   { id: 'prusa', name: 'Prusa Research', url: 'https://blog.prusa3d.com/', feed: 'https://blog.prusa3d.com/feed/', kind: 'Manufacturer', process: '3D printing' },
   { id: 'bambu', name: 'Bambu Lab', url: 'https://blog.bambulab.com/', feed: 'https://blog.bambulab.com/rss/', kind: 'Manufacturer', process: '3D printing' },
@@ -13,6 +15,12 @@ export type ManufacturingProcess = typeof MANUFACTURING_PROCESSES[number]
 export interface ManufacturingStory {
   id: string; title: string; url: string; sourceId: string; sourceName: string; sourceKind: string
   publishedAt: string; topic: ManufacturingTopic; process: ManufacturingProcess
+  /** Stable path segment for the on-site brief page, ending in a hash of the article URL. */
+  slug: string
+  /** Validated cover image from the publisher feed, or null when the feed offers none. */
+  imageUrl: string | null
+  /** Short plain-text excerpt from the feed. Never the full article body. */
+  excerpt: string | null
 }
 export interface ManufacturingSourceStatus {
   id: string; available: boolean; count: number; latestPublishedAt: string | null
@@ -36,6 +44,84 @@ export function manufacturingTopic(title: string): ManufacturingTopic {
   if (/\b(market|economy|business|law|policy|price|pricing|sales|growth|investment|factory)\b/i.test(title)) return 'Business & policy'
   return 'Equipment'
 }
+/** Branded fallback covers served from /public — every card and brief renders an image. */
+export const MANUFACTURING_FALLBACK_COVERS: Record<ManufacturingProcess, string> = {
+  '3D printing': '/manufacturing/cover-3d-printing.svg',
+  'Desktop CNC': '/manufacturing/cover-desktop-cnc.svg',
+  'Laser & fabrication': '/manufacturing/cover-laser.svg',
+  'Industry context': '/manufacturing/cover-industry.svg',
+}
+export const manufacturingFallbackCover = (process: ManufacturingProcess) => MANUFACTURING_FALLBACK_COVERS[process]
+
+const slugHash = (value: string) => {
+  let hash = 0x811c9dc5
+  for (let i = 0; i < value.length; i++) { hash ^= value.charCodeAt(i); hash = Math.imul(hash, 0x01000193) >>> 0 }
+  return hash.toString(36)
+}
+/** Readable slug ending in a hash of the article URL, so links survive headline edits. */
+export function manufacturingStorySlug(title: string, url: string): string {
+  const words = title.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim().split(/\s+/).filter(Boolean).slice(0, 8).join('-')
+  return `${words || 'report'}-${slugHash(url)}`
+}
+/** Look a story up by slug; the trailing URL hash is authoritative when titles drift. */
+export function findManufacturingStory(stories: ManufacturingStory[], slug: string): ManufacturingStory | null {
+  const direct = stories.find(story => story.slug === slug)
+  if (direct) return direct
+  const hash = slug.split('-').pop()
+  return (hash && stories.find(story => story.slug.split('-').pop() === hash)) || null
+}
+
+export interface ManufacturingFeedItem {
+  title?: string; link?: string; isoDate?: string; pubDate?: string; contentSnippet?: string
+  content?: string; contentEncoded?: string
+  enclosure?: { url?: string; type?: string }
+  mediaContent?: { $?: { url?: string; medium?: string; type?: string } }[]
+  mediaThumbnail?: { $?: { url?: string } }
+}
+
+const IMAGE_EXTENSION = /\.(avif|gif|jpe?g|png|webp)(\?|$)/i
+const checkImage = (candidate: string | undefined | null): string | null => {
+  const normalized = normalizeArticleImageUrl(candidate)
+  return normalized && isGoodArticleImage(normalized) ? normalized : null
+}
+/** Cover image for a feed item: media tags, then enclosure, then the first usable <img> in the body HTML. */
+export function manufacturingStoryImage(item: ManufacturingFeedItem): string | null {
+  for (const media of item.mediaContent ?? []) {
+    const attrs = media?.$
+    if (!attrs?.url) continue
+    if (attrs.medium && attrs.medium !== 'image') continue
+    if (attrs.type && !attrs.type.startsWith('image/')) continue
+    const found = checkImage(attrs.url)
+    if (found) return found
+  }
+  const thumbnail = checkImage(item.mediaThumbnail?.$?.url)
+  if (thumbnail) return thumbnail
+  if (item.enclosure?.url && (item.enclosure.type?.startsWith('image/') || IMAGE_EXTENSION.test(item.enclosure.url))) {
+    const found = checkImage(item.enclosure.url)
+    if (found) return found
+  }
+  for (const tag of (item.contentEncoded || item.content || '').match(/<img[^>]+>/gi)?.slice(0, 5) ?? []) {
+    const found = checkImage(tag.match(/src=["']([^"']+)["']/i)?.[1])
+    if (found) return found
+  }
+  return null
+}
+
+/** Short plain-text excerpt (≤ 500 chars) from the feed snippet or body. Never the full article. */
+export function manufacturingExcerpt(item: ManufacturingFeedItem): string | null {
+  const text = (item.contentSnippet || item.contentEncoded || item.content || '')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
+    .replace(/&#(\d+);/g, (_, dec) => String.fromCharCode(parseInt(dec, 10)))
+    .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"').replace(/&(?:#039|apos|rsquo);/g, '’').replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ').trim()
+  if (text.length < 40) return null
+  if (text.length <= 500) return text
+  const cut = text.slice(0, 500)
+  return `${cut.slice(0, Math.max(cut.lastIndexOf(' '), 400))}…`
+}
+
 export function manufacturingLink(value: string, source: ManufacturingSource): string | null {
   try {
     const url = new URL(value)
@@ -46,7 +132,7 @@ export function manufacturingLink(value: string, source: ManufacturingSource): s
     return url.href
   } catch { return null }
 }
-export function normalizeManufacturingItems(items: { title?: string; link?: string; isoDate?: string; pubDate?: string; contentSnippet?: string }[], source: ManufacturingSource, now = Date.now()): ManufacturingStory[] {
+export function normalizeManufacturingItems(items: ManufacturingFeedItem[], source: ManufacturingSource, now = Date.now()): ManufacturingStory[] {
   return items.slice(0, 60).flatMap(item => {
     const title = (item.title || '').replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim().slice(0, 240)
     const date = Date.parse(item.isoDate || item.pubDate || '')
@@ -56,7 +142,11 @@ export function normalizeManufacturingItems(items: { title?: string; link?: stri
     // Broad AM sources also cover industrial sectors outside this desk's scope.
     if (source.id === '3dpi' && /\b(combat|UGV|medicine|pediatric|aerospace|powder production|aluminum curtain)\b/i.test(title)) return []
     const process: ManufacturingProcess = /\b(laser|engraver|engraving|CO₂|CO2)\b/i.test(`${title} ${(item.contentSnippet || '').slice(0, 1500)}`) ? 'Laser & fabrication' : source.process
-    return [{ id: url, title, url, sourceId: source.id, sourceName: source.name, sourceKind: source.kind, publishedAt: new Date(date).toISOString(), topic: manufacturingTopic(title), process }]
+    return [{
+      id: url, title, url, sourceId: source.id, sourceName: source.name, sourceKind: source.kind,
+      publishedAt: new Date(date).toISOString(), topic: manufacturingTopic(title), process,
+      slug: manufacturingStorySlug(title, url), imageUrl: manufacturingStoryImage(item), excerpt: manufacturingExcerpt(item),
+    }]
   })
 }
 export function dedupeManufacturingStories(stories: ManufacturingStory[]): ManufacturingStory[] {

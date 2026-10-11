@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-label="Desktop CNC">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#1e3a5f"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#bg)"/>
+  <g stroke="#38bdf8" stroke-opacity=".08">
+    <path d="M0 135H1200M0 270H1200M0 405H1200M0 540H1200"/>
+    <path d="M200 0V675M400 0V675M600 0V675M800 0V675M1000 0V675"/>
+  </g>
+  <circle cx="280" cy="150" r="240" fill="#3b82f6" fill-opacity=".08"/>
+  <g transform="translate(360 110)">
+    <!-- spindle -->
+    <rect x="200" y="0" width="92" height="120" rx="14" fill="#0f172a" stroke="#93c5fd" stroke-width="7"/>
+    <rect x="222" y="120" width="48" height="34" rx="8" fill="#1d4ed8"/>
+    <!-- end mill with flutes -->
+    <g stroke="#bfdbfe" stroke-width="7" stroke-linecap="round">
+      <path d="M246 154 V 238"/>
+      <path d="M232 176 Q 246 188 260 176"/>
+      <path d="M232 204 Q 246 216 260 204"/>
+    </g>
+    <!-- chips flying -->
+    <g fill="#60a5fa">
+      <circle cx="196" cy="246" r="6"/>
+      <circle cx="300" cy="238" r="5"/>
+      <circle cx="316" cy="262" r="4"/>
+      <circle cx="176" cy="268" r="4"/>
+    </g>
+    <!-- stock block with toolpath -->
+    <rect x="46" y="252" width="400" height="104" rx="12" fill="#172554" stroke="#60a5fa" stroke-width="6"/>
+    <path d="M86 304 H 174 Q 196 304 196 282 H 296 Q 318 282 318 304 H 406" fill="none" stroke="#38bdf8" stroke-width="7" stroke-linecap="round" stroke-dasharray="2 18"/>
+    <!-- machine bed -->
+    <rect x="0" y="376" width="492" height="16" rx="8" fill="#1e40af" fill-opacity=".6"/>
+    <rect x="30" y="408" width="432" height="12" rx="6" fill="#1e3a5f"/>
+  </g>
+  <text x="72" y="580" font-family="Arial, Helvetica, sans-serif" font-size="26" letter-spacing="6" fill="#93c5fd" font-weight="bold">MARKETPLACEBETA · MANUFACTURING DESK</text>
+  <text x="72" y="628" font-family="Arial, Helvetica, sans-serif" font-size="40" fill="#f8fafc" font-weight="bold">Desktop CNC</text>
+</svg>
