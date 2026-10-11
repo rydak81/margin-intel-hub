@@ -134,14 +134,14 @@ export function HistoryView({ basePath = "/history" }: { basePath?: string } = {
             className="border-amber-500/40 text-amber-700 dark:text-amber-300"
           >
             <AlertTriangle className="mr-1 h-3 w-3" />
-            Sample data — set KEEPA_API_KEY for live history
+            Sample data — illustrative, not observed market history
           </Badge>
         ) : (
           <Badge
             variant="outline"
             className="border-emerald-500/40 text-emerald-700 dark:text-emerald-300"
           >
-            Live · Keepa
+            Keepa market data · New condition
           </Badge>
         )}
         {loading && <span className="text-sm text-muted-foreground">Loading…</span>}
@@ -319,7 +319,7 @@ export function HistoryView({ basePath = "/history" }: { basePath?: string } = {
           </div>
         </div>
         <div className="rounded-2xl border border-white/70 bg-white/84 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
-          <h3 className="mb-3 text-sm font-semibold">Est. monthly sales (units)</h3>
+          <h3 className="mb-3 text-sm font-semibold">Bought in past month — lower-bound range</h3>
           <div
             className="h-[180px] cursor-zoom-in"
             role="button"

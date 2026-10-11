@@ -154,10 +154,10 @@ export function AccountPageClient() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.14),transparent_18%),radial-gradient(circle_at_top_right,rgba(217,70,239,0.12),transparent_16%),linear-gradient(180deg,rgba(248,250,252,0.92),rgba(255,255,255,0.84)_18%,transparent_32%)] bg-background">
-        <PremiumSiteHeader active="community" deskLabel="Account" backHref="/" backLabel="Home" />
+      <div className="min-h-screen bg-background">
+        <PremiumSiteHeader active="articles" deskLabel="Account" backHref="/" backLabel="Home" />
         <main className="mx-auto max-w-4xl px-4 py-12">
-          <Card className="border-white/70 bg-white/82 dark:border-white/10 dark:bg-slate-950/45">
+          <Card className="border-border bg-white dark:border-white/10 dark:bg-slate-900">
             <CardContent className="p-6 md:p-8">
               <AuthPanel
                 redirectTo="/account"
@@ -173,20 +173,20 @@ export function AccountPageClient() {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.14),transparent_18%),radial-gradient(circle_at_top_right,rgba(217,70,239,0.12),transparent_16%),linear-gradient(180deg,rgba(248,250,252,0.92),rgba(255,255,255,0.84)_18%,transparent_32%)] bg-background">
-      <PremiumSiteHeader active="community" deskLabel="Account" backHref="/" backLabel="Home" />
+    <div className="min-h-screen bg-background">
+      <PremiumSiteHeader active="articles" deskLabel="Account" backHref="/" backLabel="Home" />
 
       <main className="mx-auto max-w-6xl px-4 py-10">
-        <section className="rounded-[32px] border border-white/60 bg-[linear-gradient(135deg,rgba(255,255,255,0.94),rgba(248,250,252,0.84)_48%,rgba(239,246,255,0.82))] p-6 shadow-[0_30px_80px_-42px_rgba(15,23,42,0.34)] backdrop-blur dark:border-white/10 dark:bg-[linear-gradient(135deg,rgba(15,23,42,0.84),rgba(15,23,42,0.74)_48%,rgba(30,41,59,0.82))] md:p-8">
+        <section className="rounded-xl border border-border bg-card p-6 editorial-elevated backdrop-blur dark:border-white/10 dark:bg-slate-900 md:p-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/15 bg-white/76 px-3 py-1.5 text-sm shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+              <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/15 bg-white px-3 py-1.5 text-sm shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-900">
                 <Sparkles className="h-4 w-4 text-sky-600" />
                 <span className="text-muted-foreground">
                   Personalized operator workspace
                 </span>
               </div>
-              <h1 className="mt-5 text-4xl font-black tracking-tight md:text-5xl">
+              <h1 className="mt-5 text-4xl font-bold tracking-tight md:text-5xl">
                 Your MarketplaceBeta account
               </h1>
               <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-600 dark:text-slate-300">
@@ -195,8 +195,8 @@ export function AccountPageClient() {
             </div>
 
             <div className="flex flex-wrap gap-3">
-              <Button asChild variant="outline" className="border-white/60 bg-white/70 dark:border-white/10 dark:bg-slate-950/40">
-                <Link href="/community">Open community</Link>
+              <Button asChild variant="outline" className="border-border bg-white/70 dark:border-white/10 dark:bg-slate-950/40">
+                <Link href="/articles">Open research archive</Link>
               </Button>
               <Button variant="ghost" onClick={() => void signOut()}>
                 <LogOut className="mr-2 h-4 w-4" />
@@ -208,7 +208,7 @@ export function AccountPageClient() {
 
         <div className="mt-8 grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px]">
           <form onSubmit={handleSave} className="space-y-6">
-            <Card className="border-white/70 bg-white/82 dark:border-white/10 dark:bg-slate-950/45">
+            <Card className="border-border bg-white dark:border-white/10 dark:bg-slate-900">
               <CardHeader>
                 <CardTitle>Profile</CardTitle>
               </CardHeader>
@@ -251,7 +251,7 @@ export function AccountPageClient() {
               </CardContent>
             </Card>
 
-            <Card className="border-white/70 bg-white/82 dark:border-white/10 dark:bg-slate-950/45">
+            <Card className="border-border bg-white dark:border-white/10 dark:bg-slate-900">
               <CardHeader>
                 <CardTitle>Preferences</CardTitle>
               </CardHeader>
@@ -325,7 +325,7 @@ export function AccountPageClient() {
           </form>
 
           <aside className="space-y-6">
-            <Card className="border-white/70 bg-white/82 dark:border-white/10 dark:bg-slate-950/45">
+            <Card className="border-border bg-white dark:border-white/10 dark:bg-slate-900">
               <CardHeader>
                 <CardTitle className="text-base">What this unlocks</CardTitle>
               </CardHeader>
@@ -338,7 +338,7 @@ export function AccountPageClient() {
 
             <Card className="border-0 bg-primary text-primary-foreground">
               <CardContent className="p-6">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary-foreground/70">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary-foreground/70">
                   Recommended next step
                 </p>
                 <h3 className="mt-2 text-lg font-bold">Join the operator network</h3>
@@ -346,7 +346,7 @@ export function AccountPageClient() {
                   Once your profile looks right, participate in community threads and help shape future Operator Pulse coverage.
                 </p>
                 <Button asChild variant="secondary" className="mt-4 w-full">
-                  <Link href="/community">Open community</Link>
+                  <Link href="/articles">Open research archive</Link>
                 </Button>
               </CardContent>
             </Card>

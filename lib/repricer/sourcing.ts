@@ -14,6 +14,7 @@ import type { ReferralTier } from "./types"
 
 export interface SourcingFees {
   tiers: ReferralTier[]
+  minReferralFee?: number
   fixedFees: number
   acosRate: number
   returnReserveRate: number
@@ -27,9 +28,9 @@ export interface SourcingFees {
  * matter how cheaply it is acquired; callers should surface that, not clamp it.
  */
 export function maxLandedCost(price: number, fees: SourcingFees, m: number): number {
-  const referral = referralFeeAt(fees.tiers, price)
+  const referral = Math.max(fees.minReferralFee ?? 0, referralFeeAt(fees.tiers, price))
   const variable = (fees.acosRate + fees.returnReserveRate + m) * price
-  return round2(price - referral - variable - fees.outboundShipping - fees.fixedFees)
+  return Math.floor((price - referral - variable - fees.outboundShipping - fees.fixedFees + 1e-9) * 100) / 100
 }
 
 /** Profit in dollars when buying at `landed` and selling at `price`. */
@@ -40,7 +41,7 @@ export function profitBuyingAt(
 ): number {
   return round2(
     price -
-      referralFeeAt(fees.tiers, price) -
+      Math.max(fees.minReferralFee ?? 0, referralFeeAt(fees.tiers, price)) -
       (fees.acosRate + fees.returnReserveRate) * price -
       fees.outboundShipping -
       fees.fixedFees -

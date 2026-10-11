@@ -1,5 +1,7 @@
 "use client"
 
+import { readSavedSettings } from "@/lib/repricer/storage"
+
 import { useEffect, useMemo, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -116,12 +118,10 @@ export function RepricerDashboard() {
 
   useEffect(() => {
     try {
-      const c = localStorage.getItem(COSTS_KEY)
-      if (c) setCosts(JSON.parse(c))
-      const s = localStorage.getItem(STRATEGY_KEY)
-      if (s) setStrategy({ ...DEFAULT_STRATEGY, ...JSON.parse(s) })
-      const f = localStorage.getItem(FEES_KEY)
-      if (f) setFeeOverrides(JSON.parse(f))
+      const saved = readSavedSettings()
+      setCosts(saved.costs)
+      setStrategy(saved.strategy)
+      setFeeOverrides(saved.feeOverrides)
     } catch {
       // corrupted local state — fall back to defaults
     }
@@ -129,13 +129,13 @@ export function RepricerDashboard() {
   }, [])
 
   useEffect(() => {
-    if (hydrated) localStorage.setItem(COSTS_KEY, JSON.stringify(costs))
+    if (hydrated) { try { localStorage.setItem(COSTS_KEY, JSON.stringify(costs)) } catch { /* Storage unavailable; retain this session. */ } }
   }, [costs, hydrated])
   useEffect(() => {
-    if (hydrated) localStorage.setItem(STRATEGY_KEY, JSON.stringify(strategy))
+    if (hydrated) { try { localStorage.setItem(STRATEGY_KEY, JSON.stringify(strategy)) } catch { /* Storage unavailable; retain this session. */ } }
   }, [strategy, hydrated])
   useEffect(() => {
-    if (hydrated) localStorage.setItem(FEES_KEY, JSON.stringify(feeOverrides))
+    if (hydrated) { try { localStorage.setItem(FEES_KEY, JSON.stringify(feeOverrides)) } catch { /* Storage unavailable; retain this session. */ } }
   }, [feeOverrides, hydrated])
 
   const decisions = useMemo(() => {
@@ -664,7 +664,7 @@ function SkuAnalyzer({
                 k="Referral fee @ recommended"
                 v={
                   decision.newPrice !== null
-                    ? `${fmt(referralFeeAt(fees.tiers, decision.newPrice))} (${pct(
+                    ? `${fmt(Math.max(fees.minReferralFee ?? 0, referralFeeAt(fees.tiers, decision.newPrice)))} (${pct(
                         effectiveReferralRateAt(fees.tiers, decision.newPrice),
                       )} eff.)`
                     : "—"
@@ -847,7 +847,7 @@ function FeeEditor({
                   <TableHead>Category</TableHead>
                   <TableHead className="w-32 text-right">Rate %</TableHead>
                   <TableHead className="w-32 text-right">Fixed fee $</TableHead>
-                  <TableHead>Schedule &amp; last verified</TableHead>
+                  <TableHead>Schedule assumptions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -887,7 +887,7 @@ function FeeEditor({
                         <p>
                           {describeTiers(eff.tiers)}
                           {eff.fixedFees > 0 ? ` + $${eff.fixedFees.toFixed(2)}/order` : ""} ·
-                          verified {base.lastVerified}
+                          {base.lastVerified}
                         </p>
                         {base.note && <p className="text-amber-700 dark:text-amber-400">{base.note}</p>}
                       </TableCell>

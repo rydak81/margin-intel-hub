@@ -1,53 +1,26 @@
-// Price-history proxy. With KEEPA_API_KEY set, fetches the Keepa product API
-// server-side (the key never reaches the browser) and returns monthly points;
-// responses are cached in memory for 12 hours to conserve Keepa tokens.
-// Without a key it returns { configured: false } and the client renders a
-// clearly-labeled sample series instead.
+import { NextRequest, NextResponse } from 'next/server'
+import { keepaProductToHistory, type KeepaProduct } from '@/lib/repricer/history'
+import { keepaAccess, readKeepa } from '@/lib/repricer/keepa-access'
 
-import { NextRequest, NextResponse } from "next/server"
-import { keepaProductToHistory, type KeepaProduct } from "@/lib/repricer/history"
-
-const CACHE_TTL_MS = 12 * 60 * 60 * 1000
-const cache = new Map<string, { at: number; body: unknown }>()
-
+export const dynamic = 'force-dynamic'
+const headers = { 'Cache-Control': 'private, no-store' }
 export async function GET(req: NextRequest) {
-  const asin = req.nextUrl.searchParams.get("asin")
-  if (!asin || !/^B0[A-Z0-9]{8}$/.test(asin)) {
-    return NextResponse.json({ error: "Invalid ASIN" }, { status: 400 })
+  const asin = req.nextUrl.searchParams.get('asin')?.toUpperCase()
+  const months = Number(req.nextUrl.searchParams.get('months') ?? 18)
+  if (!asin || !/^[A-Z0-9]{10}$/.test(asin) || !Number.isInteger(months) || months < 6 || months > 36) {
+    return NextResponse.json({ error: 'Enter a valid ASIN and a 6–36 month window.' }, { status: 400, headers })
   }
-  const months = Math.min(36, Math.max(6, Number(req.nextUrl.searchParams.get("months")) || 18))
-
-  const key = process.env.KEEPA_API_KEY
-  if (!key) {
-    return NextResponse.json({ configured: false })
+  const access = await keepaAccess()
+  if ('error' in access) return NextResponse.json({ configured: false, error: access.error }, { status: access.status, headers })
+  try {
+    const url = new URL('https://api.keepa.com/product')
+    url.search = new URLSearchParams({ key: access.key, domain: '1', asin, history: '1', buybox: '1' }).toString()
+    const data = await readKeepa<{ products?: KeepaProduct[] }>(url, 12 * 60 * 60 * 1000)
+    const product = data.products?.find(p => p.asin === asin)
+    if (!product) return NextResponse.json({ error: 'No market history found.' }, { status: 404, headers })
+    return NextResponse.json({ configured: true, asin, source: 'keepa', points: keepaProductToHistory(product, months) }, { headers })
+  } catch {
+    // Never return provider URLs, credentials, or raw error payloads.
+    return NextResponse.json({ error: 'Market history is temporarily unavailable.' }, { status: 502, headers })
   }
-
-  const cacheKey = `${asin}:${months}`
-  const cached = cache.get(cacheKey)
-  if (cached && Date.now() - cached.at < CACHE_TTL_MS) {
-    return NextResponse.json(cached.body)
-  }
-
-  const url = `https://api.keepa.com/product?key=${key}&domain=1&asin=${asin}&history=1&buybox=1`
-  const res = await fetch(url, { cache: "no-store" })
-  if (!res.ok) {
-    return NextResponse.json(
-      { error: `Keepa request failed (${res.status})` },
-      { status: 502 },
-    )
-  }
-  const data = (await res.json()) as { products?: KeepaProduct[] }
-  const product = data.products?.[0]
-  if (!product) {
-    return NextResponse.json({ error: "ASIN not found in Keepa" }, { status: 404 })
-  }
-
-  const body = {
-    configured: true,
-    asin,
-    source: "keepa" as const,
-    points: keepaProductToHistory(product, months),
-  }
-  cache.set(cacheKey, { at: Date.now(), body })
-  return NextResponse.json(body)
 }

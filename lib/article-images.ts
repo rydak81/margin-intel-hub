@@ -253,11 +253,37 @@ const TINY_ICON_PATTERNS = [
   '/icon-', '/icon.', '-icon.', '_icon.',
 ]
 
+/**
+ * Hosts we control or trust unconditionally. Checked before BAD_PATTERNS so a
+ * slugified headline containing e.g. "newsletter" can't disqualify our own
+ * generated image stored under that path.
+ */
+const TRUSTED_IMAGE_HOSTS = ['.supabase.co/storage/', 'images.unsplash.com']
+
+/**
+ * Normalize a raw image URL for storage/rendering: protocol-relative URLs get
+ * https, http gets upgraded (mixed content is blocked by browsers anyway, and
+ * every mainstream CDN serves https). Anything that still isn't https is
+ * unusable and returns null.
+ */
+export function normalizeArticleImageUrl(url: string | null | undefined): string | null {
+  if (!url) return null
+  let normalized = url.trim()
+  if (normalized.startsWith('//')) normalized = `https:${normalized}`
+  if (normalized.startsWith('http://')) normalized = `https://${normalized.slice(7)}`
+  if (!normalized.startsWith('https://')) return null
+  return normalized
+}
+
 export function isGoodArticleImage(url: string | null | undefined): boolean {
   if (!url) return false
   if (!url.startsWith('http')) return false
 
   const lowerUrl = url.toLowerCase()
+
+  for (const host of TRUSTED_IMAGE_HOSTS) {
+    if (lowerUrl.includes(host)) return true
+  }
 
   for (const pattern of BAD_PATTERNS) {
     if (lowerUrl.includes(pattern)) return false
@@ -411,6 +437,23 @@ export function getArticleImageUrl(
   }
 
   // 3. Keyword-matched or category fallback
+  return getArticleFallbackImage(title, category, platforms)
+}
+
+/**
+ * Resolve a stored image URL into something guaranteed renderable: normalize
+ * the protocol, validate against the junk patterns, and fall back to a
+ * deterministic stock image when the source image is missing or bad. Never
+ * returns null — every article card gets an image.
+ */
+export function resolveArticleImage(
+  rawUrl: string | null | undefined,
+  title: string,
+  category: string,
+  platforms: string[] = [],
+): string {
+  const normalized = normalizeArticleImageUrl(rawUrl)
+  if (normalized && isGoodArticleImage(normalized)) return normalized
   return getArticleFallbackImage(title, category, platforms)
 }
 

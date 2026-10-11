@@ -1,5 +1,7 @@
 "use client"
 
+import { readSavedSettings } from "@/lib/repricer/storage"
+
 import { useEffect, useRef, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -70,10 +72,9 @@ export function SourcingView() {
 
   useEffect(() => {
     try {
-      const s = localStorage.getItem("repricer.strategy.v1")
-      if (s) setStrategy({ ...DEFAULT_STRATEGY, ...JSON.parse(s) })
-      const f = localStorage.getItem("repricer.fees.v1")
-      if (f) setFeeOverrides(JSON.parse(f))
+      const saved = readSavedSettings()
+      setStrategy(saved.strategy)
+      setFeeOverrides(saved.feeOverrides)
     } catch {
       // defaults are fine
     }
@@ -91,6 +92,7 @@ export function SourcingView() {
       const data = await res.json()
       if (data.configured === false) {
         setConfigured(false)
+        setError(data.error ?? "Market-data lookup is unavailable.")
         return
       }
       setConfigured(true)
@@ -167,6 +169,7 @@ export function SourcingView() {
     return {
       tiers: f.tiers,
       fixedFees: f.fixedFees,
+      minReferralFee: f.minReferralFee,
       acosRate: strategy.acosRate,
       returnReserveRate: strategy.returnReserveRate,
       outboundShipping: DEFAULT_COST_RATIOS[category].shipping,
@@ -207,7 +210,7 @@ export function SourcingView() {
           {configured === false && (
             <Badge variant="outline" className="border-amber-500/40 text-amber-700 dark:text-amber-300">
               <AlertTriangle className="mr-1 h-3 w-3" />
-              No KEEPA_API_KEY — enter the Buy Box price manually below
+              Enter an observed selling price below to use manual analysis
             </Badge>
           )}
         </div>
@@ -240,23 +243,25 @@ export function SourcingView() {
         )}
 
         {/* Manual entry when Keepa is not configured */}
-        {configured === false && (
+        {!picked && (
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label className="text-xs">Product name (optional)</Label>
+              <Label htmlFor="manual-product" className="text-xs">Product name (optional)</Label>
               <Input
                 className="h-9"
+                id="manual-product"
                 value={manualTitle}
                 onChange={(e) => setManualTitle(e.target.value)}
                 placeholder="e.g. iPad 9th Gen 64GB"
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">Current Buy Box / selling price $</Label>
+              <Label htmlFor="manual-price" className="text-xs">Observed selling price $</Label>
               <Input
                 type="number"
                 className="h-9"
                 step={1}
+                id="manual-price"
                 value={manualPrice || ""}
                 onChange={(e) => {
                   const v = Number(e.target.value)
@@ -267,6 +272,7 @@ export function SourcingView() {
           </div>
         )}
 
+        <p className="mt-3 text-sm text-muted-foreground">Use a price for the same product condition and fulfillment method. Keepa charts show New-condition offers; the example catalog is Renewed. Fee rates are editable assumptions, not verified quotes.</p>
         {/* Picked product summary */}
         {picked && (
           <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-1 rounded-xl border p-3 text-sm">
@@ -277,7 +283,7 @@ export function SourcingView() {
             </span>
             <span>Lowest: {fmt(picked.lowestOffer)}</span>
             <span>{picked.offerCount ?? "?"} sellers</span>
-            {picked.monthlySold !== null && <span>~{picked.monthlySold}/mo sold</span>}
+            {picked.monthlySold !== null && <span>{picked.monthlySold}+ bought in past month (Amazon range)</span>}
           </div>
         )}
       </div>

@@ -1,12 +1,14 @@
 import type { Metadata } from "next"
-import Image from "next/image"
+import { ArticleImage } from "@/components/article-image"
 import Link from "next/link"
 import { AlertTriangle, ArrowRight, BellRing, BookOpenText, CalendarDays, CircleDot, Sparkles, Target } from "lucide-react"
 import { PremiumSiteHeader } from "@/components/premium-site-header"
+import { ResearchDesks } from "@/components/research-desks"
 import { PremiumSiteFooter } from "@/components/premium-site-footer"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { getArticleImageUrl } from "@/lib/article-images"
+import { datedSummary } from '@/lib/news-freshness'
 import { getDailyOperatorBriefing } from "@/lib/news-briefing"
 
 export const metadata: Metadata = {
@@ -39,31 +41,33 @@ function formatRelativeTime(dateString: string): string {
 
 export default async function NewsPage() {
   const { briefing, articles } = await getDailyOperatorBriefing()
-  const topCoverage = articles.slice(0, 8)
+  const signalIds = new Set(briefing.signals.map(s => s.articleId))
+  const topCoverage = articles.filter(a => !signalIds.has(a.id)).slice(0, 8)
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.14),transparent_18%),radial-gradient(circle_at_top_right,rgba(217,70,239,0.12),transparent_16%),linear-gradient(180deg,rgba(248,250,252,0.92),rgba(255,255,255,0.84)_18%,transparent_32%)] bg-background">
+    <div className="min-h-screen bg-background">
       <PremiumSiteHeader active="news" deskLabel="News Desk" backHref="/" backLabel="Home" />
 
-      <main className="mx-auto max-w-7xl px-4 py-10">
-        <section className="rounded-[34px] border border-white/70 bg-[linear-gradient(135deg,rgba(255,255,255,0.96),rgba(248,250,252,0.88)_48%,rgba(239,246,255,0.84))] p-6 shadow-[0_36px_90px_-44px_rgba(15,23,42,0.35)] backdrop-blur dark:border-white/10 dark:bg-[linear-gradient(135deg,rgba(15,23,42,0.88),rgba(15,23,42,0.78)_52%,rgba(30,41,59,0.8))] md:p-8">
+      <main className="mx-auto site-width px-4 py-10">
+        <section className="rounded-xl border border-border bg-card p-6 editorial-elevated backdrop-blur dark:border-white/10 dark:bg-slate-900 md:p-8">
           <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px]">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/20 bg-white/75 px-3 py-1.5 text-sm text-slate-600 shadow-sm backdrop-blur dark:border-sky-300/15 dark:bg-slate-950/50 dark:text-slate-200">
                 <Sparkles className="h-4 w-4 text-sky-600" />
-                Daily operator intelligence briefing
+                The operator briefing
               </div>
-              <h1 className="mt-5 text-4xl font-black tracking-tight text-balance text-slate-950 dark:text-white md:text-5xl">
+              <h1 className="mt-5 text-4xl font-bold tracking-tight text-balance text-slate-950 dark:text-white md:text-5xl">
                 {briefing.headline}
               </h1>
               <p className="mt-4 max-w-3xl text-lg leading-8 text-slate-600 dark:text-slate-300">
                 {briefing.dek}
               </p>
+              <p className="mt-4 text-sm text-muted-foreground">Dated digest using AI-assisted article summaries and automated classifications. Check original sources, dates, and your own operating data before acting.</p>
 
               <div className="mt-5 flex flex-wrap items-center gap-3 text-sm text-slate-500 dark:text-slate-300">
                 <span className="inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-white/75 px-3 py-1.5 dark:border-white/10 dark:bg-slate-950/40">
                   <CalendarDays className="h-4 w-4 text-sky-600" />
-                  {formatDate(briefing.generatedAt)}
+                  Snapshot checked {formatDate(briefing.generatedAt)}
                 </span>
                 <span className="inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-white/75 px-3 py-1.5 dark:border-white/10 dark:bg-slate-950/40">
                   <BookOpenText className="h-4 w-4 text-sky-600" />
@@ -75,15 +79,15 @@ export default async function NewsPage() {
                 {briefing.metrics.map((metric) => (
                   <div
                     key={metric.label}
-                    className="rounded-[24px] border border-white/70 bg-white/82 p-5 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45"
+                    className="rounded-xl border border-border bg-white p-5 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-900"
                   >
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-300">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-300">
                       {metric.label}
                     </p>
-                    <p className="mt-3 text-2xl font-black text-slate-950 dark:text-white">
+                    <p className="mt-3 text-2xl font-semibold text-slate-950 dark:text-white">
                       {metric.value}
                     </p>
-                    <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                    <p className="mt-2 text-base leading-7 text-slate-600 dark:text-slate-300">
                       {metric.detail}
                     </p>
                   </div>
@@ -91,21 +95,21 @@ export default async function NewsPage() {
               </div>
             </div>
 
-            <div className="rounded-[30px] border border-white/70 bg-[linear-gradient(180deg,rgba(15,23,42,0.98),rgba(15,23,42,0.92))] p-6 text-white shadow-[0_30px_80px_-42px_rgba(15,23,42,0.55)]">
-              <div className="rounded-full border border-white/12 bg-white/8 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/62">
-                Today&apos;s operator actions
+            <div className="rounded-xl border border-border bg-slate-950 p-6 text-white editorial-elevated">
+              <div className="rounded-full border border-white/12 bg-white/8 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-white/62">
+                Checks before acting
               </div>
               <div className="mt-6 space-y-4">
                 {briefing.actionItems.map((item) => (
                   <div key={item} className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
                     <Target className="mt-0.5 h-4 w-4 shrink-0 text-cyan-300" />
-                    <p className="text-sm leading-6 text-white/82">{item}</p>
+                    <p className="text-base leading-7 text-white/82">{item}</p>
                   </div>
                 ))}
               </div>
 
               <div className="mt-6 border-t border-white/10 pt-6">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/55">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">
                   Coverage mix
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
@@ -132,45 +136,46 @@ export default async function NewsPage() {
           </div>
         </section>
 
-        <section className="mt-10 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-          <div className="rounded-[30px] border border-white/70 bg-white/82 p-6 shadow-[0_24px_60px_-38px_rgba(15,23,42,0.28)] backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+        <section className="mt-16 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+          <div className="rounded-xl border border-border bg-white p-6 editorial-elevated backdrop-blur dark:border-white/10 dark:bg-slate-900">
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-sky-600" />
-              <h2 className="text-2xl font-black text-slate-950 dark:text-white">Seller alerts</h2>
+              <h2 className="text-2xl font-bold text-slate-950 dark:text-white">Reports to review</h2>
             </div>
             <div className="mt-5 space-y-3">
+              {briefing.sellerAlerts.length === 0 && <p className="text-muted-foreground">No high-impact reports are included in this snapshot. This is not confirmation that no risks exist.</p>}
               {briefing.sellerAlerts.map((alert) => (
                 <div key={alert} className="flex items-start gap-3 rounded-2xl border border-slate-200/70 bg-slate-50/80 p-4 dark:border-white/10 dark:bg-white/[0.03]">
                   <BellRing className="mt-0.5 h-4 w-4 shrink-0 text-orange-500" />
-                  <p className="text-sm leading-6 text-slate-700 dark:text-slate-200">{alert}</p>
+                  <p className="text-base leading-7 text-slate-700 dark:text-slate-200">{alert}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="rounded-[30px] border border-white/70 bg-white/82 p-6 shadow-[0_24px_60px_-38px_rgba(15,23,42,0.28)] backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+          <div className="rounded-xl border border-border bg-white p-6 editorial-elevated backdrop-blur dark:border-white/10 dark:bg-slate-900">
             <div className="flex items-center gap-2">
               <CircleDot className="h-5 w-5 text-sky-600" />
-              <h2 className="text-2xl font-black text-slate-950 dark:text-white">Top signals today</h2>
+              <h2 className="text-2xl font-bold text-slate-950 dark:text-white">Latest signals · seven days</h2>
             </div>
             <div className="mt-5 space-y-4">
               {briefing.signals.map((signal) => (
                 <Link
                   key={signal.articleId}
                   href={`/news/${signal.articleId}`}
-                  className="block rounded-[24px] border border-slate-200/70 bg-slate-50/85 p-5 transition hover:border-sky-300/40 hover:bg-white dark:border-white/10 dark:bg-white/[0.03] dark:hover:bg-white/[0.05]"
+                  className="block rounded-xl border border-slate-200/70 bg-slate-50/85 p-5 transition hover:border-sky-300/40 hover:bg-white dark:border-white/10 dark:bg-white/[0.03] dark:hover:bg-white/[0.05]"
                 >
                   <div className="flex flex-wrap items-center gap-2">
                     {signal.platforms.map((platform) => (
                       <Badge
                         key={platform}
-                        className="rounded-full border border-sky-300/25 bg-sky-500/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-sky-700 dark:text-sky-200"
+                        className="rounded-full border border-sky-300/25 bg-sky-500/10 px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-sky-700 dark:text-sky-200"
                       >
                         {platform}
                       </Badge>
                     ))}
                     {signal.impactLevel ? (
-                      <Badge className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 dark:border-white/10 dark:bg-white/[0.05] dark:text-slate-200">
+                      <Badge className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-600 dark:border-white/10 dark:bg-white/[0.05] dark:text-slate-200">
                         {signal.impactLevel} impact
                       </Badge>
                     ) : null}
@@ -178,14 +183,14 @@ export default async function NewsPage() {
                   <h3 className="mt-3 text-xl font-bold leading-tight text-slate-950 dark:text-white">
                     {signal.title}
                   </h3>
-                  <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                  <p className="mt-3 text-base leading-7 text-slate-600 dark:text-slate-300">
                     {signal.summary}
                   </p>
-                  <p className="mt-3 text-sm leading-6 text-slate-800 dark:text-slate-100">
+                  <p className="mt-3 text-base leading-7 text-slate-800 dark:text-slate-100">
                     <span className="font-semibold">Operator read:</span> {signal.whyItMatters}
                   </p>
                   <p className="mt-3 text-xs font-medium uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
-                    {signal.source}
+                    {signal.source} · Published <time dateTime={signal.publishedAt}>{formatDate(signal.publishedAt)}</time>
                   </p>
                 </Link>
               ))}
@@ -193,14 +198,16 @@ export default async function NewsPage() {
           </div>
         </section>
 
-        <section className="mt-10">
+        <div className="mx-auto my-8 h-px max-w-2xl bg-gradient-to-r from-transparent via-slate-300/50 to-transparent dark:via-slate-700/50" />
+
+        <section className="mt-16">
           <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-sky-700 dark:text-sky-300">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-700 dark:text-sky-300">
                 Source coverage
               </p>
-              <h2 className="mt-2 text-3xl font-black text-slate-950 dark:text-white">Curated article coverage</h2>
-              <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
+              <h2 className="mt-2 text-3xl font-bold text-slate-950 dark:text-white">Curated article coverage</h2>
+              <p className="mt-2 max-w-3xl text-base leading-7 text-slate-600 dark:text-slate-300">
                 Below the briefing, MarketplaceBeta keeps the strongest supporting coverage so operators can click into the underlying reporting without wading through repeated versions of the same story.
               </p>
             </div>
@@ -223,20 +230,21 @@ export default async function NewsPage() {
                 <Link
                   key={article.id}
                   href={`/news/${article.id}`}
-                  className="group overflow-hidden rounded-[28px] border border-white/70 bg-white/88 shadow-[0_24px_60px_-38px_rgba(15,23,42,0.24)] transition hover:-translate-y-0.5 hover:shadow-[0_34px_78px_-40px_rgba(15,23,42,0.28)] dark:border-white/10 dark:bg-slate-950/45"
+                  className="group overflow-hidden rounded-xl border border-border bg-white editorial-elevated transition hover:-translate-y-0.5 hover:shadow-xl dark:border-white/10 dark:bg-slate-900"
                 >
                   <div className="relative aspect-[16/10] overflow-hidden bg-slate-100 dark:bg-slate-900">
-                    <Image
+                    <ArticleImage
                       src={imageUrl}
                       alt={article.title}
-                      fill
-                      className="object-cover transition duration-500 group-hover:scale-[1.02]"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 25vw"
+                      title={article.title}
+                      category={article.category}
+                      platforms={article.platforms || []}
+                      className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]"
                     />
                   </div>
                   <div className="p-5">
                     <div className="flex flex-wrap items-center gap-2">
-                      <Badge className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 dark:border-white/10 dark:bg-white/[0.05] dark:text-slate-200">
+                      <Badge className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-600 dark:border-white/10 dark:bg-white/[0.05] dark:text-slate-200">
                         {article.platforms?.[0] || "multi-platform"}
                       </Badge>
                       <span className="text-xs font-medium uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
@@ -246,8 +254,8 @@ export default async function NewsPage() {
                     <h3 className="mt-3 text-xl font-bold leading-tight text-slate-950 transition group-hover:text-sky-700 dark:text-white dark:group-hover:text-sky-200">
                       {article.title}
                     </h3>
-                    <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                      {article.aiSummary || article.summary}
+                    <p className="mt-3 text-base leading-7 text-slate-600 dark:text-slate-300">
+                      {datedSummary(article.aiSummary || article.summary, article.publishedAt)}
                     </p>
                     <div className="mt-4 flex items-center justify-between text-sm text-slate-500 dark:text-slate-400">
                       <span>{article.sourceName}</span>
@@ -262,9 +270,11 @@ export default async function NewsPage() {
             })}
           </div>
         </section>
+        <ResearchDesks compact />
       </main>
 
       <PremiumSiteFooter />
     </div>
   )
 }
+

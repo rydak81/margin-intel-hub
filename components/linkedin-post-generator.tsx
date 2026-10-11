@@ -142,7 +142,7 @@ export function LinkedInPostGenerator({ article }: LinkedInPostGeneratorProps) {
           <div className="space-y-2">
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Style</p>
             <Select value={style} onValueChange={(value) => setStyle(value as LinkedInStyle)}>
-              <SelectTrigger>
+              <SelectTrigger className="h-10 rounded-xl border border-slate-200 bg-white text-sm dark:border-white/10 dark:bg-slate-950/45">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -156,7 +156,7 @@ export function LinkedInPostGenerator({ article }: LinkedInPostGeneratorProps) {
           <div className="space-y-2">
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Audience</p>
             <Select value={audience} onValueChange={(value) => setAudience(value as LinkedInAudience)}>
-              <SelectTrigger>
+              <SelectTrigger className="h-10 rounded-xl border border-slate-200 bg-white text-sm dark:border-white/10 dark:bg-slate-950/45">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

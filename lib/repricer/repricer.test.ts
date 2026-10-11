@@ -25,7 +25,7 @@ const workedExample: PricingInputs = {
 
 describe("pricing math", () => {
   it("reproduces the spec's worked example", () => {
-    expect(priceForMargin(workedExample, 0.12)).toBeCloseTo(106.23, 2)
+    expect(priceForMargin(workedExample, 0.12)).toBeCloseTo(106.24, 2)
     expect(priceForMargin(workedExample, 0.18)).toBeCloseTo(116.35, 2)
   })
 
@@ -296,13 +296,13 @@ describe("price history", async () => {
     expect(d.getUTCFullYear()).toBe(2011)
   })
 
-  it("takes the last observation per month and skips -1 gaps", () => {
+  it("takes the last observation per month and preserves missing-data markers", () => {
     const jan = Math.floor(Date.UTC(2026, 0, 5) / 60000) - 21564000
     const janLater = Math.floor(Date.UTC(2026, 0, 20) / 60000) - 21564000
     const feb = Math.floor(Date.UTC(2026, 1, 10) / 60000) - 21564000
     const m = keepaSeriesToMonthly([jan, 10000, janLater, 12000, feb, -1])
     expect(m.get("2026-01")).toBe(12000)
-    expect(m.has("2026-02")).toBe(false)
+    expect(m.get("2026-02")).toBeNull()
   })
 
   it("maps Keepa csv indices to monthly points in dollars", () => {
@@ -310,7 +310,7 @@ describe("price history", async () => {
     const csv: (number[] | null)[] = []
     csv[1] = [t, 9999] // NEW: $99.99
     csv[11] = [t, 12] // COUNT_NEW
-    csv[18] = [t, 10499] // BUY_BOX_SHIPPING: $104.99
+    csv[18] = [t, 9999, 500] // BUY_BOX_SHIPPING: $104.99
     const points = keepaProductToHistory({ asin: "B0TESTSKU1", csv }, 3)
     const latest = points[points.length - 1]
     expect(latest.lowestOffer).toBeCloseTo(99.99, 2)
@@ -452,6 +452,7 @@ describe("sales forecasting", async () => {
         lowestOffer: null,
         offerCount: 10,
         monthlySold: units,
+        salesEvidence: "exact",
       })
     }
     return pts

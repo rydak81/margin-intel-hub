@@ -28,6 +28,23 @@ export class UnsellableSkuError extends Error {
   }
 }
 
+export function validatePricingInputs(inputs: PricingInputs, margin = 0): void {
+  const costs = [inputs.landedCost, inputs.outboundShipping, inputs.fixedFees, inputs.minReferralFee ?? 0]
+  const rates = [inputs.acosRate, inputs.returnReserveRate, margin]
+  if (costs.some(v => !Number.isFinite(v) || v < 0) || rates.some(v => !Number.isFinite(v) || v < 0 || v >= 1)) {
+    throw new RangeError("Costs must be finite and nonnegative; rates must be between 0% and 100%")
+  }
+  if (!inputs.referralTiers.length || inputs.referralTiers.at(-1)?.upTo !== null) throw new RangeError("Fee tiers need an unbounded final tier")
+  let lower = 0
+  inputs.referralTiers.forEach((tier, i) => {
+    if (!Number.isFinite(tier.rate) || tier.rate < 0 || tier.rate >= 1 ||
+        (tier.upTo === null ? i !== inputs.referralTiers.length - 1 : !Number.isFinite(tier.upTo) || tier.upTo <= lower)) {
+      throw new RangeError("Invalid referral fee tiers")
+    }
+    lower = tier.upTo ?? Infinity
+  })
+}
+
 /** Referral fee in dollars at a given price, summing marginal tiers. */
 export function referralFeeAt(tiers: ReferralTier[], price: number): number {
   let fee = 0
@@ -81,6 +98,7 @@ export function variableRateAt(inputs: PricingInputs, price: number): number {
  * returning a negative or infinite price.
  */
 export function priceForMargin(inputs: PricingInputs, m: number, sku = "?"): number {
+  validatePricingInputs(inputs, m)
   const fc = fixedCosts(inputs)
   const otherRates = inputs.acosRate + inputs.returnReserveRate
   let lower = 0
@@ -96,7 +114,9 @@ export function priceForMargin(inputs: PricingInputs, m: number, sku = "?"): num
       const price = (fc + feeBelow - tier.rate * lower) / denominator
       const epsilon = 1e-9
       if (price >= lower - epsilon && price <= upper + epsilon) {
-        return roundPrice(price)
+        const minimumFeePrice = (fc + (inputs.minReferralFee ?? 0)) / (1 - otherRates - m)
+        // Round UP: nearest-cent rounding can breach the promised margin.
+        return Math.ceil((Math.max(price, minimumFeePrice) - 1e-9) * 100) / 100
       }
     }
     feeBelow += tier.rate * (upper - lower)
@@ -116,7 +136,7 @@ export function marginAtPrice(inputs: PricingInputs, price: number): number {
 export function profitAtPrice(inputs: PricingInputs, price: number): number {
   return (
     price -
-    referralFeeAt(inputs.referralTiers, price) -
+    Math.max(inputs.minReferralFee ?? 0, referralFeeAt(inputs.referralTiers, price)) -
     (inputs.acosRate + inputs.returnReserveRate) * price -
     fixedCosts(inputs)
   )
@@ -135,6 +155,10 @@ export function computeLadder(
   opts: LadderOptions,
   sku = "?",
 ): PriceLadder {
+  if (!Number.isFinite(opts.ceilingMultiplier) || opts.ceilingMultiplier < 1 || opts.targetMargin < opts.floorMargin ||
+      (opts.marketHigh != null && (!Number.isFinite(opts.marketHigh) || opts.marketHigh < 0))) {
+    throw new RangeError("Target margin must be at least the floor; ceiling multiplier must be at least 1")
+  }
   const floorPrice = priceForMargin(inputs, opts.floorMargin, sku)
   const targetPrice = priceForMargin(inputs, opts.targetMargin, sku)
   const ceilingPrice = roundPrice(

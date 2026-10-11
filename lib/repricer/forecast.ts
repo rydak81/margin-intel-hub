@@ -64,9 +64,10 @@ export interface ForecastOptions {
 export function extractObservations(points: HistoryPoint[]): SalesObservation[] {
   const out: SalesObservation[] = []
   for (const p of points) {
+    if (p.salesEvidence !== "exact") continue
     const price = p.buyBoxPrice ?? p.lowestOffer
-    if (price === null || price <= 0) continue
-    if (p.monthlySold === null || p.monthlySold <= 0) continue
+    if (price === null || !Number.isFinite(price) || price <= 0) continue
+    if (p.monthlySold === null || !Number.isFinite(p.monthlySold) || p.monthlySold <= 0) continue
     out.push({ month: p.month, price, units: p.monthlySold })
   }
   return out
@@ -141,12 +142,12 @@ export function forecastSales(points: HistoryPoint[], opts: ForecastOptions): Fo
     minMonthsForFit = 8,
   } = opts
 
-  if (!(scenarioPrice > 0)) return { ok: false, reason: "Scenario price must be positive" }
+  if (!Number.isFinite(scenarioPrice) || !(scenarioPrice > 0)) return { ok: false, reason: "Scenario price must be positive" }
   const obs = extractObservations(points)
   if (obs.length < 6) {
     return {
       ok: false,
-      reason: `Only ${obs.length} months have both price and sales data — at least 6 are needed to forecast`,
+      reason: `Only ${obs.length} months have both price and sales data — at least 6 months of exact sales observations are needed. Sample charts and Amazon bought-in-past-month ranges cannot support this forecast`,
     }
   }
 

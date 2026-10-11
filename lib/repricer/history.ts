@@ -1,8 +1,9 @@
 // Historical market data for a SKU: monthly series of our price, Buy Box
-// price, lowest offer, seller count, and estimated monthly sales.
+// price, lowest offer, seller count, and Amazon purchase-count lower bounds.
 //
 // Live data comes from the Keepa API (paid; key via KEEPA_API_KEY) through
-// /api/history/[asin]. Without a key the UI falls back to a deterministic
+// /api/history, with authenticated access and explicit server opt-in. Otherwise
+// the UI falls back to a deterministic
 // sample series generated from the SKU's current snapshot, clearly labeled
 // SAMPLE — never mistake it for market truth.
 
@@ -16,6 +17,7 @@ export interface HistoryPoint {
   lowestOffer: number | null
   offerCount: number | null
   monthlySold: number | null
+  salesEvidence?: "exact" | "range" | "sample"
 }
 
 export interface HistoryResponse {
@@ -41,18 +43,33 @@ export function monthKey(d: Date): string {
 
 /**
  * Keepa `csv` arrays are flat [keepaTime, value, keepaTime, value, ...]
- * pairs; -1 means "no data". Prices are integer cents. Returns the last
+ * pairs, except Buy Box shipping uses [time, price, shipping] triplets.
+ * Negative values clear unavailable observations. Prices are integer cents. Returns the last
  * observation per month, in cents (or raw units for counts).
  */
-export function keepaSeriesToMonthly(csv: number[] | null | undefined): Map<string, number> {
-  const out = new Map<string, number>()
-  if (!csv) return out
-  for (let i = 0; i + 1 < csv.length; i += 2) {
+export function keepaSeriesToMonthly(csv: number[] | null | undefined, triplets = false): Map<string, number | null> {
+  const out = new Map<string, number | null>()
+  if (!Array.isArray(csv)) return out
+  const stride = triplets ? 3 : 2
+  for (let i = 0; i + stride - 1 < csv.length; i += stride) {
+    const time = csv[i]
+    if (!Number.isFinite(time) || time < 0 || !Number.isFinite(keepaTimeToDate(time).getTime())) continue
     const value = csv[i + 1]
-    if (value === -1) continue
-    out.set(monthKey(keepaTimeToDate(csv[i])), value)
+    const shipping = triplets ? csv[i + 2] : 0
+    // A missing observation clears the prior value; it is never zero sales.
+    out.set(monthKey(keepaTimeToDate(time)), Number.isFinite(value) && value >= 0 && Number.isFinite(shipping) && shipping >= 0 ? value + shipping : null)
   }
   return out
+}
+
+function valueAtMonth(series: Map<string, number | null>, month: string): number | null {
+  // Keepa histories are change logs; carry the last known state across quiet months.
+  let result: number | null = null
+  for (const [key, value] of [...series].sort(([a], [b]) => a.localeCompare(b))) {
+    if (key > month) break
+    result = value
+  }
+  return result
 }
 
 /** Keepa csv indices used here (see Keepa product API docs). */
@@ -60,12 +77,14 @@ export const KEEPA_CSV = {
   NEW: 1,
   COUNT_NEW: 11,
   BUY_BOX_SHIPPING: 18,
-  MONTHLY_SOLD: 32,
+  BUY_BOX_USED_SHIPPING: 32,
 } as const
 
 export interface KeepaProduct {
   asin: string
   csv?: (number[] | null)[]
+  productType?: number
+  monthlySoldHistory?: number[]
 }
 
 /**
@@ -75,23 +94,25 @@ export interface KeepaProduct {
  * price from the catalog snapshot.
  */
 export function keepaProductToHistory(product: KeepaProduct, months = 18): HistoryPoint[] {
+  if (product.productType != null && product.productType !== 0) return []
   const priceNew = keepaSeriesToMonthly(product.csv?.[KEEPA_CSV.NEW])
-  const buyBox = keepaSeriesToMonthly(product.csv?.[KEEPA_CSV.BUY_BOX_SHIPPING])
+  const buyBox = keepaSeriesToMonthly(product.csv?.[KEEPA_CSV.BUY_BOX_SHIPPING], true)
   const counts = keepaSeriesToMonthly(product.csv?.[KEEPA_CSV.COUNT_NEW])
-  const sold = keepaSeriesToMonthly(product.csv?.[KEEPA_CSV.MONTHLY_SOLD])
+  const sold = keepaSeriesToMonthly(product.monthlySoldHistory)
 
   return lastMonths(months).map((m) => ({
     month: m,
     ourPrice: null,
-    buyBoxPrice: centsToDollars(buyBox.get(m)),
-    lowestOffer: centsToDollars(priceNew.get(m)),
-    offerCount: counts.get(m) ?? null,
+    buyBoxPrice: centsToDollars(valueAtMonth(buyBox, m)),
+    lowestOffer: centsToDollars(valueAtMonth(priceNew, m)),
+    offerCount: valueAtMonth(counts, m),
     monthlySold: sold.get(m) ?? null,
+    salesEvidence: "range" as const,
   }))
 }
 
-function centsToDollars(cents: number | undefined): number | null {
-  return cents === undefined ? null : Math.round(cents) / 100
+function centsToDollars(cents: number | null | undefined): number | null {
+  return cents == null ? null : Math.round(cents) / 100
 }
 
 export function lastMonths(n: number, from = new Date()): string[] {
@@ -161,6 +182,7 @@ export function generateSampleHistory(item: CatalogItem, months = 18): HistoryPo
       buyBoxPrice: Math.round(buyBox * 100) / 100,
       lowestOffer: Math.round(low * 100) / 100,
       offerCount: Math.max(1, Math.round(anchorSellers * (1 + (rand() - 0.5) * 0.4))),
+      salesEvidence: "sample",
       monthlySold: Math.max(0, Math.round(anchorSold * (1 + (rand() - 0.5) * 0.5))),
     })
   }

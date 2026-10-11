@@ -1,3 +1,4 @@
+import { isOperatorRelevant } from "@/lib/operator-editorial-policy"
 import type { ClassifiedArticle } from "@/lib/ai-classifier"
 import { getArticleDeskScore, getSourceIntelligence } from "@/lib/source-intelligence"
 
@@ -26,6 +27,12 @@ type CuratableArticle = Pick<
 interface CurateOptions {
   limit?: number
   maxPerTopic?: number
+  /**
+   * Keep the caller's ordering and only deduplicate topics. Use when the
+   * input is already ranked (query relevance, explicit newest/oldest) — the
+   * default desk-score re-sort would silently override that ranking.
+   */
+  preserveOrder?: boolean
 }
 
 interface TopicCluster<T extends CuratableArticle> {
@@ -89,6 +96,15 @@ function areTopicMatches(a: CuratableArticle, b: CuratableArticle): boolean {
   if (titleA && titleA === titleB) return true
   if (titleA && titleB && (titleA.includes(titleB) || titleB.includes(titleA))) return true
 
+  // Preserve distinct named facilities; collapse only equivalent opening headlines.
+  const facilityOpening = (title: string) => /\b(center|centre)\b/i.test(title) && /\b(opens|activates)\b/i.test(title)
+  if (facilityOpening(a.title) && facilityOpening(b.title)) {
+    const synonyms: Record<string, string> = { automation: 'automated', infused: '', activates: 'opens', logistics: 'fulfillment', centre: 'center' }
+    const tokens = (title: string) => getKeywordTokens(title).map(token => synonyms[token] ?? token).filter(Boolean)
+    return Math.abs(Date.parse(a.publishedAt) - Date.parse(b.publishedAt)) < 3 * 86400000
+      && jaccardSimilarity(tokens(a.title), tokens(b.title)) === 1
+  }
+
   const tokensA = getKeywordTokens(a.title)
   const tokensB = getKeywordTokens(b.title)
   const similarity = jaccardSimilarity(tokensA, tokensB)
@@ -96,8 +112,8 @@ function areTopicMatches(a: CuratableArticle, b: CuratableArticle): boolean {
   if (similarity >= 0.72) return true
   if (similarity >= 0.56 && (categoryMatch || platformOverlap > 0)) return true
 
-  const sharedDistinctiveTokens = tokensA.filter((token) => tokensB.includes(token))
-  return sharedDistinctiveTokens.length >= 4 && (categoryMatch || platformOverlap > 0)
+  const sharedDistinctiveTokens = [...new Set(tokensA)].filter((token) => tokensB.includes(token))
+  return sharedDistinctiveTokens.length >= 4 && similarity >= 0.45 && (categoryMatch || platformOverlap > 0)
 }
 
 function compareWithinTopic<T extends CuratableArticle>(a: T, b: T) {
@@ -162,7 +178,30 @@ export function curateArticleFeed<T extends CuratableArticle>(
   articles: T[],
   options: CurateOptions = {}
 ): T[] {
-  const maxPerTopic = options.maxPerTopic ?? 2
+  articles = articles.filter(isOperatorRelevant)
+  const maxPerTopic = options.maxPerTopic ?? 1
+
+  if (options.preserveOrder) {
+    // Greedy pass in input order: keep the first maxPerTopic articles of each
+    // topic as they appear, never re-sorting — so the best-ranked coverage of
+    // a story survives and the caller's ordering is untouched.
+    const clusters: Array<{ all: T[]; keptCount: number }> = []
+    const kept: T[] = []
+    for (const article of articles) {
+      let cluster = clusters.find((c) => c.all.some((a) => areTopicMatches(article, a)))
+      if (!cluster) {
+        cluster = { all: [], keptCount: 0 }
+        clusters.push(cluster)
+      }
+      cluster.all.push(article)
+      if (cluster.keptCount < maxPerTopic) {
+        cluster.keptCount++
+        kept.push(article)
+      }
+    }
+    return options.limit ? kept.slice(0, options.limit) : kept
+  }
+
   const topicClusters = clusterArticles(articles)
 
   const curated = topicClusters

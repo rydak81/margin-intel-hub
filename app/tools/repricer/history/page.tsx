@@ -1,13 +1,15 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { PremiumSiteFooter } from "@/components/premium-site-footer"
 import { PremiumSiteHeader } from "@/components/premium-site-header"
 import { HistoryView } from "@/components/repricer/history-view"
 import { LineChart } from "lucide-react"
 
 export const metadata: Metadata = {
+  alternates: { canonical: "https://marketplacebeta.com/tools/repricer/history" },
   title: "Price History | ProfitTygr",
   description:
-    "Historical pricing, Buy Box price, seller count, and monthly sales per SKU — with your profitability floor drawn on the chart.",
+    "Historical pricing, Buy Box price, seller count, and Amazon purchase ranges per SKU — with your profitability floor drawn on the chart.",
 }
 
 export default function RepricerHistoryPage() {
@@ -20,8 +22,8 @@ export default function RepricerHistoryPage() {
         backLabel="Repricer"
       />
 
-      <section className="mx-auto max-w-7xl px-4 pt-8">
-        <nav className="mb-4 flex items-center gap-1 text-sm">
+      <section className="mx-auto site-width px-4 pt-8">
+        <nav className="mb-4 flex flex-wrap items-center gap-1 text-sm">
           <Link
             href="/tools/repricer"
             className="rounded-full px-3 py-1.5 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-900"
@@ -46,21 +48,17 @@ export default function RepricerHistoryPage() {
           Price history
         </h1>
         <p className="mt-2 max-w-3xl text-sm text-slate-600 dark:text-slate-300">
-          Monthly market history per SKU — pricing, Buy Box, seller count, and sales volume —
+          Monthly market history per SKU — pricing, Buy Box, seller count, and Amazon purchase ranges —
           with your computed profitability floor drawn on the chart so below-floor markets are
           visible at a glance.
         </p>
       </section>
 
-      <main className="mx-auto max-w-7xl px-4 py-6">
+      <main className="mx-auto site-width px-4 py-6">
         <HistoryView basePath="/tools/repricer/history" />
       </main>
 
-      <footer className="mt-12 border-t border-slate-200/60 py-5 text-center dark:border-white/10">
-        <p className="text-xs text-slate-500 dark:text-slate-400">
-          ProfitTygr — built by BeaconPath Holdings, LLC © 2026 · DBA RD Consulting
-        </p>
-      </footer>
+      <PremiumSiteFooter />
     </div>
   )
 }

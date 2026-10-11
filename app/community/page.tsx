@@ -27,6 +27,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { createClient } from "@/lib/supabase/client"
 import { AuthPanel } from "@/components/auth-panel"
+import { PremiumSiteHeader } from "@/components/premium-site-header"
 import { SiteBrand } from "@/components/site-brand"
 import { useAuthAccount } from "@/hooks/use-auth-account"
 import {
@@ -326,7 +327,6 @@ const SAMPLE_POSTS: Post[] = [
 ]
 
 export default function CommunityPage() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [sortBy, setSortBy] = useState<"hot" | "new" | "top">("hot")
   const [searchQuery, setSearchQuery] = useState("")
@@ -513,61 +513,8 @@ export default function CommunityPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.14),transparent_18%),radial-gradient(circle_at_top_right,rgba(217,70,239,0.12),transparent_16%),linear-gradient(180deg,rgba(248,250,252,0.92),rgba(255,255,255,0.84)_18%,transparent_32%)] bg-background">
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.88),rgba(30,41,59,0.76))] backdrop-blur-2xl">
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-fuchsia-400/45 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-sky-400/55 to-transparent" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_left_top,rgba(56,189,248,0.08),transparent_18%),radial-gradient(circle_at_right_top,rgba(217,70,239,0.08),transparent_18%)] pointer-events-none" />
-        <div className="mx-auto px-4">
-          <div className="flex h-14 items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="sm"
-                asChild
-                className="hidden border border-white/10 bg-white/10 text-white hover:bg-white/16 hover:text-white sm:inline-flex"
-              >
-                <Link href="/">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back
-                </Link>
-              </Button>
-              <SiteBrand
-                href="/"
-                deskLabel="Operator Network"
-                className="max-w-[260px]"
-                logoClassName="h-9"
-                iconClassName="h-8 w-8"
-                labelClassName="text-white/52"
-                priority
-              />
-            </div>
-
-            <nav className="hidden items-center gap-6 lg:flex">
-              <Link href="/" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-                Home
-              </Link>
-              <Link href="/articles" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-                Articles
-              </Link>
-              <Link href="/partners" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-                Partners
-              </Link>
-              <Link href="/tools" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-                Tools
-              </Link>
-              <Link href="/community" className="text-sm font-semibold text-white">
-                Community
-              </Link>
-              <Link href="/events" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-                Events
-              </Link>
-              <Link href="/newsletter" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-                Newsletter
-              </Link>
-            </nav>
-
-            <div className="flex items-center gap-3">
+    <div className="min-h-screen bg-background">
+      <PremiumSiteHeader active="community" actions={<>
               {currentUser?.is_admin ? (
                 <Link href="/community/admin" className="hidden sm:block">
                   <Button
@@ -611,59 +558,11 @@ export default function CommunityPage() {
                 </Button>
               ) : null}
 
-              <Button
-                variant="ghost"
-                size="icon"
-                className="md:hidden h-9 w-9 rounded-full border border-white/10 bg-white/10 text-white hover:bg-white/16"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              >
-                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-              </Button>
-            </div>
-          </div>
+      </>} mobileContent={
+        <div className="px-3 pt-3">
+          {currentUser ? <button type="button" className="py-2 text-base" onClick={() => void signOut()}>Sign out</button> : <button type="button" className="py-2 text-base" onClick={() => setJoinDialogOpen(true)}>Join the community</button>}
         </div>
-
-        {mobileMenuOpen ? (
-          <div className="border-t border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.96),rgba(2,6,23,0.98))] md:hidden">
-            <nav className="flex flex-col gap-2 px-4 py-4">
-              <Link href="/" className="rounded-xl px-4 py-2 text-white/82 hover:bg-white/10">
-                Home
-              </Link>
-              <Link href="/articles" className="rounded-xl px-4 py-2 text-white/82 hover:bg-white/10">
-                Articles
-              </Link>
-              <Link href="/partners" className="rounded-xl px-4 py-2 text-white/82 hover:bg-white/10">
-                Partners
-              </Link>
-              <Link href="/tools" className="rounded-xl px-4 py-2 text-white/82 hover:bg-white/10">
-                Tools
-              </Link>
-              <Link href="/community" className="rounded-xl bg-white text-slate-950 px-4 py-2">
-                Community
-              </Link>
-              <Link href="/events" className="rounded-xl px-4 py-2 text-white/82 hover:bg-white/10">
-                Events
-              </Link>
-              <Link href="/newsletter" className="rounded-xl px-4 py-2 text-white/82 hover:bg-white/10">
-                Newsletter
-              </Link>
-              {currentUser ? (
-                <Link href="/account" className="rounded-xl px-4 py-2 text-white/82 hover:bg-white/10">
-                  Account
-                </Link>
-              ) : (
-                <button
-                  type="button"
-                  className="rounded-xl px-4 py-2 text-left text-white/82 hover:bg-white/10"
-                  onClick={() => setJoinDialogOpen(true)}
-                >
-                  Sign In
-                </button>
-              )}
-            </nav>
-          </div>
-        ) : null}
-      </header>
+      } />
 
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.1),transparent_24%),radial-gradient(circle_at_top_right,rgba(217,70,239,0.12),transparent_18%),linear-gradient(180deg,rgba(37,99,235,0.05),transparent_44%)]" />

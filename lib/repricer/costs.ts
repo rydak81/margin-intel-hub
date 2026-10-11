@@ -38,7 +38,7 @@ export function parseCostCsv(text: string, catalog: CatalogItem[]): CostImportRe
     }
     const landedCost = Number(landedStr)
     const outboundShipping = Number(shippingStr ?? "0")
-    if (!Number.isFinite(landedCost) || landedCost < 0) {
+    if (!landedStr?.trim() || !Number.isFinite(landedCost) || landedCost < 0) {
       result.rejected.push({ line: n + 1, reason: `${asin}: invalid landed cost "${landedStr}"` })
       continue
     }
@@ -47,6 +47,10 @@ export function parseCostCsv(text: string, catalog: CatalogItem[]): CostImportRe
       continue
     }
 
+    if (effectiveDate && (!/^\d{4}-\d{2}-\d{2}$/.test(effectiveDate) || !Number.isFinite(Date.parse(effectiveDate)) || new Date(effectiveDate).toISOString().slice(0, 10) !== effectiveDate)) {
+      result.rejected.push({ line: n + 1, reason: `${asin}: invalid effective date` })
+      continue
+    }
     const item = byAsin.get(asin)
     if (!item) {
       result.unmatched.push(asin)

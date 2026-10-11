@@ -1,11 +1,15 @@
+import { notFound } from "next/navigation"
+import { SEED_CATALOG } from "@/lib/repricer/catalog"
 import type { Metadata } from "next"
+import { PremiumSiteFooter } from "@/components/premium-site-footer"
 import { PremiumSiteHeader } from "@/components/premium-site-header"
 import { MetricDetail, type Metric } from "@/components/repricer/metric-detail"
 
 export const metadata: Metadata = {
   title: "Chart Analysis | ProfitTygr",
+  robots: { index: false, follow: true },
   description:
-    "Deep-dive analysis of one metric: interactive history, strategy overlays, data table, and ML sales forecasting with confidence bands.",
+    "Deep-dive analysis of one metric: interactive history, strategy overlays, data table, and transparent data-quality labels.",
 }
 
 export default async function RepricerMetricDetailPage({
@@ -16,6 +20,7 @@ export default async function RepricerMetricDetailPage({
   searchParams: Promise<{ metric?: string }>
 }) {
   const { asin } = await params
+  if (!SEED_CATALOG.some(item => item.asin === asin)) notFound()
   const sp = await searchParams
   const metric: Metric = sp.metric === "sellers" || sp.metric === "sales" ? sp.metric : "price"
 
@@ -27,14 +32,10 @@ export default async function RepricerMetricDetailPage({
         backHref="/tools/repricer/history"
         backLabel="Price History"
       />
-      <main className="mx-auto max-w-7xl px-4 py-6">
+      <main className="mx-auto site-width px-4 py-6">
         <MetricDetail asin={asin} metric={metric} basePath="/tools/repricer/history" />
       </main>
-      <footer className="mt-12 border-t border-slate-200/60 py-5 text-center dark:border-white/10">
-        <p className="text-xs text-slate-500 dark:text-slate-400">
-          ProfitTygr — built by BeaconPath Holdings, LLC © 2026 · DBA RD Consulting
-        </p>
-      </footer>
+      <PremiumSiteFooter />
     </div>
   )
 }

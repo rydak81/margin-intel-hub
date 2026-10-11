@@ -2,11 +2,8 @@
 // referral rates (some categories charge one rate up to a threshold and a
 // different rate above it).
 //
-// Rates below were checked against published schedules on 2026-08-07 (see
-// `source` on each entry) but marketplaces change fees quickly and often —
-// Walmart cut 14 categories' referral fees in June 2026 with little notice.
-// Every rate is editable in the app (Fees editor) and MUST be re-verified
-// against the marketplace's own fee preview before live repricing decisions.
+// Illustrative, unverified fee assumptions. Verify actual category, contract,
+// tax and fulfillment charges before using these scenarios for a decision.
 
 import type { Category, Marketplace, ReferralTier } from "./types"
 
@@ -46,7 +43,7 @@ export const FEE_SCHEDULES: Record<Marketplace, CategoryRates> = {
       fixedFees: 0,
       minReferralFee: 0.3,
       label: "Amazon Renewed (FBM)",
-      lastVerified: "2026-08-07",
+      lastVerified: "Unverified defaults",
       source: "Published referral fee tables (Consumer Electronics 8%)",
     },
     iPhone: {
@@ -54,7 +51,7 @@ export const FEE_SCHEDULES: Record<Marketplace, CategoryRates> = {
       fixedFees: 0,
       minReferralFee: 0.3,
       label: "Amazon Renewed (FBM)",
-      lastVerified: "2026-08-07",
+      lastVerified: "Unverified defaults",
       source: "Published referral fee tables (Cell Phone Devices 8%)",
     },
     "MacBook Air": {
@@ -62,7 +59,7 @@ export const FEE_SCHEDULES: Record<Marketplace, CategoryRates> = {
       fixedFees: 0,
       minReferralFee: 0.3,
       label: "Amazon Renewed (FBM)",
-      lastVerified: "2026-08-07",
+      lastVerified: "Unverified defaults",
       source: "Consumer Electronics 8%; some tables list Personal Computers at 6%",
       note: "VERIFY: if these ASINs bill as Personal Computers (6%), floors drop ~2% of price",
     },
@@ -71,7 +68,7 @@ export const FEE_SCHEDULES: Record<Marketplace, CategoryRates> = {
       fixedFees: 0,
       minReferralFee: 0.3,
       label: "Amazon Renewed (FBM)",
-      lastVerified: "2026-08-07",
+      lastVerified: "Unverified defaults",
       source: "Consumer Electronics 8%; some tables list Personal Computers at 6%",
       note: "VERIFY: if these ASINs bill as Personal Computers (6%), floors drop ~2% of price",
     },
@@ -84,7 +81,7 @@ export const FEE_SCHEDULES: Record<Marketplace, CategoryRates> = {
       fixedFees: 0,
       minReferralFee: 0.3,
       label: "Amazon Renewed (FBM)",
-      lastVerified: "2026-08-07",
+      lastVerified: "Unverified defaults",
       source: "Published referral fee tables (Watches: 16% to $1,500, 3% above)",
     },
   },
@@ -94,7 +91,7 @@ export const FEE_SCHEDULES: Record<Marketplace, CategoryRates> = {
     {
       tiers: flat(0.08),
       fixedFees: 0,
-      lastVerified: "2026-08-07",
+      lastVerified: "Unverified defaults",
       source: "Walmart Marketplace fee schedule (electronics/cell phones 8%)",
       note: "June 2026 category cuts may apply — verify current contract rates",
     },
@@ -108,28 +105,28 @@ export const FEE_SCHEDULES: Record<Marketplace, CategoryRates> = {
       tiers: flat(0.109),
       fixedFees: 0.4,
       label: "eBay Store",
-      lastVerified: "2026-08-07",
+      lastVerified: "Unverified defaults",
       source: "eBay FVF: Computers/Tablets ~10.9% + per-order fee",
     },
     iPhone: {
       tiers: flat(0.12),
       fixedFees: 0.4,
       label: "eBay Store",
-      lastVerified: "2026-08-07",
+      lastVerified: "Unverified defaults",
       source: "eBay FVF: Cell Phones ~12% + per-order fee",
     },
     "MacBook Air": {
       tiers: flat(0.109),
       fixedFees: 0.4,
       label: "eBay Store",
-      lastVerified: "2026-08-07",
+      lastVerified: "Unverified defaults",
       source: "eBay FVF: Computers/Laptops ~10.9% + per-order fee",
     },
     "MacBook Pro": {
       tiers: flat(0.109),
       fixedFees: 0.4,
       label: "eBay Store",
-      lastVerified: "2026-08-07",
+      lastVerified: "Unverified defaults",
       source: "eBay FVF: Computers/Laptops ~10.9% + per-order fee",
     },
     "Apple Watch": {
@@ -139,7 +136,7 @@ export const FEE_SCHEDULES: Record<Marketplace, CategoryRates> = {
       ],
       fixedFees: 0.4,
       label: "eBay Store",
-      lastVerified: "2026-08-07",
+      lastVerified: "Unverified defaults",
       source: "eBay FVF: Watches ~15% first $1,000 (store rates lower)",
       note: "VERIFY: store-subscription discounts change watch tiers materially",
     },
@@ -149,7 +146,7 @@ export const FEE_SCHEDULES: Record<Marketplace, CategoryRates> = {
     {
       tiers: flat(0.1),
       fixedFees: 0,
-      lastVerified: "2026-08-07",
+      lastVerified: "Unverified defaults",
       source: "Reported Back Market commission ~10% (contract-specific)",
       note: "VERIFY: actual rate is set in your Back Market contract",
     },
@@ -161,7 +158,7 @@ export const FEE_SCHEDULES: Record<Marketplace, CategoryRates> = {
     {
       tiers: flat(0.09),
       fixedFees: 0,
-      lastVerified: "2026-08-07",
+      lastVerified: "Unverified defaults",
       source: "Newegg commission varies by subcategory; check Seller Portal",
       note: "VERIFY: subcategory-specific; 6% promo may apply first 90 days",
     },
@@ -172,7 +169,7 @@ export const FEE_SCHEDULES: Record<Marketplace, CategoryRates> = {
     {
       tiers: flat(0.029),
       fixedFees: 0.3,
-      lastVerified: "2026-08-07",
+      lastVerified: "Unverified defaults",
       source: "Typical card processing 2.9% + $0.30 (processor-dependent)",
     },
     "tekreplay.com (DTC)",

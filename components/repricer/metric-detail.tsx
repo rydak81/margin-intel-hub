@@ -3,7 +3,7 @@
 // Deep-dive page for one chart: full-width interactive view of a single
 // metric (price / sellers / sales) with stat tiles, zoom, strategy overlays,
 // a synced data table with CSV export — and for the sales metric, an ML
-// forecast with price scenarios and a P10-P90 confidence band.
+// forecast with price scenarios and a P10-P90 simulation range.
 
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
@@ -61,7 +61,7 @@ export type Metric = "price" | "sellers" | "sales"
 const METRIC_META: Record<Metric, { title: string; unit: string }> = {
   price: { title: "Price history", unit: "$" },
   sellers: { title: "Competing sellers", unit: "" },
-  sales: { title: "Monthly sales (units)", unit: "" },
+  sales: { title: "Bought in past month — lower-bound range", unit: "" },
 }
 
 const RANGES = [3, 6, 12, 18, 36] as const
@@ -216,7 +216,7 @@ export function MetricDetail({
     const blob = new Blob([header + lines.join("\n")], { type: "text/csv" })
     const a = document.createElement("a")
     a.href = URL.createObjectURL(blob)
-    a.download = `${asin}-${metric}.csv`
+    a.download = `${asin}-${metric}-${source}.csv`
     a.click()
     URL.revokeObjectURL(a.href)
   }
@@ -265,11 +265,11 @@ export function MetricDetail({
         {source === "sample" ? (
           <Badge variant="outline" className="border-amber-500/40 text-amber-700 dark:text-amber-300">
             <AlertTriangle className="mr-1 h-3 w-3" />
-            Sample data
+            Sample data — illustrative, not observed history
           </Badge>
         ) : (
           <Badge variant="outline" className="border-emerald-500/40 text-emerald-700 dark:text-emerald-300">
-            Live · Keepa
+            Keepa market data · New condition
           </Badge>
         )}
       </div>
@@ -430,7 +430,7 @@ export function MetricDetail({
                 />
               )}
               {metric === "sales" ? (
-                <Bar dataKey="value" name="Units sold" fill={colors.our} radius={[4, 4, 0, 0]} maxBarSize={22} />
+                <Bar dataKey="value" name="Purchase range (lower bound)" fill={colors.our} radius={[4, 4, 0, 0]} maxBarSize={22} />
               ) : (
                 <Line
                   type={metric === "sellers" ? "stepAfter" : "monotone"}
@@ -499,8 +499,7 @@ export function MetricDetail({
           {source !== "keepa" ? (
             <p className="mt-2 flex items-start gap-1.5 text-sm text-amber-700 dark:text-amber-300">
               <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-              Forecasting needs real sales history — it is disabled on sample data. Set
-              KEEPA_API_KEY to enable it.
+              Forecasting needs exact sales observations. Sample charts and Amazon bought-in-past-month ranges cannot support a sales forecast.
             </p>
           ) : (
             <>
@@ -650,7 +649,7 @@ function ForecastSummary({ forecast }: { forecast: ForecastOk }) {
   return (
     <div className="mt-3 space-y-2">
       <p className="text-sm">
-        At <strong>${forecast.scenarioPrice.toFixed(2)}</strong>, expect about{" "}
+        At <strong>${forecast.scenarioPrice.toFixed(2)}</strong>, this unvalidated scenario produces about{" "}
         <strong>{Math.round(total)} units</strong> over the next 12 months (80% band:{" "}
         {Math.round(totalLo)}–{Math.round(totalHi)}), ≈{" "}
         <strong>${revenue.toLocaleString()}</strong> revenue at P50. Elasticity{" "}

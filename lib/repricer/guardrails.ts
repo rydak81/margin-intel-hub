@@ -18,6 +18,7 @@ export class FloorBreachError extends Error {
  * in which case the floor still wins.
  */
 export function clampToGuardrails(candidate: number, ladder: PriceLadder): number {
+  if (![candidate, ladder.floorPrice, ladder.ceilingPrice].every(Number.isFinite)) throw new RangeError("Prices must be finite")
   const ceiling = Math.max(ladder.ceilingPrice, ladder.floorPrice)
   const clamped = Math.min(Math.max(candidate, ladder.floorPrice), ceiling)
   const result = roundPrice(clamped)
@@ -27,7 +28,7 @@ export function clampToGuardrails(candidate: number, ladder: PriceLadder): numbe
 
 /** Assert an already-emitted price respects the floor. Used by tests and callers. */
 export function assertAboveFloor(sku: string, price: number, ladder: PriceLadder): void {
-  if (price < ladder.floorPrice) {
+  if (!Number.isFinite(price) || !Number.isFinite(ladder.floorPrice) || price < ladder.floorPrice) {
     throw new FloorBreachError(sku, price, ladder.floorPrice)
   }
 }

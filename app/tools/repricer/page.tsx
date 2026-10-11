@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { PremiumSiteFooter } from "@/components/premium-site-footer"
 import { PremiumSiteHeader } from "@/components/premium-site-header"
 import { RepricerDashboard } from "@/components/repricer/repricer-dashboard"
 import { TygrLogo } from "@/components/repricer/tygr-logo"
@@ -7,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Sparkles } from "lucide-react"
 
 export const metadata: Metadata = {
+  alternates: { canonical: "https://marketplacebeta.com/tools/repricer" },
   title: "ProfitTygr | Seller Tools",
   description:
     "Repricing and pricing analysis for optimum margin: compute the lowest price that still hits your target margin per platform and landed cost, then compete only within that band.",
@@ -19,7 +21,7 @@ export default function RepricerPage() {
 
       <section className="relative overflow-hidden bg-grid-pattern">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.1),transparent_24%),radial-gradient(circle_at_top_right,rgba(217,70,239,0.12),transparent_18%),linear-gradient(180deg,rgba(37,99,235,0.05),transparent_44%)]" />
-        <div className="relative mx-auto max-w-7xl px-4 py-10 md:py-14">
+        <div className="relative mx-auto site-width px-4 py-10 md:py-14">
           <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/20 bg-white/82 px-3 py-1.5 text-sm shadow-sm backdrop-blur dark:border-sky-300/15 dark:bg-slate-950/60">
             <Sparkles className="h-4 w-4 text-sky-500" />
             <span className="text-slate-600 dark:text-slate-200">
@@ -42,7 +44,7 @@ export default function RepricerPage() {
           </p>
           <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
             <Badge variant="outline" className="border-sky-400/30 text-sky-700 dark:text-sky-300">
-              Seeded: Powered by Tek · 77 Amazon Renewed SKUs · 2026-08-05 audit
+              Historical example catalog · 77 Amazon Renewed SKUs · August 5, 2026
             </Badge>
             <Badge variant="outline" className="border-amber-500/40 text-amber-700 dark:text-amber-300">
               Dry-run only — never submits price changes
@@ -51,8 +53,8 @@ export default function RepricerPage() {
         </div>
       </section>
 
-      <main className="mx-auto max-w-7xl px-4 py-8">
-        <nav className="mb-6 flex items-center gap-1 text-sm">
+      <main className="mx-auto site-width px-4 py-8">
+        <nav className="mb-6 flex flex-wrap items-center gap-1 text-sm">
           <Link
             href="/tools/repricer"
             className="rounded-full bg-sky-500/10 px-3 py-1.5 font-medium text-sky-700 dark:text-sky-300"
@@ -72,18 +74,11 @@ export default function RepricerPage() {
             Sourcing
           </Link>
         </nav>
+        <p className="mb-5 rounded-xl border bg-card p-4 text-sm text-muted-foreground">Historical example data, not live inventory. Fee rates are editable assumptions: verify your actual marketplace charges before making a pricing decision. Costs and settings are saved only in this browser.</p>
         <RepricerDashboard />
       </main>
 
-      <footer className="mt-12 border-t border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.98),rgba(2,6,23,1))] py-8 text-center text-sm text-white/52">
-        <p>
-          Fee rates are placeholders and must be verified against current marketplace schedules.
-          All prices computed here are estimates for analysis, not live repricing instructions.
-        </p>
-        <p className="mt-2 text-xs text-white/40">
-          ProfitTygr — built by BeaconPath Holdings, LLC © 2026 · DBA RD Consulting
-        </p>
-      </footer>
+      <PremiumSiteFooter />
     </div>
   )
 }

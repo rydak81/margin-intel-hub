@@ -1,13 +1,21 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { syncMarketplaceFirstSourceStrategy } from '@/lib/news-aggregation'
+import { isGoodArticleImage, normalizeArticleImageUrl } from '@/lib/article-images'
 
 export const maxDuration = 60 // Allow up to 60s for aggregation
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let _supabaseAdmin: any = null
+function getSupabaseAdmin() {
+  if (!_supabaseAdmin) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+    if (!url || !key) throw new Error('Missing Supabase credentials')
+    _supabaseAdmin = createClient(url, key)
+  }
+  return _supabaseAdmin
+}
 
 // MarketplaceBeta now leans into best-available operator intelligence,
 // including agencies and partner ecosystems when the content is useful.
@@ -15,6 +23,31 @@ const BLOCKED_DOMAINS: string[] = []
 
 function isBlockedSource(url: string): boolean {
   return BLOCKED_DOMAINS.some(domain => url.includes(domain))
+}
+
+/**
+ * Validate image fields before writing. RSS extraction happily captures
+ * tracking pixels, podcast enclosures, and http-only URLs — none of which
+ * should reach the database. When the image is junk or missing, the image
+ * keys are removed from the payload entirely so an upsert can't overwrite a
+ * previously repaired image (OG re-fetch or AI-generated) with garbage; a
+ * brand-new row simply gets NULL and the read-side fallback takes over.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function sanitizeArticleImageFields(article: any) {
+  const normalized = normalizeArticleImageUrl(article.image_url)
+  if (normalized && isGoodArticleImage(normalized)) {
+    article.image_url = normalized
+    if (article.original_rss_image) {
+      article.original_rss_image = normalizeArticleImageUrl(article.original_rss_image)
+    }
+  } else {
+    delete article.image_url
+    delete article.original_rss_image
+    delete article.has_real_image
+    delete article.image_source
+    delete article.og_image_url
+  }
 }
 
 /**
@@ -32,7 +65,7 @@ function stripHTML(html: string): string {
     .trim()
 }
 
-// GET handler - called by Vercel cron every 2 hours
+// GET handler - called by Vercel cron daily at 5 AM UTC
 export async function GET(request: Request) {
   try {
     const authHeader = request.headers.get('authorization')
@@ -83,6 +116,7 @@ export async function POST(request: Request) {
 }
 
 async function runAggregationFromDB() {
+  const supabaseAdmin = getSupabaseAdmin()
   const startTime = Date.now()
   const MAX_RUNTIME_MS = 50000 // Stop at 50s to leave buffer for DB writes
 
@@ -173,6 +207,8 @@ async function runAggregationFromDB() {
           article.image_source = 'rss'
         }
 
+        sanitizeArticleImageFields(article)
+
         const { error: upsertError } = await supabaseAdmin
           .from('articles')
           .upsert(article, { onConflict: 'source_url' })
@@ -208,6 +244,7 @@ async function runAggregationFromDB() {
           totalBlocked++
           continue
         }
+        sanitizeArticleImageFields(article)
         const { error } = await supabaseAdmin
           .from('articles')
           .upsert(article, { onConflict: 'source_url' })
@@ -256,9 +293,15 @@ async function fetchFromNewsAPI(): Promise<any[]> {
 
   const articles: any[] = []
 
-  // Rotate through queries each run (3 per run, cycles through the full list)
-  // Uses the current hour to offset which queries get picked
-  const offset = Math.floor(Date.now() / (2 * 60 * 60 * 1000)) % queries.length
+  // Rotate through queries each run (3 per run, cycles through the full list).
+  // The rotation must advance across DAYS, not hours: crons fire at the same
+  // fixed hours every day, and a floor(now/2h) % 12 index aliases with the
+  // 24-hour cycle so the same offsets repeat forever. Day-based stepping with
+  // a stride coprime to the list length (gcd(5,12)=1) visits every query, and
+  // the half-cycle bump separates the two daily runs.
+  const daysSinceEpoch = Math.floor(Date.now() / 86_400_000)
+  const secondRunOfDay = new Date().getUTCHours() >= 12 ? 1 : 0
+  const offset = (daysSinceEpoch * 5 + secondRunOfDay * 6) % queries.length
   const selectedQueries = [
     queries[offset % queries.length],
     queries[(offset + 1) % queries.length],

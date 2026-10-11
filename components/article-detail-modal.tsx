@@ -254,7 +254,7 @@ export function ArticleDetailModal({
                       <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                         The Operator&apos;s Edge
                       </span>
-                      <p className="text-sm text-foreground italic">{article.ourTake}</p>
+                      <p className="text-base leading-7 text-foreground">{article.ourTake}</p>
                     </div>
                   </div>
                 )}
@@ -267,7 +267,7 @@ export function ArticleDetailModal({
                       <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                         Key Stat
                       </span>
-                      <p className="text-sm font-semibold text-foreground">{article.keyStat}</p>
+                      <p className="text-base font-semibold text-foreground">{article.keyStat}</p>
                     </div>
                   </div>
                 )}
@@ -282,7 +282,7 @@ export function ArticleDetailModal({
                       </span>
                       <ul className="mt-1 space-y-1">
                         {article.keyTakeaways!.map((point, i) => (
-                          <li key={i} className="text-sm text-foreground flex items-start gap-1.5">
+                          <li key={i} className="text-base leading-7 text-foreground flex items-start gap-1.5">
                             <span className="text-primary mt-1">&#8226;</span>
                             <span>{point}</span>
                           </li>
@@ -298,7 +298,7 @@ export function ArticleDetailModal({
                     <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                       The Bottom Line
                     </span>
-                    <p className="text-sm font-medium text-foreground">{article.bottomLine}</p>
+                    <p className="text-base leading-7 font-medium text-foreground">{article.bottomLine}</p>
                   </div>
                 )}
 

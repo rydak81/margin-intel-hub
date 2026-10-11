@@ -58,6 +58,7 @@ export interface PricingInputs {
   /** Marginal referral tiers, in ascending order. A flat rate is one tier. */
   referralTiers: ReferralTier[]
   fixedFees: number
+  minReferralFee?: number
   acosRate: number
   returnReserveRate: number
 }

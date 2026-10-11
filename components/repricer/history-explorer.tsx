@@ -155,7 +155,7 @@ export function HistoryExplorer({
           </DialogTitle>
           <DialogDescription>
             {item.asin} · {item.category} ·{" "}
-            {source === "sample" ? "sample data (set KEEPA_API_KEY for live)" : "live via Keepa"}
+            {source === "sample" ? "sample data — not observed history" : "Keepa market data · New condition"}
           </DialogDescription>
         </DialogHeader>
 
@@ -407,7 +407,7 @@ export function HistoryExplorer({
             </div>
           </div>
           <div className="rounded-xl border p-3">
-            <h4 className="mb-2 text-sm font-semibold">Est. monthly sales (units)</h4>
+            <h4 className="mb-2 text-sm font-semibold">Bought in past month — lower-bound range</h4>
             <div className="h-[160px]">
               <ResponsiveContainer>
                 <BarChart data={points} margin={{ top: 4, right: 12, bottom: 0, left: 4 }}>
@@ -446,7 +446,7 @@ export function HistoryExplorer({
             className="w-fit border-amber-500/40 text-amber-700 dark:text-amber-300"
           >
             <AlertTriangle className="mr-1 h-3 w-3" />
-            Sample data — set KEEPA_API_KEY for live history
+            Sample data — illustrative, not observed market history
           </Badge>
         )}
       </DialogContent>

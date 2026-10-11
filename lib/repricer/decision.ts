@@ -47,6 +47,7 @@ export function pricingInputsFor(
     outboundShipping: cost.outboundShipping,
     referralTiers: fees.tiers,
     fixedFees: fees.fixedFees,
+    minReferralFee: fees.minReferralFee,
     acosRate: strategy.acosRate,
     returnReserveRate: strategy.returnReserveRate,
   }
@@ -86,6 +87,7 @@ export function decide(
   const inputs = pricingInputsFor(item, cost, marketplace, strategy, feeOverrides)
   let ladder
   try {
+    if ([strategy.proximityTarget, strategy.circuitBreakerPct, strategy.minCompetitorReviews].some(v => !Number.isFinite(v) || v < 0)) throw new RangeError("Strategy inputs must be finite and nonnegative")
     ladder = computeLadder(
       inputs,
       {
@@ -97,7 +99,7 @@ export function decide(
       item.asin,
     )
   } catch (err) {
-    if (err instanceof UnsellableSkuError) {
+    if (err instanceof UnsellableSkuError || err instanceof RangeError) {
       return {
         asin: item.asin,
         action: "EXCLUDED_NO_COST",
@@ -177,7 +179,7 @@ export function decide(
  * the listing-level review count is the available proxy.)
  */
 function usableLowestCompetitor(item: CatalogItem, strategy: StrategyConfig): number | null {
-  if (item.lowestCompetitor === null) return null
+  if (item.lowestCompetitor === null || !Number.isFinite(item.lowestCompetitor) || item.lowestCompetitor <= 0) return null
   if ((item.reviewCount ?? 0) < strategy.minCompetitorReviews && item.competingSellers !== null && item.competingSellers <= 3) {
     return null
   }

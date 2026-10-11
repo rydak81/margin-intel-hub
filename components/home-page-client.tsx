@@ -1,6 +1,9 @@
 "use client"
 
 import { useState, useEffect, useCallback, useRef, Fragment, useMemo } from "react"
+import { IntelligenceSpotlight } from "@/components/intelligence-spotlight"
+import { GuideCards } from "@/components/guide-cards"
+import { trackResourceEvent } from "@/lib/resource-analytics"
 import Image from "next/image"
 import Link from "next/link"
 import { useTheme } from "next-themes"
@@ -12,6 +15,9 @@ import { Separator } from "@/components/ui/separator"
 import { ArticleDetailModal } from "@/components/article-detail-modal"
 import { AuthModal } from "@/components/auth-modal"
 import { BackToTop } from "@/components/back-to-top"
+import { ResearchDesks } from "@/components/research-desks"
+import { PremiumSiteFooter } from "@/components/premium-site-footer"
+import { PremiumSiteHeader } from "@/components/premium-site-header"
 import { SiteBrand } from "@/components/site-brand"
 import { getArticleFallbackImage, getArticleImageUrl as resolveArticleImageUrl } from "@/lib/article-images"
 import { EVENTS, isPastEvent, sortEvents } from "@/lib/events"
@@ -27,17 +33,11 @@ import {
   CompactNewsletterSkeleton,
   FeaturedArticleSkeleton,
   HeroArticleSkeleton,
-  MarketSnapshotSkeleton,
+  
   SidebarCardSkeleton,
 } from "@/components/article-skeleton"
 import { useAuthAccount } from "@/hooks/use-auth-account"
 import { buildUserPreferenceProfile, getPersonalizationLabel, personalizeArticles } from "@/lib/personalization"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import {
   AlertTriangle,
   BarChart3,
@@ -55,7 +55,6 @@ import {
   Share2,
   TrendingUp,
   ChevronRight,
-  Menu,
   X,
   Moon,
   Sun,
@@ -67,7 +66,6 @@ import {
   Calculator,
   Target,
   LineChart,
-  ChevronDown,
   FileText,
   Linkedin,
   Twitter,
@@ -175,10 +173,8 @@ export default function HomePageClient({
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
   const [themeMounted, setThemeMounted] = useState(false)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [selectedArticle, setSelectedArticle] = useState<NewsArticle | null>(null)
   const [articleModalOpen, setArticleModalOpen] = useState(false)
-  const [isScrolled, setIsScrolled] = useState(false)
   const [visibleArticleCount, setVisibleArticleCount] = useState(12)
   const [authDialogOpen, setAuthDialogOpen] = useState(false)
 
@@ -193,15 +189,6 @@ export default function HomePageClient({
   const preferenceProfile = useMemo(() => buildUserPreferenceProfile(metadata), [metadata])
   const personalizationLabel = useMemo(() => getPersonalizationLabel(preferenceProfile), [preferenceProfile])
 
-  // Track scroll position for header transition
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50)
-    }
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
-
   // Handle article click - open modal instead of navigating
   const handleArticleClick = (article: NewsArticle, e: React.MouseEvent) => {
     e.preventDefault()
@@ -214,6 +201,7 @@ export default function HomePageClient({
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault()
+        if (window.matchMedia("(min-width: 1024px)").matches) setSearchExpanded(true)
         searchInputRef.current?.focus()
       }
       // Escape to clear and blur search
@@ -323,12 +311,11 @@ export default function HomePageClient({
       return true
     })
 
-    return personalizeArticles(baseArticles, preferenceProfile)
+    return [...baseArticles].sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt))
   })()
 
-  // Select hero article: prioritize articles with REAL images (not stock fallbacks)
-  // The hasRealImage flag is set by the API based on whether the RSS feed had a valid image
-  const heroArticle = filteredArticles.find(a => a.hasRealImage) || filteredArticles[0]
+  // The newest report leads the current feed.
+  const heroArticle = filteredArticles[0]
 
   // Remove hero from regular feed so it doesn't show twice
   const feedArticles = filteredArticles.filter(a => a.id !== heroArticle?.id)
@@ -347,47 +334,27 @@ export default function HomePageClient({
     })
   })()
 
-  const featuredArticles = deduplicatedFeed.filter(a => a.featured).slice(0, 3)
+  const featuredArticles = deduplicatedFeed.filter(a => a.featured && Date.now() - Date.parse(a.publishedAt) < 3 * 86400000).slice(0, 3)
   // Show ALL articles in the main grid — the old filter(a => !a.featured) was hiding
   // 95%+ of content because most articles score >= 80 (the "featured" threshold).
   // Featured articles still get priority placement in the sidebar/hero sections.
-  const regularArticles = deduplicatedFeed
-  const trendingArticles = [...articles]
-    .sort((a, b) => {
-      const priorityA = Number(a.breaking || a.featured)
-      const priorityB = Number(b.breaking || b.featured)
-
-      if (priorityA !== priorityB) {
-        return priorityB - priorityA
-      }
-
-      return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
-    })
-    .slice(0, 5)
-  const sourceCount = new Set(articles.map((article) => article.source).filter(Boolean)).size
-  const freshStoryCount = articles.filter((article) => {
-    const publishedAt = new Date(article.publishedAt).getTime()
-    const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000
-    return publishedAt >= oneDayAgo
-  }).length
-  const heroSignals = [
-    {
-      label: "Fresh stories",
-      value: `${freshStoryCount || articles.length}+`,
-      icon: Sparkles,
-    },
-    {
-      label: "Sources tracked",
-      value: `${sourceCount || 25}+`,
-      icon: LineChart,
-    },
-    {
-      label: "Operator focus",
-      value: "Seller to SaaS",
-      icon: Target,
-    },
-  ]
-
+  const regularArticles = selectedCategory === "all"
+    ? deduplicatedFeed.filter(article => article.id !== featuredArticles[0]?.id)
+    : deduplicatedFeed
+  const trendingArticles = (() => {
+    const seen = new Set<string>()
+    return [...articles]
+      .sort((a, b) => {
+        return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+      })
+      .filter(a => {
+        const normalizedTitle = a.title.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 60)
+        if (seen.has(normalizedTitle)) return false
+        seen.add(normalizedTitle)
+        return true
+      })
+      .slice(0, 5)
+  })()
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email) return
@@ -416,6 +383,7 @@ export default function HomePageClient({
       
       // Consider "already subscribed" as success for the widget
       if (response.ok || data.error === "already_subscribed") {
+        if (response.ok) trackResourceEvent("newsletter_signup", "homepage")
         setSubscribed(true)
       }
     } catch (error) {
@@ -428,143 +396,17 @@ export default function HomePageClient({
   const isDark = resolvedTheme === "dark"
 
   return (
-    <div className={`min-h-screen bg-background ${
-      isDark
-        ? 'bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.14),transparent_22%),radial-gradient(circle_at_top_right,rgba(217,70,239,0.14),transparent_20%),radial-gradient(circle_at_50%_12%,rgba(99,102,241,0.12),transparent_24%),linear-gradient(180deg,rgba(2,6,23,0.88),rgba(2,6,23,0.56)_18%,transparent_40%)]'
-        : 'bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.16),transparent_20%),radial-gradient(circle_at_top_right,rgba(217,70,239,0.14),transparent_18%),radial-gradient(circle_at_50%_12%,rgba(99,102,241,0.08),transparent_24%),linear-gradient(180deg,rgba(248,250,252,0.92),rgba(255,255,255,0.76)_18%,transparent_34%)]'
-    }`}>
-      {/* Breaking News Ticker - Live updates */}
-      <div className="relative overflow-hidden border-b border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.98),rgba(30,41,59,0.92))] text-white">
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-fuchsia-400/40 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-sky-400/45 to-transparent" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_left_top,rgba(56,189,248,0.09),transparent_16%),radial-gradient(circle_at_right_top,rgba(217,70,239,0.08),transparent_18%)] pointer-events-none" />
-        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2.5">
-          <div className="flex shrink-0 items-center gap-2 rounded-full border border-sky-300/20 bg-white/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/92 shadow-sm backdrop-blur">
-            <Zap className="h-3.5 w-3.5 text-sky-200" />
-            <span>Live Signal</span>
-          </div>
-          <div className="min-w-0 flex-1 overflow-hidden">
-            <div className="animate-ticker flex whitespace-nowrap">
-              {[...breakingNews, ...breakingNews].map((item, i) => (
-                <span key={`${item.id}-${i}`} className="mx-6 flex items-center gap-3 text-sm text-white/88">
-                  <span className="inline-flex h-1.5 w-1.5 rounded-full bg-sky-200" />
-                  <span className="font-medium text-white/95">{item.title}</span>
-                  <span className="hidden text-white/60 sm:inline">{formatTimeAgo(item.timestamp)}</span>
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Navigation */}
-      <header className={`sticky top-0 z-50 transition-all duration-300 border-b relative ${
-        isScrolled 
-          ? 'bg-[linear-gradient(180deg,rgba(15,23,42,0.88),rgba(15,23,42,0.82))] backdrop-blur-2xl shadow-[0_24px_70px_-42px_rgba(15,23,42,0.62)]' 
-          : 'bg-[linear-gradient(180deg,rgba(15,23,42,0.82),rgba(30,41,59,0.7))] backdrop-blur-2xl'
-      }`}>
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-fuchsia-400/45 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-sky-400/55 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 top-0 bg-[radial-gradient(circle_at_left_top,rgba(56,189,248,0.08),transparent_18%),radial-gradient(circle_at_right_top,rgba(217,70,239,0.08),transparent_18%)] pointer-events-none" />
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-between h-14">
-            {/* Logo */}
-            <SiteBrand
-              href="/"
-              deskLabel="Operator Intelligence Desk"
-              className="max-w-[280px]"
-              logoClassName="h-9"
-              iconClassName="h-8 w-8"
-              labelClassName="text-white/52"
-              priority
-            />
-
-            {/* Desktop Nav */}
-            <nav className="hidden lg:flex items-center gap-6">
-              <Link href="/" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-                Home
-              </Link>
-              <DropdownMenu>
-                <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-semibold text-white/82 transition-colors hover:text-white">
-                  Categories <ChevronDown className="h-3 w-3" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-56">
-                  {CATEGORIES.slice(1).map((cat) => (
-                    <DropdownMenuItem key={cat.id} onClick={() => setSelectedCategory(cat.id)}>
-                      <cat.icon className="h-4 w-4 mr-2" />
-                      {cat.label}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <Link href="/articles" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-                Articles
-              </Link>
-              <Link href="/partners" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-                Partners
-              </Link>
-              <Link href="/tools" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-                Tools
-              </Link>
-              <Link href="/community" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-                Community
-              </Link>
-              <Link href="/events" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-                Events
-              </Link>
-              <Link href="/newsletter" className="text-sm font-semibold text-white/82 transition-colors hover:text-white">
-                Newsletter
-              </Link>
-            </nav>
-
-            {/* Right Actions */}
-            <div className="flex items-center gap-2">
-              {/* Expandable Search */}
-              <div className="hidden md:flex items-center">
-                <div className={`flex items-center transition-all duration-300 ${
-                  searchExpanded ? 'w-64' : 'w-9'
-                }`}>
-                  {searchExpanded ? (
-                    <div className="relative w-full">
-                      <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/50" />
-                      <Input
-                        ref={searchInputRef}
-                        placeholder="Search news..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        onBlur={() => {
-                          if (!searchQuery) setSearchExpanded(false)
-                        }}
-                        className="h-9 border-white/10 bg-white/10 pl-9 pr-8 text-sm text-white shadow-sm backdrop-blur placeholder:text-white/45"
-                        autoFocus
-                      />
-                      <button 
-                        onClick={() => {
-                          setSearchQuery('')
-                          setSearchExpanded(false)
-                        }}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 text-white/55 hover:text-white"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
-                    </div>
-                  ) : (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setSearchExpanded(true)}
-                      className="h-9 w-9 rounded-full border border-white/10 bg-white/10 text-white shadow-sm backdrop-blur hover:bg-white/16"
-                    >
-                      <Search className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              </div>
+    <div className="min-h-screen bg-background">
+      <PremiumSiteHeader
+        active="home"
+        actions={
+          <>
               <Button
                 variant="ghost"
                 size="icon"
+                aria-label="Toggle color theme"
                 onClick={() => setTheme(isDark ? "light" : "dark")}
-                className="h-9 w-9 rounded-full border border-white/10 bg-white/10 text-white shadow-sm backdrop-blur hover:bg-white/16"
+                className="hidden h-11 w-11 rounded-lg text-slate-200 hover:bg-white/10 hover:text-white sm:inline-flex"
               >
                 {themeMounted && isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </Button>
@@ -578,145 +420,55 @@ export default function HomePageClient({
                 <Button
                   size="sm"
                   onClick={() => setAuthDialogOpen(true)}
-                  className="hidden sm:flex border border-white/10 bg-[linear-gradient(135deg,#2563eb,#4f46e5_72%,#7c3aed)] text-sm text-white shadow-[0_18px_40px_-24px_rgba(79,70,229,0.72)] hover:opacity-95"
+                  className="hidden h-11 rounded-lg bg-blue-600 px-5 text-sm font-semibold text-white hover:bg-blue-500 sm:flex"
                 >
                   Sign In
                 </Button>
               )}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="lg:hidden h-9 w-9 rounded-full border border-white/10 bg-white/10 text-white shadow-sm backdrop-blur hover:bg-white/16"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              >
-                {mobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+          </>
+        }
+        mobileContent={
+          <div className="mt-3 space-y-3 px-3">
+            <button type="button" onClick={() => setTheme(isDark ? "light" : "dark")} className="block py-2 text-base font-semibold">Switch to {themeMounted && isDark ? "light" : "dark"} theme</button>
+            <Input aria-label="Search news" placeholder="Search news..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="h-12 border-white/20 bg-white/5 text-white placeholder:text-slate-400" />
+            {currentUser ? <Link href="/account" className="block py-2">Your account</Link> : <button type="button" className="py-2 text-base font-semibold" onClick={() => setAuthDialogOpen(true)}>Sign in</button>}
+          </div>
+        }
+      />
+
+      {/* Editorial masthead */}
+      <section className="editorial-hero border-b border-border bg-card">
+        <div className="mx-auto grid site-width gap-10 px-4 py-8 sm:px-6 md:py-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(360px,.9fr)] lg:items-center lg:gap-12">
+          <div>
+            <p className="mb-5 flex items-center gap-2.5 text-sm font-semibold tracking-wide text-blue-700 dark:text-blue-300">
+              <span className="h-2 w-2 rounded-full bg-blue-600" />The marketplace intelligence desk
+            </p>
+            <h1 className="max-w-4xl text-[2.5rem] font-bold leading-[1.08] tracking-[-0.045em] text-slate-950 sm:text-5xl lg:text-[3.25rem] dark:text-white">
+              The context behind<br className="hidden sm:block" /> your next move.
+            </h1>
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600 md:text-xl dark:text-slate-300">
+              Ecommerce news, source-backed research, and practical tools. Understand what changed, investigate the implications, and make a better operating decision.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Button size="lg" asChild className="h-12 rounded-lg bg-blue-600 px-6 text-base font-semibold text-white hover:bg-blue-700">
+                <Link href="/intelligence">Open your dashboard<ArrowRight className="ml-2 h-4 w-4" /></Link>
+              </Button>
+              <Button size="lg" variant="outline" asChild className="h-12 rounded-lg border-border bg-card px-6 text-base">
+                <a href="#briefing">Explore the latest news</a>
               </Button>
             </div>
+            {currentUser && personalizationLabel ? <p className="mt-5 text-sm text-muted-foreground">{personalizationLabel}. <Link href="/account" className="font-medium text-primary underline underline-offset-4">Edit your preferences</Link></p> : null}
           </div>
-
-          {/* Mobile Menu */}
-          {mobileMenuOpen && (
-            <div className="border-t border-white/10 py-4 lg:hidden">
-              <nav className="grid gap-2">
-                <Link href="/" className="rounded-2xl px-4 py-3 text-white/82 hover:bg-white/10 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Home</Link>
-                <Link href="/articles" className="rounded-2xl px-4 py-3 text-white/82 hover:bg-white/10 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Articles</Link>
-                <Link href="/news" className="rounded-2xl px-4 py-3 text-white/82 hover:bg-white/10 hover:text-white" onClick={() => setMobileMenuOpen(false)}>News</Link>
-                <Link href="/partners" className="rounded-2xl px-4 py-3 text-white/82 hover:bg-white/10 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Partners</Link>
-                <Link href="/tools" className="rounded-2xl px-4 py-3 text-white/82 hover:bg-white/10 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Tools</Link>
-                <Link href="/community" className="rounded-2xl px-4 py-3 text-white/82 hover:bg-white/10 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Community</Link>
-                <Link href="/events" className="rounded-2xl px-4 py-3 text-white/82 hover:bg-white/10 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Events</Link>
-                <Link href="/newsletter" className="rounded-2xl px-4 py-3 text-white/82 hover:bg-white/10 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Newsletter</Link>
-                {!accountLoading && currentUser ? (
-                  <Link href="/account" className="rounded-2xl px-4 py-3 text-white/82 hover:bg-white/10 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Account</Link>
-                ) : (
-                  <button
-                    type="button"
-                    className="rounded-2xl px-4 py-3 text-left text-white/82 hover:bg-white/10 hover:text-white"
-                    onClick={() => {
-                      setMobileMenuOpen(false)
-                      setAuthDialogOpen(true)
-                    }}
-                  >
-                    Sign In
-                  </button>
-                )}
-                <div className="px-1 pt-1">
-                  <Input
-                    placeholder="Search news..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="h-11 rounded-2xl border-white/10 bg-white/10 text-white placeholder:text-white/45"
-                  />
-                </div>
-              </nav>
-            </div>
-          )}
-        </div>
-      </header>
-
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-grid-pattern">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.1),transparent_24%),radial-gradient(circle_at_top_right,rgba(217,70,239,0.12),transparent_18%),linear-gradient(180deg,rgba(37,99,235,0.05),transparent_44%)]" />
-        <div className="absolute left-1/2 top-16 h-64 w-64 -translate-x-1/2 rounded-full bg-sky-400/10 blur-3xl" />
-        <div className="relative max-w-7xl mx-auto px-4 py-12 md:py-16 lg:py-20">
-          <div className="max-w-5xl">
-              <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/20 bg-white/80 px-3 py-1.5 text-sm shadow-sm backdrop-blur dark:border-sky-300/15 dark:bg-slate-950/70 dark:text-slate-100">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-500 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-500"></span>
-                </span>
-                <span className="text-slate-600 dark:text-slate-200">
-                  Live operator desk tracking <span className="font-semibold text-slate-950 dark:text-white">marketplace shifts, tools, and deal flow</span>
-                </span>
-              </div>
-
-              <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-fuchsia-400/15 bg-[linear-gradient(135deg,rgba(255,255,255,0.78),rgba(248,250,252,0.68))] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-600 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45 dark:text-slate-200">
-                <Sparkles className="h-3.5 w-3.5 text-fuchsia-500" />
-                Premium Intelligence for Marketplace Teams
-              </div>
-
-              <h1 className="mt-5 text-4xl font-black tracking-tight text-balance md:text-6xl lg:text-7xl">
-                The intelligence hub for{" "}
-                <span className="bg-[linear-gradient(135deg,#0f3f96_0%,#2563eb_38%,#7c3aed_72%,#d946ef_100%)] bg-clip-text text-transparent">
-                  marketplace commerce
-                </span>
-              </h1>
-
-              <p className={`mt-6 max-w-3xl text-lg md:text-xl md:leading-8 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
-                Breaking news, platform updates, M&amp;A activity, and operator-grade analysis for Amazon sellers,
-                agencies, SaaS providers, and commerce teams who need signal instead of noise.
-              </p>
-
-              <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-                <Button size="lg" asChild className="border border-sky-400/20 bg-[linear-gradient(135deg,#0f3f96,#2563eb_62%,#4f46e5)] text-white shadow-[0_22px_44px_-24px_rgba(37,99,235,0.8)] hover:opacity-95">
-                  <a href="#briefing">
-                    Read Today&apos;s Briefing
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </a>
-                </Button>
-                <Button size="lg" variant="outline" asChild className="border-slate-200 bg-white/75 shadow-sm backdrop-blur hover:bg-white dark:border-white/10 dark:bg-slate-950/45 dark:hover:bg-slate-900">
-                  <Link href="/newsletter">
-                    Get the Daily Brief
-                    <Mail className="ml-2 h-5 w-5" />
-                  </Link>
-                </Button>
-              </div>
-
-              <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                {heroSignals.map((signal) => (
-                  <div
-                    key={signal.label}
-                    className="rounded-2xl border border-white/70 bg-white/72 p-4 shadow-[0_16px_40px_-28px_rgba(15,23,42,0.24)] backdrop-blur dark:border-white/10 dark:bg-slate-950/45"
-                  >
-                    <div className={`flex items-center gap-2 ${isDark ? 'text-slate-300' : 'text-slate-500'}`}>
-                      <signal.icon className="h-4 w-4 text-sky-600" />
-                      <span className="text-[11px] font-semibold uppercase tracking-[0.18em]">{signal.label}</span>
-                    </div>
-                    <p className={`mt-3 text-lg font-bold ${isDark ? 'text-white' : 'text-slate-950'}`}>{signal.value}</p>
-                  </div>
-                ))}
-              </div>
-
-              {currentUser && personalizationLabel ? (
-                <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-sky-400/20 bg-white/80 px-3 py-1.5 text-sm shadow-sm backdrop-blur dark:border-sky-300/15 dark:bg-slate-950/70">
-                  <Target className="h-4 w-4 text-sky-600" />
-                  <span className="text-slate-600 dark:text-slate-200">
-                    {personalizationLabel}. Adjust it anytime in{" "}
-                    <Link href="/account" className="font-semibold text-slate-950 hover:text-primary dark:text-white">
-                      your account
-                    </Link>
-                    .
-                  </span>
-                </div>
-              ) : null}
-          </div>
+          <IntelligenceSpotlight articles={articles} />
         </div>
       </section>
 
+
+
       {/* Active Filter Indicator — only shows when a filter is active */}
       {selectedCategory !== "all" && (
-        <div className="border-b border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.82),rgba(248,250,252,0.76))] backdrop-blur dark:bg-[linear-gradient(180deg,rgba(2,6,23,0.84),rgba(15,23,42,0.8))]">
-          <div className="max-w-7xl mx-auto flex flex-col items-start justify-between gap-3 px-4 py-3 sm:flex-row sm:items-center">
+        <div className="border-b border-white/10 bg-card backdrop-blur dark:bg-slate-900">
+          <div className="site-width mx-auto flex flex-col items-start justify-between gap-3 px-4 py-3 sm:flex-row sm:items-center">
             <span className="text-sm text-slate-600 dark:text-slate-200">
               Filtered by:
               <Badge variant="secondary" className="ml-2 rounded-full border border-sky-400/15 bg-white/85 px-3 py-1 text-slate-700 dark:border-sky-300/15 dark:bg-slate-950/60 dark:text-slate-100">
@@ -732,7 +484,7 @@ export default function HomePageClient({
       )}
 
       {/* Main Content */}
-      <main id="briefing" className="max-w-7xl mx-auto px-4 py-10">
+      <main id="briefing" className="site-width mx-auto px-4 py-10 sm:px-6">
         {/* Hero Featured Article - Full Width (outside flex layout) */}
         {loading && selectedCategory === "all" && (
           <div className="mb-8">
@@ -741,85 +493,46 @@ export default function HomePageClient({
         )}
 
         {!loading && featuredArticles.length > 0 && selectedCategory === "all" && (
-          <div className="mb-8">
-            <div 
-              onClick={() => {
-                setSelectedArticle(featuredArticles[0])
-                setArticleModalOpen(true)
-              }}
-              className="cursor-pointer"
+          <section className="mb-12" aria-label="Lead story">
+            <button
+              type="button"
+              onClick={() => { setSelectedArticle(featuredArticles[0]); setArticleModalOpen(true) }}
+              className="editorial-elevated editorial-lift group block w-full overflow-hidden rounded-2xl border border-border bg-card text-left transition-shadow hover:shadow-lg"
             >
-              <Card className="group cursor-pointer overflow-hidden border border-white/50 bg-white/85 shadow-[0_28px_70px_-42px_rgba(15,23,42,0.42)] transition-all hover:-translate-y-1 hover:shadow-[0_32px_90px_-44px_rgba(15,23,42,0.55)] dark:border-white/10 dark:bg-slate-950/45">
-                <div className="aspect-[16/9] md:aspect-[21/9] lg:aspect-[3/1] min-h-[350px] md:min-h-[400px] lg:min-h-[450px] relative overflow-hidden">
+              <div className="grid md:grid-cols-2">
+                <div className="relative aspect-[16/10] overflow-hidden bg-muted md:aspect-auto md:min-h-[380px]">
                   <img
                     src={getArticleImageUrl(featuredArticles[0])}
-                    alt={featuredArticles[0].title}
-                    className="block h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    alt=""
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03] md:absolute md:inset-0"
                     loading="eager"
-                    onError={(e) => {
-                      const target = e.currentTarget
-                      const fallback = getArticleFallbackImage(
-                        featuredArticles[0].title,
-                        featuredArticles[0].category,
-                        featuredArticles[0].platforms || []
-                      )
-                      if (target.src !== fallback) {
-                        target.src = fallback
-                      }
+                    onError={e => {
+                      const fallback = getArticleFallbackImage(featuredArticles[0].title, featuredArticles[0].category, featuredArticles[0].platforms || [])
+                      if (e.currentTarget.src !== fallback) e.currentTarget.src = fallback
                     }}
                   />
-                  {/* Strong gradient overlay for text readability on any image */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/20" />
-                  <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent" />
-                  <div className="absolute left-0 right-0 top-0 flex items-start justify-between p-6 md:p-8">
-                    <div className="rounded-full border border-white/15 bg-slate-950/40 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/88 backdrop-blur-md">
-                      Lead Briefing
-                    </div>
-                    <div className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/80 backdrop-blur-md">
-                      {featuredArticles[0].readTime} min read
-                    </div>
-                  </div>
-                  <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 lg:p-12">
-                    <div className="max-w-4xl">
-                      <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-4">
-                        <Badge className="bg-category-breaking text-white border-0 px-3 py-1 shadow-lg">
-                          Featured
-                        </Badge>
-                        <Badge className={`${getCategoryConfig(featuredArticles[0].category).color} text-white border-0 shadow-lg`}>
-                          {featuredArticles[0].category}
-                        </Badge>
-                        <span className="text-sm text-white/90 drop-shadow-md">
-                          {formatTimeAgo(featuredArticles[0].publishedAt)}
-                        </span>
-                      </div>
-                      <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-white text-balance leading-tight drop-shadow-lg [text-shadow:_0_2px_12px_rgb(0_0_0_/_60%)]">
-                        {featuredArticles[0].title}
-                      </h2>
-                      <p className="text-base md:text-lg text-white/95 line-clamp-2 md:line-clamp-3 max-w-2xl mb-4 drop-shadow-md [text-shadow:_0_1px_6px_rgb(0_0_0_/_50%)]">
-                        {featuredArticles[0].excerpt}
-                      </p>
-                      <div className="flex flex-wrap items-center gap-3 md:gap-4 text-sm text-white/90 drop-shadow-md">
-                        <span className="flex items-center gap-1">
-                          <Globe className="h-4 w-4" />
-                          {featuredArticles[0].source}
-                        </span>
-                        <span>{featuredArticles[0].readTime} min read</span>
-                        <span className="ml-auto inline-flex items-center gap-2 bg-white/25 hover:bg-white/35 backdrop-blur-sm px-4 py-2 rounded-lg transition-colors shadow-lg">
-                          Read Full Story <ArrowRight className="h-4 w-4" />
-                        </span>
-                      </div>
-                    </div>
-                  </div>
                 </div>
-              </Card>
-            </div>
-          </div>
+                <div className="flex flex-col justify-center p-6 sm:p-8 lg:p-10">
+                  <div className="mb-5 flex flex-wrap items-center gap-3 text-sm font-medium">
+                    <span className="text-blue-700 dark:text-blue-300">The lead story</span>
+                    <span className="text-muted-foreground">{featuredArticles[0].category.replace(/[-_]/g, ' ')}</span>
+                  </div>
+                  <h2 className="text-2xl font-bold leading-tight tracking-tight text-foreground group-hover:text-primary sm:text-3xl lg:text-4xl">{featuredArticles[0].title}</h2>
+                  <p className="mt-5 line-clamp-3 text-lg leading-8 text-muted-foreground">{featuredArticles[0].excerpt}</p>
+                  <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                    <span className="font-medium text-foreground">{featuredArticles[0].source}</span><span aria-hidden="true">·</span><span>{featuredArticles[0].readTime} min read</span>
+                  </div>
+                  <span className="mt-7 inline-flex items-center gap-2 text-base font-semibold text-primary">Read the story<ArrowRight className="h-4 w-4" /></span>
+                </div>
+              </div>
+            </button>
+          </section>
         )}
 
         {/* Main Content with Sidebar */}
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Main Feed */}
-          <div className="flex-1 space-y-8">
+          <div className="min-w-0 flex-1 space-y-8">
             {/* Clean section header */}
 
             {/* Hero Article Section - Top Story */}
@@ -834,20 +547,21 @@ export default function HomePageClient({
                       Top Story
                     </span>
                   </div>
-                  <div className="hidden rounded-full border border-sky-400/15 bg-white/75 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45 dark:text-slate-200 md:inline-flex">
+                  <div className="hidden rounded-full border border-sky-400/15 bg-white/75 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-600 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-900 dark:text-slate-200 md:inline-flex">
                     Editor&apos;s pick
                   </div>
                 </div>
                 
-                <div 
-                  className="group relative overflow-hidden rounded-[28px] border border-white/50 bg-white/85 shadow-[0_24px_70px_-40px_rgba(15,23,42,0.42)] dark:border-white/10 dark:bg-slate-950/45"
+                <button
+                  type="button"
+                  className="editorial-elevated editorial-lift group block w-full overflow-hidden rounded-2xl border border-border bg-card text-left transition-shadow hover:shadow-lg"
                   onClick={() => {
                     setSelectedArticle(heroArticle)
                     setArticleModalOpen(true)
                   }}
                 >
                   {/* Large image */}
-                  <div className="relative w-full h-[300px] md:h-[400px]">
+                  <div className="relative aspect-[16/9] w-full">
                     <img
                       src={getArticleImageUrl(heroArticle)}
                       alt={heroArticle.title}
@@ -866,12 +580,10 @@ export default function HomePageClient({
                         }
                       }}
                     />
-                    {/* Dark gradient overlay for text readability */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
                   </div>
                   
-                  {/* Content overlay */}
-                  <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+                  {/* Story copy stays on a solid surface for readability. */}
+                  <div className="p-6 md:p-8">
                     {/* Category + Impact badges */}
                     <div className="flex items-center gap-2 mb-3 flex-wrap">
                       <span 
@@ -881,36 +593,36 @@ export default function HomePageClient({
                         {heroArticle.category.replace(/[-_]/g, ' ')}
                       </span>
                       {heroArticle.impactLevel && (
-                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-white/20 backdrop-blur-sm text-white">
+                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-secondary text-secondary-foreground">
                           {heroArticle.impactLevel === 'high' ? '●' : heroArticle.impactLevel === 'medium' ? '●' : '●'}{' '}
                           {heroArticle.impactLevel.toUpperCase()} IMPACT
                         </span>
                       )}
-                      <span className="text-white/60 text-sm">
+                      <span className="text-muted-foreground text-sm">
                         {formatTimeAgo(heroArticle.publishedAt)}
                       </span>
                     </div>
                     
                     {/* Headline */}
-                    <h2 className="text-2xl md:text-3xl font-bold text-white mb-2 leading-tight line-clamp-2 text-balance">
+                    <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3 leading-tight line-clamp-2 text-balance">
                       {heroArticle.title}
                     </h2>
                     
                     {/* Summary */}
-                    <p className="text-white/80 text-sm md:text-base mb-3 line-clamp-2 max-w-3xl">
+                    <p className="text-muted-foreground text-lg leading-8 mb-5 line-clamp-2 max-w-3xl">
                       {heroArticle.aiSummary || heroArticle.excerpt}
                     </p>
                     
                     {/* Source + Read more */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-white/60 text-sm">
-                        <span className="font-medium text-white/80">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                        <span className="font-medium text-muted-foreground">
                           {heroArticle.source}
                         </span>
                         {heroArticle.platforms?.slice(0, 2).map(p => (
                           <span 
                             key={p} 
-                            className="px-2 py-0.5 rounded bg-white/10 text-xs capitalize"
+                            className="px-2 py-0.5 rounded bg-secondary text-xs capitalize"
                           >
                             {p.replace(/[-_]/g, ' ')}
                           </span>
@@ -921,7 +633,7 @@ export default function HomePageClient({
                       </span>
                     </div>
                   </div>
-                </div>
+                </button>
               </section>
             )}
 
@@ -929,28 +641,29 @@ export default function HomePageClient({
             {loading && <CompactNewsletterSkeleton />}
 
             {!loading && filteredArticles.length > 3 && (
-              <div className="mb-6 overflow-hidden rounded-[24px] border border-white/60 bg-[linear-gradient(135deg,rgba(255,255,255,0.92),rgba(248,250,252,0.82)_50%,rgba(239,246,255,0.84)_100%)] p-4 shadow-[0_22px_60px_-38px_rgba(15,23,42,0.34)] dark:border-white/10 dark:bg-[linear-gradient(135deg,rgba(15,23,42,0.82),rgba(15,23,42,0.74)_50%,rgba(30,41,59,0.84)_100%)]">
+              <div className="mb-6 overflow-hidden rounded-xl border border-border bg-card p-4 editorial-elevated dark:border-white/10 dark:bg-slate-900">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                   <div className="flex items-center gap-4 flex-1">
-                    <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#0f3f96,#2563eb_62%,#7c3aed)] text-white shadow-[0_18px_40px_-24px_rgba(37,99,235,0.6)]">
+                    <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl  text-white editorial-elevated">
                       <Mail className="h-5 w-5" />
                     </div>
                     <div>
                       <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-300">Daily Marketplace Brief</p>
                       <p className="mt-1 text-sm text-muted-foreground">
-                        Join <span className="font-semibold text-foreground">5,000+ operators, sellers, and partners</span> getting the sharpest signal in five minutes or less.
+                        A focused briefing for operators, sellers, and partners. Get the stories that matter to your business.
                       </p>
                     </div>
                   </div>
                   <form onSubmit={handleSubscribe} className="flex gap-2">
                   <Input
                     type="email"
+                    aria-label="Email address"
                     placeholder="Email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="h-10 w-44 border-white/40 bg-white/85 text-sm shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45"
+                    className="h-10 w-44 border-border bg-white/85 text-sm shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-900"
                   />
-                  <Button type="submit" size="sm" className="h-10 border border-sky-400/20 bg-[linear-gradient(135deg,#0f3f96,#2563eb_62%,#4f46e5)] text-white shadow-[0_16px_36px_-24px_rgba(37,99,235,0.7)]" disabled={isSubscribing || subscribed}>
+                  <Button type="submit" size="sm" className="h-10 border border-sky-400/20  text-white editorial-elevated" disabled={isSubscribing || subscribed}>
                     {subscribed ? "Done" : isSubscribing ? <Loader2 className="h-3 w-3 animate-spin" /> : "Subscribe"}
                   </Button>
                   </form>
@@ -959,19 +672,19 @@ export default function HomePageClient({
             )}
 
             {/* Regular Articles Grid */}
-            <div className="mb-6 flex items-end justify-between gap-4 border-b border-white/40 pb-4 dark:border-white/10">
+            <div className="mb-6 flex items-end justify-between gap-4 border-b border-border pb-4 dark:border-white/10">
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-300">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-300">
                   News Feed
                 </p>
                 <h2 className="mt-2 text-2xl font-bold">
                   {searchQuery ? `Search Results` : 'Latest News'}
                 </h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Curated for operators, sellers, agencies, and marketplace tech teams.
+                <p className="mt-1 text-base text-muted-foreground">
+                  {searchQuery ? "Matching coverage from the searchable archive." : "Newest first · Past 14 days · Curated for marketplace operators."}
                 </p>
               </div>
-              <div className="rounded-full border border-white/60 bg-white/80 px-4 py-2 text-sm text-muted-foreground shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/45">
+              <div className="rounded-full border border-border bg-white/80 px-4 py-2 text-sm text-muted-foreground shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-900">
                 {loading ? '' : `${feedArticles.length} article${feedArticles.length !== 1 ? 's' : ''}`}
               </div>
             </div>
@@ -985,7 +698,7 @@ export default function HomePageClient({
                   <div className="h-24 w-24 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center">
                     <FileText className="h-12 w-12 text-muted-foreground/50" />
                   </div>
-                  <h3 className="text-lg font-semibold mb-2">No articles found</h3>
+                  <h3 className="text-lg font-bold mb-2">No articles found</h3>
                   <p className="text-muted-foreground mb-6 max-w-md mx-auto">
                     {searchQuery
                       ? `No results for "${searchQuery}". Try a different search term or browse by category.`
@@ -1028,8 +741,8 @@ export default function HomePageClient({
               <div className="grid md:grid-cols-2 gap-6">
                 {regularArticles.slice(0, visibleArticleCount).map((article, index) => (
                   <Fragment key={article.id}>
-                    <div onClick={(e) => handleArticleClick(article, e)}>
-                      <Card className="group h-full cursor-pointer overflow-hidden rounded-[24px] border border-white/60 bg-white/82 shadow-[0_22px_54px_-34px_rgba(15,23,42,0.28)] transition-all hover:-translate-y-1 hover:shadow-[0_26px_70px_-36px_rgba(15,23,42,0.42)] dark:border-white/10 dark:bg-slate-950/45">
+                    <div className="cursor-pointer rounded-xl focus-visible:outline-2 focus-visible:outline-primary" role="button" tabIndex={0} aria-label={`Read ${article.title}`} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSelectedArticle(article); setArticleModalOpen(true) } }} onClick={(e) => handleArticleClick(article, e)}>
+                      <Card className="group h-full cursor-pointer overflow-hidden rounded-xl border border-border bg-card editorial-elevated transition-shadow hover:shadow-md">
                         <div className="relative aspect-[16/9] overflow-hidden bg-muted">
                           <img
                             src={getArticleImageUrl(article)}
@@ -1054,31 +767,31 @@ export default function HomePageClient({
                         <CardContent className="p-5 md:p-6">
                           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                             <div className="flex flex-wrap items-center gap-2">
-                              <span className="rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-700 dark:border-white/10 dark:bg-white/8 dark:text-white/88">
+                              <span className="rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-700 dark:border-white/10 dark:bg-white/8 dark:text-white/88">
                                 {article.category.replace(/[-_]/g, ' ')}
                               </span>
                               {article.aiSummary && (
-                                <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-400/15 bg-sky-50 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-sky-700 dark:border-sky-400/18 dark:bg-sky-400/10 dark:text-sky-200">
+                                <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-400/15 bg-sky-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-sky-700 dark:border-sky-400/18 dark:bg-sky-400/10 dark:text-sky-200">
                                   <Sparkles className="h-3 w-3" />
                                   AI Enhanced
                                 </span>
                               )}
                               {article.impactLevel && (
-                                <span className="rounded-full border border-amber-400/20 bg-amber-50 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-700 dark:border-amber-400/18 dark:bg-amber-400/10 dark:text-amber-200">
+                                <span className="rounded-full border border-amber-400/20 bg-amber-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-amber-700 dark:border-amber-400/18 dark:bg-amber-400/10 dark:text-amber-200">
                                   {article.impactLevel} impact
                                 </span>
                               )}
                             </div>
-                            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-300">
+                            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-300">
                               {formatTimeAgo(article.publishedAt)}
                             </span>
                           </div>
 
-                          <h3 className="mb-3 text-[1.35rem] font-bold leading-tight text-slate-950 transition-colors group-hover:text-sky-700 md:text-[1.5rem] dark:text-white dark:group-hover:text-sky-200 text-balance line-clamp-2">
+                          <h3 className="mb-3 text-[1.4rem] font-bold leading-snug text-slate-950 transition-colors group-hover:text-sky-700 md:text-[1.6rem] dark:text-white dark:group-hover:text-sky-200 text-balance line-clamp-2">
                             {article.title}
                           </h3>
 
-                          <p className="mb-4 text-sm leading-6 text-slate-600 line-clamp-3 dark:text-slate-300">
+                          <p className="mb-4 text-base leading-7 text-slate-700 line-clamp-3 dark:text-slate-300">
                             {article.aiSummary || article.excerpt}
                           </p>
 
@@ -1086,7 +799,7 @@ export default function HomePageClient({
                             {article.platforms?.slice(0, 2).map((p) => (
                               <span
                                 key={p}
-                                className="rounded-full border border-slate-200 bg-slate-100 px-2.5 py-1 text-[11px] font-medium capitalize text-slate-600 dark:border-white/10 dark:bg-white/7 dark:text-slate-200"
+                                className="rounded-full border border-slate-200 bg-slate-100 px-2.5 py-1 text-xs font-medium capitalize text-slate-600 dark:border-white/10 dark:bg-white/7 dark:text-slate-200"
                               >
                                 {p}
                               </span>
@@ -1094,7 +807,7 @@ export default function HomePageClient({
                             {article.audience?.slice(0, 1).map((aud) => (
                               <span
                                 key={aud}
-                                className="rounded-full border border-slate-200/80 bg-white px-2.5 py-1 text-[11px] font-medium capitalize text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-400"
+                                className="rounded-full border border-slate-200/80 bg-white px-2.5 py-1 text-xs font-medium capitalize text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-400"
                               >
                                 {aud.replace(/_/g, ' ')}
                               </span>
@@ -1120,7 +833,7 @@ export default function HomePageClient({
                     {/* Inline Newsletter CTA after every 6th article */}
                     {(index + 1) % 6 === 0 && index < regularArticles.length - 1 && (
                       <div key={`newsletter-cta-${index}`} className="md:col-span-2">
-                        <Card className="overflow-hidden rounded-[24px] border border-white/60 bg-[linear-gradient(135deg,rgba(15,23,42,0.92),rgba(37,99,235,0.86)_58%,rgba(79,70,229,0.82))] text-white shadow-[0_26px_64px_-36px_rgba(15,23,42,0.62)] dark:border-white/10">
+                        <Card className="overflow-hidden rounded-xl border border-border bg-slate-950 text-white editorial-elevated dark:border-white/10">
                           <CardContent className="p-6">
                             <div className="flex flex-col sm:flex-row items-center gap-4">
                               <div className="flex items-center gap-3 flex-1">
@@ -1135,6 +848,7 @@ export default function HomePageClient({
                               <form onSubmit={handleSubscribe} className="flex gap-2 w-full sm:w-auto">
                                 <Input
                                   type="email"
+                    aria-label="Email address"
                                   placeholder="Enter your email"
                                   value={email}
                                   onChange={(e) => setEmail(e.target.value)}
@@ -1150,32 +864,6 @@ export default function HomePageClient({
                       </div>
                     )}
                     
-                    {/* MarginPro CTA - shows in Seller Profitability category after every 8th article */}
-                    {selectedCategory === "profitability" && (index + 1) % 8 === 0 && index < regularArticles.length - 1 && (
-                      <div key={`marginpro-cta-${index}`} className="md:col-span-2">
-                        <Card className="overflow-hidden rounded-[24px] border border-emerald-500/20 bg-[linear-gradient(135deg,rgba(255,255,255,0.94),rgba(236,253,245,0.94)_55%,rgba(209,250,229,0.9))] shadow-[0_22px_60px_-38px_rgba(5,150,105,0.28)] dark:border-emerald-500/15 dark:bg-[linear-gradient(135deg,rgba(6,78,59,0.28),rgba(4,47,46,0.34)_55%,rgba(6,95,70,0.24))]">
-                          <CardContent className="p-6">
-                            <div className="flex flex-col sm:flex-row items-center gap-4">
-                              <div className="flex items-center gap-3 flex-1">
-                                <div className="h-10 w-10 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
-                                  <DollarSign className="h-5 w-5 text-emerald-600" />
-                                </div>
-                                <div>
-                                  <p className="font-semibold text-sm">Losing margin to Amazon billing errors?</p>
-                                  <p className="text-xs text-muted-foreground">MarginPro recovers an average of 1-3% of revenue from overcharges, shortages, and billing mistakes.</p>
-                                </div>
-                              </div>
-                              <Link href="/solutions">
-                                <Button variant="outline" size="sm" className="whitespace-nowrap border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10 dark:text-emerald-300">
-                                  Get a Free Audit
-                                  <ArrowRight className="h-3 w-3 ml-1" />
-                                </Button>
-                              </Link>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </div>
-                    )}
                   </Fragment>
                 ))}
               </div>
@@ -1187,7 +875,7 @@ export default function HomePageClient({
                 <Button
                   variant="outline"
                   size="lg"
-                  className="rounded-full border-sky-400/20 bg-white/80 px-6 shadow-sm backdrop-blur hover:bg-white dark:border-white/10 dark:bg-slate-950/45 dark:hover:bg-slate-900"
+                  className="rounded-full border-sky-400/20 bg-white/80 px-6 shadow-sm backdrop-blur hover:bg-white dark:border-white/10 dark:bg-slate-900 dark:hover:bg-slate-900"
                   onClick={() => setVisibleArticleCount(prev => prev + 12)}
                 >
                   Load More Articles ({regularArticles.length - visibleArticleCount} remaining)
@@ -1203,18 +891,18 @@ export default function HomePageClient({
               <>
                 <SidebarCardSkeleton rows={5} />
                 <SidebarCardSkeleton rows={3} />
-                <MarketSnapshotSkeleton />
+                
                 <SidebarCardSkeleton rows={2} />
               </>
             )}
 
-            {/* Trending This Week */}
+            {/* Recent coverage */}
             {!loading && (
-            <Card className="overflow-hidden rounded-[24px] border border-white/60 bg-white/82 shadow-[0_18px_48px_-34px_rgba(15,23,42,0.24)] dark:border-white/10 dark:bg-slate-950/45">
+            <Card className="overflow-hidden rounded-xl border border-border bg-white editorial-elevated dark:border-white/10 dark:bg-slate-900">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-primary" />
-                  Trending This Week
+                  Recent coverage
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -1239,7 +927,7 @@ export default function HomePageClient({
 
             {/* Upcoming Events */}
             {!loading && (
-            <Card className="overflow-hidden rounded-[24px] border border-white/60 bg-white/82 shadow-[0_18px_48px_-34px_rgba(15,23,42,0.24)] dark:border-white/10 dark:bg-slate-950/45">
+            <Card className="overflow-hidden rounded-xl border border-border bg-white editorial-elevated dark:border-white/10 dark:bg-slate-900">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-primary" />
@@ -1262,7 +950,7 @@ export default function HomePageClient({
                     </div>
                   </div>
                 ))}
-                <Button variant="outline" size="sm" className="w-full rounded-full border-sky-400/15 bg-white/75 shadow-sm backdrop-blur hover:bg-white dark:border-white/10 dark:bg-slate-950/45 dark:hover:bg-slate-900" asChild>
+                <Button variant="outline" size="sm" className="w-full rounded-full border-sky-400/15 bg-white/75 shadow-sm backdrop-blur hover:bg-white dark:border-white/10 dark:bg-slate-900 dark:hover:bg-slate-900" asChild>
                   <Link href="/events">
                     View All Events
                     <ChevronRight className="h-4 w-4 ml-1" />
@@ -1272,50 +960,9 @@ export default function HomePageClient({
             </Card>
             )}
 
-            {/* Marketplace Metrics */}
+            {/* Keep signup in normal flow so subsequent sidebar tools cannot overlap it. */}
             {!loading && (
-            <Card className="overflow-hidden rounded-[24px] border border-white/60 bg-white/82 shadow-[0_18px_48px_-34px_rgba(15,23,42,0.24)] dark:border-white/10 dark:bg-slate-950/45">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <BarChart3 className="h-4 w-4 text-primary" />
-                  Market Snapshot
-                </CardTitle>
-                <p className="text-xs text-muted-foreground mt-1">Updated monthly</p>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {[
-                  { label: "Amazon 3P GMV", value: "$420B", change: "+12%", positive: true },
-                  { label: "Amazon 1P GMV", value: "$280B", change: "+5%", positive: true },
-                  { label: "Amazon 3P Share", value: "60%", change: "+2pts", positive: true },
-                  { label: "Amazon 1P Share", value: "40%", change: "-2pts", positive: false },
-                  { label: "TikTok Shop GMV", value: "$10.5B", change: "+185%", positive: true },
-                  { label: "Walmart Marketplace", value: "$75B", change: "+28%", positive: true },
-                ].map((metric) => (
-                  <div key={metric.label} className="flex items-center justify-between border-b border-white/50 py-2 last:border-0 dark:border-white/10">
-                    <span className="text-sm text-muted-foreground">{metric.label}</span>
-                    <div className="text-right">
-                      <span className="font-semibold">{metric.value}</span>
-                      <Badge 
-                        variant="secondary" 
-                        className={`ml-2 text-xs ${metric.positive ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400' : 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400'}`}
-                      >
-                        {metric.change}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-                <div className="pt-2 border-t">
-                  <p className="text-xs text-muted-foreground text-center">
-                    Sources: Marketplace Pulse, eMarketer, Company Filings
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-            )}
-
-            {/* Newsletter Signup - Sticky */}
-            {!loading && (
-            <Card className="sticky top-32 overflow-hidden rounded-[24px] border border-white/10 bg-[linear-gradient(135deg,rgba(15,23,42,0.96),rgba(30,41,59,0.94)_52%,rgba(55,48,163,0.86))] text-primary-foreground shadow-[0_26px_70px_-36px_rgba(15,23,42,0.58)]">
+            <Card className="overflow-hidden rounded-xl border border-white/10 bg-slate-950 text-primary-foreground editorial-elevated">
               <CardContent className="p-5">
                 <Mail className="mb-3 h-8 w-8 text-sky-300" />
                 <h3 className="mb-2 font-bold">Daily Marketplace Brief</h3>
@@ -1325,6 +972,7 @@ export default function HomePageClient({
                 <form onSubmit={handleSubscribe} className="space-y-2">
                   <Input
                     type="email"
+                    aria-label="Email address"
                     placeholder="Your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -1340,7 +988,7 @@ export default function HomePageClient({
 
             {/* Quick Tools Access */}
             {!loading && (
-            <Card className="overflow-hidden rounded-[24px] border border-white/60 bg-white/82 shadow-[0_18px_48px_-34px_rgba(15,23,42,0.24)] dark:border-white/10 dark:bg-slate-950/45">
+            <Card className="overflow-hidden rounded-xl border border-border bg-white editorial-elevated dark:border-white/10 dark:bg-slate-900">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
                   <Wrench className="h-4 w-4 text-primary" />
@@ -1350,11 +998,11 @@ export default function HomePageClient({
               <CardContent className="grid grid-cols-2 gap-2">
                 {[
                   { name: "Profit Calculator", icon: Calculator, href: "/tools#profit" },
-                  { name: "Profit Recovery", icon: DollarSign, href: "/solutions" },
+                  { name: "Fee Intelligence", icon: DollarSign, href: "/fees" },
                   { name: "Listing Optimizer", icon: Target, href: "/tools#listing" },
                   { name: "Keyword Research", icon: LineChart, href: "/tools#keywords" },
                 ].map((tool) => (
-                  <Button key={tool.name} variant="outline" size="sm" className="h-auto rounded-2xl border-white/60 bg-white/78 py-3 shadow-sm backdrop-blur hover:bg-white dark:border-white/10 dark:bg-slate-950/45 dark:hover:bg-slate-900" asChild>
+                  <Button key={tool.name} variant="outline" size="sm" className="h-auto rounded-2xl border-border bg-white py-3 shadow-sm backdrop-blur hover:bg-white dark:border-white/10 dark:bg-slate-900 dark:hover:bg-slate-900" asChild>
                     <Link href={tool.href}>
                       <tool.icon className="h-4 w-4" />
                       <span className="text-xs">{tool.name}</span>
@@ -1370,125 +1018,15 @@ export default function HomePageClient({
         </div>
       </main>
 
+      <section className="mx-auto site-width px-4 py-10 sm:px-6" aria-labelledby="operator-library-title">
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-3"><div><p className="editorial-eyebrow">The operator library</p><h2 id="operator-library-title" className="mt-2 text-3xl font-bold">Turn the context into a decision.</h2></div><Link href="/guides" className="text-sm font-semibold text-primary">All guides & free worksheets →</Link></div>
+        <GuideCards />
+      </section>
+
+      <div className="mx-auto site-width px-4 sm:px-6"><ResearchDesks /></div>
+
       {/* Footer */}
-      <footer className="relative overflow-hidden border-t border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.22),transparent_24%),radial-gradient(circle_at_top_right,rgba(168,85,247,0.18),transparent_22%),radial-gradient(circle_at_bottom,rgba(20,184,166,0.1),transparent_20%),linear-gradient(180deg,rgba(2,6,23,0.98),rgba(15,23,42,1))] text-white">
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/45 to-transparent" />
-        <div className="max-w-7xl mx-auto px-4 py-12">
-          <div className="grid md:grid-cols-4 gap-8">
-            {/* Brand */}
-            <div>
-              <SiteBrand href="/" logoClassName="h-11" iconClassName="h-9 w-9" className="mb-4" priority />
-              <p className="text-sm text-white/70 mb-4">
-                The intelligence hub for marketplace commerce. News, tools, and insights for e-commerce professionals.
-              </p>
-              <div className="flex gap-3">
-                <Button variant="outline" size="icon" className="h-9 w-9 border-white/15 bg-white/5 text-white hover:bg-white/10 hover:text-white">
-                  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                </Button>
-                <Button variant="outline" size="icon" className="h-9 w-9 border-white/15 bg-white/5 text-white hover:bg-white/10 hover:text-white">
-                  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-                </Button>
-                <Button variant="outline" size="icon" className="h-9 w-9 border-white/15 bg-white/5 text-white hover:bg-white/10 hover:text-white">
-                  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-                </Button>
-              </div>
-            </div>
-
-            {/* Categories */}
-            <div>
-              <h4 className="font-semibold mb-4">Categories</h4>
-              <ul className="space-y-2 text-sm text-white/70">
-                {CATEGORIES.slice(1, 7).map((cat) => (
-                  <li key={cat.id}>
-                    <button
-                      onClick={() => {
-                        setSelectedCategory(cat.id)
-                        window.scrollTo({ top: 0, behavior: 'smooth' })
-                      }}
-                      className="hover:text-white transition-colors"
-                    >
-                      {cat.label}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Company */}
-            <div>
-              <h4 className="font-semibold mb-4">Company</h4>
-              <ul className="space-y-2 text-sm text-white/70">
-                <li><Link href="/about" className="hover:text-white transition-colors">About</Link></li>
-                <li><Link href="/contact" className="hover:text-white transition-colors">Contact</Link></li>
-                <li><Link href="/advertise" className="hover:text-white transition-colors">Advertise</Link></li>
-                <li><Link href="/partners" className="hover:text-white transition-colors">Partner Marketplace</Link></li>
-                <li><Link href="/community" className="hover:text-white transition-colors">Operator Network</Link></li>
-                <li><Link href="/submit" className="hover:text-white transition-colors">Submit a Tip</Link></li>
-                <li><Link href="/tools" className="hover:text-white transition-colors">Seller Tools</Link></li>
-                <li><Link href="/articles" className="hover:text-white transition-colors">Search Articles</Link></li>
-              </ul>
-            </div>
-
-            {/* Newsletter */}
-            <div>
-              <h4 className="font-semibold mb-4">Newsletter</h4>
-              <p className="text-sm text-white/70 mb-4">
-                Get the daily brief delivered to your inbox every morning.
-              </p>
-              <form onSubmit={handleSubscribe} className="flex gap-2">
-                <Input
-                  type="email"
-                  placeholder="Your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="flex-1 border-white/10 bg-white/8 text-white placeholder:text-white/45"
-                />
-                <Button type="submit" disabled={isSubscribing || subscribed} className="bg-white text-slate-950 hover:bg-white/90">
-                  {subscribed ? "Done" : "Go"}
-                </Button>
-              </form>
-            </div>
-          </div>
-
-          <Separator className="my-8 bg-white/10" />
-
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-white/60">
-            <div className="flex flex-col items-center md:items-start gap-2">
-              <p>2026 MarketplaceBeta. All rights reserved.</p>
-              <p className="text-xs italic">Built for the marketplace commerce community</p>
-            </div>
-            <div className="flex items-center gap-6">
-              <div className="flex gap-3">
-                <a 
-                  href="https://twitter.com/ecomintel" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="hover:text-white transition-colors"
-                  aria-label="Twitter"
-                >
-                  <Twitter className="h-4 w-4" />
-                </a>
-                <a 
-                  href="https://linkedin.com/company/ecom-intel-hub" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="hover:text-white transition-colors"
-                  aria-label="LinkedIn"
-                >
-                  <Linkedin className="h-4 w-4" />
-                </a>
-              </div>
-              <div className="flex gap-6">
-                <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
-                <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
-              </div>
-            </div>
-          </div>
-          <div className="mt-4 text-center text-xs text-white/45">
-            News updates throughout the day
-          </div>
-        </div>
-      </footer>
+      <PremiumSiteFooter />
 
       {/* Article Detail Modal */}
       <ArticleDetailModal
@@ -1503,7 +1041,7 @@ export default function HomePageClient({
         onOpenChange={setAuthDialogOpen}
         redirectTo="/account"
         title="Sign in to personalize MarketplaceBeta"
-        description="Create an account to unlock community participation, saved preferences, and a smarter digest over time."
+        description="Create an account to save your preferences and personalize your research."
       />
 
       {/* Back to Top Button */}
@@ -1511,3 +1049,4 @@ export default function HomePageClient({
     </div>
   )
 }
+

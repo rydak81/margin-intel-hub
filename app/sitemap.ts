@@ -1,5 +1,8 @@
+import { GUIDE_UPDATED, OPERATOR_GUIDES } from '@/lib/operator-guides'
+import { isOperatorRelevant } from '@/lib/operator-editorial-policy'
 import type { MetadataRoute } from 'next'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { MARKETPLACES, getAllFeeRoutes } from '@/lib/marketplace-fees'
 
 export const revalidate = 300
 
@@ -8,68 +11,42 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://marketplacebeta.com
 const staticRoutes: MetadataRoute.Sitemap = [
   {
     url: siteUrl,
-    lastModified: new Date(),
     changeFrequency: 'daily',
     priority: 1,
   },
   {
     url: `${siteUrl}/articles`,
-    lastModified: new Date(),
     changeFrequency: 'daily',
     priority: 0.9,
   },
   {
     url: `${siteUrl}/news`,
-    lastModified: new Date(),
     changeFrequency: 'daily',
     priority: 0.9,
   },
   {
     url: `${siteUrl}/newsletter`,
-    lastModified: new Date(),
     changeFrequency: 'monthly',
     priority: 0.8,
   },
   {
     url: `${siteUrl}/tools`,
-    lastModified: new Date(),
     changeFrequency: 'monthly',
-    priority: 0.7,
-  },
-  {
-    url: `${siteUrl}/partners`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly',
     priority: 0.7,
   },
   {
     url: `${siteUrl}/events`,
-    lastModified: new Date(),
     changeFrequency: 'weekly',
     priority: 0.6,
-  },
-  {
-    url: `${siteUrl}/community`,
-    lastModified: new Date(),
-    changeFrequency: 'daily',
-    priority: 0.7,
-  },
-  {
-    url: `${siteUrl}/community/pulse`,
-    lastModified: new Date(),
-    changeFrequency: 'daily',
-    priority: 0.7,
-  },
-  {
-    url: `${siteUrl}/solutions`,
-    lastModified: new Date(),
-    changeFrequency: 'monthly',
-    priority: 0.5,
   },
 ]
 
 type SitemapArticleRow = {
   id: string
+  title: string
+  category: string
+  summary: string | null
+  ai_summary: string | null
   published_at: string | null
 }
 
@@ -85,7 +62,7 @@ async function getArticleRoutes(): Promise<MetadataRoute.Sitemap> {
     const supabase = createAdminClient()
     const { data, error } = await supabase
       .from('articles')
-      .select('id, published_at')
+      .select('id, title, category, summary, ai_summary, published_at')
       .eq('relevant', true)
       .gte('relevance_score', 40)
       .order('published_at', { ascending: false })
@@ -96,9 +73,9 @@ async function getArticleRoutes(): Promise<MetadataRoute.Sitemap> {
       return []
     }
 
-    return ((data ?? []) as SitemapArticleRow[]).map((article) => ({
+    return ((data ?? []) as SitemapArticleRow[]).filter(article => isOperatorRelevant({ ...article, summary: article.summary || "", aiSummary: article.ai_summary || "" })).map((article) => ({
       url: `${siteUrl}/news/${article.id}`,
-      lastModified: article.published_at ? new Date(article.published_at) : new Date(),
+      ...(article.published_at && Number.isFinite(Date.parse(article.published_at)) ? { lastModified: new Date(article.published_at) } : {}),
       changeFrequency: 'weekly',
       priority: 0.8,
     }))
@@ -108,8 +85,42 @@ async function getArticleRoutes(): Promise<MetadataRoute.Sitemap> {
   }
 }
 
+/**
+ * Fee pages are statically generated from a local dataset, so they can be
+ * enumerated synchronously — no database round-trip needed.
+ */
+function getFeeRoutes(): MetadataRoute.Sitemap {
+  const hub: MetadataRoute.Sitemap = [
+    {
+      url: `${siteUrl}/fees`,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    ...MARKETPLACES.map((marketplace) => ({
+      url: `${siteUrl}/fees/${marketplace.slug}`,
+      lastModified: new Date(marketplace.lastVerified),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    })),
+  ]
+
+  const categories: MetadataRoute.Sitemap = getAllFeeRoutes().map((route) => ({
+    url: `${siteUrl}/fees/${route.marketplace}/${route.category}`,
+    lastModified: new Date(MARKETPLACES.find(m => m.slug === route.marketplace)!.lastVerified),
+    changeFrequency: 'weekly',
+    priority: 0.7,
+  }))
+
+  return [...hub, ...categories]
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const articleRoutes = await getArticleRoutes()
 
-  return [...staticRoutes, ...articleRoutes]
+  return [...staticRoutes,
+    { url: `${siteUrl}/desktop-manufacturing`, changeFrequency: 'daily', priority: 0.8 },
+    { url: `${siteUrl}/intelligence`, changeFrequency: 'daily', priority: 0.9 },
+    ...['guides', ...OPERATOR_GUIDES.map(guide => `guides/${guide.slug}`)].map(path => ({ url: `${siteUrl}/${path}`, lastModified: new Date(GUIDE_UPDATED), changeFrequency: 'monthly' as const, priority: path.startsWith('guides') ? 0.8 : 0.5 })),
+    ...['about', 'editorial-policy'].map(path => ({ url: `${siteUrl}/${path}`, changeFrequency: 'monthly' as const, priority: 0.5 })),
+    ...getFeeRoutes(), ...articleRoutes]
 }

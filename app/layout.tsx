@@ -1,8 +1,16 @@
 import type { Metadata, Viewport } from 'next'
-import { Analytics } from '@vercel/analytics/next'
+import localFont from 'next/font/local'
+import { SiteAnalytics } from '@/components/site-analytics'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
+
+const geist = localFont({
+  src: './fonts/geist-latin.woff2',
+  variable: '--font-geist',
+  display: 'swap',
+  weight: '100 900',
+})
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://marketplacebeta.com'
 const googleSiteVerification = process.env.GOOGLE_SITE_VERIFICATION
@@ -35,8 +43,13 @@ export const metadata: Metadata = {
     description: 'The Intelligence Hub for Marketplace Commerce',
   },
   icons: {
-    icon: '/brand-icon.png',
-    apple: '/apple-icon.png',
+    icon: [
+      { url: '/icon.svg?v=20261009', type: 'image/svg+xml', sizes: 'any' },
+      { url: '/icon-light-32x32.png?v=20261009', type: 'image/png', sizes: '32x32' },
+      { url: '/icon-192.png?v=20261009', type: 'image/png', sizes: '192x192' },
+    ],
+    shortcut: '/favicon.ico?v=20261009',
+    apple: [{ url: '/apple-icon.png?v=20261009', sizes: '180x180', type: 'image/png' }],
   },
 }
 
@@ -46,11 +59,11 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className={geist.variable} suppressHydrationWarning>
       <body className="font-sans antialiased text-base">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           {children}
-          <Analytics />
+          <SiteAnalytics />
           <SpeedInsights />
         </ThemeProvider>
       </body>

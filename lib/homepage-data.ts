@@ -1,6 +1,26 @@
+import { recentArticles, datedSummary } from '@/lib/news-freshness'
 import type { ClassifiedArticle } from "@/lib/ai-classifier"
 import { getArticleImageUrl, isGoodArticleImage } from "@/lib/article-images"
 import { loadArticlesFromDB } from "@/lib/article-store"
+
+function stripHtmlTags(text: string): string {
+  if (!text) return ''
+  let result = text
+  let prev = ''
+  while (prev !== result) {
+    prev = result
+    result = result.replace(/<[^>]*>/g, ' ')
+  }
+  return result
+    .replace(/&(nbsp|lt|gt|amp|quot|#039);/g, (match, entity: string) => {
+      const entities: Record<string, string> = {
+        nbsp: ' ', lt: '<', gt: '>', amp: '&', quot: '"', '#039': "'"
+      }
+      return entities[entity] ?? match
+    })
+    .replace(/\s+/g, ' ')
+    .trim()
+}
 
 export interface NewsArticle {
   id: string
@@ -51,28 +71,7 @@ type HomepageArticleSource = Partial<ClassifiedArticle> & {
 }
 
 export function createFallbackBreakingNews(): BreakingNews[] {
-  const now = new Date().toISOString()
-
-  return [
-    {
-      id: "1",
-      title: "Amazon announces Q2 FBA fee structure changes effective April 2026",
-      timestamp: now,
-      urgent: true,
-    },
-    {
-      id: "2",
-      title: "TikTok Shop US GMV surpasses $10B milestone in Q1",
-      timestamp: now,
-      urgent: true,
-    },
-    {
-      id: "3",
-      title: "New tariff regulations impact cross-border sellers starting May 1",
-      timestamp: now,
-      urgent: false,
-    },
-  ]
+  return []
 }
 
 export function mapAICategory(aiCategory: string | undefined): string {
@@ -116,8 +115,8 @@ export function mapAICategory(aiCategory: string | undefined): string {
 }
 
 export function toNewsArticle(article: HomepageArticleSource): NewsArticle {
-  const summary = article.summary || ""
-  const aiSummary = article.aiSummary || summary
+  const summary = stripHtmlTags(article.summary || "")
+  const aiSummary = datedSummary(stripHtmlTags(article.aiSummary || "") || summary, article.publishedAt)
   const resolvedCategory = mapAICategory(article.category)
   const resolvedImageUrl = getArticleImageUrl(
     article.imageUrl,
@@ -130,8 +129,8 @@ export function toNewsArticle(article: HomepageArticleSource): NewsArticle {
   return {
     id: article.id,
     title: article.title,
-    excerpt: aiSummary,
-    fullContent: article.fullContent || summary,
+    excerpt: aiSummary || article.title,
+    fullContent: stripHtmlTags(article.fullContent || "") || summary,
     category: resolvedCategory,
     source: article.sourceName || "MarketplaceBeta",
     sourceUrl: article.sourceUrl || "",
@@ -140,7 +139,7 @@ export function toNewsArticle(article: HomepageArticleSource): NewsArticle {
     readTime: Math.ceil(((summary || aiSummary).length || 200) / 200),
     tags: [],
     featured: (article.relevanceScore || 0) >= 80,
-    breaking: Boolean(article.isBreaking || ((article.relevanceScore || 0) >= 90 && article.tier === 1)),
+    breaking: Boolean(article.isBreaking && Date.now() - Date.parse(article.publishedAt) >= 0 && Date.now() - Date.parse(article.publishedAt) < 86400000),
     imageUrl: resolvedImageUrl,
     hasRealImage: isGoodArticleImage(article.imageUrl),
     platforms: article.platforms || [],
@@ -178,11 +177,12 @@ export async function loadHomepageData(limit = 50): Promise<{
   initialArticles: NewsArticle[]
   initialBreakingNews: BreakingNews[]
 }> {
-  const articles = await loadArticlesFromDB({ limit })
-  const initialArticles = articles.map(toNewsArticle)
+  const articles = await loadArticlesFromDB({ limit: Math.max(limit, 120), newestFirst: true })
+  const initialArticles = recentArticles(articles, 14).slice(0, limit).map(toNewsArticle)
 
   return {
     initialArticles,
     initialBreakingNews: buildBreakingNews(initialArticles),
   }
 }
+
