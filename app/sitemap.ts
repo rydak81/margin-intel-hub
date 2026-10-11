@@ -118,6 +118,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const articleRoutes = await getArticleRoutes()
 
   return [...staticRoutes,
+    { url: `${siteUrl}/desktop-manufacturing`, changeFrequency: 'daily', priority: 0.8 },
     { url: `${siteUrl}/intelligence`, changeFrequency: 'daily', priority: 0.9 },
     ...['guides', ...OPERATOR_GUIDES.map(guide => `guides/${guide.slug}`)].map(path => ({ url: `${siteUrl}/${path}`, lastModified: new Date(GUIDE_UPDATED), changeFrequency: 'monthly' as const, priority: path.startsWith('guides') ? 0.8 : 0.5 })),
     ...['about', 'editorial-policy'].map(path => ({ url: `${siteUrl}/${path}`, changeFrequency: 'monthly' as const, priority: 0.5 })),
