@@ -6,6 +6,7 @@ export const SITE_NAVIGATION = [
   { key: "tools", href: "/tools", label: "Tools" },
   { key: "fees", href: "/fees", label: "Fees" },
   { key: "guides", href: "/guides", label: "Guides" },
+  { key: "manufacturing", href: "/desktop-manufacturing", label: "Manufacturing" },
   { key: "events", href: "/events", label: "Events" },
 ] as const
 

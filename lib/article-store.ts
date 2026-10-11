@@ -85,6 +85,7 @@ export async function loadArticlesFromDB(options?: {
   audience?: string
   impact?: string
   search?: string
+  newestFirst?: boolean
 }): Promise<ClassifiedArticle[]> {
   if (!isSupabaseConfigured()) return []
 
@@ -125,11 +126,12 @@ export async function loadArticlesFromDB(options?: {
 
     const articles = (data || [])
       .map(dbRowToArticle)
-      .sort((a, b) => getArticleDeskScore(b) - getArticleDeskScore(a))
+      .sort((a, b) => options?.newestFirst ? Date.parse(b.publishedAt) - Date.parse(a.publishedAt) : getArticleDeskScore(b) - getArticleDeskScore(a))
 
     return curateArticleFeed(articles, {
       limit: requestedLimit,
       maxPerTopic: options?.search ? 3 : 1,
+      preserveOrder: options?.newestFirst,
     })
   } catch (err) {
     console.warn('[ArticleStore] Failed to load from Supabase:', err)

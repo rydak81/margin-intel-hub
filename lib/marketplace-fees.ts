@@ -71,9 +71,9 @@ export interface Marketplace {
 const AMAZON_CATEGORIES: FeeCategory[] = [
   { slug: "amazon-device-accessories", label: "Amazon Device Accessories", referralPct: 45 },
   {
-    slug: "appliances", label: "Appliances", referralPct: 15,
-    note: "Full-size appliances: 15% on the first $300, then 8% on the portion above.",
-    tierMode: "marginal", tiers: [{ upTo: 300, pct: 15 }, { upTo: null, pct: 8 }],
+    slug: "appliances", label: "Compact Appliances", referralPct: 15,
+    note: "Compact appliances: 15% on the first $300, then 8% above, with a $0.30 minimum. Full-size appliances use a separate 8% rate. Appliance distinction checked against sell.amazon.com/pricing on October 10, 2026.",
+    tierMode: "marginal", tiers: [{ upTo: 300, pct: 15 }, { upTo: null, pct: 8 }], minFee: 0.30,
   },
   { slug: "automotive", label: "Automotive & Powersports", referralPct: 12 },
   {

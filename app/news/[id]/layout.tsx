@@ -1,4 +1,6 @@
 import { Metadata } from 'next'
+import { isOperatorRelevant } from '@/lib/operator-editorial-policy'
+import { datedSummary } from '@/lib/news-freshness'
 import { createClient } from '@supabase/supabase-js'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -14,15 +16,15 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
   const { data: article } = await supabase
     .from('articles')
-    .select('id, title, ai_summary, summary, image_url, source_name, category, impact_level, platforms')
+    .select('id, title, ai_summary, summary, image_url, source_name, category, impact_level, platforms, relevant, published_at')
     .eq('id', id)
     .single()
 
   if (!article) {
-    return { title: 'Article Not Found | MarketplaceBeta' }
+    return { title: 'Article Not Found | MarketplaceBeta', robots: { index: false, follow: true } }
   }
 
-  const description = article.ai_summary || article.summary || 'Read the full analysis on MarketplaceBeta'
+  const description = datedSummary(article.ai_summary || article.summary || 'Read the full analysis on MarketplaceBeta', article.published_at)
   const truncatedDesc = description.length > 200 ? description.substring(0, 197) + '...' : description
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://marketplacebeta.com'
   // Use dynamic OG image generator for all articles (branded, consistent)
@@ -32,6 +34,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   return {
     title: `${article.title} | MarketplaceBeta`,
     description: truncatedDesc,
+    robots: { index: isOperatorRelevant({ ...article, aiSummary: article.ai_summary }), follow: true },
     alternates: {
       canonical: articleUrl,
     },

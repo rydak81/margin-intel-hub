@@ -96,6 +96,15 @@ function areTopicMatches(a: CuratableArticle, b: CuratableArticle): boolean {
   if (titleA && titleA === titleB) return true
   if (titleA && titleB && (titleA.includes(titleB) || titleB.includes(titleA))) return true
 
+  // Preserve distinct named facilities; collapse only equivalent opening headlines.
+  const facilityOpening = (title: string) => /\b(center|centre)\b/i.test(title) && /\b(opens|activates)\b/i.test(title)
+  if (facilityOpening(a.title) && facilityOpening(b.title)) {
+    const synonyms: Record<string, string> = { automation: 'automated', infused: '', activates: 'opens', logistics: 'fulfillment', centre: 'center' }
+    const tokens = (title: string) => getKeywordTokens(title).map(token => synonyms[token] ?? token).filter(Boolean)
+    return Math.abs(Date.parse(a.publishedAt) - Date.parse(b.publishedAt)) < 3 * 86400000
+      && jaccardSimilarity(tokens(a.title), tokens(b.title)) === 1
+  }
+
   const tokensA = getKeywordTokens(a.title)
   const tokensB = getKeywordTokens(b.title)
   const similarity = jaccardSimilarity(tokensA, tokensB)

@@ -14,17 +14,33 @@ export interface OperatorGuide {
   takeaway: string
   download: { href: string; label: string }
   sources: { label: string; href: string; context: string }[]
+  faqs: { question: string; answer: string }[]
   sections: GuideSection[]
 }
-export const GUIDE_UPDATED = '2026-10-09'
+export const GUIDE_PUBLISHED = '2026-10-09'
+export const GUIDE_UPDATED = '2026-10-10'
 export const OPERATOR_GUIDES: OperatorGuide[] = [
   {
-    slug: 'product-profitability', title: 'Is this product actually profitable?',
+    slug: 'product-profitability', title: 'Ecommerce Profit Margin Calculator & Product Profitability Guide',
     description: 'A worked unit-economics example that includes fulfillment, advertising, returns, and overhead—plus a free profitability worksheet.',
     category: 'Profitability', readTime: '6 min',
     takeaway: 'Calculate contribution per order before deciding how many units to buy. Revenue and gross markup can hide a weak operating margin.',
     download: { href: '/downloads/product-profitability-worksheet.html', label: 'Download the profitability worksheet' },
     sources: [{ label: 'Amazon selling fees and Revenue Calculator', href: 'https://sell.amazon.com/pricing', context: 'Use the current official calculator and fee schedule for your category, dimensions, and fulfillment method. The numbers below are invented assumptions, not Amazon fee quotes.' }],
+    faqs: [
+  {
+    "question": "What is a good ecommerce profit margin?",
+    "answer": "There is no universal pass mark. A viable contribution margin must cover your fixed costs, inventory risk, and required return at a realistic order volume. Compare your own settled orders and downside case rather than treating another business’s margin as a target."
+  },
+  {
+    "question": "How do I calculate profit after marketplace fees?",
+    "answer": "Start with revenue you keep, excluding tax collected for others. Subtract product, inbound freight, preparation, marketplace and payment fees, fulfillment, storage, expected returns losses, and advertising. The remainder is contribution; subtract fixed operating costs separately to estimate operating profit."
+  },
+  {
+    "question": "Are margin and markup the same?",
+    "answer": "No. Margin divides profit by revenue; markup divides profit by cost. With $30 revenue and $23.70 in variable costs, contribution margin is 21%, while markup on those costs is about 26.6%. Neither measure includes fixed costs unless those costs are explicitly included."
+  }
+],
     sections: [
       { id: 'start-with-one-order', title: 'Start with one completed order', paragraphs: [
         'A product bought for $8 and sold for $30 appears to have a generous markup. That comparison leaves out the cost of getting it to a buyer. Start with a single unit, a single sales channel, and a consistent currency. Separate revenue you keep from sales tax you collect for someone else.',
@@ -52,12 +68,26 @@ export const OPERATOR_GUIDES: OperatorGuide[] = [
     ]
   },
   {
-    slug: 'break-even-advertising', title: 'How much can you afford to spend on advertising?',
+    slug: 'break-even-advertising', title: 'Break-Even ACoS & ROAS Calculator for Ecommerce Sellers',
     description: 'Work out an advertising ceiling from contribution margin, then translate it into ACoS, ROAS, and a cost-per-click planning limit.',
     category: 'Advertising', readTime: '6 min',
     takeaway: 'Start with the profit you need to retain. A campaign can meet a revenue target while spending more than the order can support.',
     download: { href: '/downloads/product-profitability-worksheet.html', label: 'Download the profitability worksheet' },
     sources: [{ label: 'Amazon Ads: advertising cost of sales', href: 'https://advertising.amazon.com/library/guides/acos-advertising-cost-of-sales', context: 'Definitions of ACoS and its relationship to ROAS. The planning examples and thresholds below are our hypothetical calculations, not recommended platform benchmarks.' }],
+    faqs: [
+  {
+    "question": "How do I calculate break-even ACoS?",
+    "answer": "Divide contribution before advertising by advertising-attributed revenue, using a consistent order basis. In the example, $9.30 divided by $30 is 31%. That is variable-cost break-even only; it leaves nothing for overhead or profit."
+  },
+  {
+    "question": "How do I convert ACoS to ROAS?",
+    "answer": "Convert ACoS from a percentage to a decimal and take its reciprocal. A 16% ACoS corresponds to 1 divided by 0.16, or 6.25 ROAS. The conversion only works when both metrics use the same spend, attributed revenue, and reporting period."
+  },
+  {
+    "question": "Why can a high ROAS still lose money?",
+    "answer": "ROAS measures attributed revenue relative to advertising spend. It does not subtract product costs, marketplace fees, fulfillment, returns, or fixed expenses. It also does not establish whether those purchases would have happened without the advertising."
+  }
+],
     sections: [
       { id: 'define-the-denominator', title: 'Use matching revenue and cost definitions', paragraphs: [
         'ACoS is advertising spend divided by advertising-attributed sales. ROAS reverses those terms: advertising-attributed sales divided by advertising spend. Neither metric subtracts product, fulfillment, returns, or overhead costs. A strong-looking revenue multiple can still be unprofitable.',
@@ -83,7 +113,7 @@ export const OPERATOR_GUIDES: OperatorGuide[] = [
     ]
   },
   {
-    slug: 'adding-a-marketplace', title: 'What changes when you add another marketplace?',
+    slug: 'adding-a-marketplace', title: 'Multichannel Ecommerce: Costs, Break-Even & Launch Checklist',
     description: 'A practical launch framework for channel economics, shared inventory, fulfillment, returns, and a controlled marketplace pilot.',
     category: 'Multichannel operations', readTime: '6 min',
     takeaway: 'A new channel adds operating obligations as well as revenue. Test incremental contribution and execution capacity before expanding the catalog.',
@@ -92,6 +122,20 @@ export const OPERATOR_GUIDES: OperatorGuide[] = [
       { label: 'Amazon selling fees', href: 'https://sell.amazon.com/pricing', context: 'Reference for the types of selling fees to verify. Hypothetical channel rates below are not quotes for named marketplaces.' },
       { label: 'Shopify: inventory and locations', href: 'https://help.shopify.com/en/manual/inventory-and-locations', context: 'Background on inventory tracking and locations. Confirm the capabilities of your actual channel integrations before relying on them.' }
     ],
+    faqs: [
+  {
+    "question": "How many orders does a new marketplace need to break even?",
+    "answer": "For a simple pilot with no displaced sales, divide added fixed costs by contribution per order and round up. With $180 in monthly costs and $5.30 contribution, the channel needs 34 orders. If sales shift from another channel, subtract the contribution lost there when evaluating the business-wide result."
+  },
+  {
+    "question": "Which marketplace should I add first?",
+    "answer": "Choose a channel where you can demonstrate buyer fit, acceptable contribution, manageable service requirements, and reliable stock synchronization. A lower headline fee or a larger audience alone does not establish a better opportunity. Test a bounded set of products before committing the full catalog."
+  },
+  {
+    "question": "What should a marketplace launch checklist include?",
+    "answer": "Record SKU mapping, category eligibility, price and fees, fulfillment promises, inventory ownership, returns, settlement reconciliation, and exception handling. Assign an owner and test a sale, cancellation, return, partial shipment, and stockout before expanding."
+  }
+],
     sections: [
       { id: 'define-the-pilot', title: 'Define a pilot instead of uploading everything', paragraphs: [
         'Choose a small set of products with reliable supply, known contribution, and few fulfillment exceptions. Document why the new marketplace fits the buyer and how it might create incremental demand. A large audience alone does not show that your products will convert profitably.',
