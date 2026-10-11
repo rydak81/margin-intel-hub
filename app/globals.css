@@ -244,6 +244,9 @@
   main { scroll-margin-top: 10rem; }
 }
 .editorial-eyebrow { font-size: .8125rem; font-weight: 650; letter-spacing: .14em; text-transform: uppercase; color: var(--primary); }
+@media (max-width: 639px) {
+  h1.manufacturing-title { font-size: clamp(1.75rem, 8vw, 2.25rem); }
+}
 .site-masthead { box-shadow: 0 1px 0 rgba(15,23,42,.06); }
 @media (max-width: 639px) {
   main { padding-top: 1.5rem; }
