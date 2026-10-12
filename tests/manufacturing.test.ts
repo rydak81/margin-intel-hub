@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 // @ts-expect-error Native TS runner requires explicit extensions.
-import { MANUFACTURING_SOURCES, normalizeManufacturingItems, dedupeManufacturingStories, filterManufacturingStories, manufacturingLink, upcomingManufacturingEvents } from '../lib/manufacturing.ts'
+import { MANUFACTURING_SOURCES, normalizeManufacturingItems, dedupeManufacturingStories, filterManufacturingStories, findManufacturingStory, manufacturingBody, manufacturingExcerpt, manufacturingLink, manufacturingStoryImage, manufacturingStorySlug, upcomingManufacturingEvents } from '../lib/manufacturing.ts'
 // @ts-expect-error Native TS runner requires explicit extensions.
 import { readManufacturingFeed, buildManufacturingSnapshot } from '../lib/manufacturing-feeds.ts'
 const now = Date.parse('2026-10-11T01:00:00Z')
@@ -13,6 +13,46 @@ test('manufacturing normalization retains actual dates, routes topics, and exclu
  const laser=normalizeManufacturingItems([{...item,title:'Introducing R1',contentSnippet:'Our laser cutter and engraver.'}],source,now)[0]
  assert.equal(laser.process,'Laser & fabrication')
  assert.equal(normalizeManufacturingItems([{...item,title:'3D Printing Workshops'}],source,now)[0].topic,'Events & community')
+})
+test('cover images come from media tags, enclosures, or body HTML — and junk is refused',()=>{
+ assert.equal(manufacturingStoryImage({mediaContent:[{$:{url:'https://cdn.test/cover.jpg',medium:'image'}}]}),'https://cdn.test/cover.jpg')
+ assert.equal(manufacturingStoryImage({enclosure:{url:'https://cdn.test/photo.png',type:'image/png'}}),'https://cdn.test/photo.png')
+ assert.equal(manufacturingStoryImage({contentEncoded:'<p>Intro</p><img src="https://cdn.test/body.webp" width="800">'}),'https://cdn.test/body.webp')
+ assert.equal(manufacturingStoryImage({content:'<img src="//cdn.test/relative.jpg">'}),'https://cdn.test/relative.jpg')
+ assert.equal(manufacturingStoryImage({enclosure:{url:'https://cdn.test/audio.mp3',type:'audio/mpeg'}}),null)
+ assert.equal(manufacturingStoryImage({content:'<img src="https://cdn.test/favicon.png">'}),null)
+ assert.equal(manufacturingStoryImage({content:'<img src="ftp://cdn.test/cover.jpg">'}),null)
+ assert.equal(manufacturingStoryImage({}),null)
+})
+test('excerpts strip markup, cap length at a word boundary, and refuse near-empty snippets',()=>{
+ assert.equal(manufacturingExcerpt({contentSnippet:'A new nozzle material promises faster print speeds &amp; less wear.'}),'A new nozzle material promises faster print speeds & less wear.')
+ assert.equal(manufacturingExcerpt({contentEncoded:'<p>Full <b>HTML</b> body with enough text to qualify as an excerpt for the brief page.</p>'}),'Full HTML body with enough text to qualify as an excerpt for the brief page.')
+ assert.equal(manufacturingExcerpt({contentSnippet:'Too short'}),null)
+ const long=manufacturingExcerpt({contentSnippet:`${'word '.repeat(200)}end`})!
+ assert.ok(long.length<=501 && long.endsWith('…') && !long.includes('  '))
+})
+test('full-coverage body keeps paragraph breaks, strips markup, and caps with a truncation flag',()=>{
+ const body=manufacturingBody({contentEncoded:'<p>First paragraph covering a printer upgrade with enough operational detail to matter.</p><p>Second paragraph describing throughput and maintenance implications for a small shop.</p><script>alert(1)</script>'})!
+ assert.ok(body.text.startsWith('First paragraph'))
+ assert.ok(body.text.includes('\nSecond paragraph'))
+ assert.ok(!body.text.includes('alert') && !body.text.includes('<p>'))
+ assert.equal(body.truncated,false)
+ assert.equal(manufacturingBody({content:'<p>Too short to count as coverage.</p>'}),null)
+ assert.equal(manufacturingBody({}),null)
+ const long=manufacturingBody({content:`<p>${'A detailed sentence about desktop manufacturing economics. '.repeat(400)}</p>`})!
+ assert.ok(long.truncated && long.text.length<=9000 && !long.text.endsWith(' '))
+ const [story]=normalizeManufacturingItems([{...item,contentEncoded:'<p>Body paragraph one with sufficient length for the coverage view on site.</p><p>Body paragraph two with additional detail about the announcement.</p>'}],source,now)
+ assert.ok(story.body!.includes('Body paragraph two'))
+ assert.equal(story.bodyTruncated,false)
+})
+test('story slugs are stable per URL and briefs stay findable after a headline edit',()=>{
+ const slug=manufacturingStorySlug('A new filament material','https://blog.bambulab.com/new-material/')
+ assert.equal(slug,manufacturingStorySlug('A new filament material','https://blog.bambulab.com/new-material/'))
+ assert.notEqual(slug,manufacturingStorySlug('A new filament material','https://blog.bambulab.com/other/'))
+ const [story]=normalizeManufacturingItems([item],source,now)
+ assert.equal(findManufacturingStory([story],story.slug),story)
+ assert.equal(findManufacturingStory([story],`edited-headline-${story.slug.split('-').pop()}`),story)
+ assert.equal(findManufacturingStory([story],'missing-zzzz'),null)
 })
 test('outbound article links must stay on the publisher HTTPS host',()=>{
  for(const url of ['http://blog.bambulab.com/post','https://evil.test/post','https://blog.bambulab.com.evil.test/post','https://user:pass@blog.bambulab.com/post','https://blog.bambulab.com:8443/post']) assert.equal(manufacturingLink(url,source),null,url)
