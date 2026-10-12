@@ -26,8 +26,10 @@ export function ManufacturingCover(props: {
   return <CoverImage key={props.src ?? 'cover'} {...props} />
 }
 
+// q must be 75: Next's images.qualities defaults to [75] and the optimizer
+// rejects any other value with a 400 unless the config allowlists it.
 const optimized = (src: string, width: number) =>
-  `/_next/image?url=${encodeURIComponent(src)}&w=${width}&q=80`
+  `/_next/image?url=${encodeURIComponent(src)}&w=${width}&q=75`
 
 function CoverImage({
   src,
