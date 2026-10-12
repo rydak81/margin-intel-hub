@@ -85,7 +85,7 @@ export interface ManufacturingFeedItem {
   title?: string; link?: string; isoDate?: string; pubDate?: string; contentSnippet?: string
   content?: string; contentEncoded?: string
   enclosure?: { url?: string; type?: string }
-  mediaContent?: { $?: { url?: string; medium?: string; type?: string } }[]
+  mediaContent?: { $?: { url?: string; medium?: string; type?: string; width?: string } }[]
   mediaThumbnail?: { $?: { url?: string } }
 }
 
@@ -94,24 +94,54 @@ const checkImage = (candidate: string | undefined | null): string | null => {
   const normalized = normalizeArticleImageUrl(candidate)
   return normalized && isGoodArticleImage(normalized) ? normalized : null
 }
-/** Cover image for a feed item: media tags, then enclosure, then the first usable <img> in the body HTML. */
+
+/**
+ * Upgrade a resized feed thumbnail to its full-size original, so covers are not
+ * a small image stretched to card width. Handles the three conventions our
+ * sources use: WordPress "-WxH" and Shopify "_WxH" filename suffixes, Ghost's
+ * "/size/wNNN/" path segment, and explicit width/height resize query params.
+ * Originals at the derived URL are the overwhelmingly common case; if one is
+ * missing, the cover component falls back to the branded cover on error.
+ */
+export function upgradeManufacturingImage(url: string): string {
+  try {
+    const parsed = new URL(url)
+    parsed.pathname = parsed.pathname
+      .replace(/\/size\/w\d+\//, '/')
+      .replace(/[-_]\d{2,4}x\d{2,4}(\.[a-z]{3,4})$/i, '$1')
+    for (const key of ['w', 'h', 'width', 'height', 'resize', 'fit']) parsed.searchParams.delete(key)
+    return parsed.href
+  } catch {
+    return url
+  }
+}
+
+/**
+ * Cover image for a feed item: every candidate the feed offers (media tags,
+ * enclosure, <img> tags in the body HTML), largest declared width first, each
+ * upgraded to its full-size original before validation.
+ */
 export function manufacturingStoryImage(item: ManufacturingFeedItem): string | null {
+  const candidates: { url: string; width: number }[] = []
   for (const media of item.mediaContent ?? []) {
     const attrs = media?.$
     if (!attrs?.url) continue
     if (attrs.medium && attrs.medium !== 'image') continue
     if (attrs.type && !attrs.type.startsWith('image/')) continue
-    const found = checkImage(attrs.url)
-    if (found) return found
+    candidates.push({ url: attrs.url, width: Number(attrs.width) || 0 })
   }
-  const thumbnail = checkImage(item.mediaThumbnail?.$?.url)
-  if (thumbnail) return thumbnail
+  const thumbnail = item.mediaThumbnail?.$?.url
+  if (thumbnail) candidates.push({ url: thumbnail, width: 0 })
   if (item.enclosure?.url && (item.enclosure.type?.startsWith('image/') || IMAGE_EXTENSION.test(item.enclosure.url))) {
-    const found = checkImage(item.enclosure.url)
-    if (found) return found
+    candidates.push({ url: item.enclosure.url, width: 0 })
   }
-  for (const tag of (item.contentEncoded || item.content || '').match(/<img[^>]+>/gi)?.slice(0, 5) ?? []) {
-    const found = checkImage(tag.match(/src=["']([^"']+)["']/i)?.[1])
+  for (const tag of (item.contentEncoded || item.content || '').match(/<img[^>]+>/gi)?.slice(0, 8) ?? []) {
+    const src = tag.match(/src=["']([^"']+)["']/i)?.[1]
+    if (src) candidates.push({ url: src, width: parseInt(tag.match(/width=["']?(\d+)/i)?.[1] || '0', 10) })
+  }
+  candidates.sort((a, b) => b.width - a.width)
+  for (const candidate of candidates) {
+    const found = checkImage(upgradeManufacturingImage(candidate.url)) ?? checkImage(candidate.url)
     if (found) return found
   }
   return null

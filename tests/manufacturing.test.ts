@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 // @ts-expect-error Native TS runner requires explicit extensions.
-import { MANUFACTURING_SOURCES, normalizeManufacturingItems, dedupeManufacturingStories, filterManufacturingStories, findManufacturingStory, manufacturingBody, manufacturingExcerpt, manufacturingLink, manufacturingStoryImage, manufacturingStorySlug, upcomingManufacturingEvents } from '../lib/manufacturing.ts'
+import { MANUFACTURING_SOURCES, normalizeManufacturingItems, dedupeManufacturingStories, filterManufacturingStories, findManufacturingStory, manufacturingBody, manufacturingExcerpt, manufacturingLink, manufacturingStoryImage, manufacturingStorySlug, upcomingManufacturingEvents, upgradeManufacturingImage } from '../lib/manufacturing.ts'
 // @ts-expect-error Native TS runner requires explicit extensions.
 import { readManufacturingFeed, buildManufacturingSnapshot } from '../lib/manufacturing-feeds.ts'
 const now = Date.parse('2026-10-11T01:00:00Z')
@@ -23,6 +23,16 @@ test('cover images come from media tags, enclosures, or body HTML — and junk i
  assert.equal(manufacturingStoryImage({content:'<img src="https://cdn.test/favicon.png">'}),null)
  assert.equal(manufacturingStoryImage({content:'<img src="ftp://cdn.test/cover.jpg">'}),null)
  assert.equal(manufacturingStoryImage({}),null)
+})
+test('resized feed thumbnails upgrade to full-size originals and the largest candidate wins',()=>{
+ assert.equal(upgradeManufacturingImage('https://cdn.test/wp-content/uploads/photo-768x432.jpg'),'https://cdn.test/wp-content/uploads/photo.jpg')
+ assert.equal(upgradeManufacturingImage('https://cdn.test/products/case_600x600.png'),'https://cdn.test/products/case.png')
+ assert.equal(upgradeManufacturingImage('https://cdn.test/content/images/size/w600/2026/10/cover.jpg'),'https://cdn.test/content/images/2026/10/cover.jpg')
+ assert.equal(upgradeManufacturingImage('https://cdn.test/img/cover.jpg?v=123&width=640'),'https://cdn.test/img/cover.jpg?v=123')
+ assert.equal(upgradeManufacturingImage('https://cdn.test/img/original.jpg'),'https://cdn.test/img/original.jpg')
+ assert.equal(upgradeManufacturingImage('not a url'),'not a url')
+ assert.equal(manufacturingStoryImage({mediaContent:[{$:{url:'https://cdn.test/small.jpg',medium:'image',width:'150'}}, {$:{url:'https://cdn.test/large.jpg',medium:'image',width:'1600'}}]}),'https://cdn.test/large.jpg')
+ assert.equal(manufacturingStoryImage({contentEncoded:'<img src="https://cdn.test/inline.jpg"><img src="https://cdn.test/hero-300x169.jpg" width="1200">'}),'https://cdn.test/hero.jpg')
 })
 test('excerpts strip markup, cap length at a word boundary, and refuse near-empty snippets',()=>{
  assert.equal(manufacturingExcerpt({contentSnippet:'A new nozzle material promises faster print speeds &amp; less wear.'}),'A new nozzle material promises faster print speeds & less wear.')
