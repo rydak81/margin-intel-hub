@@ -37,13 +37,18 @@ test('full-coverage body keeps paragraph breaks, strips markup, and caps with a 
  assert.ok(body.text.includes('\nSecond paragraph'))
  assert.ok(!body.text.includes('alert') && !body.text.includes('<p>'))
  assert.equal(body.truncated,false)
+ assert.equal(body.summary,false)
  assert.equal(manufacturingBody({content:'<p>Too short to count as coverage.</p>'}),null)
  assert.equal(manufacturingBody({}),null)
  const long=manufacturingBody({content:`<p>${'A detailed sentence about desktop manufacturing economics. '.repeat(400)}</p>`})!
  assert.ok(long.truncated && long.text.length<=9000 && !long.text.endsWith(' '))
+ assert.equal(long.summary,false)
+ const desc=manufacturingBody({content:`<p>${'A short feed description sentence. '.repeat(8)}</p>`})!
+ assert.equal(desc.summary,true,'a short RSS description is a summary, not the full article')
  const [story]=normalizeManufacturingItems([{...item,contentEncoded:'<p>Body paragraph one with sufficient length for the coverage view on site.</p><p>Body paragraph two with additional detail about the announcement.</p>'}],source,now)
  assert.ok(story.body!.includes('Body paragraph two'))
  assert.equal(story.bodyTruncated,false)
+ assert.equal(story.bodySummary,false)
 })
 test('story slugs are stable per URL and briefs stay findable after a headline edit',()=>{
  const slug=manufacturingStorySlug('A new filament material','https://blog.bambulab.com/new-material/')

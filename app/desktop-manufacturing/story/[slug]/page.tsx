@@ -96,7 +96,9 @@ export default async function ManufacturingStoryPage({ params }: { params: Promi
 
   return (
     <div className="min-h-screen bg-background">
-      <Script id={`manufacturing-story-jsonld-${story.slug}`} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      {/* Escape "<" so feed-derived values (title, image URL) can never close the
+          script element and inject markup via dangerouslySetInnerHTML. */}
+      <Script id={`manufacturing-story-jsonld-${story.slug}`} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
       <PremiumSiteHeader active="manufacturing" deskLabel="Manufacturing Desk" backHref="/desktop-manufacturing" backLabel="Manufacturing Desk" />
 
       <main className="mx-auto site-width px-4 py-10 sm:px-6">
@@ -127,7 +129,7 @@ export default async function ManufacturingStoryPage({ params }: { params: Promi
               <section className="mt-10">
                 <div className="mb-5 flex items-center gap-2">
                   <BookOpen className="h-5 w-5 text-primary" />
-                  <h2 className="text-2xl font-bold">Full coverage</h2>
+                  <h2 className="text-2xl font-bold">{story.bodySummary ? 'From the report' : 'Full coverage'}</h2>
                 </div>
                 <div className="editorial-elevated rounded-2xl border border-border bg-card p-6 sm:p-8 md:p-10">
                   <div className="mx-auto max-w-3xl space-y-6">
@@ -150,11 +152,13 @@ export default async function ManufacturingStoryPage({ params }: { params: Promi
                       ),
                     )}
                     <p className="border-t border-border pt-5 text-sm leading-7 text-muted-foreground">
-                      {story.bodyTruncated ? (
+                      {story.bodyTruncated || story.bodySummary ? (
                         <>
-                          This coverage continues in the original report.{' '}
+                          {story.bodyTruncated
+                            ? 'This coverage continues in the original report.'
+                            : `The ${story.sourceName} feed distributes a summary of this report.`}{' '}
                           <a href={story.url} target="_blank" rel="noopener noreferrer" className="font-semibold text-primary hover:underline">
-                            Keep reading at {story.sourceName} →
+                            Read the full article at {story.sourceName} →
                           </a>
                         </>
                       ) : (

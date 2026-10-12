@@ -23,11 +23,14 @@ export interface ManufacturingStory {
   /** Short plain-text excerpt from the feed, for cards and meta descriptions. */
   excerpt: string | null
   /** Cleaned text of the article body the publisher distributes in its feed (paragraph
-   * breaks preserved), rendered on-site as Full Coverage. Null when the feed only
-   * carries a headline or summary. */
+   * breaks preserved), rendered on-site as the coverage section. Null when the feed
+   * carries only a headline. */
   body: string | null
   /** True when the feed body was longer than the stored cap. */
   bodyTruncated: boolean
+  /** True when the feed text is likely a summary rather than the full article
+   * (a short RSS description, not content:encoded). */
+  bodySummary: boolean
 }
 export interface ManufacturingSourceStatus {
   id: string; available: boolean; count: number; latestPublishedAt: string | null
@@ -119,22 +122,22 @@ export function manufacturingStoryImage(item: ManufacturingFeedItem): string | n
  * public feed, cleaned to plain text with paragraph breaks preserved. Capped so
  * the cached snapshot stays bounded; `truncated` flags a body that ran past the cap.
  */
-export function manufacturingBody(item: ManufacturingFeedItem, title?: string): { text: string; truncated: boolean } | null {
+export function manufacturingBody(item: ManufacturingFeedItem, title?: string): { text: string; truncated: boolean; summary: boolean } | null {
   const cleaned = cleanArticleContent(item.contentEncoded || item.content, title)
   if (cleaned.length < 120) return null
-  if (cleaned.length <= 9000) return { text: cleaned, truncated: false }
+  // RSS <description> (rss-parser's `content`) is commonly a summary, not the article;
+  // content:encoded, and long Atom content bodies, are the full-text conventions.
+  const summary = !item.contentEncoded && cleaned.length < 1200
+  if (cleaned.length <= 9000) return { text: cleaned, truncated: false, summary }
   const cut = cleaned.slice(0, 9000)
-  return { text: cut.slice(0, Math.max(cut.lastIndexOf(' '), 8200)).trimEnd(), truncated: true }
+  return { text: cut.slice(0, Math.max(cut.lastIndexOf(' '), 8200)).trimEnd(), truncated: true, summary: false }
 }
 
 /** Short plain-text excerpt (≤ 500 chars) from the feed snippet or body, for cards and metadata. */
 export function manufacturingExcerpt(item: ManufacturingFeedItem): string | null {
-  const text = (item.contentSnippet || item.contentEncoded || item.content || '')
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
-    .replace(/&#(\d+);/g, (_, dec) => String.fromCharCode(parseInt(dec, 10)))
-    .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"').replace(/&(?:#039|apos|rsquo);/g, '’').replace(/&nbsp;/g, ' ')
+  // Single-pass entity decoding and tag stripping via the news desk's cleaner —
+  // sequential entity replaces double-unescape (e.g. "&amp;lt;" ending up as "<").
+  const text = cleanArticleContent(item.contentSnippet || item.contentEncoded || item.content)
     .replace(/\s+/g, ' ').trim()
   if (text.length < 40) return null
   if (text.length <= 500) return text
@@ -167,7 +170,7 @@ export function normalizeManufacturingItems(items: ManufacturingFeedItem[], sour
       id: url, title, url, sourceId: source.id, sourceName: source.name, sourceKind: source.kind,
       publishedAt: new Date(date).toISOString(), topic: manufacturingTopic(title), process,
       slug: manufacturingStorySlug(title, url), imageUrl: manufacturingStoryImage(item), excerpt: manufacturingExcerpt(item),
-      body: body?.text ?? null, bodyTruncated: body?.truncated ?? false,
+      body: body?.text ?? null, bodyTruncated: body?.truncated ?? false, bodySummary: body?.summary ?? false,
     }]
   })
 }
