@@ -34,8 +34,9 @@ export async function readManufacturingFeed(source: ManufacturingSource, now: nu
   if (/<!DOCTYPE|<!ENTITY/i.test(xml)) throw new Error('Unsupported XML declaration')
   const feed = await newParser().parseString(xml)
   if (!Array.isArray(feed.items)) throw new Error('Invalid feed')
-  // Headline, date, classification, original link, a validated cover image, and a short
-  // excerpt for the on-site brief. Never republish the full article body.
+  // Headline, date, classification, original link, a validated cover image, and the
+  // coverage the publisher distributes in this public feed (excerpt + capped body text)
+  // for the on-site article view — always credited and linked to the original.
   return normalizeManufacturingItems(feed.items, source, now)
 }
 export async function buildManufacturingSnapshot(now = Date.now(), fetcher: typeof fetch = fetch): Promise<ManufacturingSnapshot> {

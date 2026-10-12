@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 // @ts-expect-error Native TS runner requires explicit extensions.
-import { MANUFACTURING_SOURCES, normalizeManufacturingItems, dedupeManufacturingStories, filterManufacturingStories, findManufacturingStory, manufacturingExcerpt, manufacturingLink, manufacturingStoryImage, manufacturingStorySlug, upcomingManufacturingEvents } from '../lib/manufacturing.ts'
+import { MANUFACTURING_SOURCES, normalizeManufacturingItems, dedupeManufacturingStories, filterManufacturingStories, findManufacturingStory, manufacturingBody, manufacturingExcerpt, manufacturingLink, manufacturingStoryImage, manufacturingStorySlug, upcomingManufacturingEvents } from '../lib/manufacturing.ts'
 // @ts-expect-error Native TS runner requires explicit extensions.
 import { readManufacturingFeed, buildManufacturingSnapshot } from '../lib/manufacturing-feeds.ts'
 const now = Date.parse('2026-10-11T01:00:00Z')
@@ -30,6 +30,20 @@ test('excerpts strip markup, cap length at a word boundary, and refuse near-empt
  assert.equal(manufacturingExcerpt({contentSnippet:'Too short'}),null)
  const long=manufacturingExcerpt({contentSnippet:`${'word '.repeat(200)}end`})!
  assert.ok(long.length<=501 && long.endsWith('…') && !long.includes('  '))
+})
+test('full-coverage body keeps paragraph breaks, strips markup, and caps with a truncation flag',()=>{
+ const body=manufacturingBody({contentEncoded:'<p>First paragraph covering a printer upgrade with enough operational detail to matter.</p><p>Second paragraph describing throughput and maintenance implications for a small shop.</p><script>alert(1)</script>'})!
+ assert.ok(body.text.startsWith('First paragraph'))
+ assert.ok(body.text.includes('\nSecond paragraph'))
+ assert.ok(!body.text.includes('alert') && !body.text.includes('<p>'))
+ assert.equal(body.truncated,false)
+ assert.equal(manufacturingBody({content:'<p>Too short to count as coverage.</p>'}),null)
+ assert.equal(manufacturingBody({}),null)
+ const long=manufacturingBody({content:`<p>${'A detailed sentence about desktop manufacturing economics. '.repeat(400)}</p>`})!
+ assert.ok(long.truncated && long.text.length<=9000 && !long.text.endsWith(' '))
+ const [story]=normalizeManufacturingItems([{...item,contentEncoded:'<p>Body paragraph one with sufficient length for the coverage view on site.</p><p>Body paragraph two with additional detail about the announcement.</p>'}],source,now)
+ assert.ok(story.body!.includes('Body paragraph two'))
+ assert.equal(story.bodyTruncated,false)
 })
 test('story slugs are stable per URL and briefs stay findable after a headline edit',()=>{
  const slug=manufacturingStorySlug('A new filament material','https://blog.bambulab.com/new-material/')

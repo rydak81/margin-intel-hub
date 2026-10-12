@@ -1,3 +1,4 @@
+import { cleanArticleContent } from '@/lib/article-content'
 import { isGoodArticleImage, normalizeArticleImageUrl } from '@/lib/article-images'
 
 export const MANUFACTURING_SOURCES = [
@@ -19,8 +20,14 @@ export interface ManufacturingStory {
   slug: string
   /** Validated cover image from the publisher feed, or null when the feed offers none. */
   imageUrl: string | null
-  /** Short plain-text excerpt from the feed. Never the full article body. */
+  /** Short plain-text excerpt from the feed, for cards and meta descriptions. */
   excerpt: string | null
+  /** Cleaned text of the article body the publisher distributes in its feed (paragraph
+   * breaks preserved), rendered on-site as Full Coverage. Null when the feed only
+   * carries a headline or summary. */
+  body: string | null
+  /** True when the feed body was longer than the stored cap. */
+  bodyTruncated: boolean
 }
 export interface ManufacturingSourceStatus {
   id: string; available: boolean; count: number; latestPublishedAt: string | null
@@ -107,7 +114,20 @@ export function manufacturingStoryImage(item: ManufacturingFeedItem): string | n
   return null
 }
 
-/** Short plain-text excerpt (≤ 500 chars) from the feed snippet or body. Never the full article. */
+/**
+ * Full Coverage text: the article body as the publisher distributes it in their
+ * public feed, cleaned to plain text with paragraph breaks preserved. Capped so
+ * the cached snapshot stays bounded; `truncated` flags a body that ran past the cap.
+ */
+export function manufacturingBody(item: ManufacturingFeedItem, title?: string): { text: string; truncated: boolean } | null {
+  const cleaned = cleanArticleContent(item.contentEncoded || item.content, title)
+  if (cleaned.length < 120) return null
+  if (cleaned.length <= 9000) return { text: cleaned, truncated: false }
+  const cut = cleaned.slice(0, 9000)
+  return { text: cut.slice(0, Math.max(cut.lastIndexOf(' '), 8200)).trimEnd(), truncated: true }
+}
+
+/** Short plain-text excerpt (≤ 500 chars) from the feed snippet or body, for cards and metadata. */
 export function manufacturingExcerpt(item: ManufacturingFeedItem): string | null {
   const text = (item.contentSnippet || item.contentEncoded || item.content || '')
     .replace(/<[^>]*>/g, ' ')
@@ -142,10 +162,12 @@ export function normalizeManufacturingItems(items: ManufacturingFeedItem[], sour
     // Broad AM sources also cover industrial sectors outside this desk's scope.
     if (source.id === '3dpi' && /\b(combat|UGV|medicine|pediatric|aerospace|powder production|aluminum curtain)\b/i.test(title)) return []
     const process: ManufacturingProcess = /\b(laser|engraver|engraving|CO₂|CO2)\b/i.test(`${title} ${(item.contentSnippet || '').slice(0, 1500)}`) ? 'Laser & fabrication' : source.process
+    const body = manufacturingBody(item, title)
     return [{
       id: url, title, url, sourceId: source.id, sourceName: source.name, sourceKind: source.kind,
       publishedAt: new Date(date).toISOString(), topic: manufacturingTopic(title), process,
       slug: manufacturingStorySlug(title, url), imageUrl: manufacturingStoryImage(item), excerpt: manufacturingExcerpt(item),
+      body: body?.text ?? null, bodyTruncated: body?.truncated ?? false,
     }]
   })
 }

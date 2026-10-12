@@ -1,10 +1,11 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import Script from 'next/script'
-import { ArrowLeft, ArrowRight, CalendarDays, ExternalLink, Globe, Lightbulb } from 'lucide-react'
+import { ArrowLeft, ArrowRight, BookOpen, CalendarDays, ChevronRight, ExternalLink, Globe, Lightbulb } from 'lucide-react'
 import { PremiumSiteHeader } from '@/components/premium-site-header'
 import { PremiumSiteFooter } from '@/components/premium-site-footer'
 import { ManufacturingCover } from '@/components/manufacturing-cover'
+import { paragraphizeArticleContent } from '@/lib/article-content'
 import { loadManufacturingSnapshot } from '@/lib/manufacturing-data'
 import {
   MANUFACTURING_PROMPTS,
@@ -79,6 +80,7 @@ export default async function ManufacturingStoryPage({ params }: { params: Promi
 
   const source = MANUFACTURING_SOURCES.find((candidate) => candidate.id === story.sourceId)
   const related = relatedStories(snapshot.stories, story)
+  const bodyBlocks = story.body ? paragraphizeArticleContent(story.body, story.title) : []
   const storyUrl = `${SITE_URL}/desktop-manufacturing/story/${story.slug}`
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -121,10 +123,54 @@ export default async function ManufacturingStoryPage({ params }: { params: Promi
               {story.imageUrl ? `Image from the ${story.sourceName} feed.` : 'MarketplaceBeta desk cover — the publisher feed provided no image.'}
             </p>
 
-            {story.excerpt ? (
+            {bodyBlocks.length > 0 ? (
+              <section className="mt-10">
+                <div className="mb-5 flex items-center gap-2">
+                  <BookOpen className="h-5 w-5 text-primary" />
+                  <h2 className="text-2xl font-bold">Full coverage</h2>
+                </div>
+                <div className="editorial-elevated rounded-2xl border border-border bg-card p-6 sm:p-8 md:p-10">
+                  <div className="mx-auto max-w-3xl space-y-6">
+                    {bodyBlocks.map((block, index) =>
+                      block.type === 'paragraph' ? (
+                        <p key={`${story.slug}-paragraph-${index}`} className="text-lg leading-8 text-foreground/90 md:leading-9">
+                          {block.content}
+                        </p>
+                      ) : (
+                        <div key={`${story.slug}-list-${index}`} className="rounded-xl border border-border bg-secondary/40 p-5">
+                          <ul className="space-y-3">
+                            {block.items.map((item) => (
+                              <li key={item} className="flex gap-3 text-lg leading-8 text-foreground/90">
+                                <ChevronRight className="mt-2 h-4 w-4 flex-shrink-0 text-primary" />
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ),
+                    )}
+                    <p className="border-t border-border pt-5 text-sm leading-7 text-muted-foreground">
+                      {story.bodyTruncated ? (
+                        <>
+                          This coverage continues in the original report.{' '}
+                          <a href={story.url} target="_blank" rel="noopener noreferrer" className="font-semibold text-primary hover:underline">
+                            Keep reading at {story.sourceName} →
+                          </a>
+                        </>
+                      ) : (
+                        <>Coverage as distributed by {story.sourceName} in its public feed, lightly cleaned for reading.</>
+                      )}
+                    </p>
+                  </div>
+                </div>
+              </section>
+            ) : story.excerpt ? (
               <div className="editorial-elevated mt-8 rounded-2xl border border-border bg-card p-6 sm:p-8">
                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">From the report</p>
                 <p className="mt-4 text-lg leading-8 text-foreground/90 md:text-xl md:leading-9">{story.excerpt}</p>
+                <p className="mt-5 border-t border-border pt-4 text-sm leading-7 text-muted-foreground">
+                  The {story.sourceName} feed carries this summary only — the full article is linked at the end of this brief.
+                </p>
               </div>
             ) : (
               <div className="editorial-elevated mt-8 rounded-2xl border border-border bg-card p-6 sm:p-8">
