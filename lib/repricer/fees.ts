@@ -164,7 +164,7 @@ export const FEE_SCHEDULES: Record<Marketplace, CategoryRates> = {
     },
     "Newegg Marketplace",
   ),
-  // Direct at tekreplay.com: card processing only (~2.9% + $0.30).
+  // Direct on your own storefront: card processing only (~2.9% + $0.30).
   direct: forAll(
     {
       tiers: flat(0.029),
@@ -172,7 +172,7 @@ export const FEE_SCHEDULES: Record<Marketplace, CategoryRates> = {
       lastVerified: "Unverified defaults",
       source: "Typical card processing 2.9% + $0.30 (processor-dependent)",
     },
-    "tekreplay.com (DTC)",
+    "Your own site (DTC)",
   ),
 }
 
@@ -182,7 +182,7 @@ export const MARKETPLACE_LABELS: Record<Marketplace, string> = {
   ebay: "eBay",
   backmarket: "Back Market",
   newegg: "Newegg",
-  direct: "tekreplay.com",
+  direct: "Your site",
 }
 
 export const MARKETPLACES: Marketplace[] = [

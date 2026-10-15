@@ -41,7 +41,7 @@ import {
 } from "@/components/ui/table"
 import { AlertTriangle, ArrowLeft, Download } from "lucide-react"
 
-import { SEED_CATALOG } from "@/lib/repricer/catalog"
+import { useCatalog } from "@/components/repricer/use-catalog"
 import { decide, DEFAULT_STRATEGY } from "@/lib/repricer/decision"
 import {
   forecastSales,
@@ -95,7 +95,8 @@ export function MetricDetail({
   const colors = dark ? SERIES.dark : SERIES.light
   const chrome = dark ? CHROME.dark : CHROME.light
 
-  const item = SEED_CATALOG.find((i) => i.asin === asin) ?? SEED_CATALOG[0]
+  const { items: catalogItems } = useCatalog()
+  const item = catalogItems.find((i) => i.asin === asin) ?? catalogItems[0]
 
   // keep the URL shareable when switching SKUs
   useEffect(() => {
@@ -240,7 +241,7 @@ export function MetricDetail({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {SEED_CATALOG.map((i) => (
+            {catalogItems.map((i) => (
               <SelectItem key={i.asin} value={i.asin}>
                 {i.title.length > 55 ? `${i.title.slice(0, 55)}…` : i.title}
               </SelectItem>
