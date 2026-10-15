@@ -89,9 +89,9 @@ export default function DossierPage() {
 
         <section className="editorial-elevated my-12 rounded-2xl border border-blue-700 bg-gradient-to-br from-blue-700 to-slate-950 p-8 text-white sm:p-10">
           <h2 className="text-3xl font-bold">Get the next edition in your inbox.</h2>
-          <p className="mt-3 max-w-2xl leading-8 text-blue-100">Subscribers to the Daily Marketplace Brief receive each dossier edition, plus the forecast scoreboard as predictions resolve.</p>
+          <p className="mt-3 max-w-2xl leading-8 text-blue-100">Follow marketplace developments in the free Daily Marketplace Brief. Dossier editions and forecast scorecards are part of the coverage as they are published.</p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/newsletter" className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 font-bold text-blue-800 hover:bg-blue-50">Subscribe free<ArrowRight className="h-4 w-4" /></Link>
+            <Link href="/newsletter?source=dossier_2026_10#subscribe" className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 font-bold text-blue-800 hover:bg-blue-50">Subscribe free<ArrowRight className="h-4 w-4" /></Link>
             <a href="/intelligence/dossier-2026-10.html" className="inline-flex items-center gap-2 rounded-lg border border-white/30 px-5 py-3 font-semibold hover:bg-white/10">Read Edition 1</a>
           </div>
         </section>
@@ -101,3 +101,4 @@ export default function DossierPage() {
     </div>
   )
 }
+

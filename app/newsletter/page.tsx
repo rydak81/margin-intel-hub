@@ -1,5 +1,6 @@
 "use client"
 
+import { newsletterSource } from "@/lib/newsletter-source"
 import { trackResourceEvent } from "@/lib/resource-analytics"
 import { useState } from "react"
 import Image from "next/image"
@@ -102,6 +103,7 @@ export default function NewsletterPage() {
     }
 
     setIsSubmitting(true)
+    const source = newsletterSource(window.location.search)
 
     try {
       const response = await fetch("/api/subscribe", {
@@ -114,7 +116,7 @@ export default function NewsletterPage() {
           firstName: firstName.trim() || undefined,
           company: company.trim() || undefined,
           role: selectedRoles[0],
-          source: "newsletter_page",
+          source,
         }),
       })
 
@@ -129,7 +131,7 @@ export default function NewsletterPage() {
         return
       }
 
-      trackResourceEvent("newsletter_signup", "newsletter_page")
+      trackResourceEvent("newsletter_signup", source)
       setSubmitted(true)
     } catch (submitError) {
       console.error("Subscribe error:", submitError)
@@ -202,6 +204,13 @@ export default function NewsletterPage() {
           <div className="grid items-start gap-10 xl:grid-cols-[minmax(0,1fr)_420px]">
             <div>
               <EditorialIntro eyebrow="The daily brief" title="A clearer start to your operating day." description="Marketplace developments, platform changes, and research worth your attention. Read the context, follow the sources, and decide what matters for your business." />
+
+              <section aria-labelledby="dossier-brief-title" className="mt-8 rounded-xl border border-border bg-card p-6">
+                <p className="text-xs font-semibold uppercase tracking-widest text-primary">From the intelligence dossier</p>
+                <h2 id="dossier-brief-title" className="mt-3 text-2xl font-bold">Keep following the margin story.</h2>
+                <p className="mt-3 leading-7 text-muted-foreground">The free Daily Marketplace Brief follows marketplace developments, fee changes, and operating risks. Dossier editions and forecast scorecards are part of the coverage as they are published.</p>
+                <Link href="/intelligence/dossier-2026-10.html" className="mt-4 inline-block font-semibold text-primary underline underline-offset-4">Read the October dossier without signing up</Link>
+              </section>
 
               <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
                 <Card className="rounded-xl border border-slate-800 bg-slate-950 text-white">
@@ -285,7 +294,7 @@ export default function NewsletterPage() {
               </section>
             </div>
 
-            <div className="xl:sticky xl:top-24">
+            <div id="subscribe" className="scroll-mt-24 xl:sticky xl:top-24">
               <Card className="overflow-hidden rounded-xl border border-white/10 bg-slate-950 text-white editorial-elevated">
                 <CardContent className="p-7">
                   <div className="flex items-center justify-between gap-3">
@@ -349,6 +358,7 @@ export default function NewsletterPage() {
                           <div
                             key={role.id}
                             role="button"
+                            aria-pressed={selectedRoles.includes(role.id)}
                             tabIndex={0}
                             onClick={() => toggleRole(role.id)}
                             onKeyDown={(event) => {
@@ -434,3 +444,4 @@ export default function NewsletterPage() {
     </div>
   )
 }
+
