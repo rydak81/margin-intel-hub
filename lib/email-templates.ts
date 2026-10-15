@@ -319,3 +319,128 @@ export function generateWelcomeEmail(subscriberName?: string | null): string {
 </body>
 </html>`
 }
+
+/**
+ * Announcement email for an Intelligence Dossier edition.
+ * Inline styles throughout for email-client compatibility; the unsubscribe
+ * link carries the subscriber's own email (URL-encoded), matching /api/unsubscribe.
+ */
+export function generateDossierEmail(subscriberName: string | null | undefined, subscriberEmail: string): string {
+  const greeting = subscriberName ? `Hi ${subscriberName}` : 'Hi there'
+  const unsubscribeUrl = `https://marketplacebeta.com/api/unsubscribe?email=${encodeURIComponent(subscriberEmail)}`
+  const findings = [
+    ['The margin squeeze is structural', 'Record 49.5% gross margins against 10.6% net — platforms, carriers, and ad systems are capturing the spread. Only 23% of marketplace sellers are both growing and improving margins.'],
+    ['Freight is the under-priced Q4 risk', 'Record diesel, trans-Pacific container rates at 3–4x last year, and carrier surcharges decoupled from the headline 5.9% rate increases.'],
+    ['Policy whiplash replaced policy direction', 'A Supreme Court tariff reversal, an 8-point effective-rate swing, and the permanent end of de minimis. US-inventory sellers quietly gained a structural edge.'],
+    ['Agentic commerce: small, premium, rail-unstable', 'AI-referred traffic converts 42–54% better but is still a low-single-digit share of sessions. The durable investment is structured product data, not any one checkout protocol.'],
+    ['Recommerce is a structural winner — in specific places', 'Monthly secondhand buying jumped from 35% to 47% of consumers in a year. Our 77-SKU analysis shows where the profit pool actually sits.'],
+  ]
+  const findingsHtml = findings.map(([title, text]) => `
+              <tr>
+                <td style="padding: 0 0 16px 0;">
+                  <p style="color: ${BRAND.navy}; font-size: 15px; font-weight: 700; margin: 0 0 4px 0;">${title}</p>
+                  <p style="color: ${BRAND.slate}; font-size: 14px; line-height: 1.6; margin: 0;">${text}</p>
+                </td>
+              </tr>`).join('')
+
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The 2026 Margin Squeeze — MarketplaceBeta Intelligence Dossier</title>
+</head>
+<body style="margin: 0; padding: 0; background: #eef2f7; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background: #eef2f7; padding: 24px 12px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; width: 100%; background: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid ${BRAND.line};">
+
+          <!-- Header -->
+          <tr>
+            <td style="background: ${BRAND.navy}; padding: 32px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="padding-bottom: 20px;">
+                    <table role="presentation" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td width="44" valign="middle">
+                          <img src="${BRAND.logoUrl}" alt="MarketplaceBeta" width="40" height="40" style="display: block; border-radius: 10px;" />
+                        </td>
+                        <td valign="middle" style="padding-left: 12px;">
+                          <p style="color: #ffffff; font-size: 20px; font-weight: 700; margin: 0;">MarketplaceBeta</p>
+                          <p style="color: #94a3b8; font-size: 11px; font-weight: 600; letter-spacing: 0.24em; margin: 4px 0 0 0; text-transform: uppercase;">Intelligence Dossier · Edition 1</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <h1 style="color: #ffffff; font-size: 26px; font-weight: 700; line-height: 1.25; margin: 0 0 8px 0;">The 2026 margin squeeze, and where the next edge is</h1>
+                    <p style="color: #94a3b8; font-size: 14px; margin: 0;">October 2026 &bull; 29 pages &bull; 12 logged forecasts</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding: 32px;">
+              <p style="color: ${BRAND.slate}; font-size: 15px; line-height: 1.6; margin: 0 0 20px 0;">
+                ${greeting} — we just published something bigger than the daily brief: a full intelligence
+                dossier on the state of e-commerce heading into the holidays. It combines our own archive
+                of 8,500+ classified industry articles, a live marketplace pricing analysis, and 80+ dated
+                external sources into one evidence-first report.
+              </p>
+              <p style="color: ${BRAND.navy}; font-size: 13px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; margin: 0 0 14px 0;">What's inside</p>
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                ${findingsHtml}
+              </table>
+              <p style="color: ${BRAND.slate}; font-size: 15px; line-height: 1.6; margin: 8px 0 24px 0;">
+                Plus: a scored opportunity ranking, a 30/60/90-day action framework, the indicator dashboard
+                we watch weekly — and twelve probabilistic forecasts stored in a ledger we will score publicly,
+                hits and misses alike.
+              </p>
+
+              <!-- CTA -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top: 8px;">
+                <tr>
+                  <td align="center" style="padding-bottom: 12px;">
+                    <a href="https://marketplacebeta.com/intelligence/dossier" style="display: inline-block; background: ${BRAND.cobalt}; color: #ffffff; font-size: 15px; font-weight: 600; text-decoration: none; padding: 14px 36px; border-radius: 10px;">Read the dossier</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center">
+                    <a href="https://marketplacebeta.com/intelligence/MarketplaceBeta-Intelligence-Dossier-2026-10.pdf" style="color: ${BRAND.cobalt}; font-size: 13px; text-decoration: underline;">or download the 29-page PDF</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background: ${BRAND.panel}; padding: 24px 32px; border-top: 1px solid ${BRAND.line};">
+              <p style="color: ${BRAND.muted}; font-size: 12px; line-height: 1.5; margin: 0 0 8px 0; text-align: center;">
+                You're receiving this because you subscribed to the MarketplaceBeta brief.
+              </p>
+              <p style="color: ${BRAND.muted}; font-size: 12px; line-height: 1.5; margin: 0; text-align: center;">
+                <a href="https://marketplacebeta.com" style="color: ${BRAND.cobalt}; text-decoration: underline;">Visit MarketplaceBeta</a>
+                &nbsp;&bull;&nbsp;
+                <a href="${unsubscribeUrl}" style="color: ${BRAND.muted}; text-decoration: underline;">Unsubscribe</a>
+              </p>
+              <p style="color: #94a3b8; font-size: 11px; margin: 16px 0 0 0; text-align: center;">
+                MarketplaceBeta &bull; BeaconPath Holdings, LLC &bull; Market intelligence, not investment advice.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`
+}
