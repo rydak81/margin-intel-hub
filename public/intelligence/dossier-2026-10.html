@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="/brand-icon.png">
+<link rel="canonical" href="https://marketplacebeta.com/intelligence/dossier">
+</head>
+<body style="margin:0">
+<title>MarketplaceBeta Intelligence Dossier</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+  /* Layout: a single reading column (46rem) with wider data sections (62rem);
+     numbered sections follow the report's fixed order. */
+  :root {
+    --bg: #f6f7f9;
+    --surface: #ffffff;
+    --surface-2: #eceff3;
+    --ink: #16202b;
+    --ink-2: #4d5a68;
+    --muted: #7d8894;
+    --hairline: #dde2e8;
+    --accent: #1d5fae;
+    --accent-soft: #e3edf8;
+    --cyan: #0e7f92;
+    --good: #1a7f4b;
+    --warn: #986006;
+    --warn-soft: #f7ecd8;
+    --chart-1: #2a78d6;
+    --chart-2: #eb6834;
+    --chart-grid: #e4e8ed;
+    --chart-axis: #aab4bf;
+    --chart-muted: #7d8894;
+    --sans: "Libre Franklin", "Segoe UI", system-ui, -apple-system, sans-serif;
+    --serif: "Source Serif 4", Charter, Georgia, serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #12161c; --surface: #191f27; --surface-2: #20272f;
+      --ink: #e8ecf1; --ink-2: #aab5c0; --muted: #76828e;
+      --hairline: #2b333d; --accent: #5b9bdf; --accent-soft: #16293e;
+      --cyan: #4cb6c9; --good: #4cc38a; --warn: #dfae4a; --warn-soft: #33290f;
+      --chart-1: #3987e5; --chart-2: #d95926;
+      --chart-grid: #262e37; --chart-axis: #4d5864; --chart-muted: #76828e;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #12161c; --surface: #191f27; --surface-2: #20272f;
+    --ink: #e8ecf1; --ink-2: #aab5c0; --muted: #76828e;
+    --hairline: #2b333d; --accent: #5b9bdf; --accent-soft: #16293e;
+    --cyan: #4cb6c9; --good: #4cc38a; --warn: #dfae4a; --warn-soft: #33290f;
+    --chart-1: #3987e5; --chart-2: #d95926;
+    --chart-grid: #262e37; --chart-axis: #4d5864; --chart-muted: #76828e;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: var(--serif); font-size: 17px; line-height: 1.68; margin: 0;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 0;
+  }
+  .wrap { max-width: 46rem; margin: 0 auto; }
+  .wide { max-width: 62rem; margin-left: auto; margin-right: auto; }
+  p { margin: 0 0 1rem; max-width: 46rem; }
+  ul, ol { margin: 0 0 1rem; padding-left: 1.25rem; max-width: 44rem; }
+  li { margin-bottom: .5rem; }
+  a { color: var(--accent); }
+  strong { font-weight: 600; }
+
+  header.masthead { padding: 3.2rem 0 2.2rem; border-bottom: 3px solid var(--accent); }
+  .kicker { font-family: var(--sans); font-size: .76rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); }
+  h1 { font-family: var(--sans); font-weight: 800; letter-spacing: -.02em; font-size: clamp(2rem, 6vw, 3rem); line-height: 1.06; margin: .5rem 0 0; text-wrap: balance; }
+  .dek { font-size: 1.14rem; color: var(--ink-2); margin-top: 1rem; max-width: 40rem; text-wrap: balance; }
+  .prov { font-family: var(--sans); font-size: .78rem; color: var(--muted); margin-top: 1.2rem; line-height: 1.8; }
+
+  nav.toc { display: flex; flex-wrap: wrap; gap: .45rem; padding: 1.3rem 0; }
+  nav.toc a { font-family: var(--sans); font-size: .8rem; font-weight: 600; text-decoration: none; color: var(--ink-2); background: var(--surface); border: 1px solid var(--hairline); border-radius: 999px; padding: .28rem .75rem; }
+  nav.toc a:hover { color: var(--accent); border-color: var(--accent); }
+
+  section { padding: 2.6rem 0 .8rem; }
+  .secno { font-family: var(--sans); font-size: .76rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+  h2 { font-family: var(--sans); font-size: 1.68rem; font-weight: 800; letter-spacing: -.015em; margin: .35rem 0 1rem; text-wrap: balance; }
+  h3 { font-family: var(--sans); font-size: 1.08rem; font-weight: 700; margin: 1.7rem 0 .55rem; }
+  h4 { font-family: var(--sans); font-size: .95rem; font-weight: 700; margin: 1.3rem 0 .4rem; }
+
+  cite.src { font-family: var(--sans); font-style: normal; font-size: .78rem; color: var(--muted); }
+  .tag { font-family: var(--sans); display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; border-radius: 4px; padding: .1rem .42rem; vertical-align: middle; }
+  .tag.obs { background: var(--accent-soft); color: var(--accent); }
+  .tag.rep { background: var(--surface-2); color: var(--ink-2); }
+  .tag.hyp { background: var(--warn-soft); color: var(--warn); }
+  .tag.fct { background: var(--accent-soft); color: var(--cyan); }
+
+  .statrow { display: grid; grid-template-columns: repeat(auto-fit, minmax(158px, 1fr)); gap: .7rem; margin: 1.3rem 0 1.5rem; }
+  .stat { background: var(--surface); border: 1px solid var(--hairline); border-radius: 10px; padding: .85rem 1rem; }
+  .stat b { display: block; font-family: var(--sans); font-size: 1.42rem; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+  .stat span { font-family: var(--sans); font-size: .78rem; color: var(--ink-2); line-height: 1.45; display: block; margin-top: .15rem; }
+  .stat.hot b { color: var(--accent); }
+
+  .finding { border-left: 3px solid var(--accent); padding: .15rem 0 .15rem 1.1rem; margin: 0 0 1.35rem; max-width: 46rem; }
+  .finding h3 { margin: 0 0 .35rem; }
+  .finding p { margin-bottom: .4rem; }
+
+  .callout { border-left: 3px solid var(--warn); background: var(--warn-soft); border-radius: 0 10px 10px 0; padding: .85rem 1.05rem; margin: 1.2rem 0; max-width: 44rem; }
+  .callout.blue { border-left-color: var(--accent); background: var(--accent-soft); }
+  .callout p { margin: 0; }
+  .callout p + p { margin-top: .5rem; }
+
+  figure { margin: 1.4rem 0 1.8rem; max-width: 46rem; }
+  figure .plot { background: var(--surface); border: 1px solid var(--hairline); border-radius: 10px; padding: 1rem 1rem .6rem; }
+  figcaption { font-family: var(--sans); font-size: .82rem; color: var(--ink-2); margin-top: .55rem; line-height: 1.55; }
+  .legend { display: flex; gap: 1.1rem; flex-wrap: wrap; font-family: var(--sans); font-size: .8rem; color: var(--ink-2); margin: .4rem 0 0 .2rem; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: .35rem; vertical-align: -1px; }
+
+  .tablewrap { overflow-x: auto; margin: 1.1rem 0 1.5rem; border: 1px solid var(--hairline); border-radius: 10px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: .88rem; min-width: 540px; }
+  th { font-family: var(--sans); font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; text-align: left; color: var(--muted); font-weight: 700; padding: .6rem .85rem; border-bottom: 2px solid var(--hairline); background: var(--surface-2); }
+  td { padding: .55rem .85rem; border-bottom: 1px solid var(--hairline); vertical-align: top; font-family: var(--serif); }
+  tr:last-child td { border-bottom: none; }
+  td.num { font-variant-numeric: tabular-nums; white-space: nowrap; font-family: var(--sans); font-size: .85rem; }
+  td.sans { font-family: var(--sans); font-size: .85rem; }
+
+  .formula { background: var(--surface-2); border: 1px solid var(--hairline); border-radius: 10px; padding: .95rem 1.15rem; margin: 1rem 0 1.2rem; overflow-x: auto; font-family: var(--mono); font-size: .84rem; line-height: 1.7; white-space: pre; max-width: 46rem; }
+  code { font-family: var(--mono); font-size: .84em; background: var(--surface-2); border: 1px solid var(--hairline); border-radius: 5px; padding: .06em .32em; }
+
+  details.appendix { max-width: 46rem; border: 1px solid var(--hairline); border-radius: 10px; background: var(--surface); padding: .8rem 1.1rem; margin: 1rem 0; }
+  details.appendix summary { font-family: var(--sans); font-weight: 700; cursor: pointer; }
+  details.appendix pre { overflow-x: auto; font-family: var(--mono); font-size: .78rem; line-height: 1.6; }
+
+  footer { margin-top: 3rem; padding: 1.6rem 0 2.6rem; border-top: 1px solid var(--hairline); font-family: var(--sans); font-size: .78rem; color: var(--muted); text-align: center; line-height: 1.8; }
+
+  @media (max-width: 480px) { table { min-width: 460px; } body { font-size: 16.5px; } }
+</style>
+
+<header class="masthead">
+  <div class="wrap">
+    <p class="kicker">MarketplaceBeta Intelligence · Edition 1</p>
+    <h1>The 2026 margin squeeze, and where the next edge is</h1>
+    <p class="dek">An evidence-first intelligence dossier for e-commerce operators: what the data says is happening, what it says is likely next, and what to do about it before it becomes obvious.</p>
+    <p class="prov">Published October 14, 2026 · BeaconPath Holdings, LLC · DBA RD Consulting<br>
+    Built on the MarketplaceBeta news archive (8,541 classified articles, 54 sources, Mar–Oct 2026), a 77-SKU refurbished-electronics market snapshot, and 80+ dated external sources. Every claim is labeled: <span class="tag obs">Observed</span> measured in our data &nbsp;<span class="tag rep">Reported</span> external source, cited &nbsp;<span class="tag hyp">Hypothesis</span> plausible, not yet validated &nbsp;<span class="tag fct">Forecast</span> probabilistic, logged for scoring</p>
+  </div>
+</header>
+
+<nav class="toc wrap" aria-label="Contents">
+  <a href="#brief">1 Executive Brief</a>
+  <a href="#state">2 State of the Industry</a>
+  <a href="#squeeze">3 The Margin Squeeze</a>
+  <a href="#patterns">4 Pattern Discovery</a>
+  <a href="#outlook">5 Predictive Outlook</a>
+  <a href="#opportunities">6 Opportunities</a>
+  <a href="#playbook">7 Operator Playbook</a>
+  <a href="#disruption">8 Disruption Watch</a>
+  <a href="#contrarian">9 Contrarian Findings</a>
+  <a href="#roadmap">10 30/60/90 Roadmap</a>
+  <a href="#dashboard">11 Indicator Dashboard</a>
+  <a href="#methodology">12 Methodology</a>
+</nav>
+
+<section id="brief">
+  <div class="wrap">
+    <p class="secno">Section 1</p>
+    <h2>Executive intelligence brief</h2>
+    <div class="statrow">
+      <div class="stat hot"><b>+12.2%</b><span>US e-commerce growth YoY, Q2 2026 — vs +6.7% total retail <cite class="src">(Census, Aug 18, 2026)</cite></span></div>
+      <div class="stat"><b>10.6%</b><span>median net margin at record 49.5% gross — widest spread since 2017 <cite class="src">(eCommerceFuel 2026)</cite></span></div>
+      <div class="stat"><b>23%</b><span>of marketplace sellers "thriving"; 38% distressed <cite class="src">(Marketplace Pulse Seller Index 2026)</cite></span></div>
+      <div class="stat"><b>56%</b><span>of trade coverage went to logistics in July, up from 33% in April <cite class="src">(MarketplaceBeta archive)</cite></span></div>
+    </div>
+    <p>Demand is not the problem. Online sales are growing at twice the rate of total retail, and every major holiday forecaster expects a record season. The problem is who keeps the money. Gross margins are at record highs while net margins sit near 10%, because platforms, carriers, and advertising systems are capturing the spread. That one fact organizes almost everything else in this report.</p>
+
+    <div class="finding">
+      <h3>1. The margin squeeze is structural, and it is platform capture, not weak demand <span class="tag rep">Reported</span> <span class="tag obs">Observed</span></h3>
+      <p>Amazon's advertising revenue grew 26% and its seller-fee revenue 16% in Q2 2026, both faster than its own online store sales (+15%). Walmart's US advertising grew 38% against 24% e-commerce growth. US retail media will grow ~18% to $71B in 2026, with Amazon and Walmart capturing over 89% of the incremental dollars. Independent survey data shows the result: record gross margins, stagnant net margins, and only 23% of sellers both growing and improving profitability. Our own archive measured the same shift as attention: coverage of fees, advertising, and logistics displaced general e-commerce coverage through 2026.</p>
+    </div>
+    <div class="finding">
+      <h3>2. Freight is the most under-priced near-term risk for Q4 2026 <span class="tag obs">Observed</span> <span class="tag rep">Reported</span></h3>
+      <p>Diesel set an all-time record ($6.53/gal, late Sept), trans-Pacific container rates ran 3–4x their 2025 levels ($8,400–$11,300/FEU in September), dry-van spot rates were +47% YoY, and FedEx's domestic fuel surcharge reached 32.25%. Carrier "5.9% rate increases" understate real parcel inflation because surcharges are rising far faster than base rates. Our archive's logistics coverage share crossed 50% in July, two months before holiday commentary caught up — an early-warning pattern we are now tracking formally (Section 4).</p>
+    </div>
+    <div class="finding">
+      <h3>3. Policy whiplash replaced policy direction as the planning risk <span class="tag rep">Reported</span></h3>
+      <p>The Supreme Court struck down the IEEPA tariffs in February 2026; average effective tariffs fell from a 17.5% peak to ~10.9%, roughly $35B in refunds flows only to importers of record, and a temporary 10% surcharge now bridges to expanded Section 232/301 actions. De minimis is permanently dead (statutory repeal July 2027). Net effect: import costs are volatile but the structural duty advantage of direct-from-China retail is gone, which is a durable relative gain for sellers holding US inventory.</p>
+    </div>
+    <div class="finding">
+      <h3>4. Agentic commerce is small, premium, and rail-unstable — invest in the feed, not the protocol <span class="tag rep">Reported</span></h3>
+      <p>AI-referred traffic to US retail sites is still a low-single-digit share of sessions, but it converts 42–54% better and self-reports 69% lower return likelihood. The checkout rails churned within six months (OpenAI's Instant Checkout launched, charged ~4%, and was wound down; Google's UCP rose; Amazon is blocking third-party agents in court). The durable asset across every regime is structured product data: price, availability, shipping, and returns in machine-readable form.</p>
+    </div>
+    <div class="finding">
+      <h3>5. The platforms are now competing for the multichannel seller's operating system <span class="tag obs">Observed</span></h3>
+      <p>On September 24, Amazon opened Seller Central to managing eBay, Shopify, TikTok, and Walmart orders, extended Prime and discounted fulfillment to sellers' own sites, and cited its own stat that 95% of its independent sellers are already multichannel. Walmart quietly cut referral fees in ~14 categories in June while growing its marketplace 50%+. Fee arbitrage and cross-channel pricing discipline have become core operator skills rather than optimizations.</p>
+    </div>
+    <div class="finding">
+      <h3>6. Recommerce is a structural winner of this cycle — but the profit pool inside it is specific <span class="tag rep">Reported</span> <span class="tag obs">Observed</span></h3>
+      <p>Monthly secondhand buying jumped from 35% to 47% of consumers in a year (eBay, Oct 2026); pre-owned smartphones are a ~$83B market with Apple at 58% share; Back Market reached EBITDA profitability. Our 77-SKU market snapshot shows where the margin lives: high-ticket, low-density listings. Seller count correlates −0.81 with price point; the crowded sub-$150 tier shows ~a third of listings trading below any rational cost floor, while the $500+ tier wins Buy Box share at smaller discounts.</p>
+    </div>
+  </div>
+</section>
+
+<section id="state">
+  <div class="wrap">
+    <p class="secno">Section 2</p>
+    <h2>State of the industry, October 2026</h2>
+    <h3>Demand: nominally strong, increasingly financed and deal-timed</h3>
+    <ul>
+      <li>US e-commerce was <strong>$340.2B in Q2 2026, +12.2% YoY</strong>, 17.1% of retail; total retail grew 6.7%. <cite class="src">US Census Bureau, Aug 18, 2026</cite></li>
+      <li>Holiday forecasts converge: Adobe <strong>$275.1B online, +6.7%</strong> (Nov 1–Dec 31); Deloitte e-commerce <strong>+7.5–8.4%</strong>; Bain nonstore <strong>+9%</strong> with total retail topping $1T for the first time and <strong>more than half of nominal growth attributable to inflation</strong>. <cite class="src">Adobe Sept 28; Deloitte Sept 10; Bain Sept 3 / Oct 13, 2026</cite></li>
+      <li>Consumer stress is visible: Michigan sentiment at a five-month low (46.3, Oct 9), year-ahead inflation expectations 4.7%, over 75% of consumers trading down (McKinsey), and record BNPL use forecast for the holiday ($21.3B, ~8% of online spend). <cite class="src">UMich; McKinsey State of the Consumer 2026; Adobe</cite></li>
+      <li>Tariff pass-through is real but partial: ~26% of 2025–26 tariff increases reached consumer prices, adding roughly 2.9 points to goods CPI by Feb 2026 (NY Fed); Harvard's retail tracker finds consumers bearing ~45% of the border cost. <cite class="src">NY Fed staff report, Oct 2026; Cavallo et al., Sept 2026</cite></li>
+    </ul>
+    <h3>The platform scoreboard</h3>
+    <div class="tablewrap"><table>
+      <tr><th>Platform</th><th>Latest print</th><th>Reading</th></tr>
+      <tr><td class="sans"><strong>Amazon</strong></td><td class="num">Online stores +15%; seller fees +16%; ads +26% (Q2 26)</td><td>Monetization outgrowing merchandising; fee layering via surcharges (Sec. 3)</td></tr>
+      <tr><td class="sans"><strong>Walmart</strong></td><td class="num">US e-comm +24%; marketplace +50-52%; ads +38% (Q2 FY27)</td><td>Buying seller supply with fee cuts; monetizing via ads and WFS</td></tr>
+      <tr><td class="sans"><strong>eBay</strong></td><td class="num">GMV $22.4B, +15%; US +24% (Q2 26)</td><td>Refurb/pre-loved &gt;40% of GMV; the recommerce incumbent</td></tr>
+      <tr><td class="sans"><strong>TikTok Shop</strong></td><td class="num">US H1 26 GMV ~$11.8B, +103% (est.)</td><td>Post-divestiture; GMV doubling but fee structure still unsettled</td></tr>
+      <tr><td class="sans"><strong>Temu / Shein</strong></td><td class="num">US audiences ~30% below pre-tariff baseline; Shein US revenue −14% (Q1 26)</td><td>De-minimis casualties; their value demand migrated, it didn't vanish</td></tr>
+      <tr><td class="sans"><strong>Etsy</strong></td><td class="num">Marketplace GMS +7.5% (Q2 26)</td><td>First marketplace surfaced inside ChatGPT and Google AI Mode</td></tr>
+    </table></div>
+    <p><cite class="src">Sources: company earnings and SEC filings Jul–Aug 2026; Momentum Works/eMarketer estimates for TikTok Shop (TikTok does not disclose); Measure Protocol panel for Temu/Shein audiences. Where firms disagree, both figures appear in Section 12.</cite></p>
+    <p>Two structural notes. First, the de-minimis channel that moved 1.36B packages in FY2024 is closed — CBP collected $1B+ in duties on 246M formerly-exempt shipments in the first months of enforcement — and the statutory repeal takes effect July 2027, so this is not reversing. Second, what looks like a "Temu collapse" is better read as value demand re-routing to Walmart, eBay, off-price, and secondhand, all of which printed their strongest numbers in years in the same quarters.</p>
+  </div>
+</section>
+
+<section id="squeeze">
+  <div class="wrap">
+    <p class="secno">Section 3</p>
+    <h2>The margin squeeze, itemized</h2>
+    <p>Each line below is a cost channel growing faster than seller revenue. Together they explain how record gross margins coexist with ~10% net margins.</p>
+    <div class="tablewrap"><table>
+      <tr><th>Cost channel</th><th>2026 change</th><th>Source, date</th></tr>
+      <tr><td class="sans"><strong>Amazon fulfillment</strong></td><td>Headline +$0.08/unit avg (Jan 15) — then a 3.5% fuel surcharge (Apr 17), a per-FNSKU low-inventory fee extended to bulky goods, inbound placement fees, and a ~$0.32/unit holiday peak surcharge from Oct 15</td><td class="sans">Amazon Seller Central updates via Goat Consulting, eComEngine, SellerMagnet</td></tr>
+      <tr><td class="sans"><strong>Effective take rate</strong></td><td>Total Amazon fees (referral + FBA + storage + ads) approach ~50% of sale price (Marketplace Pulse); one operator analysis puts the average at ~34%, vs ~26% in 2020</td><td class="sans">Marketplace Pulse via Modern Retail; operator analysis, Apr 2026</td></tr>
+      <tr><td class="sans"><strong>Parcel carriers</strong></td><td>UPS and FedEx GRIs both 5.9%, but surcharges decoupled: FedEx residential peak demand +23–25% YoY, UPS peak residential $0.60→$0.75, FedEx fuel surcharge at 32.25% in Sept</td><td class="sans">Carrier announcements; Value Added Resource; Modern Retail, Sept 21</td></tr>
+      <tr><td class="sans"><strong>Ocean freight</strong></td><td>Trans-Pacific $7,600–$10,200/FEU in October, down from September peaks but still multiples of 2025; Drewry composite $4,351/FEU</td><td class="sans">Drewry WCI, Oct 8; Freightwaves series, Sept</td></tr>
+      <tr><td class="sans"><strong>Advertising</strong></td><td>US retail media +~18% to $71B; Amazon ads +26%; Walmart ads +38%; DSP share of Amazon ad spend 17.7%→23.4% across 2025</td><td class="sans">eMarketer Dec 2025 fcst; earnings; SellerApp, Sept 12</td></tr>
+      <tr><td class="sans"><strong>Marketplace fees (counter-trend)</strong></td><td>Walmart cut referral fees across ~14 categories in June (apparel, electronics, home deepest — direction confirmed, exact rates unpublished); TikTok Shop reportedly moved 6%→8% (unconfirmed at primary source)</td><td class="sans">Ecommerce Times via Novadata, Jun 22; seller guides, Aug 4</td></tr>
+    </table></div>
+    <p>The consequence, measured two independent ways: eCommerceFuel's ~300-store survey shows <strong>49.5% gross margins against 10.6% net</strong> — sellers are successfully passing costs into price, and platforms, carriers, and ad systems are absorbing the difference. Marketplace Pulse's 181-seller index sorts the population into <strong>23% thriving, 31% grinding, 38% distressed</strong>. The squeeze is documented, not anecdotal.</p>
+    <div class="callout"><p><strong>Operator translation.</strong> Treat fees as a variable, seasonal cost, not a rate card. The winners in both surveys differentiate on fee-structure arbitrage — channel mix, FNSKU-level inventory discipline, pooled fulfillment rates — rather than on price.</p></div>
+  </div>
+</section>
+
+<section id="patterns">
+  <div class="wrap">
+    <p class="secno">Section 4</p>
+    <h2>Pattern discovery in our own data</h2>
+    <p>This section reports analyses run for this edition on two proprietary datasets: the MarketplaceBeta news archive (8,541 relevant classified articles from 54 fixed sources, March–October 2026) and a 77-SKU refurbished-Apple market snapshot (one marketplace, one audit day). Reproducible queries are in the appendix (Section 12). Findings are labeled honestly: one of them is validated against an outcome; the others are measured facts or hypotheses awaiting the next edition.</p>
+
+    <h3>4.1 Coverage attention as a leading indicator <span class="tag obs">Observed</span> <span class="tag hyp">Hypothesis as predictor</span></h3>
+    <p>We computed each category's share of monthly relevant coverage across our fixed source panel. Logistics coverage rose from a third of all coverage in April to more than half in July — before holiday-season freight commentary became mainstream in late September.</p>
+    <figure>
+      <div class="plot"><svg viewBox="0 0 640 300" role="img" aria-label="Logistics share of trade coverage by month" style="max-width:100%;height:auto"><line x1="46" y1="260" x2="624" y2="260" stroke="var(--chart-grid)" stroke-width="1"/><text x="38" y="264" text-anchor="end" font-size="12" fill="var(--chart-muted)" font-family="var(--sans)">0%</text><line x1="46" y1="182.66666666666669" x2="624" y2="182.66666666666669" stroke="var(--chart-grid)" stroke-width="1"/><text x="38" y="186.66666666666669" text-anchor="end" font-size="12" fill="var(--chart-muted)" font-family="var(--sans)">20%</text><line x1="46" y1="105.33333333333334" x2="624" y2="105.33333333333334" stroke="var(--chart-grid)" stroke-width="1"/><text x="38" y="109.33333333333334" text-anchor="end" font-size="12" fill="var(--chart-muted)" font-family="var(--sans)">40%</text><line x1="46" y1="28" x2="624" y2="28" stroke="var(--chart-grid)" stroke-width="1"/><text x="38" y="32" text-anchor="end" font-size="12" fill="var(--chart-muted)" font-family="var(--sans)">60%</text><rect x="75.8" y="133.17333333333335" width="56" height="126.82666666666665" rx="4" fill="var(--chart-1)"/><rect x="75.8" y="258.5" width="56" height="1.5" fill="var(--chart-1)"/><text x="103.8" y="126.17333333333335" text-anchor="middle" font-size="13" font-weight="700" fill="var(--ink)" font-family="var(--sans)">32.8%</text><text x="103.8" y="286" text-anchor="middle" font-size="12.5" fill="var(--chart-muted)" font-family="var(--sans)">Apr ’26</text><rect x="191.39999999999998" y="94.89333333333335" width="56" height="165.10666666666665" rx="4" fill="var(--chart-1)"/><rect x="191.39999999999998" y="258.5" width="56" height="1.5" fill="var(--chart-1)"/><text x="219.39999999999998" y="87.89333333333335" text-anchor="middle" font-size="13" font-weight="700" fill="var(--ink)" font-family="var(--sans)">42.7%</text><text x="219.39999999999998" y="286" text-anchor="middle" font-size="12.5" fill="var(--chart-muted)" font-family="var(--sans)">May ’26</text><rect x="307" y="82.13333333333333" width="56" height="177.86666666666667" rx="4" fill="var(--chart-1)"/><rect x="307" y="258.5" width="56" height="1.5" fill="var(--chart-1)"/><text x="335" y="75.13333333333333" text-anchor="middle" font-size="13" font-weight="700" fill="var(--ink)" font-family="var(--sans)">46%</text><text x="335" y="286" text-anchor="middle" font-size="12.5" fill="var(--chart-muted)" font-family="var(--sans)">Jun ’26</text><rect x="422.59999999999997" y="44.24000000000001" width="56" height="215.76" rx="4" fill="var(--chart-1)"/><rect x="422.59999999999997" y="258.5" width="56" height="1.5" fill="var(--chart-1)"/><text x="450.59999999999997" y="37.24000000000001" text-anchor="middle" font-size="13" font-weight="700" fill="var(--ink)" font-family="var(--sans)">55.8%</text><text x="450.59999999999997" y="286" text-anchor="middle" font-size="12.5" fill="var(--chart-muted)" font-family="var(--sans)">Jul ’26</text><rect x="538.1999999999999" y="54.29333333333332" width="56" height="205.70666666666668" rx="4" fill="var(--chart-1)"/><rect x="538.1999999999999" y="258.5" width="56" height="1.5" fill="var(--chart-1)"/><text x="566.1999999999999" y="47.29333333333332" text-anchor="middle" font-size="13" font-weight="700" fill="var(--ink)" font-family="var(--sans)">53.2%</text><text x="566.1999999999999" y="286" text-anchor="middle" font-size="12.5" fill="var(--chart-muted)" font-family="var(--sans)">Aug ’26</text><line x1="46" y1="260" x2="624" y2="260" stroke="var(--chart-axis)" stroke-width="1.5"/></svg></div>
+      <figcaption><strong>Logistics share of relevant trade coverage, by month.</strong> MarketplaceBeta archive, fixed 54-source panel; share of monthly classified-relevant articles. The number of logistics-producing sources <em>fell</em> from 6 to 4 over the same period, ruling out a source-mix explanation: the shift is publishing intensity, not instrumentation.</figcaption>
+    </figure>
+    <p>The surge was content-confirmed: the underlying articles carried record diesel prints, 3–4x container-rate moves, and explicit Q4 surge warnings from carriers and brokers. Keyword acceleration over the last eight weeks (rate-normalized against the April–August baseline) points the same way: <code>policy</code> 6.9x, <code>diesel</code> 3.5x, <code>rates</code> 2.8x, <code>border</code> 2.7x, <code>truckload</code> 2.5x, <code>fee</code> 2.3x, <code>returns</code> 1.9x. The two quieter accelerations worth watching: <code>walmart</code> (2.7x) and advertising-category coverage, which doubled from its spring level and held through September.</p>
+    <div class="formula"><em>Coverage Pressure Index (CPI_c)</em> — proposed composite, per category c and month m:
+
+CPI_c(m) = share_c(m) / mean(share_c(m−6 … m−1))
+
+share_c  = category c's fraction of classified-relevant articles that month,
+           computed on a FIXED source panel (no additions/removals in window)
+Signal   : CPI ≥ 1.5 for 2 consecutive months = attention regime change
+Status   : one validated episode (logistics, Jul 2026 → confirmed by Sept–Oct
+           freight outcomes). n=1. This is a hypothesis generator, not a
+           proven predictor; it enters the forecast ledger for scoring.</div>
+    <p><strong>Known limitations:</strong> coverage share measures publisher attention, not market magnitude; the logistics panel is dominated by one trade publisher, so the index partly measures that newsroom's judgment; and a two-month lead on one episode is consistent with luck. The ledger (Section 12) commits us to scoring it rather than asserting it.</p>
+
+    <h3>4.2 Where the refurb profit pool actually is <span class="tag obs">Observed</span></h3>
+    <p>The 77-SKU snapshot (refurbished Apple, Amazon Renewed, audited 2026-08-05) shows a sharply structured market. Competitive density is a function of price point: seller count correlates <strong>−0.81 (Spearman)</strong> with the listing's market price, and <strong>+0.79</strong> with its review count. Sellers crowd cheap, high-velocity listings; high-ticket listings stay thin.</p>
+    <figure>
+      <div class="plot"><svg viewBox="0 0 640 360" role="img" aria-label="Competing sellers versus market price across 74 refurbished Apple SKUs" style="max-width:100%;height:auto"><line x1="56" y1="314" x2="622" y2="314" stroke="var(--chart-grid)" stroke-width="1"/><text x="48" y="318" text-anchor="end" font-size="11.5" fill="var(--chart-muted)" font-family="var(--sans)">$0</text><line x1="56" y1="257.46153846153845" x2="622" y2="257.46153846153845" stroke="var(--chart-grid)" stroke-width="1"/><text x="48" y="261.46153846153845" text-anchor="end" font-size="11.5" fill="var(--chart-muted)" font-family="var(--sans)">$250</text><line x1="56" y1="200.9230769230769" x2="622" y2="200.9230769230769" stroke="var(--chart-grid)" stroke-width="1"/><text x="48" y="204.9230769230769" text-anchor="end" font-size="11.5" fill="var(--chart-muted)" font-family="var(--sans)">$500</text><line x1="56" y1="144.3846153846154" x2="622" y2="144.3846153846154" stroke="var(--chart-grid)" stroke-width="1"/><text x="48" y="148.3846153846154" text-anchor="end" font-size="11.5" fill="var(--chart-muted)" font-family="var(--sans)">$750</text><line x1="56" y1="87.84615384615384" x2="622" y2="87.84615384615384" stroke="var(--chart-grid)" stroke-width="1"/><text x="48" y="91.84615384615384" text-anchor="end" font-size="11.5" fill="var(--chart-muted)" font-family="var(--sans)">$1K</text><line x1="56" y1="31.30769230769232" x2="622" y2="31.30769230769232" stroke="var(--chart-grid)" stroke-width="1"/><text x="48" y="35.30769230769232" text-anchor="end" font-size="11.5" fill="var(--chart-muted)" font-family="var(--sans)">$1.25K</text><text x="56" y="336" text-anchor="middle" font-size="11.5" fill="var(--chart-muted)" font-family="var(--sans)">0</text><text x="175.15789473684208" y="336" text-anchor="middle" font-size="11.5" fill="var(--chart-muted)" font-family="var(--sans)">20</text><text x="294.31578947368416" y="336" text-anchor="middle" font-size="11.5" fill="var(--chart-muted)" font-family="var(--sans)">40</text><text x="413.4736842105263" y="336" text-anchor="middle" font-size="11.5" fill="var(--chart-muted)" font-family="var(--sans)">60</text><text x="532.6315789473683" y="336" text-anchor="middle" font-size="11.5" fill="var(--chart-muted)" font-family="var(--sans)">80</text><text x="339" y="354" text-anchor="middle" font-size="12" fill="var(--chart-muted)" font-family="var(--sans)">Competing sellers on the listing</text><circle cx="109.6" cy="270.1" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="139.4" cy="283.5" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="133.5" cy="292.0" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="139.4" cy="272.9" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="103.7" cy="285.7" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="622.0" cy="281.5" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="622.0" cy="293.9" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="622.0" cy="292.7" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="580.3" cy="297.9" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="199.0" cy="276.1" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="258.6" cy="269.0" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="234.7" cy="228.9" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="246.7" cy="298.4" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="246.7" cy="298.8" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="175.2" cy="180.6" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="121.5" cy="253.1" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="282.4" cy="256.6" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="228.8" cy="293.0" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="294.3" cy="277.8" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="97.7" cy="165.1" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="121.5" cy="161.4" r="5.5" fill="var(--chart-2)" fill-opacity="0.95" stroke="var(--surface)" stroke-width="1.5"/><circle cx="234.7" cy="294.1" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="246.7" cy="297.5" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="79.8" cy="175.2" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="157.3" cy="248.6" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="85.8" cy="149.1" r="5.5" fill="var(--chart-2)" fill-opacity="0.95" stroke="var(--surface)" stroke-width="1.5"/><circle cx="115.6" cy="259.3" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="145.4" cy="275.1" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="91.7" cy="237.3" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="79.8" cy="144.7" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="151.3" cy="273.5" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="121.5" cy="261.1" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="91.7" cy="158.0" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="109.6" cy="173.4" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="79.8" cy="273.5" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="169.2" cy="282.6" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="79.8" cy="116.1" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="73.9" cy="246.2" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="85.8" cy="256.7" r="5.5" fill="var(--chart-2)" fill-opacity="0.95" stroke="var(--surface)" stroke-width="1.5"/><circle cx="133.5" cy="258.4" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="127.5" cy="212.2" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="127.5" cy="178.5" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="127.5" cy="189.9" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="163.2" cy="224.2" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="85.8" cy="158.0" r="5.5" fill="var(--chart-2)" fill-opacity="0.95" stroke="var(--surface)" stroke-width="1.5"/><circle cx="79.8" cy="167.2" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="73.9" cy="20.0" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="67.9" cy="20.0" r="5.5" fill="var(--chart-2)" fill-opacity="0.95" stroke="var(--surface)" stroke-width="1.5"/><circle cx="73.9" cy="131.3" r="5.5" fill="var(--chart-2)" fill-opacity="0.95" stroke="var(--surface)" stroke-width="1.5"/><circle cx="91.7" cy="243.5" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="79.8" cy="137.6" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="103.7" cy="149.1" r="5.5" fill="var(--chart-2)" fill-opacity="0.95" stroke="var(--surface)" stroke-width="1.5"/><circle cx="67.9" cy="122.0" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="127.5" cy="248.4" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="85.8" cy="144.6" r="5.5" fill="var(--chart-2)" fill-opacity="0.95" stroke="var(--surface)" stroke-width="1.5"/><circle cx="199.0" cy="298.2" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="79.8" cy="123.3" r="5.5" fill="var(--chart-2)" fill-opacity="0.95" stroke="var(--surface)" stroke-width="1.5"/><circle cx="97.7" cy="230.3" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="73.9" cy="133.7" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="67.9" cy="31.3" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="97.7" cy="174.2" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="73.9" cy="101.4" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="139.4" cy="257.7" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="97.7" cy="223.8" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="67.9" cy="224.0" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="73.9" cy="145.5" r="5.5" fill="var(--chart-2)" fill-opacity="0.95" stroke="var(--surface)" stroke-width="1.5"/><circle cx="103.7" cy="227.6" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="67.9" cy="122.7" r="5.5" fill="var(--chart-2)" fill-opacity="0.95" stroke="var(--surface)" stroke-width="1.5"/><circle cx="79.8" cy="132.3" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="91.7" cy="158.0" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="73.9" cy="74.1" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="79.8" cy="138.7" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="79.8" cy="222.7" r="4.5" fill="var(--chart-1)" fill-opacity="0.55" stroke="var(--surface)" stroke-width="1.5"/><circle cx="79.8" cy="216.8" r="5.5" fill="var(--chart-2)" fill-opacity="0.95" stroke="var(--surface)" stroke-width="1.5"/><text x="103.66315789473684" y="47.13846153846151" font-size="12.5" font-weight="700" fill="var(--ink)" font-family="var(--sans)">MacBook tier: few sellers, high ticket</text><text x="258.5684210526316" y="246.15384615384613" font-size="12.5" font-weight="700" fill="var(--ink)" font-family="var(--sans)">iPad/iPhone tier: crowded, low ticket</text><line x1="56" y1="314" x2="622" y2="314" stroke="var(--chart-axis)" stroke-width="1.5"/></svg>
+</div>
+      <div class="legend"><span><i style="background:var(--chart-1)"></i>Listing</span><span><i style="background:var(--chart-2)"></i>Buy Box held by audited seller</span></div>
+      <figcaption><strong>Competing sellers vs. market price, 74 refurbished Apple listings.</strong> One snapshot, one seller's catalog — directional, not a population estimate. Buy Box wins concentrate in the thin-density, high-ticket region: the audited seller held the Buy Box on 30.6% of MacBook Air listings (median 4.5 competitors) and 0% of iPad listings (median 32 competitors), despite the iPads being priced further above market.</figcaption>
+    </figure>
+    <div class="tablewrap"><table>
+      <tr><th>Segment</th><th>n</th><th>Median price</th><th>Median sellers</th><th>Median gap vs. lowest</th><th>Buy Box rate</th></tr>
+      <tr><td class="sans">MacBook Air</td><td class="num">36</td><td class="num">$755</td><td class="num">4.5</td><td class="num">+7.6%</td><td class="num"><strong>30.6%</strong></td></tr>
+      <tr><td class="sans">MacBook Pro</td><td class="num">11</td><td class="num">$514</td><td class="num">7</td><td class="num">+7.7%</td><td class="num">9.1%</td></tr>
+      <tr><td class="sans">iPhone</td><td class="num">9</td><td class="num">$253</td><td class="num">16</td><td class="num">+11.0%</td><td class="num">11.1%</td></tr>
+      <tr><td class="sans">Apple Watch</td><td class="num">6</td><td class="num">$165</td><td class="num">11</td><td class="num">+2.6%</td><td class="num">0%</td></tr>
+      <tr><td class="sans">iPad</td><td class="num">15</td><td class="num">$105</td><td class="num">32</td><td class="num">+12.7%</td><td class="num">0%</td></tr>
+    </table></div>
+    <p>A structural check using category-default cost estimates (labeled estimates, not real COGS) suggests the market's lowest offer sits <em>below</em> a 12%-margin floor on roughly <strong>31% of these SKUs</strong> — concentrated in the crowded low-price tier. If even approximately right, a third of this market trades at prices a rational cost model cannot justify, which means matching the lowest offer there is donating margin to exit-bound competitors.</p>
+    <div class="formula"><em>Density-Adjusted Margin Headroom (DAMH)</em> — per SKU:
+
+DAMH = (market_price − margin_floor_price) / market_price  −  λ · ln(1 + sellers)
+
+margin_floor_price = fixed_costs / (1 − variable_rate − floor_margin)
+λ ≈ 0.02 (penalty per e-fold of competitor density; calibrate per category)
+Use      : rank acquisition and listing targets; negative DAMH = walk away
+Status   : implemented in spirit in the ProfitTygr sourcing engine (floor math
+           is exact; the density penalty is this edition's proposed extension)</div>
+
+    <h3>4.3 Cross-dataset read: the squeeze shows up in attention, prices, and surveys at once <span class="tag obs">Observed</span></h3>
+    <p>Three independent measurements agree. Our archive shows fees/logistics/advertising displacing general commerce coverage. External surveys show the gross-to-net margin spread at a record. Our market snapshot shows the mechanism at listing level: crowded segments trade below rational floors while platforms collect the same fees either way. When attention data, price data, and survey data triangulate, we treat the finding as high-confidence — and the triangulation method itself is the editorial standard for this dossier going forward.</p>
+  </div>
+</section>
+
+<section id="outlook">
+  <div class="wrap">
+    <p class="secno">Section 5</p>
+    <h2>Predictive outlook</h2>
+    <p>Every forecast below is stored in a database ledger (<code>intel_forecasts</code>, created for this edition) with its probability, confirming and invalidating indicators, and a resolve-by date. Next editions score them. Probabilities are judgment calibrated to the cited evidence, not model outputs.</p>
+
+    <h3>Holiday 2026 scenarios (resolve: January 2027)</h3>
+    <div class="tablewrap"><table>
+      <tr><th>Scenario</th><th>Shape</th><th>What makes it true</th></tr>
+      <tr><td class="sans"><strong>Base — 55%</strong></td><td>Online +6–8% (Adobe/Deloitte band); record Cyber Week; discounts peak ~30%; parcel networks strained but functional</td><td>Freight stays expensive but no labor/fuel shock; sentiment stabilizes; BNPL absorbs budget stress</td></tr>
+      <tr><td class="sans"><strong>Bear — 25%</strong></td><td>Online +3–5%; late-season volume compressed; margin-destroying discount depth</td><td>Diesel keeps setting records into November; carrier surcharge stacking plus a sentiment leg down (UMich &lt;44); tariff re-escalation on holiday categories</td></tr>
+      <tr><td class="sans"><strong>Bull — 20%</strong></td><td>Online +9%+; AI-referred conversion premium holds at scale; returns rate falls again</td><td>Tariff refunds reach consumers as price cuts; freight rates mean-revert fast (Drewry composite already −2% w/w in Oct); agentic traffic over-delivers</td></tr>
+    </table></div>
+
+    <h3>The forecast ledger, Edition 1</h3>
+    <div class="tablewrap"><table>
+      <tr><th>#</th><th>Horizon</th><th>Forecast</th><th>p</th><th>Confirms / invalidates</th></tr>
+      <tr><td class="num">F1</td><td class="num">0–3m</td><td>US online holiday sales (Nov 1–Dec 31) grow ≥6% YoY</td><td class="num">0.70</td><td class="sans">Adobe/Salesforce weekly trackers; Census Q4 · Invalidated by UMich &lt;44 + parcel disruption</td></tr>
+      <tr><td class="num">F2</td><td class="num">0–3m</td><td>Effective Q4 residential parcel cost inflation for DTC sellers lands ≥8% despite 5.9% GRIs</td><td class="num">0.80</td><td class="sans">Carrier surcharge tables; shipper invoices · Invalidated by surcharge rollbacks</td></tr>
+      <tr><td class="num">F3</td><td class="num">0–3m</td><td>AI-referred retail traffic at least doubles YoY during Cyber Week, and its conversion premium stays ≥25%</td><td class="num">0.70</td><td class="sans">Adobe holiday telemetry · Invalidated if premium compresses below 25% as volume scales</td></tr>
+      <tr><td class="num">F4</td><td class="num">0–3m</td><td>TikTok Shop US full-year 2026 GMV ≥ $20B</td><td class="num">0.60</td><td class="sans">Momentum Works / eMarketer updates · Invalidated by post-divestiture operational disruption</td></tr>
+      <tr><td class="num">F5</td><td class="num">3–6m</td><td>Amazon's 2027 US fee announcement contains no headline referral increase but raises net cost via surcharge/restructure layering</td><td class="num">0.70</td><td class="sans">Seller Central fee notice (expected Dec–Jan) · Invalidated by a flat, surcharge-free schedule</td></tr>
+      <tr><td class="num">F6</td><td class="num">3–6m</td><td>Walmart extends fee-cut or WFS-incentive playbook to additional categories to sustain &gt;40% marketplace growth</td><td class="num">0.65</td><td class="sans">Seller Center policy updates; Q3/Q4 FY27 prints · Invalidated by fee increases</td></tr>
+      <tr><td class="num">F7</td><td class="num">3–6m</td><td>At least one additional top-10 US marketplace (Amazon excluded) signs a formal agent-access integration (UCP, ACP successor, or equivalent)</td><td class="num">0.70</td><td class="sans">Platform announcements · Invalidated by industry-wide agent blocking following Amazon's lead</td></tr>
+      <tr><td class="num">F8</td><td class="num">6–12m</td><td>US average effective tariff rate moves ≥2 points (either direction) from ~10.9% within 12 months</td><td class="num">0.75</td><td class="sans">Yale Budget Lab series · Invalidated by 12 months of rate stability</td></tr>
+      <tr><td class="num">F9</td><td class="num">6–12m</td><td>Used/refurbished smartphone unit growth again outpaces new in 2026 full-year data (IDC direction: ~5.8% vs ~1%)</td><td class="num">0.70</td><td class="sans">IDC/Counterpoint annuals · Invalidated by new-unit resurgence on an upgrade supercycle</td></tr>
+      <tr><td class="num">F10</td><td class="num">12–24m</td><td>De minimis is not restored before the statutory repeal (Jul 2027) takes effect</td><td class="num">0.85</td><td class="sans">Federal Register / CBP · Invalidated by Congressional reversal</td></tr>
+      <tr><td class="num">F11</td><td class="num">12–24m</td><td>Consolidated multichannel operation (one console + one fulfillment network serving ≥3 channels) becomes the default stack for new multichannel sellers, with Amazon's offering a top-2 provider</td><td class="num">0.60</td><td class="sans">Seller surveys; MCF adoption disclosures · Invalidated by antitrust action or seller boycott of cross-channel data sharing</td></tr>
+      <tr><td class="num">F12</td><td class="num">12–24m</td><td>Agentic commerce exceeds 2% of US e-commerce sessions by October 2027</td><td class="num">0.55</td><td class="sans">Adobe/Contentsquare session-share data · Invalidated by platform-wide agent blocking or consumer disinterest</td></tr>
+    </table></div>
+    <p>Mechanisms, briefly. F2 and F5 extend an observed behavioral pattern (surcharge layering) rather than predicting a new one. F8 is a volatility forecast: after a Supreme Court reversal, an expiring stopgap surcharge, and queued Section 232/301 actions, rate stability is the surprising outcome. F11 is the Amazon September 24 announcement read as strategy: the company that owns the seller's operating system owns the fee relationship, whichever channel the sale lands on.</p>
+  </div>
+</section>
+
+<section id="opportunities">
+  <div class="wrap">
+    <p class="secno">Section 6</p>
+    <h2>Market opportunity intelligence</h2>
+    <p>Opportunities are scored 1–5 on five axes — impact, confidence, execution cost (5 = cheap), time sensitivity, and defensibility — and ranked by the weighted sum (impact and confidence double-weighted). Scores are judgments made against the cited evidence; the point of publishing the rubric is so later editions can be audited against it.</p>
+    <div class="tablewrap"><table>
+      <tr><th>Opportunity</th><th>For</th><th>Imp</th><th>Conf</th><th>Cost</th><th>Time</th><th>Moat</th><th>Score /35</th></tr>
+      <tr><td class="sans"><strong>O1 · Floor-disciplined, density-aware refurb positioning</strong></td><td>Refurb/resale sellers</td><td class="num">5</td><td class="num">4</td><td class="num">4</td><td class="num">4</td><td class="num">3</td><td class="num"><strong>29</strong></td></tr>
+      <tr><td class="sans"><strong>O2 · Channel fee arbitrage + pooled fulfillment</strong></td><td>Any multichannel seller</td><td class="num">4</td><td class="num">4</td><td class="num">4</td><td class="num">4</td><td class="num">2</td><td class="num"><strong>26</strong></td></tr>
+      <tr><td class="sans"><strong>O3 · Agent-readiness feed program</strong></td><td>DTC / Shopify operators</td><td class="num">4</td><td class="num">3</td><td class="num">5</td><td class="num">4</td><td class="num">2</td><td class="num"><strong>25</strong></td></tr>
+      <tr><td class="sans"><strong>O4 · Importer-of-record restructuring</strong></td><td>Import-heavy sellers</td><td class="num">4</td><td class="num">3</td><td class="num">2</td><td class="num">4</td><td class="num">3</td><td class="num">23</td></tr>
+      <tr><td class="sans"><strong>O5 · Returns-economics program</strong></td><td>Apparel/fit-risk DTC</td><td class="num">3</td><td class="num">4</td><td class="num">4</td><td class="num">3</td><td class="num">2</td><td class="num">23</td></tr>
+      <tr><td class="sans"><strong>O6 · Maker-commerce picks and shovels</strong></td><td>Content/tool builders</td><td class="num">3</td><td class="num">2</td><td class="num">4</td><td class="num">2</td><td class="num">4</td><td class="num">20</td></tr>
+    </table></div>
+
+    <h3>O1 — Floor-disciplined, density-aware refurb positioning</h3>
+    <p><strong>Signals:</strong> recommerce demand step-change (eBay 35%→47% monthly secondhand buyers); tariff-driven new-device price pressure; our snapshot's −0.81 density/price correlation and ~31% below-floor share in the crowded tier. <strong>The play:</strong> concentrate acquisition capital in high-ticket, low-density segments (the $500+ laptop tier in our data); price with explicit margin floors; deliberately hold above irrational markets instead of chasing them; use the DAMH ranking (Sec. 4.2) at buy time, not just at pricing time. <strong>Economics:</strong> in our snapshot the thin-density tier won the Buy Box 3x as often at half the price gap — the same capital works harder. <strong>Requirements:</strong> real landed-cost data per SKU, a repricing engine with floor discipline (ProfitTygr implements this), and warranty/grading quality that clears the branded-program bar (Renewed Premium / Restored Premium both now carry 1-year warranties). <strong>Risks:</strong> single-snapshot evidence; Apple trade-in repricing compresses sourcing spreads; velocity at high tickets is structurally lower. <strong>Time to value:</strong> 30–60 days. <strong>Confidence: medium-high.</strong></p>
+
+    <h3>O2 — Channel fee arbitrage and pooled fulfillment</h3>
+    <p><strong>Signals:</strong> Walmart's June fee cuts and 50%+ marketplace growth; Amazon's surcharge stack; carrier residential surcharges up 23–25%; Amazon's own 25%-cheaper-MCF claim for off-Amazon orders. <strong>The play:</strong> re-run per-channel contribution margin quarterly with current fee tables (fees are now seasonal variables); shift catalog weight toward the cheapest competent channel per category; pool fulfillment where residential surcharges bite hardest. A 2-point referral delta plus pooled last-mile is a 3–5 point net-margin swing on affected SKUs — larger than most conversion-optimization programs deliver. <strong>Risks:</strong> Walmart's cuts are acquisition spend and may reverse; cross-channel consoles (incl. Amazon's) see your sales data. <strong>Time to value:</strong> 30–60 days.</p>
+
+    <h3>O3 — Agent-readiness feed program</h3>
+    <p><strong>Signals:</strong> 42–54% conversion premium on AI-referred visits; 69% lower self-reported return likelihood; protocol churn penalizing deep integrations; schema completeness as the common denominator across ACP, UCP, and AI crawlers. <strong>The play:</strong> complete structured product data (Product/Offer schema with live price, availability, shipping speed, return policy; AggregateRating), prose product pages that answer questions agents ask, and feed monitoring. Treat checkout-protocol integrations as rented; treat the feed as owned. <strong>Economics:</strong> this buys the premium slice of traffic cheaply; it does not buy volume yet. Model a 3–6% agent toll scenario before committing to any agent checkout. <strong>Time to value:</strong> 30–90 days. <strong>Confidence: medium</strong> (the channel is young; the premium could compress as it scales — tracked as forecast F3).</p>
+
+    <h3>O4 — Importer-of-record restructuring</h3>
+    <p><strong>Signals:</strong> ~$35B of tariff refunds flowing only to importers of record; CBP's September importer crackdown; de-minimis repeal re-routing supply chains. <strong>The play:</strong> import-heavy sellers who buy landed from middlemen captured none of the refund and carry a markup on someone else's duty handling. Becoming IOR (or moving to a transparent duty-pass-through broker) captures refund rights, duty drawback eligibility, and COGS visibility. <strong>Costs/risks:</strong> compliance burden is real and CBP enforcement is tightening; wrong for small import volumes. <strong>Time to value:</strong> 90–180 days.</p>
+  </div>
+</section>
+
+<section id="playbook">
+  <div class="wrap">
+    <p class="secno">Section 7</p>
+    <h2>Strategic operator playbook</h2>
+    <h3>Market selection and product development</h3>
+    <ul>
+      <li><strong>Select for density, not just demand.</strong> Our refurb data quantifies what category veterans intuit: the same demand at 4 competitors and at 32 competitors are different businesses. Before entering, measure seller count, review concentration, and whether the lowest offers can plausibly be profitable. A market whose floor is below rational cost is a market you enter only with a structural cost advantage.</li>
+      <li><strong>Durable demand correlates with repairability and residual value this cycle.</strong> Recommerce growth, right-to-repair laws in five states, and trade-in infrastructure all push value retention — products that hold value support both higher first-sale prices and a second revenue event.</li>
+      <li><strong>Complaint mining remains the cheapest opportunity detector</strong>, and agentic commerce raises its value: agents read reviews at purchase time, so fixing the top complaint in a category now changes machine-ranked outcomes, not just star ratings. (This is the pattern the three-layer system in Section 12 is built to automate: rising search interest + persistent complaint themes + thin competition = flagged opportunity.)</li>
+    </ul>
+    <h3>Growth and customer acquisition</h3>
+    <ul>
+      <li><strong>Paid search still works this holiday</strong> — over 80% of 2026 AI ad spend sits beside AI content rather than inside chatbots — but build the owned-demand escape route now: email/SMS lists, subscription hooks, and the structured-data work in O3.</li>
+      <li><strong>Channel diversification has a new justification: agent reachability.</strong> An Amazon-only seller is invisible to every third-party shopping agent Amazon blocks. Etsy, Walmart, and Shopify sellers got surfaced in ChatGPT and Google AI Mode at no integration cost.</li>
+      <li><strong>Returns are an acquisition metric.</strong> AI-referred buyers return less; so do buyers acquired through accurate fit/condition content. A point of return rate is often worth more than a point of conversion.</li>
+    </ul>
+    <h3>Profitability and efficiency</h3>
+    <ul>
+      <li><strong>Reprice from floors, not from competitors.</strong> The race-to-the-bottom tier in our data is populated by sellers matching each other below cost-recovery. A floor-disciplined engine that knows when to hold is the single highest-leverage pricing control.</li>
+      <li><strong>Audit the surcharge stack quarterly</strong> — fuel, placement, low-inventory, peak, demand. These moved more than every headline rate in 2026, and they are controllable through inventory discipline and shipment consolidation.</li>
+      <li><strong>Capture the ad-cost spread:</strong> if retail media inflation runs ~18% while your category's sales grow single digits, flat ad budgets are effectively shrinking share decisions. Decide deliberately which SKUs earn advertising at the new prices, rather than letting the platform's suggested bids decide.</li>
+    </ul>
+    <h3>Competing against better-capitalized players</h3>
+    <ul>
+      <li>Big sellers absorb fee complexity with staff; small sellers can absorb it with tooling and category focus. The surveys say the thriving 23% aren't the biggest — the strongest net margins sat in the $25–50M tier, not the largest.</li>
+      <li>Where a platform is buying supply (Walmart now), early sellers get the acquisition subsidy. Where a platform is harvesting (mature Amazon categories), differentiation has to come from catalog quality and cost structure, not spend.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="disruption">
+  <div class="wrap">
+    <p class="secno">Section 8</p>
+    <h2>Competitive and technological disruption</h2>
+    <h3>Agentic commerce: what actually happened in 12 months</h3>
+    <ul>
+      <li><strong>Sept 2025:</strong> OpenAI + Stripe launch Instant Checkout (Etsy, then Shopify merchants); Agentic Commerce Protocol open-sourced. Walmart joins in October. A ~4% merchant fee is reported.</li>
+      <li><strong>Nov 2025 – Mar 2026:</strong> Amazon sues Perplexity over its Comet agent and wins a blocking order; Amazon reportedly blocks dozens of outside agents. Rufus — Amazon's own agent — is credited with ~$12B in incremental annualized sales.</li>
+      <li><strong>Jan – Feb 2026:</strong> Google ships the Universal Commerce Protocol; Etsy and Wayfair purchases go live inside AI Mode and Gemini. AP2 payment protocol moves to the FIDO Alliance.</li>
+      <li><strong>Mar 2026:</strong> OpenAI winds down its first checkout approach after minimal merchant adoption (~12 Shopify merchants by one account) and pivots to retailer apps inside ChatGPT.</li>
+      <li><strong>Holiday 2026:</strong> Adobe forecasts AI-referred retail traffic +130% YoY; Salesforce expects ~20% of holiday e-commerce <em>traffic</em> to originate from AI agents; measured AI share of sessions remains low single digits.</li>
+    </ul>
+    <p>Reading: the discovery layer is consolidating faster than the transaction layer. Whoever controls the agent controls the shelf, which is exactly why Amazon litigates while opening its own agent — and why marketplaces that <em>welcome</em> agents (Etsy, Walmart, Shopify) are making a strategic bet that distribution beats control. For operators the asymmetry is simple: blocking agents is a platform's option, not yours; being legible to them is yours.</p>
+    <h3>The multichannel consolidation war</h3>
+    <p>Amazon's September 24 package — rival-channel order management inside Seller Central, Prime and discounted MCF on sellers' own sites, one inbound flow feeding eight countries — is a bid to become the operating system of multichannel selling. Its own disclosure that 95% of its independent sellers already sell elsewhere explains the move: the growth is in managing commerce, not hosting it. Expect Walmart and Shopify counter-moves; expect the console that wins to also win pricing-data advantages. Operators should take the efficiency but keep pricing logic and cost data in systems they own.</p>
+    <h3>Policy as a recurring shock generator</h3>
+    <p>2026 produced: a Supreme Court tariff reversal, an 8-point swing in average effective tariffs, bilateral 50% tariffs with Canada inside a week, a $120/container ship fee, an importer-of-record crackdown with no grace period, and the permanent end of de minimis. The planning implication is not any one rate; it is that <strong>COGS certainty now decays in weeks</strong>. Operators need the reflexes (scenario-priced catalogs, supplier diversification across tariff regimes, refund-eligible import structures) more than any single hedge.</p>
+  </div>
+</section>
+
+<section id="contrarian">
+  <div class="wrap">
+    <p class="secno">Section 9</p>
+    <h2>Contrarian findings</h2>
+    <ul>
+      <li><strong>"AI shopping changes everything this quarter" — overweighted.</strong> Measured agent share of sessions is ~0.2% to low single digits; chatbot ad spend is under $1B. What is underweighted: the second-order effect on <em>returns</em> (AI-referred buyers self-report 69% lower return likelihood) and the feed-quality arms race that decides who receives the premium traffic. The near-term money is in being machine-legible, not in agent checkout deals.</li>
+      <li><strong>"Tariffs are killing sellers" — half right, and the wrong half is priced in.</strong> The measured pass-through (~26%) is far below the headline rates, refunds created a windfall for direct importers, and the de-minimis death removed the single largest structural price disadvantage US-inventory sellers faced. Volatility, not level, is the real tax — and it punishes the unprepared asymmetrically.</li>
+      <li><strong>"Lower-fee platforms are better platforms" — only momentarily.</strong> Walmart's cuts are customer-acquisition spend aimed at sellers, funded by a 38%-growth ad business that will collect later. The durable basis for channel choice is fulfillment pooling and agent reachability; the fee gap is a harvest window, not a structure.</li>
+      <li><strong>"The race to the bottom proves price is everything" — the data says the opposite.</strong> Where a third of listings trade below rational floors, the lowest price is frequently a distressed exit, not a strategy. In our snapshot, the segment with the <em>smallest</em> discounts to market won the Buy Box most often — because it was the segment where rational pricing was possible. Discipline, not depth, won.</li>
+      <li><strong>"Returns are a cost center to minimize in ops" — they are becoming a selection criterion.</strong> National returns fell ($890B→$850B projected, 16.9%→15.8%) while AI channels pre-filter for low-return buyers. Products, content, and channels that structurally return less are compounding advantages that show up nowhere in a CAC dashboard.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="roadmap">
+  <div class="wrap">
+    <p class="secno">Section 10</p>
+    <h2>The 30/60/90-day framework</h2>
+    <h3>Days 0–30 — survive Q4 pricing, capture the arbitrage</h3>
+    <ul>
+      <li>Reprice the catalog against current fee tables and surcharges (Amazon peak surcharge began Oct 15; carrier demand surcharges step up Nov 22). Set explicit margin floors per SKU; mark the SKUs where market price is below floor and stop chasing them.</li>
+      <li>Lock remaining Q4 freight and renegotiate residential-heavy lanes toward pooled options; re-set free-shipping thresholds against the <em>surcharged</em> parcel cost, not January's.</li>
+      <li>Run the channel contribution-margin comparison (Amazon vs Walmart vs eBay vs DTC) with October fee tables; shift listing emphasis where a 1.5+ point net gap exists.</li>
+      <li>Ship the minimum agent-readiness pass: complete Product/Offer schema, live availability, visible return policy. One sprint.</li>
+    </ul>
+    <h3>Days 31–60 — build the January advantages</h3>
+    <ul>
+      <li>Collect real landed costs per SKU (the single prerequisite for trustworthy floors) and stand up floor-disciplined repricing where it isn't already running.</li>
+      <li>Prepare the fee-season response: Amazon's 2027 schedule typically lands Dec–Jan (forecast F5: expect surcharge layering, not headline hikes). Pre-model the catalog against ±1-point referral and ±5% fulfillment scenarios so the response is a day's work, not a quarter's.</li>
+      <li>If import-heavy: start the importer-of-record / duty-drawback review while refund precedents are fresh.</li>
+      <li>Instrument returns by product and channel; find the three worst offenders and fix content or kill SKUs.</li>
+    </ul>
+    <h3>Days 61–90 — position for the structural shifts</h3>
+    <ul>
+      <li>Decide the multichannel console question deliberately: take Amazon's (or anyone's) operational consolidation only where the efficiency beats the data exposure; keep pricing and cost data in owned systems.</li>
+      <li>For refurb/resale operators: redeploy acquisition capital toward high-ticket, low-density segments scored by margin headroom; qualify for the branded-condition programs (1-year-warranty tiers) that are becoming the trust standard.</li>
+      <li>Stand up the monitoring dashboard below as a weekly habit; review the forecast ledger monthly and log hits and misses.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="dashboard">
+  <div class="wrap">
+    <p class="secno">Section 11</p>
+    <h2>Forward-looking indicator dashboard</h2>
+    <p>The short list an operator should actually watch, with the threshold that means something changed.</p>
+    <div class="tablewrap"><table>
+      <tr><th>Indicator</th><th>Where</th><th>Cadence</th><th>Act when…</th></tr>
+      <tr><td class="sans">Drewry WCI trans-Pacific rate</td><td>drewry.co.uk (free weekly)</td><td class="num">Weekly</td><td>&gt;$12K/FEU East Coast = bear freight scenario; &lt;$5K = cost relief to reprice into</td></tr>
+      <tr><td class="sans">DOE/EIA diesel benchmark</td><td>eia.gov</td><td class="num">Weekly</td><td>New records into Nov = surcharge escalation; budget F2 at the high end</td></tr>
+      <tr><td class="sans">Adobe AI-traffic prints</td><td>Adobe Analytics releases</td><td class="num">Monthly / holiday</td><td>Conversion premium &lt;25% = the premium is commoditizing (F3 invalidation)</td></tr>
+      <tr><td class="sans">Amazon Seller Central fee notices</td><td>Seller Central news</td><td class="num">Event</td><td>Any new surcharge class = re-run catalog economics same week (F5)</td></tr>
+      <tr><td class="sans">Walmart Seller Center policy updates</td><td>Seller Center</td><td class="num">Event</td><td>Fee cuts in your category = harvest window opens; set a reminder for reversal</td></tr>
+      <tr><td class="sans">TikTok Shop official fee table</td><td>Seller University</td><td class="num">Monthly</td><td>Primary confirmation of the 6%→8% move changes channel math</td></tr>
+      <tr><td class="sans">Tariff actions (232/301, Section 122 expiry)</td><td>Federal Register; Yale Budget Lab tracker</td><td class="num">Event</td><td>≥2-point effective-rate move = reprice imports, revisit IOR plan (F8)</td></tr>
+      <tr><td class="sans">UMich consumer sentiment</td><td>sca.isr.umich.edu</td><td class="num">Monthly</td><td>&lt;44 = bear holiday scenario gains; deepen discount contingency</td></tr>
+      <tr><td class="sans">Census quarterly e-commerce</td><td>census.gov (next: Nov 19)</td><td class="num">Quarterly</td><td>YoY growth &lt;9% = demand-side deterioration beyond the price effect</td></tr>
+      <tr><td class="sans">Archive: logistics coverage share</td><td>MarketplaceBeta intelligence (internal)</td><td class="num">Monthly</td><td>Any category's CPI ≥1.5 two months running = investigate before it's news</td></tr>
+      <tr><td class="sans">Archive: keyword acceleration table</td><td>MarketplaceBeta intelligence (internal)</td><td class="num">Monthly</td><td>New non-calendar term &gt;3x = candidate emerging signal; verify against primary sources</td></tr>
+    </table></div>
+  </div>
+</section>
+
+<section id="methodology">
+  <div class="wrap">
+    <p class="secno">Section 12</p>
+    <h2>Methodology, confidence, and the learning loop</h2>
+
+    <h3>Datasets</h3>
+    <ul>
+      <li><strong>MarketplaceBeta news archive</strong> — 8,541 relevant AI-classified articles from a fixed panel of 54 active sources, dense coverage March–October 2026, with categories, platform tags, impact levels, and 65,347 weighted keywords. <em>Limits:</em> measures publisher attention, not market size; logistics coverage is dominated by one trade publisher; September classification is partially complete (432 of 753 articles), so September shares are biased toward the auto-classified subset; October is month-to-date.</li>
+      <li><strong>77-SKU market snapshot</strong> — refurbished Apple catalog audited on Amazon Renewed, 2026-08-05 (prices, lowest competitors, seller counts, Buy Box state, reviews, sales bands). <em>Limits:</em> one seller's catalog, one marketplace, one day; cost-floor estimates use labeled category-default ratios, not actual COGS; n is small in several categories.</li>
+      <li><strong>External research</strong> — 80+ dated sources gathered October 14, 2026: Census, company earnings and SEC filings, Federal Register/CBP, NY Fed and Harvard tariff studies, Adobe/Salesforce/Deloitte/Bain forecasts, Drewry, eMarketer/WPP, Counterpoint/IDC/CONTEXT/Wohlers, Marketplace Pulse, eCommerceFuel, Jungle Scout, and trade press. Primary sources preferred; secondary-only figures are flagged below.</li>
+    </ul>
+
+    <h3>What we could not verify (and therefore did not assert)</h3>
+    <ul>
+      <li>Walmart's exact 14 cut categories and before/after referral rates (direction confirmed via trade press only).</li>
+      <li>TikTok Shop's 6%→8% US referral increase (seller guides vs. an official table still showing 6% at last revision).</li>
+      <li>OpenAI's 4% Instant Checkout fee from a primary document; the exact wind-down status of that product.</li>
+      <li>Amazon "250M Rufus users" (secondary blog); Amazon GMV (not disclosed); Temu US revenue (audience panels only).</li>
+      <li>Counterpoint's "refurb volumes +11% in 2026 vs new −14.3%" — conflicts with IDC's new-unit growth forecast; both cannot be right, so neither is used.</li>
+      <li>Any verified GMV for makers selling 3D-printed goods — the maker-commerce revenue layer remains unmeasured (which is itself a finding: it is early).</li>
+    </ul>
+
+    <h3>Revisiting the prior edition's claims</h3>
+    <p>The August 2026 ProfitTygr dossier embedded several market assumptions this edition can now test. <strong>Held up:</strong> the Walmart June fee-cut note (externally corroborated in direction); the race-to-the-bottom premise behind margin-floor repricing (now supported by two independent seller surveys and our below-floor measurements); the refurb demand thesis (strengthened by eBay's 35%→47% and tariff pass-through data). <strong>Revised:</strong> we previously treated "tariffs push buyers to refurbished" as near-axiomatic; the direct substitution evidence is thinner than assumed (the one survey found only 6% switching intent), so the thesis now rests on the broader value-seeking shift rather than a tariff-specific mechanism. <strong>Unchanged risk:</strong> Keepa dependence for market history, pending first-party price capture.</p>
+
+    <h3>The three-layer system: what exists today vs. what is proposed</h3>
+    <div class="tablewrap"><table>
+      <tr><th>Layer</th><th>Implemented today</th><th>Proposed next</th></tr>
+      <tr><td class="sans"><strong>Market intelligence engine</strong></td><td>Aggregation pipeline (54 sources → classification, keywords, impact levels, Supabase); manufacturing desk feeds; ProfitTygr live market data (Keepa); the archive analyses in Section 4 with reproducible SQL (appendix)</td><td>Scheduled monthly runs of the CPI/keyword-acceleration queries; marketplace price/seller-count sampling beyond one catalog; complaint-theme mining from review data</td></tr>
+      <tr><td class="sans"><strong>Strategic decision engine</strong></td><td>ProfitTygr pricing engine (exact floor/ladder math, elasticity-based Monte Carlo sales forecasting, reverse max-buy sourcing) — tested, deterministic; the opportunity-scoring rubric of Section 6</td><td>DAMH density penalty wired into sourcing; automated opportunity flags joining search-interest, complaint, and density signals; backtests for the CPI</td></tr>
+      <tr><td class="sans"><strong>Intelligence dossier</strong></td><td>This publication; forecast ledger <code>intel_forecasts</code> created in the production database with all 12 forecasts, probabilities, indicators, and resolve-by dates</td><td>Monthly edition cadence; a public-facing "forecast scoreboard" page once ≥5 forecasts have resolved, showing calibration honestly</td></tr>
+    </table></div>
+    <p><strong>The critical requirement, honored:</strong> nothing here claims to be a continuously learning system. What exists is the storage-and-scoring mechanism that makes learning possible — forecasts are written to a ledger with resolution dates, and the next edition is obligated to score them. The first calibration read arrives when the holiday forecasts (F1–F4) resolve in January 2027.</p>
+
+    <h3>Confidence vocabulary</h3>
+    <p><span class="tag obs">Observed</span> measured directly in our datasets, query reproducible. <span class="tag rep">Reported</span> external source with publisher and date; conflicts disclosed. <span class="tag hyp">Hypothesis</span> consistent with evidence, not yet validated; never the basis of a recommendation on its own. <span class="tag fct">Forecast</span> probabilistic judgment logged for later scoring. Probabilities are calibrated judgments, not model outputs; we expect ~70% of our p=0.7 claims to resolve true, and the ledger will show whether we achieve that.</p>
+
+    <details class="appendix">
+      <summary>Appendix: reproducible queries (archive analyses, Section 4)</summary>
+      <pre>
+-- Category share by month (fixed panel; relevant only)
+select category, date_trunc('month', published_at)::date mo, count(*)
+from articles where relevant and published_at >= '2026-04-01'
+group by 1,2 order by 1,2;
+
+-- Source-mix confound check
+select date_trunc('month', published_at)::date mo,
+       count(distinct source_name) sources, count(*) n
+from articles where relevant and category='logistics'
+  and published_at >= '2026-04-01' group by 1 order by 1;
+
+-- Keyword acceleration (last 8 weeks vs Apr-Aug baseline, rate-normalized)
+with recent as (select k.keyword, count(*) n from article_keywords k
+  join articles a on a.id=k.article_id
+  where a.relevant and a.published_at >= '2026-08-20' group by 1),
+prior as (select k.keyword, count(*) n from article_keywords k
+  join articles a on a.id=k.article_id
+  where a.relevant and a.published_at >= '2026-04-01'
+    and a.published_at < '2026-08-20' group by 1)
+select r.keyword, r.n n_recent, coalesce(p.n,0) n_prior,
+  round(r.n::numeric/(coalesce(p.n,0)*(55.0/141.0)+1),2) accel
+from recent r left join prior p using (keyword)
+where r.n >= 12 order by accel desc limit 40;
+
+-- Catalog statistics: see lib/repricer analysis script (node),
+-- Spearman rank correlations computed with midrank ties.</pre>
+    </details>
+  </div>
+</section>
+
+<footer>
+  MarketplaceBeta Intelligence Dossier · Edition 1 · October 14, 2026<br>
+  BeaconPath Holdings, LLC © 2026 · DBA RD Consulting · Companion publications: MarketplaceBeta (marketplacebeta.com) · MeshNomics (meshnomics.com)<br>
+  This dossier is market intelligence, not investment, legal, or tax advice. All third-party figures belong to their cited publishers; verify fee rates against each platform's current schedule before acting.
+</footer>
+
+</body>
+</html>
