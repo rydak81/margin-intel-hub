@@ -5,9 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <link rel="icon" href="/brand-icon.png">
 <link rel="canonical" href="https://marketplacebeta.com/intelligence/dossier">
-</head>
-<body style="margin:0">
-<title>MarketplaceBeta Intelligence Dossier</title>
+<title>The 2026 Margin Squeeze | MarketplaceBeta Intelligence Dossier</title>
+<meta name="description" content="Read the October 2026 MarketplaceBeta intelligence dossier: marketplace margins, operating risks, opportunities, and a dated forecast ledger.">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
 <style>
@@ -135,7 +134,23 @@
   footer { margin-top: 3rem; padding: 1.6rem 0 2.6rem; border-top: 1px solid var(--hairline); font-family: var(--sans); font-size: .78rem; color: var(--muted); text-align: center; line-height: 1.8; }
 
   @media (max-width: 480px) { table { min-width: 460px; } body { font-size: 16.5px; } }
+  .reader-nav { display: flex; flex-wrap: wrap; gap: .6rem 1.2rem; padding-block: 1rem; font-family: var(--sans); font-size: .85rem; border-bottom: 1px solid var(--hairline); }
+  .reader-next { margin-block: 2rem; padding: 1.5rem; border: 1px solid var(--hairline); border-radius: 10px; background: var(--surface); }
+  .reader-next h2 { font-size: 1.4rem; }
+  .reader-actions { display: flex; flex-wrap: wrap; gap: .75rem; font-family: var(--sans); font-size: .9rem; }
+  .reader-actions a { padding: .65rem .9rem; border: 1px solid var(--accent); border-radius: 6px; }
+  .reader-actions .primary { color: var(--surface); background: var(--accent); font-weight: 700; }
+  a:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+  @media print { .reader-nav, .reader-next { display: none; } }
 </style>
+</head>
+<body>
+<nav class="reader-nav wrap" aria-label="MarketplaceBeta navigation">
+  <a href="/">MarketplaceBeta home</a>
+  <a href="/intelligence/dossier">Dossier overview</a>
+  <a href="#methodology">Evidence and methodology</a>
+  <a href="/newsletter?source=dossier_2026_10#subscribe">Subscribe free</a>
+</nav>
 
 <header class="masthead">
   <div class="wrap">
@@ -549,6 +564,17 @@ where r.n >= 12 order by accel desc limit 40;
   </div>
 </section>
 
+<aside class="reader-next wrap" aria-labelledby="reader-next-title">
+  <h2 id="reader-next-title">Keep following the margin story.</h2>
+  <p>Get the free Daily Marketplace Brief for marketplace developments and operator context. Dossier editions and forecast scorecards are part of the coverage as they are published.</p>
+  <div class="reader-actions">
+    <a class="primary" href="/newsletter?source=dossier_2026_10#subscribe">Subscribe free</a>
+    <a href="/news">Browse source-linked coverage</a>
+    <a href="#methodology">Review evidence and limitations</a>
+  </div>
+  <p style="margin-top:1rem;font-family:var(--sans);font-size:.8rem">Free to subscribe. Unsubscribe anytime. This report stays available without signing up.</p>
+</aside>
+
 <footer>
   MarketplaceBeta Intelligence Dossier · Edition 1 · October 14, 2026<br>
   BeaconPath Holdings, LLC © 2026 · DBA RD Consulting · Companion publications: MarketplaceBeta (marketplacebeta.com) · MeshNomics (meshnomics.com)<br>
@@ -557,3 +583,4 @@ where r.n >= 12 order by accel desc limit 40;
 
 </body>
 </html>
+
