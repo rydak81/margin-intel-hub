@@ -44,7 +44,8 @@ import {
   Trash2,
 } from "lucide-react"
 
-import { SEED_CATALOG, summarizeCatalog } from "@/lib/repricer/catalog"
+import { parseCatalogCsv, summarizeCatalog } from "@/lib/repricer/catalog"
+import { useCatalog } from "@/components/repricer/use-catalog"
 import { decide, DEFAULT_STRATEGY, pricingInputsFor } from "@/lib/repricer/decision"
 import { estimateCost, parseCostCsv } from "@/lib/repricer/costs"
 import {
@@ -110,6 +111,10 @@ export function RepricerDashboard() {
   const [search, setSearch] = useState("")
   const [selectedAsin, setSelectedAsin] = useState<string | null>(null)
   const [importOpen, setImportOpen] = useState(false)
+  const { items: catalogItems, isSample, importCatalog, resetToSample } = useCatalog()
+  const [catalogOpen, setCatalogOpen] = useState(false)
+  const [catalogText, setCatalogText] = useState("")
+  const [catalogReport, setCatalogReport] = useState<string[]>([])
   const [feesOpen, setFeesOpen] = useState(false)
   const [feeOverrides, setFeeOverrides] = useState<FeeOverrides>({})
   const [importText, setImportText] = useState("")
@@ -140,13 +145,13 @@ export function RepricerDashboard() {
 
   const decisions = useMemo(() => {
     const map = new Map<string, Decision>()
-    for (const it of SEED_CATALOG) {
+    for (const it of catalogItems) {
       map.set(it.asin, decide(it, costs[it.asin] ?? null, marketplace, strategy, feeOverrides))
     }
     return map
-  }, [costs, marketplace, strategy, feeOverrides])
+  }, [catalogItems, costs, marketplace, strategy, feeOverrides])
 
-  const summary = useMemo(() => summarizeCatalog(SEED_CATALOG), [])
+  const summary = useMemo(() => summarizeCatalog(catalogItems), [catalogItems])
   const counts = useMemo(() => {
     const c = { REPRICE: 0, HOLD_ABOVE_MARKET: 0, EXCLUDED_NO_COST: 0, NO_MARKET_DATA: 0 }
     decisions.forEach((d) => c[d.action]++)
@@ -154,13 +159,13 @@ export function RepricerDashboard() {
   }, [decisions])
 
   const categories = useMemo(
-    () => Array.from(new Set(SEED_CATALOG.map((i) => i.category))),
-    [],
+    () => Array.from(new Set(catalogItems.map((i) => i.category))),
+    [catalogItems],
   )
 
   const rows = useMemo(() => {
     const q = search.trim().toLowerCase()
-    return SEED_CATALOG.filter((i) => {
+    return catalogItems.filter((i) => {
       if (categoryFilter !== "all" && i.category !== categoryFilter) return false
       const d = decisions.get(i.asin)!
       if (actionFilter !== "all" && d.action !== actionFilter) return false
@@ -168,16 +173,16 @@ export function RepricerDashboard() {
         return false
       return true
     })
-  }, [categoryFilter, actionFilter, search, decisions])
+  }, [catalogItems, categoryFilter, actionFilter, search, decisions])
 
   const selected = selectedAsin
-    ? SEED_CATALOG.find((i) => i.asin === selectedAsin) ?? null
+    ? catalogItems.find((i) => i.asin === selectedAsin) ?? null
     : null
 
   const loadEstimates = () => {
     const today = new Date().toISOString().slice(0, 10)
     const next = { ...costs }
-    for (const it of SEED_CATALOG) {
+    for (const it of catalogItems) {
       if (next[it.asin] && !next[it.asin].estimated) continue // keep real costs
       const est = estimateCost(it, today)
       if (est) next[it.asin] = est
@@ -186,7 +191,7 @@ export function RepricerDashboard() {
   }
 
   const runImport = () => {
-    const result = parseCostCsv(importText, SEED_CATALOG)
+    const result = parseCostCsv(importText, catalogItems)
     const next = { ...costs }
     for (const rec of result.accepted) next[rec.asin] = rec
     setCosts(next)
@@ -318,6 +323,10 @@ export function RepricerDashboard() {
             <FileUp className="mr-2 h-4 w-4" />
             Import cost CSV
           </Button>
+          <Button size="sm" variant="outline" onClick={() => setCatalogOpen(true)}>
+            <FileUp className="mr-2 h-4 w-4" />
+            Import your catalog
+          </Button>
           <Button size="sm" variant="outline" onClick={() => setFeesOpen(true)}>
             <Percent className="mr-2 h-4 w-4" />
             Edit platform fees
@@ -368,7 +377,10 @@ export function RepricerDashboard() {
           </SelectContent>
         </Select>
         <span className="text-sm text-muted-foreground">
-          {rows.length} of {SEED_CATALOG.length} SKUs
+          {rows.length} of {catalogItems.length} SKUs
+        </span>
+        <span className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${isSample ? "border-sky-400/40 text-sky-700 dark:text-sky-300" : "border-emerald-500/40 text-emerald-700 dark:text-emerald-300"}`}>
+          {isSample ? "Sample catalog" : "Your catalog"}
         </span>
       </div>
 
@@ -499,6 +511,68 @@ export function RepricerDashboard() {
             </DialogDescription>
           </DialogHeader>
           <FeeEditor overrides={feeOverrides} onChange={setFeeOverrides} />
+        </DialogContent>
+      </Dialog>
+
+      {/* Catalog import dialog */}
+      <Dialog open={catalogOpen} onOpenChange={setCatalogOpen}>
+        <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Import your catalog</DialogTitle>
+            <DialogDescription>
+              Replace the sample catalog with your own SKUs. Paste CSV with columns: asin, title,
+              category ({"iPad / iPhone / MacBook Air / MacBook Pro / Apple Watch"}), current_price,
+              lowest_competitor, competing_sellers, buybox_price, buybox_holder, has_buybox, rating,
+              review_count, monthly_sales_band. Only the first four are required; your data stays in
+              this browser only.
+            </DialogDescription>
+          </DialogHeader>
+          <Textarea
+            value={catalogText}
+            onChange={(e) => setCatalogText(e.target.value)}
+            rows={8}
+            placeholder={"asin,title,category,current_price,lowest_competitor\nB08264XHCZ,iPad 8th Gen 32GB,iPad,129.99,117.50"}
+            className="font-mono text-xs"
+          />
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              onClick={() => {
+                const result = parseCatalogCsv(catalogText)
+                const report: string[] = []
+                if (result.accepted.length) {
+                  importCatalog(result.accepted)
+                  report.push(`Imported ${result.accepted.length} SKU(s) — now pricing your catalog.`)
+                } else {
+                  report.push("Nothing imported: no valid rows found.")
+                }
+                for (const r of result.rejected) report.push(`Rejected line ${r.line}: ${r.reason}`)
+                setCatalogReport(report)
+              }}
+            >
+              Import
+            </Button>
+            {!isSample && (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  resetToSample()
+                  setCatalogReport(["Restored the sample catalog."])
+                }}
+              >
+                Reset to sample catalog
+              </Button>
+            )}
+            <Button variant="ghost" onClick={() => setCatalogOpen(false)}>
+              Close
+            </Button>
+          </div>
+          {catalogReport.length > 0 && (
+            <div className="rounded-lg border bg-muted/40 p-3 text-xs">
+              {catalogReport.map((line, i) => (
+                <div key={i}>{line}</div>
+              ))}
+            </div>
+          )}
         </DialogContent>
       </Dialog>
 

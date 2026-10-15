@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/select"
 import { AlertTriangle, Maximize2 } from "lucide-react"
 
-import { SEED_CATALOG } from "@/lib/repricer/catalog"
+import { useCatalog } from "@/components/repricer/use-catalog"
 import { decide, DEFAULT_STRATEGY } from "@/lib/repricer/decision"
 import { generateSampleHistory, trimLeadingEmpty, type HistoryPoint } from "@/lib/repricer/history"
 import type { CostRecord, StrategyConfig } from "@/lib/repricer/types"
@@ -34,7 +34,8 @@ import { CHROME, SERIES, useDarkMode } from "./chart-theme"
 import { HistoryExplorer } from "./history-explorer"
 
 export function HistoryView({ basePath = "/history" }: { basePath?: string } = {}) {
-  const [asin, setAsin] = useState(SEED_CATALOG[0].asin)
+  const { items: catalogItems } = useCatalog()
+  const [asin, setAsin] = useState(catalogItems[0].asin)
   const [search, setSearch] = useState("")
   const [points, setPoints] = useState<HistoryPoint[]>([])
   const [source, setSource] = useState<"keepa" | "sample">("sample")
@@ -46,14 +47,14 @@ export function HistoryView({ basePath = "/history" }: { basePath?: string } = {
   const colors = dark ? SERIES.dark : SERIES.light
   const chrome = dark ? CHROME.dark : CHROME.light
 
-  const item = SEED_CATALOG.find((i) => i.asin === asin)!
+  const item = catalogItems.find((i) => i.asin === asin) ?? catalogItems[0]
 
   const options = useMemo(() => {
     const q = search.trim().toLowerCase()
-    return SEED_CATALOG.filter(
+    return catalogItems.filter(
       (i) => !q || i.title.toLowerCase().includes(q) || i.asin.toLowerCase().includes(q),
     )
-  }, [search])
+  }, [catalogItems, search])
 
   // Floor from the same local data the dashboard uses (costs + strategy + fees).
   useEffect(() => {

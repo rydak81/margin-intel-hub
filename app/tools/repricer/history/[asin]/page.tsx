@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation"
-import { SEED_CATALOG } from "@/lib/repricer/catalog"
+
 import type { Metadata } from "next"
 import { PremiumSiteFooter } from "@/components/premium-site-footer"
 import { PremiumSiteHeader } from "@/components/premium-site-header"
@@ -20,7 +20,7 @@ export default async function RepricerMetricDetailPage({
   searchParams: Promise<{ metric?: string }>
 }) {
   const { asin } = await params
-  if (!SEED_CATALOG.some(item => item.asin === asin)) notFound()
+  if (!/^B0[A-Z0-9]{8}$/i.test(asin)) notFound()
   const sp = await searchParams
   const metric: Metric = sp.metric === "sellers" || sp.metric === "sales" ? sp.metric : "price"
 

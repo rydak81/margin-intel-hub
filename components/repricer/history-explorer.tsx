@@ -37,7 +37,7 @@ import {
 } from "@/components/ui/select"
 import { AlertTriangle } from "lucide-react"
 
-import { SEED_CATALOG } from "@/lib/repricer/catalog"
+import { useCatalog } from "@/components/repricer/use-catalog"
 import { decide, DEFAULT_STRATEGY } from "@/lib/repricer/decision"
 import { generateSampleHistory, trimLeadingEmpty, type HistoryPoint } from "@/lib/repricer/history"
 import type { CostRecord, PriceLadder, StrategyConfig } from "@/lib/repricer/types"
@@ -88,14 +88,15 @@ export function HistoryExplorer({
     if (open) setAsin(initialAsin)
   }, [open, initialAsin])
 
-  const item = SEED_CATALOG.find((i) => i.asin === asin) ?? SEED_CATALOG[0]
+  const { items: catalogItems } = useCatalog()
+  const item = catalogItems.find((i) => i.asin === asin) ?? catalogItems[0]
 
   const options = useMemo(() => {
     const q = search.trim().toLowerCase()
-    return SEED_CATALOG.filter(
+    return catalogItems.filter(
       (i) => !q || i.title.toLowerCase().includes(q) || i.asin.toLowerCase().includes(q),
     )
-  }, [search])
+  }, [catalogItems, search])
 
   // Strategy ladder (floor/target) from the dashboard's saved local state.
   useEffect(() => {

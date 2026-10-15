@@ -44,7 +44,7 @@ export default function RepricerPage() {
           </p>
           <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
             <Badge variant="outline" className="border-sky-400/30 text-sky-700 dark:text-sky-300">
-              Historical example catalog · 77 Amazon Renewed SKUs · August 5, 2026
+              Sample catalog · 77 refurbished-Apple SKUs · anonymized real-market snapshot · importable with your own
             </Badge>
             <Badge variant="outline" className="border-amber-500/40 text-amber-700 dark:text-amber-300">
               Dry-run only — never submits price changes

@@ -525,3 +525,39 @@ describe("sales forecasting", async () => {
     expect(addMonths("2026-11", 3)).toBe("2027-02")
   })
 })
+
+import { parseCatalogCsv } from "./catalog"
+
+describe("catalog import", () => {
+  it("accepts valid rows, uppercases ASINs, and tolerates blank optional numbers", () => {
+    const res = parseCatalogCsv(
+      "asin,title,category,current_price,lowest_competitor,competing_sellers,buybox_price,buybox_holder,has_buybox\n" +
+        "b0test1234,iPad 9th Gen 64GB,iPad,149.99,139.50,12,,Seller A,yes\n" +
+        "B0ABCD1234,MacBook Air M1,MacBook Air,649,,,,,"
+    )
+    expect(res.accepted).toHaveLength(2)
+    expect(res.rejected).toHaveLength(0)
+    expect(res.accepted[0].asin).toBe("B0TEST1234")
+    expect(res.accepted[0].hasBuybox).toBe(true)
+    expect(res.accepted[0].buyboxPrice).toBeNull()
+    expect(res.accepted[1].lowestCompetitor).toBeNull()
+    expect(res.accepted[1].hasBuybox).toBe(false)
+  })
+
+  it("rejects invalid ASINs, duplicates, bad categories, and negative numbers", () => {
+    const res = parseCatalogCsv(
+      "asin,title,category,current_price\n" +
+        "NOTANASIN,Thing,iPad,10\n" +
+        "B0TEST1234,Watch SE,Apple Watch,99\n" +
+        "B0TEST1234,Watch SE again,Apple Watch,99\n" +
+        "B0TEST9999,Widget,Toaster,10\n" +
+        "B0TEST8888,iPhone 12,iPhone,-5"
+    )
+    expect(res.accepted).toHaveLength(1)
+    expect(res.rejected).toHaveLength(4)
+    expect(res.rejected.map((r) => r.reason).join(" ")).toMatch(/Invalid ASIN/)
+    expect(res.rejected.map((r) => r.reason).join(" ")).toMatch(/duplicate/)
+    expect(res.rejected.map((r) => r.reason).join(" ")).toMatch(/category/)
+    expect(res.rejected.map((r) => r.reason).join(" ")).toMatch(/invalid currentPrice/)
+  })
+})
