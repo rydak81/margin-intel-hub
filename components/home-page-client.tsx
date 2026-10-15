@@ -440,6 +440,11 @@ export default function HomePageClient({
       <section className="editorial-hero border-b border-border bg-card">
         <div className="mx-auto grid site-width gap-10 px-4 py-8 sm:px-6 md:py-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(360px,.9fr)] lg:items-center lg:gap-12">
           <div>
+            <Link href="/intelligence/dossier" className="mb-5 inline-flex max-w-full flex-wrap items-center gap-2 rounded-full border border-blue-600/30 bg-blue-500/10 px-4 py-1.5 text-sm font-semibold text-blue-700 hover:border-blue-600/60 dark:text-blue-300">
+              <span className="rounded-full bg-blue-600 px-2 py-0.5 text-[.68rem] font-bold uppercase tracking-wider text-white">New</span>
+              Intelligence Dossier, Edition 1: The 2026 Margin Squeeze
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
             <p className="mb-5 flex items-center gap-2.5 text-sm font-semibold tracking-wide text-blue-700 dark:text-blue-300">
               <span className="h-2 w-2 rounded-full bg-blue-600" />The marketplace intelligence desk
             </p>
