@@ -14,6 +14,9 @@ import {
   rateLabel,
 } from "@/lib/marketplace-fees"
 import { ArrowUpRight, ExternalLink } from "lucide-react"
+import { RecommendedTools } from "@/components/recommended-tools"
+import { getRecommendedOffers } from "@/lib/affiliates"
+import { getPairsFor } from "@/lib/fee-compare"
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://marketplacebeta.com"
 
@@ -227,6 +230,32 @@ export default async function FeeCategoryPage({ params }: PageProps) {
             </div>
           </section>
         )}
+
+        <section className="mt-12">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+            Compare {marketplace.shortName} fees with other marketplaces
+          </h2>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {getPairsFor(marketplace.slug).map((pair) => {
+              const other = pair.a.slug === marketplace.slug ? pair.b : pair.a
+              return (
+                <Link
+                  key={pair.slug}
+                  href={`/fees/compare/${pair.slug}`}
+                  className="rounded-full border border-slate-200 px-3 py-1.5 text-sm text-slate-700 transition hover:border-sky-400 hover:text-sky-700 dark:border-white/10 dark:text-slate-300"
+                >
+                  {marketplace.shortName} vs {other.shortName}
+                </Link>
+              )
+            })}
+          </div>
+        </section>
+
+        <RecommendedTools
+          offers={getRecommendedOffers({ marketplace: marketplace.slug, topic: "profitability" })}
+          placement={`fees-${marketplace.slug}`}
+          className="mt-12"
+        />
 
         <section className="mt-12">
           <h2 className="text-2xl font-bold text-slate-900 dark:text-white">

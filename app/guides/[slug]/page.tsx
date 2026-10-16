@@ -7,6 +7,14 @@ import { PremiumSiteFooter } from '@/components/premium-site-footer'
 import { GuideScenarioCalculator } from '@/components/guide-scenario-calculator'
 import type { GuideScenario } from '@/lib/guide-calculations'
 import { ResourceLink } from '@/components/resource-link'
+import { RecommendedTools } from '@/components/recommended-tools'
+import { getRecommendedOffers } from '@/lib/affiliates'
+
+const GUIDE_OFFERS: Record<string, string[]> = {
+  'product-profitability': ['a2x', 'helium10', 'keepa'],
+  'break-even-advertising': ['helium10', 'junglescout', 'a2x'],
+  'adding-a-marketplace': ['a2x', 'linkmybooks', 'junglescout'],
+}
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://marketplacebeta.com'
 type Props = { params: Promise<{ slug: string }> }
 export function generateStaticParams() { return OPERATOR_GUIDES.map(({ slug }) => ({ slug })) }
@@ -53,6 +61,7 @@ export default async function GuidePage({ params }: Props) {
           <div className="rounded-2xl bg-slate-950 p-6 text-white editorial-elevated"><h2 className="text-xl font-bold">Put it into practice</h2><ResourceLink event="resource_download_click" resource={slug} href={guide.download.href} download className="mt-5 block rounded-lg bg-blue-600 px-4 py-3 text-sm font-bold text-white">{guide.download.label} ↓</ResourceLink><p className="mt-3 text-xs text-slate-300">Free printable HTML · no signup</p><ResourceLink event="guide_tool_click" resource={slug} href="/tools#profit" className="mt-5 block text-sm font-bold text-blue-200">Open the profit calculator →</ResourceLink><ResourceLink event="guide_newsletter_click" resource={slug} href="/newsletter" className="mt-4 block text-sm font-bold text-blue-200">Explore the daily brief →</ResourceLink></div>
         </aside>
       </div>
+      <RecommendedTools offers={getRecommendedOffers({ ids: GUIDE_OFFERS[slug], topic: 'tools' })} placement={`guide-${slug}`} className="mt-12" />
       <section className="mt-12"><h2 className="text-2xl font-bold">Continue your research</h2><div className="mt-5 grid gap-5 sm:grid-cols-2">{OPERATOR_GUIDES.filter(g => g.slug !== slug).map(g => <Link key={g.slug} href={`/guides/${g.slug}`} className="editorial-elevated editorial-lift rounded-xl border border-border bg-card p-6 font-bold">{g.title} →</Link>)}</div></section>
     </main><PremiumSiteFooter /></div>
 }

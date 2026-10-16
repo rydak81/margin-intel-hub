@@ -3,6 +3,7 @@ import { isOperatorRelevant } from '@/lib/operator-editorial-policy'
 import type { MetadataRoute } from 'next'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { MARKETPLACES, getAllFeeRoutes } from '@/lib/marketplace-fees'
+import { getAllPairs } from '@/lib/fee-compare'
 
 export const revalidate = 300
 
@@ -44,7 +45,7 @@ const staticRoutes: MetadataRoute.Sitemap = [
     changeFrequency: 'weekly' as const,
     priority: 0.7,
   })),
-  ...['partners', 'solutions', 'community'].map(path => ({
+  ...['partners', 'solutions', 'community', 'sponsor'].map(path => ({
     url: `${siteUrl}/${path}`,
     lastModified: new Date(SITE_SECTIONS_UPDATED),
     changeFrequency: 'weekly' as const,
@@ -128,7 +129,14 @@ function getFeeRoutes(): MetadataRoute.Sitemap {
     priority: 0.7,
   }))
 
-  return [...hub, ...categories]
+  const comparisons: MetadataRoute.Sitemap = getAllPairs().map((pair) => ({
+    url: `${siteUrl}/fees/compare/${pair.slug}`,
+    lastModified: new Date(Math.max(Date.parse(pair.a.lastVerified), Date.parse(pair.b.lastVerified))),
+    changeFrequency: 'weekly',
+    priority: 0.7,
+  }))
+
+  return [...hub, ...comparisons, ...categories]
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

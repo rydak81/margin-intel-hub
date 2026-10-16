@@ -6,6 +6,8 @@ import { RepricerDashboard } from "@/components/repricer/repricer-dashboard"
 import { TygrLogo } from "@/components/repricer/tygr-logo"
 import { Badge } from "@/components/ui/badge"
 import { Sparkles } from "lucide-react"
+import { RecommendedTools } from "@/components/recommended-tools"
+import { getRecommendedOffers } from "@/lib/affiliates"
 
 export const metadata: Metadata = {
   alternates: { canonical: "https://marketplacebeta.com/tools/repricer" },
@@ -76,6 +78,7 @@ export default function RepricerPage() {
         </nav>
         <p className="mb-5 rounded-xl border bg-card p-4 text-sm text-muted-foreground">Historical example data, not live inventory. Fee rates are editable assumptions: verify your actual marketplace charges before making a pricing decision. Costs and settings are saved only in this browser.</p>
         <RepricerDashboard />
+        <RecommendedTools offers={getRecommendedOffers({ ids: ["repricer", "keepa", "helium10"] })} placement="tools-repricer" title="Tools that pair with repricing" className="mt-10" />
       </main>
 
       <PremiumSiteFooter />
