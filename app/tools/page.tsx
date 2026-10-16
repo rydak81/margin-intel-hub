@@ -10,6 +10,8 @@ import { PremiumSiteFooter } from "@/components/premium-site-footer"
 import { PremiumSiteHeader } from "@/components/premium-site-header"
 import { SiteBrand } from "@/components/site-brand"
 import { ProfitCalculator } from "@/components/profit-calculator"
+import { RecommendedTools } from "@/components/recommended-tools"
+import { getRecommendedOffers } from "@/lib/affiliates"
 import { SalesForecaster } from "@/components/sales-forecaster"
 import { ListingOptimizer } from "@/components/listing-optimizer"
 import { KeywordTrends } from "@/components/keyword-trends"
@@ -240,6 +242,7 @@ export default function ToolsPage() {
             </Link>
           </Button>
         </div>
+        <RecommendedTools offers={getRecommendedOffers({ ids: ["helium10", "a2x", "keepa"] })} placement="tools-hub" className="mt-12" />
       </main>
 
       {/* Footer */}

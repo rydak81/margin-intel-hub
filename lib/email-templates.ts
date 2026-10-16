@@ -2,6 +2,33 @@
 // HTML email templates for MarketplaceBeta newsletters
 // Uses inline styles for maximum email client compatibility
 
+import { getNewsletterSponsor, type NewsletterSponsor } from './sponsorship'
+
+function escapeHtml(value: string): string {
+  return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;')
+}
+
+/** Optional newsletter sponsor block. Empty string when no sponsor is configured. */
+export function renderSponsorSlot(sponsor: NewsletterSponsor | null = getNewsletterSponsor()): string {
+  if (!sponsor) return ''
+  const name = escapeHtml(sponsor.name)
+  const url = escapeHtml(sponsor.url)
+  const tagline = sponsor.tagline ? `<p style="color: #334155; font-size: 14px; line-height: 1.5; margin: 6px 0 0 0;">${escapeHtml(sponsor.tagline)}</p>` : ''
+  const cta = escapeHtml(sponsor.ctaText || `Learn more about ${sponsor.name}`)
+  return `
+              <!-- Sponsor -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top: 28px; border: 1px solid #dbe4f0; border-radius: 10px; background: #f8fafc;">
+                <tr>
+                  <td style="padding: 16px 20px;">
+                    <p style="color: #64748b; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; margin: 0;">Sponsored</p>
+                    <p style="color: #0f172a; font-size: 16px; font-weight: 600; margin: 6px 0 0 0;">${name}</p>
+                    ${tagline}
+                    <a href="${url}" rel="sponsored nofollow noopener" style="display: inline-block; margin-top: 10px; color: #2563eb; font-size: 14px; font-weight: 600;">${cta} &rarr;</a>
+                  </td>
+                </tr>
+              </table>`
+}
+
 interface DailyBriefData {
   briefContent: string  // AI-generated brief text
   date: string
@@ -187,6 +214,7 @@ export function generateDailyBriefEmail(data: DailyBriefData): string {
 
               <!-- AI Brief Content -->
               ${briefHtml}
+${renderSponsorSlot()}
 
               <!-- CTA -->
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top: 32px;">

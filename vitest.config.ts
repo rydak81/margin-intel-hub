@@ -2,5 +2,5 @@ import { defineConfig } from 'vitest/config'
 import { fileURLToPath } from 'node:url'
 export default defineConfig({
   resolve: { alias: { '@': fileURLToPath(new URL('.', import.meta.url)) } },
-  test: { include: ['lib/repricer/**/*.test.ts'], environment: 'node' },
+  test: { include: ['lib/repricer/**/*.test.ts', 'lib/revenue-plumbing.test.ts'], environment: 'node' },
 })
