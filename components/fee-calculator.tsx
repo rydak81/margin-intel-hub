@@ -280,7 +280,7 @@ export function FeeCalculator({ marketplace, category }: FeeCalculatorProps) {
                     const feeBase = salePrice + buyerShipping
                     const effectivePct = feeBase > 0 ? (referralLine / feeBase) * 100 : 0
                     return (
-                    <tr key={row.marketplace.slug}>
+                    <tr key={`${row.marketplace.slug}:${row.category.slug}`}>
                       <td className="py-2.5">
                         <Link
                           href={`/fees/${row.marketplace.slug}/${row.category.slug}`}

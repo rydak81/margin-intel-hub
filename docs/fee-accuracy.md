@@ -19,8 +19,16 @@ Unsupported eBay exceptions (including bullion, handbags, athletic shoes, NFTs a
 
 ## Validation
 
-- `npm test`: 70 Vitest tests + 41 Node tests pass (including six fee-accuracy tests with boundary matrices).
+- `npm test`: 70 Vitest tests + 43 Node tests pass (including eight fee-accuracy tests with boundary matrices).
 - `tsc --noEmit`: passes. `next build`: passes, including fee category and comparison routes. `git diff --check`: passes.
 - User's Chrome, local production build: eBay most-category totals $1.66 at $10 and $1.76 at $10.01; $10,000 guitar total $561.65. Amazon/Walmart renders seven supported rows, distinct beauty/personal-care rows, correct electronics totals, and FAQ counts of zero lower-fee rows on either side at $29.99. Amazon/eBay renders the unsupported-mapping state. No newsletter signup or gate bypass was performed.
 - Existing tooling limitations: `npm ci` fails because the npm lockfile lacks declared `@next/third-parties` dependencies. Validation used `npm install --package-lock=false --ignore-scripts` without changing manifests/locks. `npm run lint` cannot run: ESLint is not declared/installed. Type checking, tests and build are not substitutes for that missing lint gate.
 - This records local preview evidence, not production verification. Merge/deployment require review.
+
+## Automated review follow-up
+
+The first review found duplicate React keys in reverse one-to-many mappings and unsupported sale-total promises in unmapped-pair metadata. Category-qualified keys now identify both lists; metadata describes totals only for mapped pairs. Regression coverage exercises reverse mappings across the small-price boundary and descriptions for every generated pair.
+
+The additional discrepancies listed above do not enter the seven approved Amazon/Walmart comparison rows; they require separate category/rate work. They can still affect existing unreviewed category calculators or aggregate schedule ranges, so this PR is not a complete certification of the fee directory.
+
+The npm lockfile issue blocks `npm ci` reproducibility, not the already successful hosted build. The pnpm lockfile contains the declared third-party dependency. ESLint is absent and is not invoked by the build script; this leaves a lint-validation gap rather than a demonstrated runtime/deployment failure. Successful previews establish this commit can build on the configured preview pipeline, not a guarantee about production settings or future installs. Dependency/tooling cleanup belongs in a separate PR.

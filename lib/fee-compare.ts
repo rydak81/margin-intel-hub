@@ -99,3 +99,11 @@ export function overviewRows(a: Marketplace, b: Marketplace): { label: string; a
 }
 
 export { getMarketplace }
+
+/** Search copy must describe only the comparisons actually available. */
+export function comparisonDescription(a: Marketplace, b: Marketplace): string {
+  const scope = matchedCategories(a, b).length
+    ? `supported category comparisons and modeled total fees on a $${EXAMPLE_PRICE} sale`
+    : 'schedule information only; no verified same-product category comparison is available'
+  return `Compare ${a.name} and ${b.name} seller fees: account, listing and processing fees, plus ${scope}.`
+}
