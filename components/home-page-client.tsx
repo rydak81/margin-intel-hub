@@ -452,7 +452,7 @@ export default function HomePageClient({
               Marketplace intelligence<br className="hidden sm:block" /> that keeps score.
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600 md:text-xl dark:text-slate-300">
-              An AI-classified archive of 8,541 marketplace articles from 54 sources since March 2026, public forecasts we grade when they resolve, and an evidence label on every claim. Built for operators who need to know what happens next, not just what happened.
+              An AI-classified archive of 8,541 articles from 54 sources since March 2026, public forecasts we grade when they resolve, and an evidence label on every claim. Built for operators who need to know what happens next, not just what happened.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button size="lg" asChild className="h-12 rounded-lg bg-blue-600 px-6 text-base font-semibold text-white hover:bg-blue-700">
@@ -475,7 +475,7 @@ export default function HomePageClient({
             <Link href="/intelligence/dossier" className="rounded-2xl border border-border bg-card p-6 hover:border-blue-600/50">
               <p className="editorial-eyebrow">Historical archive</p>
               <p className="mt-3 text-3xl font-bold tabular-nums">8,541 articles</p>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">AI-classified by category, platform and impact from a fixed panel of 54 sources, March–October 2026. The base for every pattern we report.</p>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">8,541 articles from 54 sources since March 2026, AI-classified by category, platform and impact. The base for every pattern we report.</p>
             </Link>
             <Link href="/intelligence/forecasts" className="rounded-2xl border border-border bg-card p-6 hover:border-blue-600/50">
               <p className="editorial-eyebrow">Public forecasts</p>
@@ -485,7 +485,7 @@ export default function HomePageClient({
             <Link href="/intelligence/pressure-index" className="rounded-2xl border border-border bg-card p-6 hover:border-blue-600/50">
               <p className="editorial-eyebrow">Evidence labels</p>
               <p className="mt-3 text-3xl font-bold">Observed · Reported · Hypothesis · Forecast</p>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">Every claim says how we know it. Our weekly Pressure Index shows where coverage is building before it becomes the consensus.</p>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">Every claim says how we know it. Our weekly Marketplace Pressure Index shows where coverage is building before it becomes the consensus.</p>
             </Link>
           </div>
         </div>

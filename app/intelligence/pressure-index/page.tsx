@@ -18,7 +18,7 @@ const getIndex = cache(async (): Promise<PressureIndexResult> => computePressure
 export async function generateMetadata(): Promise<Metadata> {
   const index = await getIndex()
   const top = index.rows[0]
-  const ogTitle = top ? `Top mover this week: ${top.label} coverage at ${top.index.toFixed(1)}x its usual level` : 'Weekly Marketplace Pressure Index'
+  const ogTitle = top ? `Marketplace Pressure Index top mover: ${top.label} coverage at ${top.index.toFixed(1)}x its usual level` : 'Weekly Marketplace Pressure Index'
   const ogImage = '/api/og?title=' + encodeURIComponent(ogTitle) + '&category=' + encodeURIComponent('Pressure Index') + (top ? '&headline=' + encodeURIComponent(`${top.index.toFixed(1)}x`) : '')
   return {
     title: 'Marketplace Pressure Index: Weekly Ecommerce Coverage Intensity | MarketplaceBeta',
@@ -73,7 +73,7 @@ export default async function PressureIndexPage() {
       <PremiumSiteHeader active="pressure" backHref="/intelligence" backLabel="Intelligence" ctaHref={CTA} />
       <main className="mx-auto site-width px-4 py-10 sm:px-6">
         <section className="max-w-3xl">
-          <p className="text-xs font-bold uppercase tracking-[.22em] text-blue-700 dark:text-blue-300">Weekly · updated daily</p>
+          <p className="text-xs font-bold uppercase tracking-[.22em] text-blue-700 dark:text-blue-300">Updated weekly</p>
           <h1 className="mt-4 text-4xl font-bold leading-tight tracking-tight sm:text-5xl">Marketplace Pressure Index</h1>
           <p className="mt-5 text-lg leading-8 text-muted-foreground">
             Where is attention building? Each row compares the last 7 days of relevant, AI-classified coverage for a marketplace or topic with its usual week.
@@ -84,7 +84,7 @@ export default async function PressureIndexPage() {
 
         {index.status === 'empty' ? (
           <section className="my-10 rounded-2xl border border-dashed border-border bg-card p-8 text-center">
-            <h2 className="text-xl font-bold">This week&apos;s index is being compiled</h2>
+            <h2 className="text-xl font-bold">This week&apos;s Marketplace Pressure Index is being compiled</h2>
             <p className="mx-auto mt-3 max-w-xl text-muted-foreground">The archive could not be read when this page was last built. It refreshes daily; check back tomorrow, or get the index in the free brief.</p>
             <Link href={CTA} className="mt-5 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700">Get the free brief<ArrowRight className="h-4 w-4" /></Link>
           </section>
@@ -123,6 +123,7 @@ export default async function PressureIndexPage() {
           <div>
             <h2 className="text-2xl font-bold">How the index works</h2>
             <ul className="mt-4 space-y-3 leading-7 text-muted-foreground">
+              <li>The Marketplace Pressure Index extends the monthly coverage pressure analysis in our <Link href="/intelligence/dossier" className="text-primary underline underline-offset-4">Intelligence Dossier</Link> to a weekly cadence. It is a coverage-intensity measure.</li>
               <li>We count relevant, AI-classified articles from our fixed source panel, by platform tag and by topic, for the last 7 days.</li>
               <li>The baseline is that key&apos;s average weekly count from the start of the archive{index.archiveStart ? ` (${fmt(index.archiveStart)}, ${index.weeksOfHistory} full weeks)` : ''} up to, but not including, the current week.</li>
               <li>Index = last 7 days ÷ baseline. Keys averaging under one article a week are left out as too thin to rank.</li>
