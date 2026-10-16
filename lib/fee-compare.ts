@@ -4,6 +4,7 @@ import {
   computeFeeBreakdown,
   getComparableCategories,
   getMarketplace,
+  orderFeeLabel,
   type FeeCategory,
   type Marketplace,
 } from '@/lib/marketplace-fees'
@@ -50,11 +51,9 @@ export const EXAMPLE_PRICE = 29.99
 /** Categories both marketplaces carry, with total fees on an EXAMPLE_PRICE sale (no fulfillment). */
 export function matchedCategories(a: Marketplace, b: Marketplace): MatchedCategoryRow[] {
   const rows: MatchedCategoryRow[] = []
-  const seen = new Set<string>()
   for (const aCategory of a.categories) {
     const match = getComparableCategories(a.slug, aCategory.label).find(e => e.marketplace.slug === b.slug)
-    if (!match || seen.has(match.category.slug)) continue
-    seen.add(match.category.slug)
+    if (!match) continue
     rows.push({
       label: aCategory.label,
       aCategory,
@@ -78,7 +77,7 @@ export function overviewRows(a: Marketplace, b: Marketplace): { label: string; a
       case 'range': { const r = rateRange(m); return r.min === r.max ? `${r.min}%` : `${r.min}% to ${r.max}%` }
       case 'categories': return String(m.categories.length)
       case 'account': return m.accountFee ? `${money(m.accountFee.amount)} / ${m.accountFee.period}${m.accountFee.note ? ` (${m.accountFee.note})` : ''}` : 'None in fee schedule'
-      case 'order': return m.perOrderFee ? `${money(m.perOrderFee)} per order` : 'None in fee schedule'
+      case 'order': return orderFeeLabel(m)
       case 'listing': return m.listingFee ? `${money(m.listingFee)} per listing` : 'None in fee schedule'
       case 'processing': return m.paymentProcessingPct ? `${m.paymentProcessingPct}%${m.paymentProcessingFlat ? ` + ${money(m.paymentProcessingFlat)}` : ''}` : 'Not charged as a separate line'
       case 'fulfillment': return m.fulfillmentName ?? 'No first-party program'

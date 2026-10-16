@@ -52,6 +52,7 @@ export interface Marketplace {
   fulfillmentName: string | null
   /** Flat per-order fee charged on top of the referral fee. */
   perOrderFee?: number
+  smallOrderFee?: { upTo: number; amount: number }
   /** Per-listing fee (Etsy-style). */
   listingFee?: number
   paymentProcessingPct?: number
@@ -78,13 +79,13 @@ const AMAZON_CATEGORIES: FeeCategory[] = [
   },
   { slug: "automotive", label: "Automotive & Powersports", referralPct: 12 },
   {
-    slug: "baby-products", label: "Baby Products", referralPct: 8,
+    slug: "baby-products", minFee: 0.30, label: "Baby Products", referralPct: 8,
     note: "8% on items priced $10 or less; 15% on the whole price when over $10.",
     tierMode: "whole", tiers: [{ upTo: 10, pct: 8 }, { upTo: null, pct: 15 }],
   },
   { slug: "backpacks-handbags", label: "Backpacks & Handbags", referralPct: 15 },
   {
-    slug: "beauty", label: "Beauty", referralPct: 8,
+    slug: "beauty", minFee: 0.30, label: "Beauty", referralPct: 8,
     note: "8% on items priced $10 or less; 15% on the whole price when over $10.",
     tierMode: "whole", tiers: [{ upTo: 10, pct: 8 }, { upTo: null, pct: 15 }],
   },
@@ -95,7 +96,7 @@ const AMAZON_CATEGORIES: FeeCategory[] = [
     tierMode: "whole", tiers: [{ upTo: 15, pct: 5 }, { upTo: 20, pct: 10 }, { upTo: null, pct: 17 }],
   },
   { slug: "computers", label: "Computers", referralPct: 8 },
-  { slug: "consumer-electronics", label: "Consumer Electronics", referralPct: 8 },
+  { slug: "consumer-electronics", minFee: 0.30, label: "Consumer Electronics", referralPct: 8 },
   {
     slug: "electronics-accessories", label: "Electronics Accessories", referralPct: 15,
     note: "15% on the first $100, then 8% on the portion above, with a $0.30 minimum.",
@@ -112,7 +113,7 @@ const AMAZON_CATEGORIES: FeeCategory[] = [
     tierMode: "whole", tiers: [{ upTo: 15, pct: 8 }, { upTo: null, pct: 15 }],
   },
   {
-    slug: "health-personal-care", label: "Health & Personal Care", referralPct: 8,
+    slug: "health-personal-care", minFee: 0.30, label: "Health & Personal Care", referralPct: 8,
     note: "8% on items priced $10 or less; 15% on the whole price when over $10.",
     tierMode: "whole", tiers: [{ upTo: 10, pct: 8 }, { upTo: null, pct: 15 }],
   },
@@ -122,7 +123,7 @@ const AMAZON_CATEGORIES: FeeCategory[] = [
     note: "20% on the first $250, then 5% on the portion above.",
     tierMode: "marginal", tiers: [{ upTo: 250, pct: 20 }, { upTo: null, pct: 5 }],
   },
-  { slug: "kitchen", label: "Kitchen", referralPct: 15 },
+  { slug: "kitchen", minFee: 0.30, label: "Kitchen", referralPct: 15 },
   { slug: "lawn-garden", label: "Lawn & Garden", referralPct: 15 },
   { slug: "luggage", label: "Luggage & Travel Accessories", referralPct: 15 },
   { slug: "musical-instruments", label: "Musical Instruments", referralPct: 15 },
@@ -224,17 +225,28 @@ const TIKTOK_CATEGORIES: FeeCategory[] = [
 // ── eBay ──────────────────────────────────────────────────────────────────────
 
 // Verified 2026-10-16 against https://www.ebay.com/help/selling/fees-credits-invoices/selling-fees?id=4822 (basic, non-Store fees)
+const ebayMarginal = (pct: number): Pick<FeeCategory, 'tierMode' | 'tiers' | 'note'> => ({
+  tierMode: 'marginal', tiers: [{ upTo: 7500, pct }, { upTo: null, pct: 2.35 }],
+  note: `${pct}% on the first $7,500 per item, then 2.35% on the excess.`,
+})
 const EBAY_CATEGORIES: FeeCategory[] = [
-  { slug: "most-categories", label: "Most Categories", referralPct: 13.6 },
-  { slug: "books-movies-music", label: "Books, Movies & Music", referralPct: 15.3 },
-  { slug: "clothing-shoes-accessories", label: "Clothing, Shoes & Accessories", referralPct: 13.6 },
-  { slug: "coins-paper-money", label: "Coins & Paper Money", referralPct: 13.25 },
-  { slug: "computers-tablets", label: "Computers & Tablets", referralPct: 13.6 },
-  { slug: "jewelry-watches", label: "Jewelry & Watches", referralPct: 15 },
-  { slug: "musical-instruments", label: "Musical Instruments & Gear", referralPct: 6.7, note: "6.7% applies to Guitars & Basses; other Musical Instruments & Gear listings pay the 13.6% most-categories rate." },
-  { slug: "sporting-goods", label: "Sporting Goods", referralPct: 13.6 },
-  { slug: "trading-cards", label: "Trading Cards", referralPct: 13.25 },
-  { slug: "video-games-consoles", label: "Video Games & Consoles", referralPct: 13.6 },
+  { slug: "most-categories", label: "Most Categories (excluding special-rate categories)", referralPct: 13.6, ...ebayMarginal(13.6) },
+  { slug: "books-movies-music", label: "Books, Movies & Music (excluding vinyl and NFTs)", referralPct: 15.3, ...ebayMarginal(15.3) },
+  { slug: "clothing-shoes-accessories", label: "Clothing & Accessories (excluding handbags and athletic shoes)", referralPct: 13.6, ...ebayMarginal(13.6) },
+  { slug: "coins-paper-money", label: "Coins & Paper Money (excluding bullion)", referralPct: 13.25, ...ebayMarginal(13.25) },
+  { slug: "computers-tablets", label: "Computers & Tablets", referralPct: 13.6, ...ebayMarginal(13.6) },
+  { slug: "jewelry-watches", label: "Jewelry (excluding watches, parts and accessories)", referralPct: 15,
+    note: "15% on the whole amount at $5,000 or less; 9% on the whole amount above $5,000. Watches have a separate calculator.",
+    tierMode: 'whole', tiers: [{ upTo: 5000, pct: 15 }, { upTo: null, pct: 9 }] },
+  { slug: "watches", label: "Watches, Parts & Accessories", referralPct: 15,
+    note: "15% through $1,000, 6.5% on the portion from $1,000 through $7,500, then 3% on the excess.",
+    tierMode: 'marginal', tiers: [{ upTo: 1000, pct: 15 }, { upTo: 7500, pct: 6.5 }, { upTo: null, pct: 3 }] },
+  { slug: "musical-instruments", label: "Musical Instruments & Gear (excluding guitars and basses)", referralPct: 13.6, ...ebayMarginal(13.6),
+    note: "13.6% on the first $7,500, then 2.35% on the excess. Guitars and basses have a separate calculator." },
+  { slug: "guitars-basses", label: "Guitars & Basses", referralPct: 6.7, ...ebayMarginal(6.7) },
+  { slug: "sporting-goods", label: "Sporting Goods", referralPct: 13.6, ...ebayMarginal(13.6) },
+  { slug: "trading-cards", label: "Trading Cards (excluding NFTs)", referralPct: 13.25, ...ebayMarginal(13.25) },
+  { slug: "video-games-consoles", label: "Video Games & Consoles", referralPct: 13.6, ...ebayMarginal(13.6) },
 ]
 
 // ── Etsy ──────────────────────────────────────────────────────────────────────
@@ -296,11 +308,12 @@ export const MARKETPLACES: Marketplace[] = [
     feeName: "final value fee",
     fulfillmentName: null,
     perOrderFee: 0.4,
+    smallOrderFee: { upTo: 10, amount: 0.3 },
     // Source: https://www.ebay.com/help/selling/fees-credits-invoices/selling-fees?id=4822 ($0.40 per-order fee on orders over $10; $0.30 at $10 or less)
     sourceUrl: "https://www.ebay.com/help/selling/fees-credits-invoices/selling-fees?id=4822",
     lastVerified: "2026-10-16",
     summary:
-      "eBay charges a final value fee calculated on the total amount of the sale including shipping and tax, plus a flat per-order fee. Rates vary more by category than on most marketplaces, and eBay Store subscribers get reduced rates plus a monthly allocation of zero-insertion-fee listings.",
+      "US eBay.com basic non-Store rates, checked October 16, 2026. One item per order, domestic sale, standard seller performance, no promotions. Final value fees include buyer shipping and collected tax; the per-order charge is $0.30 through $10 and $0.40 above. Calculators assume zero collected tax and handling, and exclude insertion fees, ads, international fees and seller surcharges. Store, vehicle, Live and special-rate categories require their own schedules.",
     categories: EBAY_CATEGORIES,
   },
   {
@@ -352,76 +365,42 @@ export function getAllFeeRoutes(): { marketplace: string; category: string }[] {
 }
 
 /** Catch-all category slugs that stand in when a marketplace has no specific match. */
-const GENERIC_CATEGORY_SLUGS = ["most-categories", "all-categories", "everything-else", "standard"]
-
-/**
- * Cross-marketplace naming synonyms: Amazon says "Clothing", Walmart and
- * TikTok Shop say "Apparel"; Amazon says "Grocery", TikTok says "Food". Tried
- * before the generic catch-all so a marketplace that genuinely carries the
- * category isn't lumped into "Most Categories".
+/** Explicit comparison scope, checked 2026-10-16 against the official US tables.
+ * These are category-level illustrations, not proof of a particular SKU's classification.
+ * See docs/fee-accuracy.md for sources, rationale and excluded categories.
+ * Separate source rows may intentionally share a destination; never deduplicate by target.
  */
-const CATEGORY_SYNONYMS: Record<string, string[]> = {
-  clothing: ["apparel"],
-  apparel: ["clothing"],
-  grocery: ["food"],
-  food: ["grocery"],
-  kitchen: ["kitchenware"],
-  kitchenware: ["kitchen"],
-  sports: ["sporting"],
-  sporting: ["sports"],
-  home: ["house"],
-  jewelry: ["jewellery"],
-  toys: ["toy"],
-  device: ["electronics"],
-  computers: ["electronics"],
-  camera: ["electronics"],
-  cell: ["electronics"],
+export const CATEGORY_COMPARISONS: { amazon: string; walmart: string; rationale: string }[] = [
+  { amazon: 'consumer-electronics', walmart: 'consumer-electronics', rationale: 'Consumer Electronics in both schedules; excludes accessories.' },
+  { amazon: 'electronics-accessories', walmart: 'electronics-accessories', rationale: 'Electronics Accessories in both schedules; excludes Amazon Device Accessories.' },
+  { amazon: 'baby-products', walmart: 'baby', rationale: 'Baby Products in both official tables.' },
+  { amazon: 'beauty', walmart: 'beauty', rationale: 'Beauty subset of Beauty, Health and Personal Care in both tables.' },
+  { amazon: 'health-personal-care', walmart: 'beauty', rationale: 'Health and personal care subset of the same named fee group.' },
+  { amazon: 'grocery', walmart: 'grocery', rationale: 'Grocery in both tables.' },
+  { amazon: 'kitchen', walmart: 'home-garden', rationale: 'Kitchen is within Amazon Home and Kitchen and Walmart Home, Kitchen, Decor & Garden.' },
+]
+
+export function getComparableCategories(marketplaceSlug: string, categoryLabel: string): { marketplace: Marketplace; category: FeeCategory }[] {
+  const source = getMarketplace(marketplaceSlug)
+  const category = source?.categories.find(c => c.label === categoryLabel)
+  if (!category || (marketplaceSlug !== 'amazon' && marketplaceSlug !== 'walmart')) return []
+  const other = marketplaceSlug === 'amazon' ? 'walmart' : 'amazon'
+  const target = getMarketplace(other)!
+  return CATEGORY_COMPARISONS.filter(row => row[marketplaceSlug] === category.slug).flatMap(row => {
+    const match = target.categories.find(c => c.slug === row[other])
+    return match ? [{ marketplace: target, category: match }] : []
+  })
 }
 
-/** Marketplace brand words that lead some category labels ("Amazon Device Accessories"). */
-const BRAND_PREFIX = /^(amazon|walmart|ebay|etsy|tiktok(?:\s+shop)?)\s+/
-
-/**
- * Best category on a marketplace for a given label: exact match, first-word
- * match, synonym match, then the marketplace's catch-all category (eBay "Most
- * Categories", Etsy "All Categories") — so a comparison never silently drops
- * a marketplace that does carry the product.
- */
-function matchCategory(marketplace: Marketplace, categoryLabel: string): FeeCategory | undefined {
-  const normalized = categoryLabel.toLowerCase()
-  // "Amazon Device Accessories" must match on "device", not "amazon" —
-  // marketplace brand words carry no category meaning on other marketplaces.
-  const cleaned = normalized.replace(BRAND_PREFIX, "")
-  const firstWord = cleaned.split(/[\s&,]+/)[0]
-
-  const exact = marketplace.categories.find((c) => c.label.toLowerCase() === normalized)
-  if (exact) return exact
-  const partial = marketplace.categories.find((c) => c.label.toLowerCase().startsWith(firstWord))
-  if (partial) return partial
-  // Synonyms match anywhere in the label ("electronics" hits both
-  // "Electronics Accessories" and "Consumer Electronics").
-  for (const synonym of CATEGORY_SYNONYMS[firstWord] ?? []) {
-    const bySynonym = marketplace.categories.find((c) => c.label.toLowerCase().includes(synonym))
-    if (bySynonym) return bySynonym
-  }
-  if (marketplace.categories.length === 1) return marketplace.categories[0]
-  return marketplace.categories.find((c) => GENERIC_CATEGORY_SLUGS.includes(c.slug))
+export function orderFee(marketplace: Marketplace, feeBase: number): number {
+  return marketplace.smallOrderFee && feeBase <= marketplace.smallOrderFee.upTo
+    ? marketplace.smallOrderFee.amount : marketplace.perOrderFee ?? 0
 }
 
-/**
- * Other marketplaces carrying a category with the same label, so each page can
- * cross-link to its true comparison set rather than an arbitrary list.
- */
-export function getComparableCategories(
-  marketplaceSlug: string,
-  categoryLabel: string,
-): { marketplace: Marketplace; category: FeeCategory }[] {
-  return MARKETPLACES.filter((m) => m.slug !== marketplaceSlug)
-    .map((m) => {
-      const category = matchCategory(m, categoryLabel)
-      return category ? { marketplace: m, category } : null
-    })
-    .filter((entry): entry is { marketplace: Marketplace; category: FeeCategory } => entry !== null)
+export function orderFeeLabel(marketplace: Marketplace): string {
+  const small = marketplace.smallOrderFee
+  return small ? `$${small.amount.toFixed(2)} per order through $${small.upTo}; $${(marketplace.perOrderFee ?? 0).toFixed(2)} above`
+    : marketplace.perOrderFee ? `$${marketplace.perOrderFee.toFixed(2)} per order` : 'None in fee schedule'
 }
 
 // ── Fee math ──────────────────────────────────────────────────────────────────
@@ -532,8 +511,8 @@ export function computeFeeBreakdown({
   if (marketplace.perOrderFee) {
     lines.push({
       label: "Per-order fee",
-      amount: marketplace.perOrderFee,
-      detail: "Flat, charged once per order",
+      amount: orderFee(marketplace, feeBase),
+      detail: orderFeeLabel(marketplace),
     })
   }
 
@@ -591,7 +570,7 @@ function profitAt(
     ? cents(feeBase * (marketplace.paymentProcessingPct / 100) + (marketplace.paymentProcessingFlat ?? 0))
     : 0
   const totalFees = cents(
-    withMin + (marketplace.perOrderFee ?? 0) + (marketplace.listingFee ?? 0) + processing + cents(shippingCost),
+    withMin + orderFee(marketplace, feeBase) + (marketplace.listingFee ?? 0) + processing + cents(shippingCost),
   )
   return cents(cents(feeBase - totalFees) - unitCost)
 }
@@ -620,7 +599,7 @@ function solveBreakEven(
   for (let i = 0; i <= steps; i++) {
     samples.push(0.01 + (upper - 0.01) * (i / steps))
   }
-  for (const tier of category.tiers ?? []) {
+  for (const tier of [...(category.tiers ?? []), ...(marketplace.smallOrderFee ? [{ upTo: marketplace.smallOrderFee.upTo }] : [])]) {
     // Tier thresholds live in fee-base space (price + buyer shipping), so the
     // discontinuity in ITEM price sits at upTo - buyerShipping.
     const boundary = tier.upTo !== null ? tier.upTo - buyerShipping : null
@@ -663,28 +642,24 @@ export function compareAcrossMarketplaces(
   salePrice: number,
   unitCost: number,
   categoryLabel: string,
+  sourceMarketplace: MarketplaceSlug,
   buyerShipping = 0,
   shippingCost = 0,
 ): { marketplace: Marketplace; category: FeeCategory; breakdown: FeeBreakdown }[] {
-  return MARKETPLACES.map((m) => {
-    const category = matchCategory(m, categoryLabel)
-    if (!category) return null
-    return {
-      marketplace: m,
-      category,
-      breakdown: computeFeeBreakdown({ salePrice, unitCost, buyerShipping, shippingCost, marketplace: m, category }),
-    }
-  })
-    .filter(
-      (entry): entry is { marketplace: Marketplace; category: FeeCategory; breakdown: FeeBreakdown } =>
-        entry !== null,
-    )
+  const source = getMarketplace(sourceMarketplace)
+  const sourceCategory = source?.categories.find(c => c.label === categoryLabel)
+  if (!source || !sourceCategory) return []
+  return [{ marketplace: source, category: sourceCategory }, ...getComparableCategories(sourceMarketplace, categoryLabel)]
+    .map(({ marketplace, category }) => ({ marketplace, category,
+      breakdown: computeFeeBreakdown({ salePrice, unitCost, buyerShipping, shippingCost, marketplace, category }),
+    }))
     .sort((a, b) => b.breakdown.profit - a.breakdown.profit)
 }
 
 export function formatVerifiedDate(iso: string): string {
   return new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-US", {
     month: "long",
+    day: "numeric",
     year: "numeric",
     timeZone: "UTC",
   })
