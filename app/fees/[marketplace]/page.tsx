@@ -3,7 +3,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { PremiumSiteHeader } from "@/components/premium-site-header"
 import { PremiumSiteFooter } from "@/components/premium-site-footer"
-import { MARKETPLACES, formatVerifiedDate, getMarketplace } from "@/lib/marketplace-fees"
+import { MARKETPLACES, orderFeeLabel, formatVerifiedDate, getMarketplace } from "@/lib/marketplace-fees"
 import { ExternalLink } from "lucide-react"
 import { JsonLd } from "@/components/json-ld"
 
@@ -144,7 +144,7 @@ export default async function MarketplaceFeesPage({ params }: PageProps) {
                 </li>
               )}
               {marketplace.perOrderFee && (
-                <li>${marketplace.perOrderFee.toFixed(2)} flat per order</li>
+                <li>{orderFeeLabel(marketplace)}</li>
               )}
               {marketplace.listingFee && (
                 <li>${marketplace.listingFee.toFixed(2)} per listing</li>

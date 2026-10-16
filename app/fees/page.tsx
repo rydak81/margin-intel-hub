@@ -13,7 +13,7 @@ export const revalidate = 86400
 
 const title = `Marketplace Seller Fees ${new Date().getFullYear()}: Amazon, Walmart, TikTok Shop, eBay & Etsy`
 const description =
-  "Compare seller fees across every major marketplace. Category-by-category referral rates, a free margin calculator, and side-by-side unit economics for the same product on all five platforms."
+  "Compare seller fees across every major marketplace. Category-by-category referral rates, a free margin calculator, and supported category comparisons with explicit assumptions."
 
 export const metadata: Metadata = {
   title,

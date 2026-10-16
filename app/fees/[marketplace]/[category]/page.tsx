@@ -45,7 +45,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // The date in the title is a real CTR lever on data queries — searchers scan
   // for recency before they click.
   const title = `${marketplace.shortName} ${feeLabel} for ${category.label}: ${rate} (${verified})`
-  const description = `${marketplace.name} charges ${category.tiers ? `a ${rate} ${marketplace.feeName} (tiered by price)` : `a ${rate} ${marketplace.feeName}`} on ${category.label}. See the full fee breakdown, calculate your margin, and compare the same product across Amazon, Walmart, TikTok Shop, eBay, and Etsy.`
+  const description = `${marketplace.name} charges ${category.tiers ? `a ${rate} ${marketplace.feeName} (tiered by price)` : `a ${rate} ${marketplace.feeName}`} on ${category.label}. See the full fee breakdown, calculate your margin, and inspect supported category comparisons.`
   const canonical = `${SITE_URL}/fees/${marketplace.slug}/${category.slug}`
 
   return {
@@ -80,7 +80,7 @@ export default async function FeeCategoryPage({ params }: PageProps) {
   const faqs = [
     {
       question: `What is the ${marketplace.shortName} ${marketplace.feeName} for ${category.label}?`,
-      answer: `${marketplace.name} charges a ${category.referralPct}% ${marketplace.feeName} on ${category.label} sales.${
+      answer: `${marketplace.name} charges a ${rateLabel(category)} ${marketplace.feeName} on ${category.label} sales.${
         category.note ? ` ${category.note}` : ""
       } The fee is calculated on the total sale price.`,
     },
@@ -88,7 +88,7 @@ export default async function FeeCategoryPage({ params }: PageProps) {
       question: `How much do I keep on a $29.99 ${category.label} sale on ${marketplace.shortName}?`,
       answer: `A $29.99 sale incurs $${example.totalFees.toFixed(2)} in total fees (${exampleDetail}), leaving $${example.netProceeds.toFixed(
         2,
-      )} before your product cost and any fulfillment fees.`,
+      )} before product cost and fulfillment, assuming one item per order with zero buyer shipping, handling and collected tax. Account subscriptions and seller-specific surcharges are excluded.`,
     },
     ...(marketplace.fulfillmentName
       ? [

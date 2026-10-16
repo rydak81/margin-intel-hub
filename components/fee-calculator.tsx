@@ -34,8 +34,8 @@ export function FeeCalculator({ marketplace, category }: FeeCalculatorProps) {
   )
 
   const comparison = useMemo(
-    () => compareAcrossMarketplaces(salePrice, unitCost, category.label, buyerShipping, shippingCost),
-    [salePrice, unitCost, category.label, buyerShipping, shippingCost],
+    () => compareAcrossMarketplaces(salePrice, unitCost, category.label, marketplace.slug, buyerShipping, shippingCost),
+    [salePrice, unitCost, category.label, marketplace.slug, buyerShipping, shippingCost],
   )
 
   const profitable = breakdown.profit >= 0
@@ -194,6 +194,7 @@ export function FeeCalculator({ marketplace, category }: FeeCalculatorProps) {
           and break-even price. */}
       <div className="mt-6">
         <FeeUnlockGate
+          subhead="See fee lines, supported category comparisons and your estimated break-even price."
           context={{
             source: `fees/${marketplace.slug}/${category.slug}`,
             marketplace: marketplace.slug,
@@ -241,17 +242,16 @@ export function FeeCalculator({ marketplace, category }: FeeCalculatorProps) {
               {marketplace.slug === "ebay" && (
                 <p className="mt-2 text-xs text-sky-800/80 dark:text-sky-300/70">
                   eBay also applies its final value fee to collected sales tax, which varies by
-                  buyer location and isn&apos;t modeled here — treat these figures as a lower bound
-                  on fees.
+                  buyer location and is assumed to be zero here. One item per order, US basic non-Store schedule, domestic shipping, no handling or seller surcharges. Results are estimates, not an invoice.
                 </p>
               )}
             </div>
 
             <h3 className="mt-7 text-base font-semibold text-slate-900 dark:text-white">
-              Same product, every marketplace
+              Supported category comparisons
             </h3>
             <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-              {money(salePrice)} sale price, {money(unitCost)} unit cost — ranked by profit.
+              {money(salePrice)} sale price, {money(unitCost)} unit cost. Only explicitly mapped categories are shown; confirm your product classification with each marketplace. Missing rows mean no verified comparison, not that the product cannot be sold there.
             </p>
             <div className="mt-3 overflow-x-auto">
               <table className="w-full min-w-[480px] text-sm">

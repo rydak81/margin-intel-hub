@@ -45,7 +45,7 @@ export default async function ComparePage({ params }: PageProps) {
   const faqs = [
     {
       question: `Which has lower commission rates, ${a.shortName} or ${b.shortName}?`,
-      answer: `${a.name}'s ${a.feeName} ranges from ${ra.min}% to ${ra.max}% across the ${a.categories.length} categories we track; ${b.name}'s ${b.feeName} ranges from ${rb.min}% to ${rb.max}% across ${b.categories.length}.${matched.length ? ` Of the ${matched.length} categories both carry, total fees on a $${EXAMPLE_PRICE} sale are lower on ${a.shortName} in ${cheaperA} and lower on ${b.shortName} in ${cheaperB}.` : ''}`,
+      answer: `${a.name}'s ${a.feeName} ranges from ${ra.min}% to ${ra.max}% across the ${a.categories.length} categories we track; ${b.name}'s ${b.feeName} ranges from ${rb.min}% to ${rb.max}% across ${b.categories.length}.${matched.length ? ` Of the ${matched.length} explicitly mapped category rows, total fees on a $${EXAMPLE_PRICE} sale are lower on ${a.shortName} in ${cheaperA} and lower on ${b.shortName} in ${cheaperB}.` : ''}`,
     },
     {
       question: `Do ${a.shortName} and ${b.shortName} charge a monthly fee?`,
@@ -82,7 +82,7 @@ export default async function ComparePage({ params }: PageProps) {
         </nav>
         <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">{a.shortName} vs {b.shortName} seller fees</h1>
         <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
-          {a.name} charges a {ra.min === ra.max ? `${ra.min}%` : `${ra.min}% to ${ra.max}%`} {a.feeName}; {b.name} charges a {rb.min === rb.max ? `${rb.min}%` : `${rb.min}% to ${rb.max}%`} {b.feeName}. Here is how the full schedules line up, using the same data as our fee calculators.
+          {a.name} charges a {ra.min === ra.max ? `${ra.min}%` : `${ra.min}% to ${ra.max}%`} {a.feeName}; {b.name} charges a {rb.min === rb.max ? `${rb.min}%` : `${rb.min}% to ${rb.max}%`} {b.feeName}. Here is how the modeled schedules line up, using the same data as our fee calculators.
         </p>
 
         <section className="mt-8 overflow-x-auto rounded-xl border border-border">
@@ -101,10 +101,11 @@ export default async function ComparePage({ params }: PageProps) {
           </table>
         </section>
 
+        {matched.length === 0 && <p className="mt-8 rounded-xl border p-5">No verified category mapping is available for this pair. Schedule information is shown for reference; no same-product fee winner is inferred.</p>}
         {matched.length > 0 && (
           <section className="mt-10">
-            <h2 className="text-2xl font-bold">Category by category</h2>
-            <p className="mt-2 text-sm text-muted-foreground">Headline rate and total marketplace fees on a {money(EXAMPLE_PRICE)} sale, before product cost and fulfillment. Tiered categories note their brackets on each fee page.</p>
+            <h2 className="text-2xl font-bold">Verified comparison scope</h2>
+            <p className="mt-2 text-sm text-muted-foreground">Illustrative headline rate and modeled marketplace fees on a {money(EXAMPLE_PRICE)} sale, before product cost and fulfillment, assuming one item per order, no buyer shipping, handling or collected tax. Account subscriptions are not allocated per sale. Confirm SKU classification in each marketplace; these mappings are not a listing eligibility guarantee. Tiered categories note their brackets on each fee page.</p>
             <div className="mt-4 overflow-x-auto rounded-xl border border-border">
               <table className="w-full min-w-[560px] text-left text-sm">
                 <thead><tr>
