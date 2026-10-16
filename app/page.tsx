@@ -27,7 +27,7 @@ const homepageJsonLd = [
 
 export const metadata = {
   title: 'Ecommerce Marketplace Intelligence & Forecasts | MarketplaceBeta',
-  description: 'Marketplace intelligence that keeps score: 8,541 AI-classified articles from 54 sources, public forecasts graded as they resolve, and evidence labels on every claim, for Amazon, Walmart, TikTok Shop, eBay and Etsy operators.',
+  description: 'Marketplace intelligence that keeps score: 8,541 articles from 54 sources since March 2026, AI-classified, public forecasts graded as they resolve, and evidence labels on every claim, for Amazon, Walmart, TikTok Shop, eBay and Etsy operators.',
   alternates: { canonical: 'https://marketplacebeta.com' },
 }
 

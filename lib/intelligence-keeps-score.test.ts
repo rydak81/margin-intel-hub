@@ -17,7 +17,7 @@ describe('forecast ledger', () => {
   })
   it('reports accuracy as pending (null) until something resolves', () => {
     const s = scoreForecasts()
-    expect(s).toMatchObject({ total: 12, open: 12, resolved: 0, accuracy: null, brier: null })
+    expect(s).toMatchObject({ total: 12, open: 12, resolved: 0, accuracy: null, brier: null }) // page shows 'First forecasts resolve January 2027'
   })
   it('scores hits, misses and Brier once resolved', () => {
     const resolved: Forecast[] = [
