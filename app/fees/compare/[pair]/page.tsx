@@ -6,7 +6,7 @@ import { PremiumSiteFooter } from '@/components/premium-site-footer'
 import { JsonLd } from '@/components/json-ld'
 import { RecommendedTools } from '@/components/recommended-tools'
 import { getRecommendedOffers } from '@/lib/affiliates'
-import { EXAMPLE_PRICE, getAllPairs, matchedCategories, money, overviewRows, rateRange, resolvePair } from '@/lib/fee-compare'
+import { EXAMPLE_PRICE, comparisonDescription, getAllPairs, matchedCategories, money, overviewRows, rateRange, resolvePair } from '@/lib/fee-compare'
 import { formatVerifiedDate } from '@/lib/marketplace-fees'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://marketplacebeta.com'
@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!resolved) return { title: 'Fee comparison not found | MarketplaceBeta' }
   const { a, b } = resolved.pair
   const title = `${a.shortName} vs ${b.shortName} Fees: Side-by-Side Seller Fee Comparison`
-  const description = `Compare ${a.name} and ${b.name} seller fees: commission rates by category, account, listing and processing fees, and total fees on a $${EXAMPLE_PRICE} sale.`
+  const description = comparisonDescription(a, b)
   const canonical = `${SITE_URL}/fees/compare/${resolved.pair.slug}`
   return { title, description, alternates: { canonical }, openGraph: { title, description, url: canonical, type: 'article' }, twitter: { card: 'summary_large_image', title, description } }
 }

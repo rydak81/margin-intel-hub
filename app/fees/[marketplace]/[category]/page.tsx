@@ -197,7 +197,7 @@ export default async function FeeCategoryPage({ params }: PageProps) {
                 const delta = otherCategory.referralPct - category.referralPct
                 return (
                   <Link
-                    key={other.slug}
+                    key={`${other.slug}:${otherCategory.slug}`}
                     href={`/fees/${other.slug}/${otherCategory.slug}`}
                     className="group flex items-center justify-between rounded-xl border border-slate-200 p-4 transition hover:border-sky-400 hover:bg-sky-50/50 dark:border-white/10 dark:hover:border-sky-400/60 dark:hover:bg-sky-400/5"
                   >

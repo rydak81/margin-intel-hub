@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { getMarketplace, getComparableCategories, computeFeeBreakdown, referralFee, compareAcrossMarketplaces, orderFee } from '@/lib/marketplace-fees'
-import { matchedCategories, overviewRows } from '@/lib/fee-compare'
+import { comparisonDescription, getAllPairs, matchedCategories, overviewRows } from '@/lib/fee-compare'
 const ebay = getMarketplace('ebay')!
 const amazon = getMarketplace('amazon')!
 const walmart = getMarketplace('walmart')!
@@ -66,5 +66,26 @@ test('verified Amazon minimum and shared accessory threshold regression', () => 
   for (const m of [amazon, walmart]) {
     const accessory = m.categories.find(c => c.slug === 'electronics-accessories')!
     for (const [price, expected] of [[99.99, 15], [100, 15], [100.01, 15], [200, 23]]) assert.equal(referralFee(price, accessory).amount, expected)
+  }
+})
+
+test('reverse mappings retain category identity through calculator updates', () => {
+  const mappings = getComparableCategories('walmart', 'Beauty')
+  assert.deepEqual(mappings.map(r => r.category.slug), ['beauty', 'health-personal-care'])
+  for (const price of [9.99, 10, 10.01, 29.99]) {
+    const rows = compareAcrossMarketplaces(price, 8, 'Beauty', 'walmart')
+    assert.equal(rows.length, 3)
+    assert.equal(new Set(rows.map(r => `${r.marketplace.slug}:${r.category.slug}`)).size, 3)
+    assert.deepEqual(new Set(rows.filter(r => r.marketplace.slug === 'amazon').map(r => r.category.slug)), new Set(['beauty', 'health-personal-care']))
+  }
+})
+test('search descriptions promise modeled sale totals only for mapped pairs', () => {
+  for (const { a, b } of getAllPairs()) {
+    const description = comparisonDescription(a, b)
+    if (matchedCategories(a, b).length) assert.match(description, /total fees on a \$29.99 sale/)
+    else {
+      assert.doesNotMatch(description, /total fees|\$29.99/)
+      assert.match(description, /no verified same-product category comparison/)
+    }
   }
 })
