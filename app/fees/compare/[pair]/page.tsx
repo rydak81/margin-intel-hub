@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { ShareButtons } from '@/components/share-buttons'
+import { ogImageUrl } from '@/lib/sale-fee-pages'
 import { notFound, permanentRedirect } from 'next/navigation'
 import { PremiumSiteHeader } from '@/components/premium-site-header'
 import { PremiumSiteFooter } from '@/components/premium-site-footer'
@@ -25,7 +27,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const title = `${a.shortName} vs ${b.shortName} Fees: Side-by-Side Seller Fee Comparison`
   const description = comparisonDescription(a, b)
   const canonical = `${SITE_URL}/fees/compare/${resolved.pair.slug}`
-  return { title, description, alternates: { canonical }, openGraph: { title, description, url: canonical, type: 'article' }, twitter: { card: 'summary_large_image', title, description } }
+  const ra = rateRange(a), rb = rateRange(b)
+  const fmt = (r: { min: number; max: number }) => r.min === r.max ? `${r.min}%` : `${r.min}–${r.max}%`
+  const image = ogImageUrl(`${a.shortName} vs ${b.shortName} seller fees`, `${fmt(ra)} vs ${fmt(rb)}`, 'Fee comparison')
+  return { title, description, alternates: { canonical }, openGraph: { title, description, url: canonical, type: 'article', images: [{ url: image, width: 1200, height: 630 }] }, twitter: { card: 'summary_large_image', title, description, images: [image] } }
 }
 
 export default async function ComparePage({ params }: PageProps) {
@@ -84,6 +89,7 @@ export default async function ComparePage({ params }: PageProps) {
         <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
           {a.name} charges a {ra.min === ra.max ? `${ra.min}%` : `${ra.min}% to ${ra.max}%`} {a.feeName}; {b.name} charges a {rb.min === rb.max ? `${rb.min}%` : `${rb.min}% to ${rb.max}%`} {b.feeName}. Here is how the modeled schedules line up, using the same data as our fee calculators.
         </p>
+        <ShareButtons className="mt-5" url={canonical} placement={`compare-${resolved.pair.slug}`} text={`${a.shortName} vs ${b.shortName} seller fees, side by side:`} />
 
         <section className="mt-8 overflow-x-auto rounded-xl border border-border">
           <table className="w-full min-w-[480px] text-left text-sm">

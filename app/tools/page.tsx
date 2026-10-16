@@ -11,6 +11,7 @@ import { PremiumSiteHeader } from "@/components/premium-site-header"
 import { SiteBrand } from "@/components/site-brand"
 import { ProfitCalculator } from "@/components/profit-calculator"
 import { RecommendedTools } from "@/components/recommended-tools"
+import { EmbedSnippet } from "@/components/embed-snippet"
 import { getRecommendedOffers } from "@/lib/affiliates"
 import { SalesForecaster } from "@/components/sales-forecaster"
 import { ListingOptimizer } from "@/components/listing-optimizer"
@@ -227,6 +228,8 @@ export default function ToolsPage() {
             </div>
           )}
         </div>
+
+        <div className="mt-12"><EmbedSnippet /></div>
 
         {/* Newsletter CTA */}
         <div className="mt-12 rounded-xl border border-white/10 bg-slate-950 p-8 text-center text-white editorial-elevated">
