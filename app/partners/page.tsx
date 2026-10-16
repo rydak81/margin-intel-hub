@@ -519,6 +519,9 @@ export default function PartnersPage() {
                 <Button asChild size="lg" variant="outline" className="rounded-full border-white/20 bg-white/8 text-white hover:bg-white/12">
                   <Link href="/articles">Browse Articles</Link>
                 </Button>
+                <Button asChild size="lg" variant="outline" className="rounded-full border-white/20 bg-white/8 text-white hover:bg-white/12">
+                  <Link href="/sponsor">Sponsor the Daily Brief</Link>
+                </Button>
               </div>
             </div>
 
