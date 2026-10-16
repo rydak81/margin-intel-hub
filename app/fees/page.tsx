@@ -31,6 +31,7 @@ export default function FeesIndexPage() {
 
       <main className="mx-auto site-width px-4 py-10 sm:px-6 lg:px-8">
         <EditorialIntro eyebrow="Fee intelligence" title="Know what you keep." description={`Compare referral rates across ${totalCategories} categories and ${MARKETPLACES.length} marketplaces. Model unit economics, inspect the source dates, and test your assumptions before choosing a channel.`} />
+        <p className="mt-4 text-sm text-muted-foreground">Rates change. See the <Link href="/fees/changelog" className="font-medium text-primary underline underline-offset-4">dated fee change log</Link> for every update, with old and new figures.</p>
 
         <div className="mt-8 grid gap-4 md:grid-cols-2">
           {MARKETPLACES.map((marketplace) => {
