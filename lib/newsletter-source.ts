@@ -12,6 +12,8 @@ const FIXED_SOURCES = [
   'brief',
   'fee_compare',
   'sponsor',
+  'embed',
+  'share',
 ] as const
 
 const FIXED_SOURCE_SET = new Set<string>(FIXED_SOURCES)

@@ -4,6 +4,7 @@ import type { MetadataRoute } from 'next'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { MARKETPLACES, getAllFeeRoutes } from '@/lib/marketplace-fees'
 import { getAllPairs } from '@/lib/fee-compare'
+import { getAllSaleRoutes, salePath } from '@/lib/sale-fee-pages'
 
 export const revalidate = 300
 
@@ -136,7 +137,14 @@ function getFeeRoutes(): MetadataRoute.Sitemap {
     priority: 0.7,
   }))
 
-  return [...hub, ...comparisons, ...categories]
+  const sales: MetadataRoute.Sitemap = getAllSaleRoutes().map((route) => ({
+    url: `${siteUrl}${salePath(route.marketplace, Number(route.price))}`,
+    lastModified: new Date(MARKETPLACES.find(m => m.slug === route.marketplace)!.lastVerified),
+    changeFrequency: 'weekly',
+    priority: 0.7,
+  }))
+
+  return [...hub, ...comparisons, ...categories, ...sales]
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

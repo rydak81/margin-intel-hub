@@ -8,6 +8,8 @@ export async function GET(request: NextRequest) {
   const title = searchParams.get('title') || 'MarketplaceBeta'
   const category = searchParams.get('category') || ''
   const impact = searchParams.get('impact') || ''
+  // Optional big headline number (e.g. "$4.50") for fee share cards. Length-capped.
+  const headline = (searchParams.get('headline') || '').slice(0, 24)
 
   return new ImageResponse(
     (
@@ -30,6 +32,11 @@ export async function GET(request: NextRequest) {
                 {impact} impact
               </span>
             )}
+          </div>
+        )}
+        {headline && (
+          <div style={{ fontSize: 120, fontWeight: 'bold', lineHeight: 1, marginBottom: 16, color: '#FDE68A' }}>
+            {headline}
           </div>
         )}
         <div style={{ fontSize: 48, fontWeight: 'bold', lineHeight: 1.2, maxWidth: '90%' }}>

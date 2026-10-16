@@ -17,6 +17,8 @@ import { ArrowUpRight, ExternalLink } from "lucide-react"
 import { RecommendedTools } from "@/components/recommended-tools"
 import { getRecommendedOffers } from "@/lib/affiliates"
 import { getPairsFor } from "@/lib/fee-compare"
+import { ShareButtons } from "@/components/share-buttons"
+import { SALE_PRICES, ogImageUrl, salePath } from "@/lib/sale-fee-pages"
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://marketplacebeta.com"
 
@@ -47,13 +49,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const title = `${marketplace.shortName} ${feeLabel} for ${category.label}: ${rate} (${verified})`
   const description = `${marketplace.name} charges ${category.tiers ? `a ${rate} ${marketplace.feeName} (tiered by price)` : `a ${rate} ${marketplace.feeName}`} on ${category.label}. See the full fee breakdown, calculate your margin, and inspect supported category comparisons.`
   const canonical = `${SITE_URL}/fees/${marketplace.slug}/${category.slug}`
+  const image = ogImageUrl(`${marketplace.shortName} ${marketplace.feeName} for ${category.label}`, rate)
 
   return {
     title,
     description,
     alternates: { canonical },
-    openGraph: { title, description, url: canonical, type: "article" },
-    twitter: { card: "summary_large_image", title, description },
+    openGraph: { title, description, url: canonical, type: "article", images: [{ url: image, width: 1200, height: 630 }] },
+    twitter: { card: "summary_large_image", title, description, images: [image] },
   }
 }
 
@@ -178,6 +181,19 @@ export default async function FeeCategoryPage({ params }: PageProps) {
             <ExternalLink className="h-3.5 w-3.5" />
           </a>
         </div>
+
+        <ShareButtons
+          className="mt-4"
+          url={canonical}
+          placement={`fee-${marketplace.slug}-${category.slug}`}
+          text={`${marketplace.shortName} charges a ${rateLabel(category)} ${marketplace.feeName} on ${category.label}. Full breakdown + calculator:`}
+        />
+        <p className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-sm text-slate-500 dark:text-slate-400">
+          <span>What {marketplace.shortName} takes from a sale of:</span>
+          {SALE_PRICES.map((p) => (
+            <Link key={p} href={salePath(marketplace.slug, p)} className="underline hover:text-sky-600">${p}</Link>
+          ))}
+        </p>
 
         <p className="mt-4 leading-relaxed text-slate-600 dark:text-slate-300">
           {marketplace.summary}
