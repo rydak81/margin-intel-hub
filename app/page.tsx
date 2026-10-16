@@ -12,7 +12,7 @@ const homepageJsonLd = [
     name: "MarketplaceBeta",
     url: SITE_URL,
     logo: `${SITE_URL}/icon-192.png`,
-    description: "Marketplace seller fee data, tools, and news for Amazon, Walmart, TikTok Shop, eBay, and Etsy operators.",
+    description: "Ecommerce marketplace intelligence that keeps score: an AI-classified news archive, publicly graded forecasts, and evidence-labeled research for Amazon, Walmart, TikTok Shop, eBay, and Etsy operators.",
   },
   {
     "@context": "https://schema.org",
@@ -26,8 +26,8 @@ const homepageJsonLd = [
 ]
 
 export const metadata = {
-  title: 'Marketplace Seller Fees 2026: Amazon, Walmart, TikTok Shop, eBay & Etsy | MarketplaceBeta',
-  description: 'Compare Amazon, Walmart, TikTok Shop, eBay and Etsy seller fees by category, calculate your margin, and follow the marketplace news that changes them. Free fee tables updated monthly.',
+  title: 'Ecommerce Marketplace Intelligence & Forecasts | MarketplaceBeta',
+  description: 'Marketplace intelligence that keeps score: 8,541 AI-classified articles from 54 sources, public forecasts graded as they resolve, and evidence labels on every claim, for Amazon, Walmart, TikTok Shop, eBay and Etsy operators.',
   alternates: { canonical: 'https://marketplacebeta.com' },
 }
 

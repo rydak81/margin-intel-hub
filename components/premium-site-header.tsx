@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { SITE_NAVIGATION } from "@/lib/site-navigation"
 import { SiteBrand } from "@/components/site-brand"
 
-type NavKey = "manufacturing" | "guides" | "intelligence" | "home" | "articles" | "news" | "partners" | "tools" | "fees" | "community" | "events" | "solutions" | "newsletter"
+type NavKey = "forecasts" | "pressure" | "manufacturing" | "guides" | "intelligence" | "home" | "articles" | "news" | "partners" | "tools" | "fees" | "community" | "events" | "solutions" | "newsletter"
 
 interface PremiumSiteHeaderProps {
   active?: NavKey

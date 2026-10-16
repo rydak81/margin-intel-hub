@@ -5,6 +5,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { MARKETPLACES, getAllFeeRoutes } from '@/lib/marketplace-fees'
 import { getAllPairs } from '@/lib/fee-compare'
 import { getAllSaleRoutes, salePath } from '@/lib/sale-fee-pages'
+import { FEE_CHANGELOG } from '@/lib/fee-changelog'
 
 export const revalidate = 300
 
@@ -52,6 +53,23 @@ const staticRoutes: MetadataRoute.Sitemap = [
     changeFrequency: 'weekly' as const,
     priority: 0.6,
   })),
+  {
+    url: `${siteUrl}/intelligence/forecasts`,
+    lastModified: new Date(SITE_SECTIONS_UPDATED),
+    changeFrequency: 'weekly',
+    priority: 0.9,
+  },
+  {
+    url: `${siteUrl}/intelligence/pressure-index`,
+    changeFrequency: 'daily',
+    priority: 0.9,
+  },
+  {
+    url: `${siteUrl}/fees/changelog`,
+    lastModified: new Date(FEE_CHANGELOG.reduce((d, e) => (e.date > d ? e.date : d), '2026-01-01')),
+    changeFrequency: 'weekly',
+    priority: 0.7,
+  },
   {
     url: `${siteUrl}/events`,
     changeFrequency: 'weekly',

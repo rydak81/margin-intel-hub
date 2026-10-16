@@ -25,23 +25,23 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: 'Amazon, Walmart, TikTok Shop, eBay & Etsy Seller Fees + Marketplace News | MarketplaceBeta',
-  description: 'Breaking news, platform updates, M&A activity, and actionable insights for Amazon sellers, agencies, SaaS providers, and e-commerce operators — all in one place.',
-  keywords: ['marketplace seller fees', 'Amazon referral fees', 'Walmart seller fees', 'TikTok Shop fees', 'eBay fees', 'Etsy fees', 'e-commerce', 'Amazon FBA', 'marketplace sellers', 'e-commerce news', 'seller tools', 'Amazon news'],
+  title: 'Ecommerce Marketplace Intelligence & Forecasts | MarketplaceBeta',
+  description: 'Marketplace intelligence that keeps score: an AI-classified archive of marketplace news, public forecasts graded as they resolve, and evidence-labeled research for ecommerce operators.',
+  keywords: ['ecommerce marketplace intelligence', 'ecommerce forecasts', 'marketplace forecasts', 'marketplace research', 'marketplace seller fees', 'Amazon referral fees', 'Walmart seller fees', 'TikTok Shop fees', 'eBay fees', 'Etsy fees', 'e-commerce', 'Amazon FBA', 'marketplace sellers', 'e-commerce news', 'seller tools', 'Amazon news'],
   authors: [{ name: 'MarketplaceBeta' }],
   verification: googleSiteVerification ? {
     google: googleSiteVerification,
   } : undefined,
   openGraph: {
-    title: 'MarketplaceBeta | The Intelligence Hub for Marketplace Commerce',
-    description: 'Breaking news, platform updates, and actionable insights for marketplace sellers and e-commerce operators.',
+    title: 'MarketplaceBeta | Marketplace intelligence that keeps score',
+    description: 'An AI-classified marketplace news archive, public forecasts graded as they resolve, and evidence labels on every claim.',
     type: 'website',
     url: siteUrl,
   },
   twitter: {
     card: 'summary_large_image',
     title: 'MarketplaceBeta',
-    description: 'The Intelligence Hub for Marketplace Commerce',
+    description: 'Marketplace intelligence that keeps score',
   },
   icons: {
     icon: [

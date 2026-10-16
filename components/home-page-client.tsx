@@ -446,25 +446,48 @@ export default function HomePageClient({
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
             <p className="mb-5 flex items-center gap-2.5 text-sm font-semibold tracking-wide text-blue-700 dark:text-blue-300">
-              <span className="h-2 w-2 rounded-full bg-blue-600" />The marketplace intelligence desk
+              <span className="h-2 w-2 rounded-full bg-blue-600" />Ecommerce marketplace intelligence &amp; forecasts
             </p>
             <h1 className="max-w-4xl text-[2.5rem] font-bold leading-[1.08] tracking-[-0.045em] text-slate-950 sm:text-5xl lg:text-[3.25rem] dark:text-white">
-              The context behind<br className="hidden sm:block" /> your next move.
+              Marketplace intelligence<br className="hidden sm:block" /> that keeps score.
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600 md:text-xl dark:text-slate-300">
-              Ecommerce news, source-backed research, and practical tools. Understand what changed, investigate the implications, and make a better operating decision.
+              An AI-classified archive of 8,541 marketplace articles from 54 sources since March 2026, public forecasts we grade when they resolve, and an evidence label on every claim. Built for operators who need to know what happens next, not just what happened.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button size="lg" asChild className="h-12 rounded-lg bg-blue-600 px-6 text-base font-semibold text-white hover:bg-blue-700">
-                <Link href="/intelligence">Open your dashboard<ArrowRight className="ml-2 h-4 w-4" /></Link>
+                <Link href="/intelligence/forecasts">See the forecast scorecard<ArrowRight className="ml-2 h-4 w-4" /></Link>
               </Button>
               <Button size="lg" variant="outline" asChild className="h-12 rounded-lg border-border bg-card px-6 text-base">
-                <a href="#briefing">Explore the latest news</a>
+                <Link href="/intelligence/pressure-index">This week&apos;s Pressure Index</Link>
               </Button>
             </div>
             {currentUser && personalizationLabel ? <p className="mt-5 text-sm text-muted-foreground">{personalizationLabel}. <Link href="/account" className="font-medium text-primary underline underline-offset-4">Edit your preferences</Link></p> : null}
           </div>
           <IntelligenceSpotlight articles={articles} />
+        </div>
+      </section>
+
+      <section className="border-b border-border bg-background" aria-labelledby="keeps-score-title">
+        <div className="mx-auto site-width px-4 py-10 sm:px-6">
+          <h2 id="keeps-score-title" className="sr-only">How MarketplaceBeta intelligence keeps score</h2>
+          <div className="grid gap-4 md:grid-cols-3">
+            <Link href="/intelligence/dossier" className="rounded-2xl border border-border bg-card p-6 hover:border-blue-600/50">
+              <p className="editorial-eyebrow">Historical archive</p>
+              <p className="mt-3 text-3xl font-bold tabular-nums">8,541 articles</p>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">AI-classified by category, platform and impact from a fixed panel of 54 sources, March–October 2026. The base for every pattern we report.</p>
+            </Link>
+            <Link href="/intelligence/forecasts" className="rounded-2xl border border-border bg-card p-6 hover:border-blue-600/50">
+              <p className="editorial-eyebrow">Public forecasts</p>
+              <p className="mt-3 text-3xl font-bold tabular-nums">12 logged, graded in public</p>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">Each with a probability, the indicators that confirm or kill it, and a resolve-by date. Hits and misses stay on the scorecard.</p>
+            </Link>
+            <Link href="/intelligence/pressure-index" className="rounded-2xl border border-border bg-card p-6 hover:border-blue-600/50">
+              <p className="editorial-eyebrow">Evidence labels</p>
+              <p className="mt-3 text-3xl font-bold">Observed · Reported · Hypothesis · Forecast</p>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">Every claim says how we know it. Our weekly Pressure Index shows where coverage is building before it becomes the consensus.</p>
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -1022,6 +1045,20 @@ export default function HomePageClient({
           </aside>
         </div>
       </main>
+
+      <section className="mx-auto site-width px-4 pt-10 sm:px-6" aria-labelledby="fee-tables-title">
+        <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="editorial-eyebrow">Reference data</p>
+            <h2 id="fee-tables-title" className="mt-2 text-2xl font-bold">Marketplace fee tables, with a dated change log</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Amazon, Walmart, TikTok Shop, eBay and Etsy fees by category, checked against official sources, with a dated record of every change.</p>
+          </div>
+          <div className="flex shrink-0 flex-wrap gap-3 text-sm font-semibold">
+            <Link href="/fees" className="text-primary">Fee tables →</Link>
+            <Link href="/fees/changelog" className="text-primary">Fee change log →</Link>
+          </div>
+        </div>
+      </section>
 
       <section className="mx-auto site-width px-4 py-10 sm:px-6" aria-labelledby="operator-library-title">
         <div className="mb-6 flex flex-wrap items-end justify-between gap-3"><div><p className="editorial-eyebrow">The operator library</p><h2 id="operator-library-title" className="mt-2 text-3xl font-bold">Turn the context into a decision.</h2></div><Link href="/guides" className="text-sm font-semibold text-primary">All guides & free worksheets →</Link></div>
