@@ -68,6 +68,7 @@ export interface Marketplace {
 // ── Amazon ────────────────────────────────────────────────────────────────────
 // Rates mirror the schedule already encoded in components/profit-calculator.tsx.
 
+// Verified 2026-10-16 against https://sell.amazon.com/pricing (official Amazon fee table)
 const AMAZON_CATEGORIES: FeeCategory[] = [
   { slug: "amazon-device-accessories", label: "Amazon Device Accessories", referralPct: 45 },
   {
@@ -95,7 +96,11 @@ const AMAZON_CATEGORIES: FeeCategory[] = [
   },
   { slug: "computers", label: "Computers", referralPct: 8 },
   { slug: "consumer-electronics", label: "Consumer Electronics", referralPct: 8 },
-  { slug: "electronics-accessories", label: "Electronics Accessories", referralPct: 15 },
+  {
+    slug: "electronics-accessories", label: "Electronics Accessories", referralPct: 15,
+    note: "15% on the first $100, then 8% on the portion above, with a $0.30 minimum.",
+    tierMode: "marginal", tiers: [{ upTo: 100, pct: 15 }, { upTo: null, pct: 8 }], minFee: 0.30,
+  },
   {
     slug: "furniture", label: "Furniture", referralPct: 15,
     note: "15% on the first $200, then 10% on the portion above.",
@@ -139,8 +144,13 @@ const AMAZON_CATEGORIES: FeeCategory[] = [
 
 // ── Walmart ───────────────────────────────────────────────────────────────────
 
+// Verified 2026-10-16 against https://marketplace.walmart.com/pricing/ (official Walmart referral fee table)
 const WALMART_CATEGORIES: FeeCategory[] = [
-  { slug: "apparel-accessories", label: "Apparel & Accessories", referralPct: 15 },
+  {
+    slug: "apparel-accessories", label: "Apparel & Accessories", referralPct: 15,
+    note: "Tiered by total price: 5% at $15 or less, 10% from $15.01 to $20, 15% over $20.",
+    tierMode: "whole", tiers: [{ upTo: 15, pct: 5 }, { upTo: 20, pct: 10 }, { upTo: null, pct: 15 }],
+  },
   { slug: "automotive", label: "Automotive & Powersports", referralPct: 12 },
   {
     slug: "baby", label: "Baby", referralPct: 15,
@@ -156,11 +166,15 @@ const WALMART_CATEGORIES: FeeCategory[] = [
   { slug: "camera-photo", label: "Camera & Photo", referralPct: 8 },
   { slug: "cell-phones", label: "Cell Phones", referralPct: 8 },
   { slug: "consumer-electronics", label: "Consumer Electronics", referralPct: 8 },
-  { slug: "electronics-accessories", label: "Electronics Accessories", referralPct: 15 },
+  {
+    slug: "electronics-accessories", label: "Electronics Accessories", referralPct: 15,
+    note: "15% on the first $100, then 8% on the portion above.",
+    tierMode: "marginal", tiers: [{ upTo: 100, pct: 15 }, { upTo: null, pct: 8 }],
+  },
   {
     slug: "grocery", label: "Grocery", referralPct: 15,
-    note: "8% on items priced $10 or less; 15% on the whole price when over $10.",
-    tierMode: "whole", tiers: [{ upTo: 10, pct: 8 }, { upTo: null, pct: 15 }],
+    note: "8% on items priced $15 or less; 15% on the whole price when over $15.",
+    tierMode: "whole", tiers: [{ upTo: 15, pct: 8 }, { upTo: null, pct: 15 }],
   },
   {
     slug: "health-personal-care", label: "Health & Personal Care", referralPct: 15,
@@ -169,7 +183,11 @@ const WALMART_CATEGORIES: FeeCategory[] = [
   },
   { slug: "home-garden", label: "Home & Garden", referralPct: 15 },
   { slug: "industrial-scientific", label: "Industrial & Scientific", referralPct: 12 },
-  { slug: "jewelry", label: "Jewelry", referralPct: 20 },
+  {
+    slug: "jewelry", label: "Jewelry", referralPct: 20,
+    note: "20% on the first $250, then 5% on the portion above.",
+    tierMode: "marginal", tiers: [{ upTo: 250, pct: 20 }, { upTo: null, pct: 5 }],
+  },
   { slug: "kitchen", label: "Kitchen", referralPct: 15 },
   { slug: "office-products", label: "Office Products", referralPct: 15 },
   { slug: "outdoors", label: "Outdoors", referralPct: 15 },
@@ -179,7 +197,11 @@ const WALMART_CATEGORIES: FeeCategory[] = [
   { slug: "tools-home-improvement", label: "Tools & Home Improvement", referralPct: 15 },
   { slug: "toys-games", label: "Toys & Games", referralPct: 15 },
   { slug: "video-games", label: "Video Games", referralPct: 15 },
-  { slug: "watches", label: "Watches", referralPct: 15 },
+  {
+    slug: "watches", label: "Watches", referralPct: 15,
+    note: "15% on the first $1,500, then 3% on the portion above.",
+    tierMode: "marginal", tiers: [{ upTo: 1500, pct: 15 }, { upTo: null, pct: 3 }],
+  },
 ]
 
 // ── TikTok Shop ───────────────────────────────────────────────────────────────
@@ -201,17 +223,18 @@ const TIKTOK_CATEGORIES: FeeCategory[] = [
 
 // ── eBay ──────────────────────────────────────────────────────────────────────
 
+// Verified 2026-10-16 against https://www.ebay.com/help/selling/fees-credits-invoices/selling-fees?id=4822 (basic, non-Store fees)
 const EBAY_CATEGORIES: FeeCategory[] = [
-  { slug: "most-categories", label: "Most Categories", referralPct: 13.25 },
+  { slug: "most-categories", label: "Most Categories", referralPct: 13.6 },
   { slug: "books-movies-music", label: "Books, Movies & Music", referralPct: 15.3 },
-  { slug: "clothing-shoes-accessories", label: "Clothing, Shoes & Accessories", referralPct: 13.25 },
-  { slug: "coins-paper-money", label: "Coins & Paper Money", referralPct: 9 },
-  { slug: "computers-tablets", label: "Computers & Tablets", referralPct: 12.35 },
+  { slug: "clothing-shoes-accessories", label: "Clothing, Shoes & Accessories", referralPct: 13.6 },
+  { slug: "coins-paper-money", label: "Coins & Paper Money", referralPct: 13.25 },
+  { slug: "computers-tablets", label: "Computers & Tablets", referralPct: 13.6 },
   { slug: "jewelry-watches", label: "Jewelry & Watches", referralPct: 15 },
-  { slug: "musical-instruments", label: "Musical Instruments & Gear", referralPct: 6.35 },
-  { slug: "sporting-goods", label: "Sporting Goods", referralPct: 13.25 },
+  { slug: "musical-instruments", label: "Musical Instruments & Gear", referralPct: 6.7, note: "6.7% applies to Guitars & Basses; other Musical Instruments & Gear listings pay the 13.6% most-categories rate." },
+  { slug: "sporting-goods", label: "Sporting Goods", referralPct: 13.6 },
   { slug: "trading-cards", label: "Trading Cards", referralPct: 13.25 },
-  { slug: "video-games-consoles", label: "Video Games & Consoles", referralPct: 13.25 },
+  { slug: "video-games-consoles", label: "Video Games & Consoles", referralPct: 13.6 },
 ]
 
 // ── Etsy ──────────────────────────────────────────────────────────────────────
@@ -234,8 +257,9 @@ export const MARKETPLACES: Marketplace[] = [
     feeName: "referral fee",
     fulfillmentName: "FBA",
     accountFee: { amount: 39.99, period: "month", note: "Professional selling plan" },
-    sourceUrl: "https://sellercentral.amazon.com/help/hub/reference/GTG4BAWSY39Z98ST",
-    lastVerified: "2026-08-12",
+    // Source: https://sell.amazon.com/pricing
+    sourceUrl: "https://sell.amazon.com/pricing",
+    lastVerified: "2026-10-16",
     summary:
       "Amazon charges a referral fee on every sale, set by category and calculated on the total sale price including shipping. Sellers on the Professional plan also pay a monthly subscription, and FBA sellers pay separate fulfillment and storage fees on top of the referral fee.",
     categories: AMAZON_CATEGORIES,
@@ -246,8 +270,9 @@ export const MARKETPLACES: Marketplace[] = [
     shortName: "Walmart",
     feeName: "referral fee",
     fulfillmentName: "WFS",
-    sourceUrl: "https://marketplacelearn.walmart.com/guides/Getting%20started/referral-fees",
-    lastVerified: "2026-08-12",
+    // Source: https://marketplace.walmart.com/pricing/ (old Marketplace Learn URL now returns "No Data found")
+    sourceUrl: "https://marketplace.walmart.com/pricing/",
+    lastVerified: "2026-10-16",
     summary:
       "Walmart Marketplace charges no monthly subscription or setup fee — sellers pay only a category-based referral fee on each sale. That makes the effective take rate easier to model than Amazon's, though Walmart Fulfillment Services (WFS) adds fulfillment and storage costs for sellers who use it.",
     categories: WALMART_CATEGORIES,
@@ -271,8 +296,9 @@ export const MARKETPLACES: Marketplace[] = [
     feeName: "final value fee",
     fulfillmentName: null,
     perOrderFee: 0.4,
-    sourceUrl: "https://www.ebay.com/help/selling/fees-credits-invoices/store-selling-fees",
-    lastVerified: "2026-08-12",
+    // Source: https://www.ebay.com/help/selling/fees-credits-invoices/selling-fees?id=4822 ($0.40 per-order fee on orders over $10; $0.30 at $10 or less)
+    sourceUrl: "https://www.ebay.com/help/selling/fees-credits-invoices/selling-fees?id=4822",
+    lastVerified: "2026-10-16",
     summary:
       "eBay charges a final value fee calculated on the total amount of the sale including shipping and tax, plus a flat per-order fee. Rates vary more by category than on most marketplaces, and eBay Store subscribers get reduced rates plus a monthly allocation of zero-insertion-fee listings.",
     categories: EBAY_CATEGORIES,
@@ -286,8 +312,9 @@ export const MARKETPLACES: Marketplace[] = [
     listingFee: 0.2,
     paymentProcessingPct: 3,
     paymentProcessingFlat: 0.25,
+    // Source: https://www.etsy.com/legal/fees/ and https://help.etsy.com/hc/en-us/articles/115015628847 (6.5% transaction, $0.20 listing, 3% + $0.25 US processing; all unchanged)
     sourceUrl: "https://help.etsy.com/hc/en-us/articles/360000343968-Fees-Taxes-for-Selling-on-Etsy",
-    lastVerified: "2026-08-12",
+    lastVerified: "2026-10-16",
     summary:
       "Etsy applies one flat transaction fee across every category, which makes it the simplest take rate to model — but the headline number understates the real cost. Listing fees, payment processing, and optional Offsite Ads fees stack on top and materially change unit economics on low-priced items.",
     categories: ETSY_CATEGORIES,
