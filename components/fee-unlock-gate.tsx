@@ -1,5 +1,6 @@
 "use client"
 
+import { trackResourceEvent } from "@/lib/resource-analytics"
 import { useEffect, useState, type ReactNode } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -113,6 +114,7 @@ export function FeeUnlockGate({
         return
       }
       if (response.ok) {
+        trackResourceEvent("newsletter_signup", `fee-gate:${context.source}`)
         storeUnlock()
         setEnrichToken(typeof payload?.enrichToken === "string" ? payload.enrichToken : null)
         setStep("role")

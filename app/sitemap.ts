@@ -6,6 +6,9 @@ import { MARKETPLACES, getAllFeeRoutes } from '@/lib/marketplace-fees'
 
 export const revalidate = 300
 
+// Last substantive update to the tools / partner / community sections.
+const SITE_SECTIONS_UPDATED = '2026-10-16'
+
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://marketplacebeta.com'
 
 const staticRoutes: MetadataRoute.Sitemap = [
@@ -31,9 +34,22 @@ const staticRoutes: MetadataRoute.Sitemap = [
   },
   {
     url: `${siteUrl}/tools`,
-    changeFrequency: 'monthly',
-    priority: 0.7,
+    lastModified: new Date(SITE_SECTIONS_UPDATED),
+    changeFrequency: 'weekly',
+    priority: 0.8,
   },
+  ...['tools/repricer', 'tools/repricer/history', 'tools/repricer/sourcing'].map(path => ({
+    url: `${siteUrl}/${path}`,
+    lastModified: new Date(SITE_SECTIONS_UPDATED),
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  })),
+  ...['partners', 'solutions', 'community'].map(path => ({
+    url: `${siteUrl}/${path}`,
+    lastModified: new Date(SITE_SECTIONS_UPDATED),
+    changeFrequency: 'weekly' as const,
+    priority: 0.6,
+  })),
   {
     url: `${siteUrl}/events`,
     changeFrequency: 'weekly',
@@ -93,6 +109,7 @@ function getFeeRoutes(): MetadataRoute.Sitemap {
   const hub: MetadataRoute.Sitemap = [
     {
       url: `${siteUrl}/fees`,
+      lastModified: new Date(Math.max(...MARKETPLACES.map(m => Date.parse(m.lastVerified)))),
       changeFrequency: 'weekly',
       priority: 0.9,
     },
