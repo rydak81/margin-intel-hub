@@ -6,7 +6,7 @@ import { newsletterSource } from '@/lib/newsletter-source'
 const dossier = readFileSync(new URL('../public/intelligence/dossier-2026-10.html', import.meta.url), 'utf8')
 const newsletter = readFileSync(new URL('../app/newsletter/page.tsx', import.meta.url), 'utf8')
 
-test('newsletter attribution accepts only the known campaign', () => {
+test('newsletter attribution keeps dossier campaign and rejects unsafe values', () => {
   assert.equal(newsletterSource('?source=dossier_2026_10'), 'newsletter_dossier_2026_10')
   for (const search of ['', '?source=other', '?source=private@example.com', '?source=dossier_2026_10&source=other', '?source=dossier_2026_10&source=dossier_2026_10']) {
     assert.equal(newsletterSource(search), 'newsletter_page')
