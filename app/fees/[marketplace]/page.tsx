@@ -5,6 +5,7 @@ import { PremiumSiteHeader } from "@/components/premium-site-header"
 import { PremiumSiteFooter } from "@/components/premium-site-footer"
 import { MARKETPLACES, formatVerifiedDate, getMarketplace } from "@/lib/marketplace-fees"
 import { ExternalLink } from "lucide-react"
+import { JsonLd } from "@/components/json-ld"
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://marketplacebeta.com"
 
@@ -49,9 +50,48 @@ export default async function MarketplaceFeesPage({ params }: PageProps) {
   const rates = marketplace.categories.map((c) => c.referralPct)
   const lowest = Math.min(...rates)
   const highest = Math.max(...rates)
+  const pageUrl = `${SITE_URL}/fees/${marketplace.slug}`
+  const lowestCats = marketplace.categories.filter((c) => c.referralPct === lowest).map((c) => c.label)
+  const highestCats = marketplace.categories.filter((c) => c.referralPct === highest).map((c) => c.label)
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+        { "@type": "ListItem", position: 2, name: "Fees", item: `${SITE_URL}/fees` },
+        { "@type": "ListItem", position: 3, name: `${marketplace.name} fees`, item: pageUrl },
+      ],
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: `How much does ${marketplace.name} charge sellers?`,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: `${marketplace.name} ${marketplace.feeName}s range from ${lowest}% to ${highest}% depending on category (verified ${verified}). ${marketplace.summary}`,
+          },
+        },
+        {
+          "@type": "Question",
+          name: `Which ${marketplace.name} category has the lowest fee?`,
+          acceptedAnswer: { "@type": "Answer", text: `${lowestCats.join(", ")}: ${lowest}%.` },
+        },
+        {
+          "@type": "Question",
+          name: `Which ${marketplace.name} category has the highest fee?`,
+          acceptedAnswer: { "@type": "Answer", text: `${highestCats.join(", ")}: ${highest}%.` },
+        },
+      ],
+    },
+  ]
 
   return (
     <div className="min-h-screen bg-background">
+      <JsonLd data={jsonLd} />
       <PremiumSiteHeader active="fees" />
 
       <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
