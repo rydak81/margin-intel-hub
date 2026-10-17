@@ -1,17 +1,34 @@
 import { createAdminClient } from "@/lib/supabase/admin"
-import { z } from "zod"
+// Keep the same accepted-address contract as /api/subscribe.
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const headers = { 'Content-Type': 'text/html', 'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer' }
 
+function linkEmail(values: FormDataEntryValue[] | string[]): string | null {
+  if (values.length !== 1 || typeof values[0] !== 'string') return null
+  const email = values[0].trim().toLowerCase()
+  return EMAIL_REGEX.test(email) ? email : null
+}
+
+function invalidLink() {
+  return new Response(unsubscribePage('This unsubscribe link is invalid. Please use the link in your latest email or contact us.', false), { headers, status: 400 })
+}
+
+function escapeHtml(value: string): string {
+  return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;')
+}
+
+/** Link scanners may GET this URL. Only an explicit form POST changes a subscription. */
 export async function GET(request: Request) {
-  try {
-    const { searchParams } = new URL(request.url)
-    const email = searchParams.get('email')?.trim().toLowerCase()
+  const email = linkEmail(new URL(request.url).searchParams.getAll('email'))
+  if (!email) return invalidLink()
+  return new Response(unsubscribePage('Confirm that you want to stop receiving the Daily Marketplace Brief.', false, email), { headers })
+}
 
-    if (searchParams.getAll('email').length !== 1 || !z.string().email().safeParse(email).success) {
-      return new Response(unsubscribePage('This unsubscribe link is invalid. Please use the link in your latest email or contact us.', false), {
-        headers: { 'Content-Type': 'text/html', 'Cache-Control': 'no-store' },
-        status: 400,
-      })
-    }
+export async function POST(request: Request) {
+  try {
+    const form = await request.formData()
+    const email = linkEmail(form.getAll('email'))
+    if (!email) return invalidLink()
 
     const supabase = createAdminClient()
 
@@ -23,36 +40,36 @@ export async function GET(request: Request) {
     if (error) {
       console.error('[Unsubscribe] Error:', error.message)
       return new Response(unsubscribePage('Something went wrong. Please try again or contact us.', false), {
-        headers: { 'Content-Type': 'text/html', 'Cache-Control': 'no-store' },
+        headers,
         status: 500,
       })
     }
 
     if (count === null || !Number.isSafeInteger(count) || count < 0) {
       return new Response(unsubscribePage('We could not confirm the result. Please try again or contact us.', false), {
-        headers: { 'Content-Type': 'text/html', 'Cache-Control': 'no-store' }, status: 500,
+        headers, status: 500,
       })
     }
     if (count === 0) {
       return new Response(unsubscribePage('No active subscription was found for this link. It may already have been removed. No subscription was changed.', false), {
-        headers: { 'Content-Type': 'text/html', 'Cache-Control': 'no-store' }, status: 200,
+        headers, status: 200,
       })
     }
 
     return new Response(unsubscribePage('Your subscription has been removed from the Daily Marketplace Brief.', true), {
-      headers: { 'Content-Type': 'text/html', 'Cache-Control': 'no-store' },
+      headers,
       status: 200,
     })
   } catch (error) {
     console.error('[Unsubscribe] Error:', error)
     return new Response(unsubscribePage('An unexpected error occurred.', false), {
-      headers: { 'Content-Type': 'text/html', 'Cache-Control': 'no-store' },
+      headers,
       status: 500,
     })
   }
 }
 
-function unsubscribePage(message: string, success: boolean): string {
+function unsubscribePage(message: string, success: boolean, confirmationEmail?: string): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -71,8 +88,9 @@ function unsubscribePage(message: string, success: boolean): string {
 <body>
   <div class="card">
     <div class="icon">${success ? '👋' : '⚠️'}</div>
-    <h1>${success ? "You've been unsubscribed" : 'Oops'}</h1>
+    <h1>${confirmationEmail ? "Confirm unsubscribe" : success ? "You've been unsubscribed" : "Subscription status"}</h1>
     <p>${message}</p>
+    ${confirmationEmail ? `<form method="post" action="/api/unsubscribe"><input type="hidden" name="email" value="${escapeHtml(confirmationEmail)}"><button type="submit">Confirm unsubscribe</button></form>` : ''}
     <p style="margin-top: 24px;"><a href="https://marketplacebeta.com">← Back to MarketplaceBeta</a></p>
   </div>
 </body>
