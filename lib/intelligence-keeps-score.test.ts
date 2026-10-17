@@ -6,28 +6,26 @@ import { MARKETPLACES } from '@/lib/marketplace-fees'
 import { newsletterSource } from '@/lib/newsletter-source'
 
 describe('forecast ledger', () => {
-  it('seeds the 12 Edition 1 forecasts, all open, with valid probabilities and dates', () => {
+  it('seeds the 12 Edition 1 forecasts, all open, with valid dates and no probabilities', () => {
     expect(FORECASTS.map(f => f.id)).toEqual(Array.from({ length: 12 }, (_, i) => `F${i + 1}`))
     for (const f of FORECASTS) {
       expect(f.status).toBe('open')
-      expect(f.probability).toBeGreaterThan(0)
-      expect(f.probability).toBeLessThan(1)
+      expect(f).not.toHaveProperty('probability')
       expect(Number.isFinite(Date.parse(f.resolveBy))).toBe(true)
     }
   })
-  it('reports accuracy as pending (null) until something resolves', () => {
+  it('reports zero hits and misses until something resolves', () => {
     const s = scoreForecasts()
-    expect(s).toMatchObject({ total: 12, open: 12, resolved: 0, accuracy: null, brier: null }) // page shows 'First forecasts resolve January 2027'
+    expect(s).toEqual({ total: 12, open: 12, resolved: 0, hits: 0, misses: 0 }) // page shows 'First forecasts resolve January 2027'
   })
-  it('scores hits, misses and Brier once resolved', () => {
+  it('counts hits and misses once resolved', () => {
     const resolved: Forecast[] = [
       { ...FORECASTS[0], status: 'hit' },
       { ...FORECASTS[1], status: 'miss' },
       ...FORECASTS.slice(2),
     ]
     const s = scoreForecasts(resolved)
-    expect(s.accuracy).toBe(0.5)
-    expect(s.brier).toBe(Math.round((((0.7 - 1) ** 2 + 0.8 ** 2) / 2) * 1000) / 1000)
+    expect(s).toEqual({ total: 12, open: 10, resolved: 2, hits: 1, misses: 1 })
   })
   it('accepts the campaign_forecasts and campaign_pressure_index sources', () => {
     expect(newsletterSource('?source=campaign_forecasts')).toBe('newsletter_campaign_forecasts')
