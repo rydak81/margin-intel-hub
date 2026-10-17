@@ -5,7 +5,7 @@ import { ArrowRight } from 'lucide-react'
 import { PremiumSiteHeader } from '@/components/premium-site-header'
 import { PremiumSiteFooter } from '@/components/premium-site-footer'
 import { JsonLd } from '@/components/json-ld'
-import { computePressureIndex, loadPressureArticles, type PressureIndexResult } from '@/lib/pressure-index'
+import { computePressureIndex, loadPressureArticles, MIN_CURRENT, type PressureIndexResult } from '@/lib/pressure-index'
 
 export const revalidate = 86400
 
@@ -17,12 +17,12 @@ const getIndex = cache(async (): Promise<PressureIndexResult> => computePressure
 
 export async function generateMetadata(): Promise<Metadata> {
   const index = await getIndex()
-  const top = index.rows[0]
-  const ogTitle = top ? `Marketplace Pressure Index top mover: ${top.label} coverage at ${top.index.toFixed(1)}x its usual level` : 'Weekly Marketplace Pressure Index'
-  const ogImage = '/api/og?title=' + encodeURIComponent(ogTitle) + '&category=' + encodeURIComponent('Pressure Index') + (top ? '&headline=' + encodeURIComponent(`${top.index.toFixed(1)}x`) : '')
+  const top = index.rows.find(r => r.ranked)
+  const ogTitle = top ? `Pressure Index top mover: ${top.label}'s share of marketplace coverage at ${top.index.toFixed(1)}x its usual level` : 'Weekly Marketplace Pressure Index'
+  const ogImage = '/api/og?title=' + encodeURIComponent(ogTitle) + '&category=' + encodeURIComponent('Pressure Index · coverage share') + (top ? '&headline=' + encodeURIComponent(`${top.index.toFixed(1)}x share`) : '')
   return {
     title: 'Marketplace Pressure Index: Weekly Ecommerce Coverage Intensity | MarketplaceBeta',
-    description: 'Which marketplaces and topics are drawing unusual attention this week? The Pressure Index compares the last 7 days of classified marketplace coverage with its weekly average since the archive began.',
+    description: 'Which marketplaces and topics are drawing unusual attention this week? The Pressure Index compares the share each marketplace and topic takes of the last 7 days of classified coverage with its usual weekly share over the trailing 12 weeks.',
     alternates: { canonical: URL_ },
     openGraph: { title: 'Marketplace Pressure Index', description: ogTitle, url: URL_, type: 'website', images: [{ url: ogImage, width: 1200, height: 630 }] },
     twitter: { card: 'summary_large_image', title: 'Marketplace Pressure Index', description: ogTitle, images: [ogImage] },
@@ -40,6 +40,8 @@ function Sparkline({ values }: { values: number[] }) {
   )
 }
 
+const pct = (x: number) => `${(x * 100).toFixed(1)}%`
+
 function heat(index: number): string {
   if (index >= 2) return 'bg-rose-600 text-white'
   if (index >= 1.4) return 'bg-orange-500 text-white'
@@ -52,19 +54,22 @@ const fmt = (iso: string) => new Date(iso).toLocaleDateString('en-US', { month: 
 
 export default async function PressureIndexPage() {
   const index = await getIndex()
-  const top = index.rows[0]
+  const top = index.rows.find(r => r.ranked)
+  const ranked = index.rows.filter(r => r.ranked)
+  const thin = index.rows.filter(r => !r.ranked)
+  const volumeRatio = index.totalBaseline > 0 ? index.totalCurrent / index.totalBaseline : null
 
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Dataset',
     name: 'Marketplace Pressure Index',
-    description: 'Weekly coverage intensity by marketplace and topic: last-7-day count of relevant classified articles divided by the trailing weekly average since the archive began. Measures publisher attention, not market size.',
+    description: 'Weekly coverage intensity by marketplace and topic: each key\'s share of all relevant classified articles in the last 7 days divided by its average weekly share over the trailing 12 weeks. Share-normalized so changes in total archive volume do not move the index. Measures publisher attention, not market size.',
     url: URL_,
     creator: { '@type': 'Organization', name: 'MarketplaceBeta', url: 'https://marketplacebeta.com' },
     isAccessibleForFree: true,
     dateModified: index.asOf,
     ...(index.archiveStart ? { temporalCoverage: `${index.archiveStart.slice(0, 10)}/${index.asOf.slice(0, 10)}` } : {}),
-    variableMeasured: 'Coverage intensity index (current week / trailing weekly average)',
+    variableMeasured: 'Coverage intensity index (current-week share of coverage / trailing 12-week average weekly share)',
   }
 
   return (
@@ -76,8 +81,8 @@ export default async function PressureIndexPage() {
           <p className="text-xs font-bold uppercase tracking-[.22em] text-blue-700 dark:text-blue-300">Updated weekly</p>
           <h1 className="mt-4 text-4xl font-bold leading-tight tracking-tight sm:text-5xl">Marketplace Pressure Index</h1>
           <p className="mt-5 text-lg leading-8 text-muted-foreground">
-            Where is attention building? Each row compares the last 7 days of relevant, AI-classified coverage for a marketplace or topic with its usual week.
-            An index of 2.0x means twice the normal coverage.
+            Where is attention building? Each row compares a marketplace or topic&apos;s share of the last 7 days of relevant, AI-classified coverage with its usual weekly share.
+            An index of 2.0x means it is taking twice its normal slice of the conversation. Because the index uses shares, not raw counts, changes in how many articles we collect overall do not move it.
           </p>
           <p className="mt-4 inline-block rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm font-semibold text-amber-900 dark:text-amber-200">Coverage intensity, not market size.</p>
         </section>
@@ -94,20 +99,27 @@ export default async function PressureIndexPage() {
               <section className="my-8 rounded-2xl border border-border bg-card p-6">
                 <p className="text-sm text-muted-foreground">Top mover, week ending {fmt(index.asOf)}</p>
                 <p className="mt-2 text-3xl font-bold">{top.label} <span className="tabular-nums text-rose-600">{top.index.toFixed(2)}x</span></p>
-                <p className="mt-1 text-sm text-muted-foreground">{top.current} articles in the last 7 days vs a usual {top.baseline} per week.</p>
+                <p className="mt-1 text-sm text-muted-foreground">{pct(top.share)} of relevant coverage in the last 7 days ({top.current} articles) vs a usual {pct(top.baselineShare)} ({top.baseline} articles per week).</p>
               </section>
             ) : null}
+            <p className="mb-4 text-sm text-muted-foreground">
+              Total relevant coverage: {index.totalCurrent} articles in the last 7 days vs a usual {index.totalBaseline} per week{volumeRatio ? ` (${volumeRatio.toFixed(2)}x)` : ''}. The index already adjusts for this.
+            </p>
             <div className="overflow-x-auto rounded-2xl border border-border bg-card">
-              <table className="w-full min-w-[680px] text-left text-sm">
+              <table className="w-full min-w-[900px] text-left text-sm">
                 <thead className="border-b border-border text-xs uppercase tracking-wider text-muted-foreground">
-                  <tr><th className="p-4">Rank</th><th className="p-4">Marketplace / topic</th><th className="p-4">Index</th><th className="p-4">Last 7 days</th><th className="p-4">Usual week</th><th className="p-4">Last 12 weeks</th></tr>
+                  <tr><th className="p-4">Rank</th><th className="p-4">Marketplace / topic</th><th className="p-4">Index</th><th className="p-4">Share, last 7 days</th><th className="p-4">Usual share</th><th className="p-4">Articles, last 7 days</th><th className="p-4">Usual week</th><th className="p-4">Last 12 weeks</th></tr>
                 </thead>
                 <tbody>
-                  {index.rows.map((row, i) => (
-                    <tr key={row.key} className="border-b border-border last:border-0">
-                      <td className="p-4 tabular-nums text-muted-foreground">{i + 1}</td>
+                  {[...ranked, ...thin].map((row, i) => (
+                    <tr key={row.key} className={`border-b border-border last:border-0 ${row.ranked ? '' : 'text-muted-foreground'}`}>
+                      <td className="p-4 tabular-nums text-muted-foreground">{row.ranked ? i + 1 : '–'}</td>
                       <td className="p-4 font-medium">{row.label} <span className="ml-1 text-xs text-muted-foreground">{row.kind}</span></td>
-                      <td className="p-4"><span className={`rounded-md px-2.5 py-1 font-semibold tabular-nums ${heat(row.index)}`}>{row.index.toFixed(2)}x</span></td>
+                      <td className="p-4">{row.ranked
+                        ? <span className={`rounded-md px-2.5 py-1 font-semibold tabular-nums ${heat(row.index)}`}>{row.index.toFixed(2)}x</span>
+                        : <span className="text-xs" title={`Fewer than ${MIN_CURRENT} articles this week`}>too thin to rank</span>}</td>
+                      <td className="p-4 tabular-nums">{pct(row.share)}</td>
+                      <td className="p-4 tabular-nums">{pct(row.baselineShare)}</td>
                       <td className="p-4 tabular-nums">{row.current}</td>
                       <td className="p-4 tabular-nums">{row.baseline}</td>
                       <td className="p-4 text-blue-600 dark:text-blue-300"><Sparkline values={row.weekly} /></td>
@@ -124,9 +136,10 @@ export default async function PressureIndexPage() {
             <h2 className="text-2xl font-bold">How the index works</h2>
             <ul className="mt-4 space-y-3 leading-7 text-muted-foreground">
               <li>The Marketplace Pressure Index extends the monthly coverage pressure analysis in our <Link href="/intelligence/dossier" className="text-primary underline underline-offset-4">Intelligence Dossier</Link> to a weekly cadence. It is a coverage-intensity measure.</li>
-              <li>We count relevant, AI-classified articles from our fixed source panel, by platform tag and by topic, for the last 7 days.</li>
-              <li>The baseline is that key&apos;s average weekly count from the start of the archive{index.archiveStart ? ` (${fmt(index.archiveStart)}, ${index.weeksOfHistory} full weeks)` : ''} up to, but not including, the current week.</li>
-              <li>Index = last 7 days ÷ baseline. Keys averaging under one article a week are left out as too thin to rank.</li>
+              <li>We count relevant, AI-classified articles from our fixed source panel, by platform tag and by topic, and divide by all relevant articles in the same week. That gives each key&apos;s <em>share</em> of coverage.</li>
+              <li>The baseline is that key&apos;s average weekly share over the trailing {index.baselineWeeks} full weeks before the current week. Weeks with unusually low total volume (under a quarter of a typical week, e.g. outages) are skipped.</li>
+              <li>Index = share in the last 7 days ÷ baseline share. Using shares means that if our overall article volume doubles, every index stays near 1.0x; only a genuine shift in attention moves it. Raw article counts are shown alongside.</li>
+              <li>Keys averaging under one article a week are left out. Keys with fewer than {MIN_CURRENT} articles in the last 7 days are listed but not ranked, since small counts swing widely.</li>
               <li><strong className="text-foreground">Limits:</strong> this measures publisher attention, not sales, demand or market size. A spike says &quot;investigate&quot;, not &quot;act&quot;. In our archive, a sustained rise in logistics coverage preceded mainstream holiday freight commentary by about two months; that pattern is logged in the <Link href="/intelligence/forecasts" className="text-primary underline underline-offset-4">forecast scorecard</Link> process rather than treated as proven.</li>
             </ul>
           </div>
