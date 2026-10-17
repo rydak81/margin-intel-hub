@@ -3,6 +3,10 @@ import { createClient } from '@supabase/supabase-js'
 import { callAIForJSON } from '@/lib/ai-client'
 import { generateAndStoreArticleImage } from '@/lib/article-image-generation'
 import { isGoodArticleImage } from '@/lib/article-images'
+import { budgetExhausted } from '@/lib/news-aggregation/pipeline-helpers'
+
+// Don't start a new batch after this point; leaves room under maxDuration (60s) for the last batch to finish.
+const CLASSIFY_BUDGET_MS = 32000
 
 // Lazy-initialized Supabase client (avoids module-level crash if env vars missing)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -349,6 +353,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const startTime = Date.now()
   try {
     const hasAIKey = process.env.AI_GATEWAY_API_KEY || process.env.ANTHROPIC_API_KEY
     if (!hasAIKey) {
@@ -423,7 +428,15 @@ export async function POST(request: NextRequest) {
 
     // Process in batches of 5 (reduced from 10 to stay within Sonnet rate limits)
     const batchSize = 5
+    let skippedForTime = 0
     for (let i = 0; i < unclassified.length; i += batchSize) {
+      // Each batch (model call + image generation) takes ~10-25s. Starting one late used to
+      // run past maxDuration (60s), killing the function and discarding in-flight work.
+      if (budgetExhausted(startTime, CLASSIFY_BUDGET_MS)) {
+        skippedForTime = unclassified.length - i
+        console.log(`[Classify] Time budget reached; deferring ${skippedForTime} articles to the next run`)
+        break
+      }
       const batch = unclassified.slice(i, i + batchSize)
       await Promise.all(
         batch.map(async (article: any) => {
@@ -532,7 +545,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log(`[Classify] Complete: ${classifiedCount} classified, ${enrichedCount} enriched, ${errors.length} errors`)
+    console.log(`[Classify] Complete: ${classifiedCount} classified, ${enrichedCount} enriched, ${errors.length} errors, ${skippedForTime} deferred`)
 
     return NextResponse.json({
       success: true,
@@ -541,6 +554,7 @@ export async function POST(request: NextRequest) {
       fixedImageCount,
       generatedImageCount,
       totalProcessed: unclassified.length,
+      deferredForTime: skippedForTime,
       errors: errors.length > 0 ? errors : undefined
     })
   } catch (error) {
