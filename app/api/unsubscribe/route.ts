@@ -1,43 +1,52 @@
 import { createAdminClient } from "@/lib/supabase/admin"
-import { NextResponse } from "next/server"
+import { z } from "zod"
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
     const email = searchParams.get('email')?.trim().toLowerCase()
 
-    if (!email) {
-      return new Response(unsubscribePage('Missing email address.', false), {
-        headers: { 'Content-Type': 'text/html' },
+    if (searchParams.getAll('email').length !== 1 || !z.string().email().safeParse(email).success) {
+      return new Response(unsubscribePage('This unsubscribe link is invalid. Please use the link in your latest email or contact us.', false), {
+        headers: { 'Content-Type': 'text/html', 'Cache-Control': 'no-store' },
         status: 400,
       })
     }
 
     const supabase = createAdminClient()
 
-    const { error } = await supabase
+    const { count, error } = await supabase
       .from('subscribers')
-      .delete()
+      .delete({ count: 'exact' })
       .eq('email', email)
 
     if (error) {
       console.error('[Unsubscribe] Error:', error.message)
       return new Response(unsubscribePage('Something went wrong. Please try again or contact us.', false), {
-        headers: { 'Content-Type': 'text/html' },
+        headers: { 'Content-Type': 'text/html', 'Cache-Control': 'no-store' },
         status: 500,
       })
     }
 
-    console.log('[Unsubscribe] Removed:', email)
+    if (count === null || !Number.isSafeInteger(count) || count < 0) {
+      return new Response(unsubscribePage('We could not confirm the result. Please try again or contact us.', false), {
+        headers: { 'Content-Type': 'text/html', 'Cache-Control': 'no-store' }, status: 500,
+      })
+    }
+    if (count === 0) {
+      return new Response(unsubscribePage('No active subscription was found for this link. It may already have been removed. No subscription was changed.', false), {
+        headers: { 'Content-Type': 'text/html', 'Cache-Control': 'no-store' }, status: 200,
+      })
+    }
 
-    return new Response(unsubscribePage(email, true), {
-      headers: { 'Content-Type': 'text/html' },
+    return new Response(unsubscribePage('Your subscription has been removed from the Daily Marketplace Brief.', true), {
+      headers: { 'Content-Type': 'text/html', 'Cache-Control': 'no-store' },
       status: 200,
     })
   } catch (error) {
     console.error('[Unsubscribe] Error:', error)
     return new Response(unsubscribePage('An unexpected error occurred.', false), {
-      headers: { 'Content-Type': 'text/html' },
+      headers: { 'Content-Type': 'text/html', 'Cache-Control': 'no-store' },
       status: 500,
     })
   }
@@ -63,7 +72,7 @@ function unsubscribePage(message: string, success: boolean): string {
   <div class="card">
     <div class="icon">${success ? '👋' : '⚠️'}</div>
     <h1>${success ? "You've been unsubscribed" : 'Oops'}</h1>
-    <p>${success ? `<strong>${message}</strong> has been removed from the Daily Marketplace Brief. We're sorry to see you go.` : message}</p>
+    <p>${message}</p>
     <p style="margin-top: 24px;"><a href="https://marketplacebeta.com">← Back to MarketplaceBeta</a></p>
   </div>
 </body>

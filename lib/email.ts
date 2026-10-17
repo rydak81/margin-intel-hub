@@ -6,6 +6,7 @@ interface SendEmailOptions {
   to: string | string[]
   subject: string
   html: string
+  text?: string
   from?: string
   replyTo?: string
 }
@@ -38,6 +39,7 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
         to: Array.isArray(options.to) ? options.to : [options.to],
         subject: options.subject,
         html: options.html,
+        text: options.text,
         reply_to: options.replyTo || DEFAULT_REPLY_TO,
       }),
     })
@@ -67,7 +69,8 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
 export async function sendBatchEmails(
   subscribers: { email: string; first_name?: string | null }[],
   subject: string,
-  generateHtml: (subscriber: { email: string; first_name?: string | null }) => string
+  generateHtml: (subscriber: { email: string; first_name?: string | null }) => string,
+  generateText?: (subscriber: { email: string; first_name?: string | null }) => string
 ): Promise<{ sent: number; failed: number; errors: string[] }> {
   let sent = 0
   let failed = 0
@@ -79,6 +82,7 @@ export async function sendBatchEmails(
       to: subscriber.email,
       subject,
       html,
+      text: generateText?.(subscriber),
     })
 
     if (result.success) {
