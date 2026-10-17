@@ -434,7 +434,7 @@ export function generateDossierEmail(subscriberName: string | null | undefined, 
               </table>
               <p style="color: ${BRAND.slate}; font-size: 15px; line-height: 1.6; margin: 8px 0 24px 0;">
                 Plus: a scored opportunity ranking, a 30/60/90-day action framework, the indicator dashboard
-                we watch weekly — and twelve probabilistic forecasts stored in a ledger we will score publicly,
+                we watch weekly — and twelve dated forecasts stored in a ledger we will score publicly,
                 hits and misses alike.
               </p>
 

@@ -39,7 +39,7 @@ export default function DossierPage() {
             <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
               An evidence-first dossier for e-commerce operators: proprietary pattern analysis across 8,500+ classified
               articles and a live market snapshot, 80+ dated external sources, a scored opportunity ranking, and twelve
-              probabilistic forecasts logged in a ledger we will score publicly.
+              dated forecasts logged in a ledger we will score publicly as hits or misses.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <a href="/intelligence/dossier-2026-10.html" className="inline-flex items-center gap-2 rounded-lg bg-blue-400 px-5 py-3 font-bold text-slate-950 hover:bg-blue-300">
@@ -77,7 +77,7 @@ export default function DossierPage() {
           {[
             { icon: LineChart, title: 'Proprietary analysis', text: 'Pattern discovery runs on our own archive and market data — coverage-attention indicators, keyword acceleration, and competitive-density structure — with reproducible queries published in the appendix.' },
             { icon: ShieldCheck, title: 'Labeled confidence', text: 'Every claim is tagged Observed, Reported, Hypothesis, or Forecast. Conflicting sources are disclosed, and a could-not-verify list is published rather than papered over.' },
-            { icon: BookOpen, title: 'A scored forecast ledger', text: 'Twelve forecasts with probabilities, confirming and invalidating indicators, and resolve-by dates are stored in a database ledger. Future editions must score them — hits and misses alike.' },
+            { icon: BookOpen, title: 'A scored forecast ledger', text: 'Twelve dated forecasts with confirming and invalidating indicators and resolve-by dates are stored in a database ledger. Future editions must score them — hits and misses alike.' },
           ].map((item) => (
             <div key={item.title} className="editorial-elevated rounded-2xl border border-border bg-card p-7">
               <item.icon className="h-7 w-7 text-primary" />
