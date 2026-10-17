@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { callAI } from '@/lib/ai-client'
 import { sendBatchEmails } from '@/lib/email'
-import { generateDailyBriefEmail } from '@/lib/email-templates'
+import { generateDailyBriefEmail, generateDailyBriefText } from '@/lib/email-templates'
 
 export const maxDuration = 60
 
@@ -194,6 +194,13 @@ ${topArticles.map((a: any, i: number) => `${i + 1}. "${a.title}" (${a.source_nam
         date: today.long,
         articleCount: topArticles.length,
         subscriberName: subscriber.first_name,
+        subscriberEmail: subscriber.email,
+      }),
+      (subscriber) => generateDailyBriefText({
+        briefContent: response.text,
+        date: today.long,
+        articleCount: topArticles.length,
+        subscriberEmail: subscriber.email,
       })
     )
 
