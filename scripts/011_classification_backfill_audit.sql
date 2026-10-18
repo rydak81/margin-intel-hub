@@ -67,6 +67,13 @@ BEGIN
     RETURN false;
   END IF;
   next_row := jsonb_populate_record(current_row, p_update);
+  IF p_mode = 'unclassified' AND (
+    COALESCE(btrim(next_row.our_take), '') = '' OR COALESCE(btrim(next_row.bottom_line), '') = ''
+    OR COALESCE(cardinality(next_row.key_takeaways), 0) = 0
+    OR EXISTS (SELECT 1 FROM unnest(next_row.key_takeaways) t WHERE COALESCE(btrim(t), '') = '')
+  ) THEN
+    RAISE EXCEPTION 'Incomplete classification text; article left pending';
+  END IF;
   IF (p_mode = 'unclassified' AND COALESCE(btrim(next_row.ai_summary), '') = '')
     OR COALESCE('brand_sellers' = ANY(next_row.audience), false) THEN
     RAISE EXCEPTION 'Classification must leave the pending selector';

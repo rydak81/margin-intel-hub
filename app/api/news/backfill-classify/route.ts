@@ -69,8 +69,9 @@ export async function POST(request: NextRequest) {
   const runId = body.runId
   if (typeof cursor !== 'string' || !Number.isInteger(limit) || limit < 1 || limit > 60
     || !Number.isInteger(concurrency) || concurrency < 1 || concurrency > 12
+    || (body.dryRun !== undefined && typeof body.dryRun !== 'boolean')
     || (!dryRun && (typeof runId !== 'string' || !runId.trim() || runId.length > 64))) {
-    return NextResponse.json({ error: 'Invalid cursor, limit (1–60), concurrency (1–12), or runId (1–64 characters)' }, { status: 400 })
+    return NextResponse.json({ error: 'Invalid cursor, limit (1–60), concurrency (1–12), dryRun (boolean), or runId (1–64 characters)' }, { status: 400 })
   }
 
   try {

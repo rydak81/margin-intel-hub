@@ -5,7 +5,7 @@ vi.mock('@supabase/supabase-js', () => ({ createClient: mocks.client }))
 vi.mock('@/lib/news-classification', () => ({ classifyArticle: mocks.classify, evaluateOperatorValue: (_row: unknown, c: unknown) => c }))
 import { POST } from '../app/api/news/backfill-classify/route'
 const classification = {
-  aiSummary: 'Fees changed.', ourTake: 'Check margins.', keyTakeaways: [], bottomLine: 'Review fees.',
+  aiSummary: 'Fees changed.', ourTake: 'Check margins.', keyTakeaways: ['Check fees'], bottomLine: 'Review fees.',
   whatThisMeans: null, keyStat: null, category: 'profitability', platforms: ['amazon'], audience: ['sellers'],
   impactLevel: 'high', relevanceScore: 0.8, relevant: true, rejectionReason: null,
 }
@@ -80,7 +80,13 @@ describe('backfill endpoint', () => {
   it('refuses invalid input and unauthorized requests before data access', async () => {
     setup()
     expect((await POST(request({}, 'Bearer wrong'))).status).toBe(401)
-    for (const body of [{ mode: 'wrong' }, { limit: 0 }, { concurrency: 1.5 }, { runId: '' }]) expect((await POST(request(body))).status).toBe(400)
+    for (const body of [{ mode: 'wrong' }, { limit: 0 }, { concurrency: 1.5 }, { runId: '' }, { dryRun: 'true' }]) expect((await POST(request(body))).status).toBe(400)
     expect(mocks.client).not.toHaveBeenCalled()
+  })
+  it('leaves incomplete model text pending without calling the write RPC', async () => {
+    const h = setup(['art_a']); mocks.classify.mockResolvedValue({ ...classification, ourTake: '', keyTakeaways: [] })
+    const body = await (await POST(request())).json()
+    expect(body).toMatchObject({ updated: 0, errorCount: 1, done: false, remainingAfter: 1 })
+    expect(h.rpc).not.toHaveBeenCalled()
   })
 })

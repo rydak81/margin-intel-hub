@@ -89,6 +89,10 @@ export function buildBackfillUpdate(mode: BackfillMode, c: ClassifiedResult, now
     || !Number.isFinite(c.relevanceScore) || typeof c.relevant !== 'boolean') {
     throw new Error('Invalid classification; article left pending')
   }
+  if (mode === 'unclassified' && (!c.ourTake.trim() || !c.bottomLine.trim()
+    || !c.keyTakeaways.length || !c.keyTakeaways.every(t => t.trim()))) {
+    throw new Error('Incomplete classification text; article left pending')
+  }
   const audience = (c.audience || []).filter(a => a !== FEED_DEFAULT_AUDIENCE_MARKER)
   const structured = {
     category: c.category || 'market_metrics',

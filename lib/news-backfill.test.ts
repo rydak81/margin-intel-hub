@@ -18,6 +18,11 @@ describe('mode selectors', () => {
 })
 
 describe('buildBackfillUpdate', () => {
+  it.each([{ ourTake: ' ' }, { bottomLine: '' }, { keyTakeaways: [] }, { keyTakeaways: [''] }])('keeps missing mandatory AI text pending: %j', missing => {
+    expect(() => buildBackfillUpdate('unclassified', { ...classified, ...missing }, 'now')).toThrow('Incomplete classification text')
+    // This mode preserves existing AI text and only needs the structured result.
+    expect(() => buildBackfillUpdate('overwritten', { ...classified, ...missing }, 'now')).not.toThrow()
+  })
   it('overwritten mode restores structured fields only and leaves AI text + classified_at alone', () => {
     const u = buildBackfillUpdate('overwritten', classified, '2026-10-18T00:00:00Z')
     expect(Object.keys(u).sort()).toEqual(['audience', 'category', 'impact_level', 'platforms', 'rejection_reason', 'relevance_score', 'relevant'])

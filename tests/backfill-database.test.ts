@@ -137,3 +137,12 @@ test('only service role can invoke mutations, with no SECURITY DEFINER bypass', 
   await db.exec('SET ROLE service_role'); assert.equal(await apply(expected), true); await db.exec('RESET ROLE')
   assert.equal((await db.query<any>("SELECT bool_or(prosecdef) AS elevated FROM pg_proc WHERE proname IN ('apply_article_classification_backfill','restore_article_classification_backfill')")).rows[0].elevated, false)
 })
+test('database guard keeps incomplete AI analysis pending even if application validation is bypassed', async () => {
+  await db.exec("UPDATE public.articles SET ai_summary=NULL WHERE id='art_a'")
+  const expected = await row()
+  for (const missing of [{ our_take: null }, { bottom_line: '' }, { key_takeaways: [] }, { key_takeaways: [' '] }]) {
+    await assert.rejects(apply(expected, { ...unclassified, ...missing }, 'unclassified'), /Incomplete classification text/)
+    assert.deepEqual(await row(), expected)
+  }
+  assert.equal((await audit()).length, 0)
+})
