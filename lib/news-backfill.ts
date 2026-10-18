@@ -4,12 +4,9 @@
  * Ground rules (the archive is the forecast training/backtest set):
  *  - Never deletes anything, never inserts articles, never touches title, summary,
  *    full_content, source, published_at or image fields.
- *  - Only classification fields are written, and every write is preceded by an audit row
- *    (article_classification_audit) holding the before/after values, so any change can be
- *    reviewed or reverted.
- *  - Idempotent: a row that has been processed no longer matches its mode's selector, and
- *    each UPDATE repeats the selector as a guard, so re-running or overlapping with the
- *    classify cron can't double-write or clobber newer data.
+ *  - Classification changes and their exact before/after audit are committed atomically.
+ *  - Idempotent: processed rows leave the mode's selector. Each transaction rechecks
+ *    eligibility, classification inputs, and prior values against the selected snapshot.
  */
 
 export type BackfillMode = 'unclassified' | 'overwritten'
@@ -30,7 +27,7 @@ export const FEED_DEFAULT_AUDIENCE_MARKER = 'brand_sellers'
 
 /** Columns read for classification + audit. Deliberately excludes images and search vector. */
 export const BACKFILL_SELECT =
-  'id, title, summary, full_content, source_name, published_at, ai_summary, our_take, key_takeaways, bottom_line, what_this_means, key_stat, category, platforms, audience, impact_level, relevant, relevance_score, rejection_reason, classified_at'
+  'id, title, summary, full_content, source_name, published_at, ai_summary, our_take, key_takeaways, bottom_line, what_this_means, key_stat, category, platforms, audience, impact_level, relevant, relevance_score, rejection_reason, classified_at, updated_at'
 
 export interface BackfillRow {
   id: string
@@ -81,6 +78,17 @@ export function toRelevanceInt(score: number): number {
  * the re-upsert clobbered; the original AI text and classified_at are left untouched.
  */
 export function buildBackfillUpdate(mode: BackfillMode, c: ClassifiedResult, now: string): Record<string, unknown> {
+  if (typeof c.aiSummary !== 'string' || !c.aiSummary.trim()
+    || !(CLASSIFIER_CATEGORIES as readonly string[]).includes(c.category)
+    || !Array.isArray(c.platforms) || !c.platforms.every(p => typeof p === 'string')
+    || !Array.isArray(c.audience) || !c.audience.every(a => typeof a === 'string')
+    || !Array.isArray(c.keyTakeaways) || !c.keyTakeaways.every(t => typeof t === 'string')
+    || typeof c.ourTake !== 'string' || typeof c.bottomLine !== 'string'
+    || ![c.whatThisMeans, c.keyStat, c.rejectionReason].every(t => t === null || typeof t === 'string')
+    || !IMPACT_LEVELS.has(c.impactLevel)
+    || !Number.isFinite(c.relevanceScore) || typeof c.relevant !== 'boolean') {
+    throw new Error('Invalid classification; article left pending')
+  }
   const audience = (c.audience || []).filter(a => a !== FEED_DEFAULT_AUDIENCE_MARKER)
   const structured = {
     category: c.category || 'market_metrics',
@@ -105,14 +113,6 @@ export function buildBackfillUpdate(mode: BackfillMode, c: ClassifiedResult, now
   }
 }
 
-/** Subset of `row` covering exactly the keys being changed, for the audit "before" snapshot. */
-export function snapshotBefore(row: Record<string, unknown>, update: Record<string, unknown>): Record<string, unknown> {
-  const before: Record<string, unknown> = {}
-  for (const key of Object.keys(update)) before[key] = row[key] ?? null
-  if (!('classified_at' in before)) before.classified_at = row.classified_at ?? null
-  return before
-}
-
 /**
  * Rough Sonnet 4.6 cost per article: ~2,000 input tokens (prompt + up to 4,000 chars of
  * body) and ~450 output tokens at $3 / $15 per million.
@@ -120,3 +120,4 @@ export function snapshotBefore(row: Record<string, unknown>, update: Record<stri
 export function estimateCostUsd(articles: number, inputTokens = 2000, outputTokens = 450, inPerM = 3, outPerM = 15): number {
   return Math.round(articles * (inputTokens * inPerM + outputTokens * outPerM) / 1e6 * 100) / 100
 }
+

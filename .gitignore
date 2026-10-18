@@ -10,3 +10,7 @@ node_modules/
 .DS_Store
 .vercel
 tsconfig.tsbuildinfo
+
+# Local one-off backfill checkpoints and atomic-write temporaries
+.backfill-state-*.json*
+

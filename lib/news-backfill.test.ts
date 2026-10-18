@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildBackfillUpdate, estimateCostUsd, isFeedDefaultOverwrite, matchesMode, snapshotBefore, toRelevanceInt } from './news-backfill'
+import { buildBackfillUpdate, estimateCostUsd, isFeedDefaultOverwrite, matchesMode, toRelevanceInt } from './news-backfill'
 
 const classified = {
   aiSummary: 'Amazon raised FBA fees 3%.', ourTake: 'Re-check margins.', keyTakeaways: ['a', 'b'], bottomLine: 'Fees up.',
@@ -39,9 +39,9 @@ describe('buildBackfillUpdate', () => {
 })
 
 describe('helpers', () => {
-  it('snapshots exactly the changed keys plus classified_at', () => {
-    const before = snapshotBefore({ category: 'ecommerce', audience: ['brand_sellers'], classified_at: 't0', title: 'T' }, { category: 'x', audience: [] })
-    expect(before).toEqual({ category: 'ecommerce', audience: ['brand_sellers'], classified_at: 't0' })
+  it('rejects empty or malformed classifications instead of marking them complete', () => {
+    expect(() => buildBackfillUpdate('unclassified', { ...classified, aiSummary: '' }, 'now')).toThrow('Invalid classification')
+    expect(() => buildBackfillUpdate('overwritten', { ...classified, relevanceScore: NaN }, 'now')).toThrow('Invalid classification')
   })
   it('clamps relevance', () => {
     expect(toRelevanceInt(0.456)).toBe(46)
@@ -53,3 +53,4 @@ describe('helpers', () => {
     expect(estimateCostUsd(1000)).toBe(12.75)
   })
 })
+

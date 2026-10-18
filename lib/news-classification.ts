@@ -236,8 +236,9 @@ RULES:
     audience: parsed.audience || [],
     impactLevel: parsed.impactLevel || 'medium',
     keyStat: parsed.keyStat || null,
-    relevanceScore: parsed.relevanceScore || 0.5,
+    relevanceScore: parsed.relevanceScore ?? 0.5,
     unsplashQuery: parsed.unsplashQuery || ''
   }
 }
+
 

@@ -8,7 +8,6 @@ import {
   buildBackfillUpdate,
   estimateCostUsd,
   matchesMode,
-  snapshotBefore,
   type BackfillMode,
 } from '@/lib/news-backfill'
 
@@ -20,8 +19,8 @@ import {
  * Auth: Authorization: Bearer $CRON_SECRET (required; refuses to run if unset).
  *
  * Walks rows in id order after `cursor`, classifies with the same prompt as the cron,
- * writes an audit row, then updates only classification fields with a guard that the row
- * still matches the mode. Returns nextCursor; resume by passing it back. No deletes, no
+ * atomically commits the guarded classification update and its audit via one RPC.
+ * Returns nextCursor; resume by passing it back. No deletes, no
  * image generation, no keyword/category table rewrites.
  */
 
@@ -57,15 +56,22 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const body: any = await request.json().catch(() => ({}))
-  const mode: BackfillMode = body.mode === 'overwritten' ? 'overwritten' : 'unclassified'
-  if (body.mode && body.mode !== mode) return NextResponse.json({ error: 'mode must be unclassified or overwritten' }, { status: 400 })
-  const cursor: string = typeof body.cursor === 'string' ? body.cursor : ''
-  const limit = Math.max(1, Math.min(Number(body.limit) || 40, 60))
-  const concurrency = Math.max(1, Math.min(Number(body.concurrency) || 8, 12))
+  const body = await request.json().catch(() => null)
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    return NextResponse.json({ error: 'Expected a JSON object' }, { status: 400 })
+  }
+  const mode: BackfillMode = body.mode
+  if (!['unclassified', 'overwritten'].includes(mode)) return NextResponse.json({ error: 'mode must be unclassified or overwritten' }, { status: 400 })
+  const cursor = body.cursor ?? ''
+  const limit = body.limit ?? 40
+  const concurrency = body.concurrency ?? 8
   const dryRun = body.dryRun === true
-  const runId: string = typeof body.runId === 'string' && body.runId ? body.runId.slice(0, 64) : `backfill-${new Date().toISOString().slice(0, 10)}`
+  const runId = body.runId
+  if (typeof cursor !== 'string' || !Number.isInteger(limit) || limit < 1 || limit > 60
+    || !Number.isInteger(concurrency) || concurrency < 1 || concurrency > 12
+    || (!dryRun && (typeof runId !== 'string' || !runId.trim() || runId.length > 64))) {
+    return NextResponse.json({ error: 'Invalid cursor, limit (1–60), concurrency (1–12), or runId (1–64 characters)' }, { status: 400 })
+  }
 
   try {
     const supabase = getSupabase()
@@ -76,9 +82,9 @@ export async function POST(request: NextRequest) {
     if (countError) throw new Error(`count failed: ${countError.message}`)
 
     // Audit table must exist before any write.
-    const { error: auditProbe } = await supabase.from('article_classification_audit').select('id', { head: true, count: 'exact' }).limit(1)
+    const { error: auditProbe } = await supabase.from('article_classification_audit').select('id, atomic_version, after_snapshot, restored_at', { head: true }).limit(1)
     if (auditProbe) {
-      return NextResponse.json({ error: 'article_classification_audit missing; run scripts/011_classification_backfill_audit.sql first', details: auditProbe.message }, { status: 412 })
+      return NextResponse.json({ error: 'Atomic backfill schema missing; apply the revised scripts/011_classification_backfill_audit.sql first', details: auditProbe.message }, { status: 412 })
     }
 
     let query = applyModeFilter(supabase.from('articles').select(BACKFILL_SELECT), mode).order('id', { ascending: true }).limit(limit)
@@ -107,16 +113,13 @@ export async function POST(request: NextRequest) {
         const classified = evaluateOperatorValue(row, await classifyArticle(row))
         const update = buildBackfillUpdate(mode, classified, new Date().toISOString())
 
-        const { error: auditError } = await supabase.from('article_classification_audit').insert({
-          run_id: runId, article_id: row.id, mode, before: snapshotBefore(row, update), after: update,
+        const { data: changed, error: updateError } = await supabase.rpc('apply_article_classification_backfill', {
+          p_run_id: runId, p_article_id: row.id, p_mode: mode,
+          p_expected: row, p_update: update,
         })
-        if (auditError) throw new Error(`audit insert failed: ${auditError.message}`)
-
-        const { data: changed, error: updateError } = await applyModeFilter(
-          supabase.from('articles').update(update).eq('id', row.id), mode
-        ).select('id')
-        if (updateError) throw new Error(`update failed: ${updateError.message}`)
-        if (changed && changed.length) updated++
+        if (updateError) throw new Error(`atomic update failed: ${updateError.message}`)
+        if (changed === true) updated++
+        else if (changed !== false) throw new Error('Unexpected atomic update result')
         else skipped++ // row changed under us (e.g. the cron classified it); left as is
       } catch (err) {
         errors.push({ id: row.id, error: err instanceof Error ? err.message : String(err) })
@@ -133,11 +136,17 @@ export async function POST(request: NextRequest) {
       lastDoneId = (row as any).id
     }
 
-    const done = started >= batch.length && (rows || []).length < limit
-    console.log(`[Backfill] run=${runId} mode=${mode} cursor=${cursor || '-'} -> ${lastDoneId} updated=${updated} skipped=${skipped} errors=${errors.length} remaining~${(remaining || 0) - updated}`)
+    // A range ending is not completion: failed/skipped rows may be behind the cursor.
+    const passComplete = started >= batch.length && (rows || []).length < limit
+    const { count: remainingAfter, error: recountError } = await applyModeFilter(
+      supabase.from('articles').select('id', { count: 'exact', head: true }), mode
+    )
+    if (recountError || remainingAfter === null) throw new Error(`recount failed: ${recountError?.message || 'missing count'}`)
+    const done = remainingAfter === 0
+    console.log(`[Backfill] run=${runId} mode=${mode} cursor=${cursor || '-'} -> ${lastDoneId} updated=${updated} skipped=${skipped} errors=${errors.length} remaining=${remainingAfter}`)
 
     return NextResponse.json({
-      mode, runId, cursor, nextCursor: lastDoneId, done,
+      protocolVersion: 2, mode, runId, cursor, nextCursor: lastDoneId, done, passComplete, remainingAfter,
       attempted: started, updated, skipped, errors: errors.slice(0, 20), errorCount: errors.length,
       remainingBefore: remaining, runtimeMs: Date.now() - startTime,
     })
@@ -146,3 +155,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Backfill failed', details: String(error) }, { status: 500 })
   }
 }
+
