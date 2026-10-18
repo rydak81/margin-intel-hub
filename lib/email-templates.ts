@@ -30,6 +30,7 @@ export function renderSponsorSlot(sponsor: NewsletterSponsor | null = getNewslet
 }
 
 interface DailyBriefData {
+  subscriberEmail: string
   briefContent: string  // AI-generated brief text
   date: string
   articleCount: number
@@ -137,7 +138,12 @@ function formatInlineStyles(text: string): string {
   return text
 }
 
+export function generateDailyBriefText(data: DailyBriefData): string {
+  return `Daily Marketplace Brief — ${data.date}\n\n${sanitizeBriefText(data.briefContent, data.date)}\n\nUnsubscribe: https://marketplacebeta.com/api/unsubscribe?email=${encodeURIComponent(data.subscriberEmail.trim().toLowerCase())}`
+}
+
 export function generateDailyBriefEmail(data: DailyBriefData): string {
+  const unsubscribeUrl = `https://marketplacebeta.com/api/unsubscribe?email=${encodeURIComponent(data.subscriberEmail.trim().toLowerCase())}`
   const greeting = data.subscriberName
     ? `Good morning, ${data.subscriberName}`
     : 'Good morning'
@@ -238,7 +244,7 @@ ${renderSponsorSlot()}
               <p style="color: ${BRAND.muted}; font-size: 12px; line-height: 1.5; margin: 0; text-align: center;">
                 <a href="https://marketplacebeta.com" style="color: ${BRAND.cobalt}; text-decoration: underline;">Visit MarketplaceBeta</a>
                 &nbsp;&bull;&nbsp;
-                <a href="https://marketplacebeta.com/api/unsubscribe?email={{email}}" style="color: ${BRAND.muted}; text-decoration: underline;">Unsubscribe</a>
+                <a href="${escapeHtml(unsubscribeUrl)}" style="color: ${BRAND.muted}; text-decoration: underline;">Unsubscribe</a>
               </p>
               <p style="color: #94a3b8; font-size: 11px; margin: 16px 0 0 0; text-align: center;">
                 MarketplaceBeta &bull; BeaconPath Holdings, LLC
@@ -428,7 +434,7 @@ export function generateDossierEmail(subscriberName: string | null | undefined, 
               </table>
               <p style="color: ${BRAND.slate}; font-size: 15px; line-height: 1.6; margin: 8px 0 24px 0;">
                 Plus: a scored opportunity ranking, a 30/60/90-day action framework, the indicator dashboard
-                we watch weekly — and twelve probabilistic forecasts stored in a ledger we will score publicly,
+                we watch weekly — and twelve dated forecasts stored in a ledger we will score publicly,
                 hits and misses alike.
               </p>
 

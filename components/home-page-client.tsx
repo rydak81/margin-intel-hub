@@ -480,7 +480,7 @@ export default function HomePageClient({
             <Link href="/intelligence/forecasts" className="rounded-2xl border border-border bg-card p-6 hover:border-blue-600/50">
               <p className="editorial-eyebrow">Public forecasts</p>
               <p className="mt-3 text-3xl font-bold tabular-nums">12 logged, graded in public</p>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">Each with a probability, the indicators that confirm or kill it, and a resolve-by date. Hits and misses stay on the scorecard.</p>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">Each with the indicators that confirm or kill it and a resolve-by date. Hits and misses stay on the scorecard.</p>
             </Link>
             <Link href="/intelligence/pressure-index" className="rounded-2xl border border-border bg-card p-6 hover:border-blue-600/50">
               <p className="editorial-eyebrow">Evidence labels</p>
