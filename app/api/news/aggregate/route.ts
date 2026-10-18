@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { syncMarketplaceFirstSourceStrategy } from '@/lib/news-aggregation'
 import { isGoodArticleImage, normalizeArticleImageUrl } from '@/lib/article-images'
+import { budgetExhausted, orderSourcesForFetch, runWithConcurrency, selectNewArticles } from '@/lib/news-aggregation/pipeline-helpers'
 
 export const maxDuration = 60 // Allow up to 60s for aggregation
 
@@ -118,7 +119,8 @@ export async function POST(request: Request) {
 async function runAggregationFromDB() {
   const supabaseAdmin = getSupabaseAdmin()
   const startTime = Date.now()
-  const MAX_RUNTIME_MS = 50000 // Stop at 50s to leave buffer for DB writes
+  const MAX_RUNTIME_MS = 45000 // Stop starting new work at 45s to leave buffer for in-flight fetches and DB writes
+  const SOURCE_CONCURRENCY = 8
 
   await syncMarketplaceFirstSourceStrategy()
 
@@ -139,40 +141,52 @@ async function runAggregationFromDB() {
   let totalErrors = 0
   let sourcesProcessed = 0
   let totalBlocked = 0
+  let totalAlreadyStored = 0
   const errors: string[] = []
+  const outOfTime = () => budgetExhausted(startTime, MAX_RUNTIME_MS)
 
-  // 2. Process each source - fetch RSS, store (NO AI classification)
-  for (const source of sources) {
-    // Time guard: stop before hitting the 60s limit
-    if (Date.now() - startTime > MAX_RUNTIME_MS) {
-      console.log(`[Aggregate] Time limit reached after processing ${sourcesProcessed} sources`)
-      break
-    }
+  // 2. Process sources concurrently, stalest first, so every feed gets read within the
+  // budget (sequential priority order starved the tail, e.g. Freightwaves since Oct 12).
+  // Only articles not already stored are enriched and inserted: re-upserting existing rows
+  // overwrote AI classification (category, relevant, relevance_score, platforms, impact).
+  const fetchable = orderSourcesForFetch(sources.filter((s: any) => s.source_type !== 'reddit'))
 
+  const started = await runWithConcurrency(fetchable, SOURCE_CONCURRENCY, async (source: any) => {
     try {
-      // Skip reddit sources for now (need different parsing)
-      if (source.source_type === 'reddit') continue
-
       const feedUrl = source.feed_url || source.url
       console.log(`[Aggregate] Fetching: ${source.name} (${feedUrl})`)
 
-      // Fetch and parse RSS
       const articles = await fetchRSSFeed(feedUrl, source)
       totalFetched += articles.length
       sourcesProcessed++
 
-      if (articles.length === 0) continue
-
-      // Store in Supabase (upsert by source_url to avoid duplicates)
-      // No AI classification here — that's handled by /api/news/classify
-      for (const article of articles) {
-        // Block competitor content
+      const candidates = articles.filter((article: any) => {
         if (isBlockedSource(article.source_url)) {
           console.log(`[Aggregate] Blocked competitor article: ${article.source_url}`)
           totalBlocked++
-          continue
+          return false
         }
+        return true
+      })
 
+      let fresh: any[] = []
+      if (candidates.length > 0) {
+        // Chunked lookup: Google News URLs are long and PostgREST filters travel in the query string
+        const urls = candidates.map((a: any) => a.source_url)
+        const existingUrls: string[] = []
+        for (let i = 0; i < urls.length; i += 20) {
+          const { data: existing, error: existingError } = await supabaseAdmin
+            .from('articles')
+            .select('source_url')
+            .in('source_url', urls.slice(i, i + 20))
+          if (existingError) throw new Error(`existing lookup failed: ${existingError.message}`)
+          for (const row of existing || []) existingUrls.push(row.source_url)
+        }
+        fresh = selectNewArticles(candidates, existingUrls)
+        totalAlreadyStored += candidates.length - fresh.length
+      }
+
+      for (const article of fresh) {
         // Try OG image + body text extraction for articles missing images or with tiny RSS thumbnails
         const hasTinyThumb = article.image_url && (
           article.image_url.includes('150x150') ||
@@ -181,49 +195,46 @@ async function runAggregationFromDB() {
         )
         const needsImageExtraction = !article.image_url || hasTinyThumb
 
-        if (needsImageExtraction || !article.full_content) {
-          // Only attempt extraction if we have time
-          if (Date.now() - startTime < MAX_RUNTIME_MS) {
-            const { ogImage, bodyText } = await extractArticleData(article.source_url)
+        if ((needsImageExtraction || !article.full_content) && !outOfTime()) {
+          const { ogImage, bodyText } = await extractArticleData(article.source_url)
 
-            if (ogImage) {
-              article.og_image_url = ogImage
-              article.image_url = ogImage
-              article.has_real_image = true
-              article.image_source = 'og'
-            } else if (hasTinyThumb) {
-              // Clear the tiny thumbnail so the fallback image system kicks in
-              article.has_real_image = false
-              article.image_source = 'rss_thumb'
-            } else {
-              article.image_source = article.image_url ? 'rss' : 'none'
-            }
-
-            if (bodyText && bodyText.length > 200) {
-              article.full_content = bodyText
-            }
+          if (ogImage) {
+            article.og_image_url = ogImage
+            article.image_url = ogImage
+            article.has_real_image = true
+            article.image_source = 'og'
+          } else if (hasTinyThumb) {
+            // Clear the tiny thumbnail so the fallback image system kicks in
+            article.has_real_image = false
+            article.image_source = 'rss_thumb'
+          } else {
+            article.image_source = article.image_url ? 'rss' : 'none'
           }
-        } else {
+
+          if (bodyText && bodyText.length > 200) {
+            article.full_content = bodyText
+          }
+        } else if (!needsImageExtraction) {
           article.image_source = 'rss'
         }
 
         sanitizeArticleImageFields(article)
 
+        // ignoreDuplicates => ON CONFLICT DO NOTHING: never overwrite a stored (classified) row
         const { error: upsertError } = await supabaseAdmin
           .from('articles')
-          .upsert(article, { onConflict: 'source_url' })
+          .upsert(article, { onConflict: 'source_url', ignoreDuplicates: true })
 
         if (!upsertError) {
           totalStored++
         }
       }
 
-      // Update last_fetched_at on the source
+      // Update last_fetched_at on the source (drives stalest-first rotation)
       await supabaseAdmin
         .from('news_sources')
         .update({ last_fetched_at: new Date().toISOString() })
         .eq('id', source.id)
-
     } catch (err) {
       totalErrors++
       sourcesProcessed++
@@ -231,7 +242,12 @@ async function runAggregationFromDB() {
       errors.push(msg)
       console.error(`[Aggregate] Error: ${msg}`)
     }
+  }, outOfTime)
+
+  if (started < fetchable.length) {
+    console.log(`[Aggregate] Time limit reached after starting ${started} of ${fetchable.length} sources`)
   }
+  console.log(`[Aggregate] Sources: ${sourcesProcessed}/${fetchable.length} processed, ${totalErrors} errors; articles: ${totalFetched} fetched, ${totalAlreadyStored} already stored, ${totalStored} new`)
 
   // 3. Fetch from NewsAPI if we still have time
   let newsApiCount = 0
@@ -247,7 +263,7 @@ async function runAggregationFromDB() {
         sanitizeArticleImageFields(article)
         const { error } = await supabaseAdmin
           .from('articles')
-          .upsert(article, { onConflict: 'source_url' })
+          .upsert(article, { onConflict: 'source_url', ignoreDuplicates: true })
         if (!error) totalStored++
       }
       newsApiCount = newsApiArticles.length
@@ -261,6 +277,8 @@ async function runAggregationFromDB() {
   return {
     sources_total: sources.length,
     sources_processed: sourcesProcessed,
+    sources_fetchable: fetchable.length,
+    articles_already_stored: totalAlreadyStored,
     articles_fetched: totalFetched,
     articles_stored: totalStored,
     articles_blocked: totalBlocked,
