@@ -4,6 +4,7 @@ import { EditorialIntro } from "@/components/editorial-intro"
 import { PremiumSiteHeader } from "@/components/premium-site-header"
 import { PremiumSiteFooter } from "@/components/premium-site-footer"
 import { MARKETPLACES } from "@/lib/marketplace-fees"
+import { getAllPairs, rateRange } from "@/lib/fee-compare"
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://marketplacebeta.com"
 
@@ -22,8 +23,26 @@ export const metadata: Metadata = {
   openGraph: { title, description, url: `${SITE_URL}/fees`, type: "website" },
 }
 
+const FEATURED_COMPARE_SLUGS = [
+  "amazon-vs-walmart",
+  "amazon-vs-etsy",
+  "amazon-vs-ebay",
+  "amazon-vs-tiktok-shop",
+] as const
+
+const POPULAR_CATEGORIES = [
+  { href: "/fees/amazon/clothing-accessories", label: "Amazon Clothing & Accessories" },
+  { href: "/fees/amazon/beauty", label: "Amazon Beauty" },
+  { href: "/fees/amazon/home-garden", label: "Amazon Home & Garden" },
+  { href: "/fees/etsy/handmade", label: "Etsy Handmade" },
+] as const
+
 export default function FeesIndexPage() {
   const totalCategories = MARKETPLACES.reduce((sum, m) => sum + m.categories.length, 0)
+  const pairs = getAllPairs()
+  const featuredPairs = FEATURED_COMPARE_SLUGS.map((slug) => pairs.find((p) => p.slug === slug)).filter(
+    (p): p is NonNullable<typeof p> => Boolean(p),
+  )
 
   return (
     <div className="min-h-screen bg-background">
@@ -31,7 +50,7 @@ export default function FeesIndexPage() {
 
       <main className="mx-auto site-width px-4 py-10 sm:px-6 lg:px-8">
         <EditorialIntro eyebrow="Fee intelligence" title="Know what you keep." description={`Compare referral rates across ${totalCategories} categories and ${MARKETPLACES.length} marketplaces. Model unit economics, inspect the source dates, and test your assumptions before choosing a channel.`} />
-        <p className="mt-4 text-sm text-muted-foreground">Rates change. See the <Link href="/fees/changelog" className="font-medium text-primary underline underline-offset-4">dated fee change log</Link> for every update, with old and new figures.</p>
+        <p className="mt-4 text-sm text-muted-foreground">Rates change. See the <Link href="/fees/changelog" className="font-medium text-primary underline underline-offset-4">dated fee change log</Link> for every update, with old and new figures. Or jump to <Link href="/fees/compare" className="font-medium text-primary underline underline-offset-4">side-by-side marketplace comparisons</Link>.</p>
 
         <div className="mt-8 grid gap-4 md:grid-cols-2">
           {MARKETPLACES.map((marketplace) => {
@@ -61,6 +80,61 @@ export default function FeesIndexPage() {
             )
           })}
         </div>
+
+        <section className="mt-12" aria-labelledby="compare-fees-title">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h2 id="compare-fees-title" className="text-2xl font-bold text-slate-900 dark:text-white">
+                Compare marketplace fees
+              </h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Side-by-side schedules for the pairs operators search most.
+              </p>
+            </div>
+            <Link href="/fees/compare" className="text-sm font-semibold text-primary">
+              All {pairs.length} comparisons →
+            </Link>
+          </div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            {featuredPairs.map((pair) => {
+              const ra = rateRange(pair.a)
+              const rb = rateRange(pair.b)
+              const fmt = (r: { min: number; max: number }) =>
+                r.min === r.max ? `${r.min}%` : `${r.min}%–${r.max}%`
+              return (
+                <Link
+                  key={pair.slug}
+                  href={`/fees/compare/${pair.slug}`}
+                  className="rounded-xl border border-border bg-card p-4 transition hover:border-sky-400"
+                >
+                  <p className="font-semibold text-slate-900 dark:text-white">
+                    {pair.a.shortName} vs {pair.b.shortName}
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {fmt(ra)} vs {fmt(rb)} commission range
+                  </p>
+                </Link>
+              )
+            })}
+          </div>
+        </section>
+
+        <section className="mt-12" aria-labelledby="popular-categories-title">
+          <h2 id="popular-categories-title" className="text-2xl font-bold text-slate-900 dark:text-white">
+            Popular category fee pages
+          </h2>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {POPULAR_CATEGORIES.map((cat) => (
+              <Link
+                key={cat.href}
+                href={cat.href}
+                className="rounded-full border border-border px-3 py-1.5 text-sm hover:border-sky-400"
+              >
+                {cat.label}
+              </Link>
+            ))}
+          </div>
+        </section>
       </main>
 
       <PremiumSiteFooter />

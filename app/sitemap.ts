@@ -133,6 +133,12 @@ function getFeeRoutes(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly',
       priority: 0.9,
     },
+    {
+      url: `${siteUrl}/fees/compare`,
+      lastModified: new Date(Math.max(...MARKETPLACES.map(m => Date.parse(m.lastVerified)))),
+      changeFrequency: 'weekly',
+      priority: 0.85,
+    },
     ...MARKETPLACES.map((marketplace) => ({
       url: `${siteUrl}/fees/${marketplace.slug}`,
       lastModified: new Date(marketplace.lastVerified),

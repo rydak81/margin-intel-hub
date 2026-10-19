@@ -67,7 +67,8 @@ export default async function ComparePage({ params }: PageProps) {
     '@graph': [
       { '@type': 'BreadcrumbList', itemListElement: [
         { '@type': 'ListItem', position: 1, name: 'Fees', item: `${SITE_URL}/fees` },
-        { '@type': 'ListItem', position: 2, name: `${a.shortName} vs ${b.shortName}`, item: canonical },
+        { '@type': 'ListItem', position: 2, name: 'Compare', item: `${SITE_URL}/fees/compare` },
+        { '@type': 'ListItem', position: 3, name: `${a.shortName} vs ${b.shortName}`, item: canonical },
       ] },
       { '@type': 'FAQPage', mainEntity: faqs.map(f => ({ '@type': 'Question', name: f.question, acceptedAnswer: { '@type': 'Answer', text: f.answer } })) },
     ],
@@ -82,7 +83,7 @@ export default async function ComparePage({ params }: PageProps) {
       <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
         <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground">
           <Link href="/fees" className="hover:text-sky-600">Fees</Link><span className="mx-2">/</span>
-          <span>Compare</span><span className="mx-2">/</span>
+          <Link href="/fees/compare" className="hover:text-sky-600">Compare</Link><span className="mx-2">/</span>
           <span className="text-foreground">{a.shortName} vs {b.shortName}</span>
         </nav>
         <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">{a.shortName} vs {b.shortName} seller fees</h1>

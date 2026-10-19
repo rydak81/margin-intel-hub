@@ -1055,6 +1055,7 @@ export default function HomePageClient({
           </div>
           <div className="flex shrink-0 flex-wrap gap-3 text-sm font-semibold">
             <Link href="/fees" className="text-primary">Fee tables →</Link>
+            <Link href="/fees/compare" className="text-primary">Compare fees →</Link>
             <Link href="/fees/changelog" className="text-primary">Fee change log →</Link>
           </div>
         </div>
