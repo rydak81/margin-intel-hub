@@ -61,7 +61,8 @@ export const DEFAULT_RSS_SOURCES: Omit<NewsSource, 'id' | 'last_fetched_at'>[] =
     feed_url: 'https://sellercentral.amazon.com/gp/headlines.html/ref=xx_headlines_rss_feed',
     category: 'amazon',
     platform: ['amazon'],
-    is_active: true,
+    // Retired 2026-10-17: feed now redirects to the Seller Central login page (0 items).
+    is_active: false,
     priority_score: 100,
     fetch_frequency_minutes: 60,
     metadata: { lane: 'official_platform', audience: ['sellers', 'agencies', 'saas'] }
@@ -71,7 +72,7 @@ export const DEFAULT_RSS_SOURCES: Omit<NewsSource, 'id' | 'last_fetched_at'>[] =
     slug: 'about-amazon',
     source_type: 'rss',
     url: 'https://www.aboutamazon.com/news',
-    feed_url: 'https://www.aboutamazon.com/news/feed',
+    feed_url: 'https://www.aboutamazon.com/rss/feed.rss', // old /news/feed 301s here
     category: 'amazon',
     platform: ['amazon'],
     is_active: true,
@@ -87,7 +88,9 @@ export const DEFAULT_RSS_SOURCES: Omit<NewsSource, 'id' | 'last_fetched_at'>[] =
     feed_url: 'https://corporate.walmart.com/content/corporate/en_us/news.rss.xml',
     category: 'ecommerce',
     platform: ['walmart'],
-    is_active: true,
+    // Retired 2026-10-17: HTTP 404, no replacement feed on corporate.walmart.com.
+    // Seller-facing replacement: walmart-marketplace-news below.
+    is_active: false,
     priority_score: 92,
     fetch_frequency_minutes: 120,
     metadata: { lane: 'official_platform' }
@@ -113,17 +116,44 @@ export const DEFAULT_RSS_SOURCES: Omit<NewsSource, 'id' | 'last_fetched_at'>[] =
     feed_url: 'https://www.shopify.com/blog/feed',
     category: 'ecommerce',
     platform: ['shopify'],
-    is_active: true,
+    // Retired 2026-10-17: HTTP 404 (blog no longer publishes a feed). Replacement: shopify-changelog.
+    is_active: false,
     priority_score: 88,
     fetch_frequency_minutes: 120,
     metadata: { lane: 'official_platform' }
+  },
+  {
+    name: 'Walmart Marketplace News',
+    slug: 'walmart-marketplace-news',
+    source_type: 'rss',
+    url: 'https://marketplace.walmart.com/news/',
+    feed_url: 'https://marketplace.walmart.com/feed/',
+    category: 'ecommerce',
+    platform: ['walmart'],
+    is_active: true,
+    priority_score: 92,
+    fetch_frequency_minutes: 120,
+    metadata: { lane: 'official_platform', replaces: 'walmart-corporate' }
+  },
+  {
+    name: 'Shopify Changelog',
+    slug: 'shopify-changelog',
+    source_type: 'rss',
+    url: 'https://changelog.shopify.com',
+    feed_url: 'https://changelog.shopify.com/feed',
+    category: 'ecommerce',
+    platform: ['shopify'],
+    is_active: true,
+    priority_score: 88,
+    fetch_frequency_minutes: 120,
+    metadata: { lane: 'official_platform', replaces: 'shopify-blog', note: 'merchant-facing changelog, not shopify.dev' }
   },
   {
     name: 'Marketplace Pulse',
     slug: 'marketplace-pulse',
     source_type: 'rss',
     url: 'https://www.marketplacepulse.com',
-    feed_url: 'https://www.marketplacepulse.com/feed',
+    feed_url: 'https://www.marketplacepulse.com/articles/recent.atom', // /feed is 404 since ~Oct 2026
     category: 'ecommerce',
     platform: ['amazon', 'walmart', 'ebay', 'etsy'],
     is_active: true,
@@ -139,7 +169,8 @@ export const DEFAULT_RSS_SOURCES: Omit<NewsSource, 'id' | 'last_fetched_at'>[] =
     feed_url: 'https://www.ecommercebytes.com/feed/',
     category: 'ecommerce',
     platform: ['amazon', 'ebay', 'etsy'],
-    is_active: true,
+    // Retired 2026-10-17: every feed URL redirects to the homepage (0 items); no Google News coverage either.
+    is_active: false,
     priority_score: 90,
     fetch_frequency_minutes: 60,
     metadata: { lane: 'seller_intelligence' }
@@ -165,7 +196,8 @@ export const DEFAULT_RSS_SOURCES: Omit<NewsSource, 'id' | 'last_fetched_at'>[] =
     feed_url: 'https://www.digitalcommerce360.com/internet-retailer/feed/',
     category: 'ecommerce',
     platform: ['amazon', 'general'],
-    is_active: true,
+    // Retired 2026-10-17: 0 items (feed empty); Digital Commerce 360 covers the same newsroom.
+    is_active: false,
     priority_score: 84,
     fetch_frequency_minutes: 120,
     metadata: { lane: 'seller_intelligence' }
@@ -191,7 +223,8 @@ export const DEFAULT_RSS_SOURCES: Omit<NewsSource, 'id' | 'last_fetched_at'>[] =
     feed_url: 'https://practicalcommerce.com/feed',
     category: 'ecommerce',
     platform: ['amazon', 'shopify', 'general'],
-    is_active: true,
+    // Retired 2026-10-17: practicalcommerce.com/feed times out; duplicate of the Practical Ecommerce source.
+    is_active: false,
     priority_score: 78,
     fetch_frequency_minutes: 120,
     metadata: { lane: 'operator_tactics' }
@@ -201,7 +234,7 @@ export const DEFAULT_RSS_SOURCES: Omit<NewsSource, 'id' | 'last_fetched_at'>[] =
     slug: 'seller-snap',
     source_type: 'rss',
     url: 'https://www.sellersnap.io/blog',
-    feed_url: 'https://www.sellersnap.io/blog/feed/',
+    feed_url: 'https://sellersnap.io/feed/', // old /blog/feed/ returned 0 items
     category: 'amazon',
     platform: ['amazon'],
     is_active: true,

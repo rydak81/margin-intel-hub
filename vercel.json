@@ -1,6 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "regions": ["iad1"],
+  "regions": [
+    "iad1"
+  ],
   "crons": [
     {
       "path": "/api/news/aggregate",
@@ -60,6 +62,9 @@
       "maxDuration": 60
     },
     "app/api/news/daily-brief/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/news/backfill-classify/route.ts": {
       "maxDuration": 60
     }
   }
