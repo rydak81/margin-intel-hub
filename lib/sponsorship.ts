@@ -24,3 +24,24 @@ export function getNewsletterSponsor(env: Record<string, string | undefined> = p
     ctaText: env.NEWSLETTER_SPONSOR_CTA?.trim() || undefined,
   }
 }
+
+export interface DossierSponsor {
+  name: string
+  url: string
+  logoUrl?: string
+}
+
+const HTTP_URL = /^https?:\/\//
+
+/**
+ * Presenting sponsor credit for the Intelligence Dossier page and its delivery email.
+ * Returns null (credit renders nothing) unless DOSSIER_SPONSOR_NAME and an http(s)
+ * DOSSIER_SPONSOR_URL are set. DOSSIER_SPONSOR_LOGO_URL is optional and ignored unless http(s).
+ */
+export function getDossierSponsor(env: Record<string, string | undefined> = process.env): DossierSponsor | null {
+  const name = env.DOSSIER_SPONSOR_NAME?.trim()
+  const url = env.DOSSIER_SPONSOR_URL?.trim()
+  if (!name || !url || !HTTP_URL.test(url)) return null
+  const logo = env.DOSSIER_SPONSOR_LOGO_URL?.trim()
+  return { name, url, logoUrl: logo && HTTP_URL.test(logo) ? logo : undefined }
+}

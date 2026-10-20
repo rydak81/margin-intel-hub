@@ -2,7 +2,7 @@
 // HTML email templates for MarketplaceBeta newsletters
 // Uses inline styles for maximum email client compatibility
 
-import { getNewsletterSponsor, type NewsletterSponsor } from './sponsorship'
+import { getDossierSponsor, getNewsletterSponsor, type DossierSponsor, type NewsletterSponsor } from './sponsorship'
 
 function escapeHtml(value: string): string {
   return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;')
@@ -24,6 +24,26 @@ export function renderSponsorSlot(sponsor: NewsletterSponsor | null = getNewslet
                     <p style="color: #0f172a; font-size: 16px; font-weight: 600; margin: 6px 0 0 0;">${name}</p>
                     ${tagline}
                     <a href="${url}" rel="sponsored nofollow noopener" style="display: inline-block; margin-top: 10px; color: #2563eb; font-size: 14px; font-weight: 600;">${cta} &rarr;</a>
+                  </td>
+                </tr>
+              </table>`
+}
+
+/** "Presented by" credit for the Dossier email, labelled as sponsored. Empty string when no sponsor is configured. */
+export function renderDossierSponsorCredit(sponsor: DossierSponsor | null = getDossierSponsor()): string {
+  if (!sponsor) return ''
+  const name = escapeHtml(sponsor.name)
+  const url = escapeHtml(sponsor.url)
+  const logo = sponsor.logoUrl
+    ? `<img src="${escapeHtml(sponsor.logoUrl)}" alt="${name}" height="28" style="display: block; height: 28px; width: auto; max-width: 160px; margin: 0 auto 8px auto;" />`
+    : ''
+  return `
+              <!-- Dossier presenting sponsor -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top: 28px; border: 1px solid #dbe4f0; border-radius: 10px; background: #f8fafc;">
+                <tr>
+                  <td align="center" style="padding: 16px 20px;">
+                    <p style="color: #64748b; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; margin: 0 0 8px 0;">Sponsored &middot; Presented by</p>
+                    <a href="${url}" rel="sponsored nofollow noopener" style="color: #0f172a; font-size: 16px; font-weight: 600; text-decoration: none;">${logo}${name}</a>
                   </td>
                 </tr>
               </table>`
@@ -359,7 +379,7 @@ export function generateWelcomeEmail(subscriberName?: string | null): string {
  * Inline styles throughout for email-client compatibility; the unsubscribe
  * link carries the subscriber's own email (URL-encoded), matching /api/unsubscribe.
  */
-export function generateDossierEmail(subscriberName: string | null | undefined, subscriberEmail: string): string {
+export function generateDossierEmail(subscriberName: string | null | undefined, subscriberEmail: string, sponsor: DossierSponsor | null = getDossierSponsor()): string {
   const greeting = subscriberName ? `Hi ${subscriberName}` : 'Hi there'
   const unsubscribeUrl = `https://marketplacebeta.com/api/unsubscribe?email=${encodeURIComponent(subscriberEmail)}`
   const findings = [
@@ -451,6 +471,7 @@ export function generateDossierEmail(subscriberName: string | null | undefined, 
                   </td>
                 </tr>
               </table>
+${renderDossierSponsorCredit(sponsor)}
             </td>
           </tr>
 
