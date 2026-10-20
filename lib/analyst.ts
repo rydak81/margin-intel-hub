@@ -54,14 +54,16 @@ const str = (v: unknown, max: number): string => (typeof v === 'string' ? v.trim
  * resolved ones), enums fall back to safe values, and list sizes are capped
  * so a malformed response cannot flood the tables.
  */
-export function sanitizeAnalystOutput(raw: unknown, openIds: number[], allIds: number[] = openIds): AnalystOutput | null {
+export function sanitizeAnalystOutput(raw: unknown, openIds: number[], allIds: number[] = openIds, coveredIds: number[] = []): AnalystOutput | null {
   if (!raw || typeof raw !== 'object') return null
   const r = raw as Record<string, unknown>
   const assessment = str(r.assessment, 2000)
   if (!assessment) return null
   const open = new Set(openIds)
   const all = new Set(allIds)
-  const resolved = new Set(allIds.filter((id) => !open.has(id)))
+  const covered = new Set(coveredIds)
+  // Post-mortems may only link resolved forecasts that do not already have one.
+  const resolved = new Set(allIds.filter((id) => !open.has(id) && !covered.has(id)))
 
   const watchlist = (Array.isArray(r.watchlist) ? r.watchlist : [])
     .map((w) => ({ item: str((w as Record<string, unknown>)?.item, 160), why: str((w as Record<string, unknown>)?.why, 400) }))
@@ -90,8 +92,9 @@ export function sanitizeAnalystOutput(raw: unknown, openIds: number[], allIds: n
       const o = m as Record<string, unknown>
       const supersedes = str(o?.supersedes_title, 200)
       const kind = MEMORY_KINDS.includes(o?.kind as MemoryKind) ? (o.kind as MemoryKind) : 'observation'
-      // A post-mortem may only link resolved forecasts: a link to an open one
-      // would mark that forecast as permanently covered before it resolves.
+      // A post-mortem may only link uncovered resolved forecasts: a link to an
+      // open one would mark it covered before it resolves, and a link to an
+      // already-covered one would create a duplicate.
       const linkable = kind === 'post_mortem' ? resolved : all
       return {
         kind,

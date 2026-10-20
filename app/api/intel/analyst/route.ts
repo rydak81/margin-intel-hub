@@ -201,7 +201,7 @@ export async function GET(request: Request) {
       maxTokens: 3000,
     })
 
-    const output = sanitizeAnalystOutput(rawOutput, openIds, allIds)
+    const output = sanitizeAnalystOutput(rawOutput, openIds, allIds, postMortemCoveredIds)
     if (!output) {
       return NextResponse.json({ error: 'Analyst output failed validation', raw: String(JSON.stringify(rawOutput)).slice(0, 300) }, { status: 500 })
     }
