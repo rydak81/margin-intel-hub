@@ -453,12 +453,12 @@ export default function HomePageClient({
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600 md:text-xl dark:text-slate-300">
               Built by people with years inside ecommerce — and built differently. Underneath the
-              news sits a decision-intelligence system: machine learning and agentic AI that
-              classify every story, track indicator patterns and signals against a growing archive
-              of market history, and grade our own forecasts in public when they resolve. It learns
-              from every data point it ingests, and human judgment decides what it means — so
-              agencies, brands, and operators get a data-led read on the market, not another
-              headline feed.
+              news sits a decision-intelligence system: AI classifies every story into a growing
+              archive of market history, signal detection tracks indicator patterns across
+              platforms and time, and agentic AI research — directed by human judgment — turns it
+              into the dossiers and forecasts we grade in public when they resolve. Every data
+              point deepens the archive, and a human decides what it means — so agencies, brands,
+              and operators get a data-led read on the market, not another headline feed.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button size="lg" asChild className="h-12 rounded-lg bg-blue-600 px-6 text-base font-semibold text-white hover:bg-blue-700">
