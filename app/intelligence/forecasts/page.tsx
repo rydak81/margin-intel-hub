@@ -4,7 +4,7 @@ import { ArrowRight } from 'lucide-react'
 import { PremiumSiteHeader } from '@/components/premium-site-header'
 import { PremiumSiteFooter } from '@/components/premium-site-footer'
 import { JsonLd } from '@/components/json-ld'
-import { FORECASTS, FORECAST_EDITION, scoreForecasts, type ForecastStatus } from '@/lib/forecasts'
+import { FORECAST_EDITION, loadForecasts, scoreForecasts, type ForecastStatus } from '@/lib/forecasts'
 
 const URL_ = 'https://marketplacebeta.com/intelligence/forecasts'
 const CTA = '/newsletter?source=campaign_forecasts#subscribe'
@@ -29,9 +29,12 @@ const STATUS_STYLE: Record<ForecastStatus, string> = {
 
 const fmtDate = (iso: string) => new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' })
 
-export default function ForecastScorecardPage() {
-  const score = scoreForecasts()
-  const nextResolve = FORECASTS.filter(f => f.status === 'open').map(f => f.resolveBy).sort()[0]
+export const revalidate = 300
+
+export default async function ForecastScorecardPage() {
+  const forecasts = await loadForecasts()
+  const score = scoreForecasts(forecasts)
+  const nextResolve = forecasts.filter(f => f.status === 'open').map(f => f.resolveBy).sort()[0]
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -43,7 +46,7 @@ export default function ForecastScorecardPage() {
     datePublished: FORECAST_EDITION.loggedOn,
     isAccessibleForFree: true,
     variableMeasured: ['status', 'resolveBy'],
-    hasPart: FORECASTS.map(f => ({ '@type': 'Claim', name: `${f.id}: ${f.statement}`, text: `${f.statement} (resolve by ${f.resolveBy}, status: ${f.status})` })),
+    hasPart: forecasts.map(f => ({ '@type': 'Claim', name: `${f.id}: ${f.statement}`, text: `${f.statement} (resolve by ${f.resolveBy}, status: ${f.status})` })),
   }
 
   return (
@@ -73,7 +76,7 @@ export default function ForecastScorecardPage() {
               <tr><th className="p-4">#</th><th className="p-4">Horizon</th><th className="p-4">Forecast</th><th className="p-4">Confirms / invalidates</th><th className="p-4">Resolve by</th><th className="p-4">Status</th></tr>
             </thead>
             <tbody>
-              {FORECASTS.map(f => (
+              {forecasts.map(f => (
                 <tr key={f.id} id={f.id.toLowerCase()} className="border-b border-border last:border-0 align-top">
                   <td className="p-4 font-mono font-semibold">{f.id}</td>
                   <td className="p-4 whitespace-nowrap tabular-nums">{f.horizon}</td>
