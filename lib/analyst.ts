@@ -49,16 +49,18 @@ const str = (v: unknown, max: number): string => (typeof v === 'string' ? v.trim
 
 /**
  * Validate and bound the model's output. Everything the run persists goes
- * through here: unknown forecast ids are dropped (openIds is the whitelist
- * of currently open forecasts), enums fall back to safe values, and list
- * sizes are capped so a malformed response cannot flood the tables.
+ * through here: forecast checks only target open forecasts (openIds),
+ * memory may reference any ledger forecast (allIds — post-mortems point at
+ * resolved ones), enums fall back to safe values, and list sizes are capped
+ * so a malformed response cannot flood the tables.
  */
-export function sanitizeAnalystOutput(raw: unknown, openIds: number[]): AnalystOutput | null {
+export function sanitizeAnalystOutput(raw: unknown, openIds: number[], allIds: number[] = openIds): AnalystOutput | null {
   if (!raw || typeof raw !== 'object') return null
   const r = raw as Record<string, unknown>
   const assessment = str(r.assessment, 2000)
   if (!assessment) return null
   const open = new Set(openIds)
+  const all = new Set(allIds)
 
   const watchlist = (Array.isArray(r.watchlist) ? r.watchlist : [])
     .map((w) => ({ item: str((w as Record<string, unknown>)?.item, 160), why: str((w as Record<string, unknown>)?.why, 400) }))
@@ -86,7 +88,7 @@ export function sanitizeAnalystOutput(raw: unknown, openIds: number[]): AnalystO
         confidence: CONFIDENCES.includes(o?.confidence as (typeof CONFIDENCES)[number]) ? (o.confidence as 'low' | 'medium' | 'high') : 'low',
         related_forecasts: (Array.isArray(o?.related_forecasts) ? o.related_forecasts : [])
           .map(Number)
-          .filter((n) => Number.isInteger(n) && open.has(n))
+          .filter((n) => Number.isInteger(n) && all.has(n))
           .slice(0, 6),
         source_titles: (Array.isArray(o?.source_titles) ? o.source_titles : [])
           .map((t) => str(t, 240))

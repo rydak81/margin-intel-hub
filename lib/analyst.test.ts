@@ -35,6 +35,16 @@ describe('analyst output sanitizer', () => {
     expect(out?.memory[0]).toMatchObject({ kind: 'observation', confidence: 'low' })
   })
 
+  it('lets post-mortems reference resolved forecasts while checks stay open-only', () => {
+    const out = sanitizeAnalystOutput({
+      assessment: 'F4 resolved; writing the post-mortem.',
+      forecast_checks: [{ id: 4, signal: 'confirming', note: 'Resolved forecasts are not checked' }],
+      memory: [{ kind: 'post_mortem', title: 'F4 post-mortem', body: 'The GMV call under-weighted divestiture risk.', confidence: 'high', related_forecasts: [4] }],
+    }, OPEN_IDS, [...OPEN_IDS, 4])
+    expect(out?.forecast_checks).toEqual([])
+    expect(out?.memory[0].related_forecasts).toEqual([4])
+  })
+
   it('keeps valid memory entries with whitelisted forecast links and supersedes titles', () => {
     const out = sanitizeAnalystOutput({
       assessment: 'A real shift.',
