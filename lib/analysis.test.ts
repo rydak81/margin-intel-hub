@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { ANALYSIS_ARTICLES, parseInlineLinks } from '@/lib/analysis'
+import { ANALYSIS_ARTICLES, latestAnalysis, parseInlineLinks } from '@/lib/analysis'
+import { SITE_NAVIGATION } from '@/lib/site-navigation'
 import { FORECASTS } from '@/lib/forecasts'
 import { newsletterSource } from '@/lib/newsletter-source'
 
@@ -61,5 +62,16 @@ describe('parseInlineLinks', () => {
       { text: 'See ' }, { text: 'the scorecard', href: '/intelligence/forecasts' }, { text: ' now.' },
     ])
     expect(parseInlineLinks('No links here')).toEqual([{ text: 'No links here' }])
+  })
+})
+
+describe('analysis discovery', () => {
+  it('is in the main navigation', () => {
+    expect(SITE_NAVIGATION.some(item => item.href === '/intelligence/analysis')).toBe(true)
+  })
+  it('lists newest first and honours the limit', () => {
+    const all = latestAnalysis()
+    for (let i = 1; i < all.length; i++) expect(all[i - 1].publishedOn >= all[i].publishedOn).toBe(true)
+    expect(latestAnalysis(1).length).toBe(Math.min(1, ANALYSIS_ARTICLES.length))
   })
 })
