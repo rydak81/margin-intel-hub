@@ -286,7 +286,11 @@ export async function GET(request: Request) {
         if (target) {
           const { error: supersedeError } = await supabase.from('intel_memory').update({ superseded_by: inserted.id }).eq('id', target.id)
           if (supersedeError) {
-            console.error('[Analyst] Failed to supersede corrected entry:', supersedeError.message)
+            console.error('[Analyst] Failed to supersede corrected entry, removing the correction:', supersedeError.message)
+            // Without the supersession the correction would sit alongside the
+            // entry it contradicts in active memory, so it is rolled back.
+            await supabase.from('intel_memory').delete().eq('id', inserted.id)
+            memorySaved--
             supersessionsFailed++
           }
         }
@@ -298,7 +302,7 @@ export async function GET(request: Request) {
     let checksApplied = 0
     const checksFailed: number[] = []
     for (const check of output.forecast_checks) {
-      const { error: checkError } = await supabase
+      const { data: updatedRows, error: checkError } = await supabase
         .from('intel_forecasts')
         .update({
           indicator_signal: check.signal,
@@ -307,8 +311,12 @@ export async function GET(request: Request) {
         })
         .eq('id', check.id)
         .is('outcome', null)
-      if (checkError) {
-        console.error(`[Analyst] Failed to update forecast ${check.id}:`, checkError.message)
+        .select('id')
+      // Zero affected rows means the forecast resolved after the ledger
+      // snapshot was taken: the run is partial, and the next run — working
+      // from fresh state — owes that forecast its post-mortem.
+      if (checkError || !updatedRows?.length) {
+        console.error(`[Analyst] Forecast ${check.id} check not applied:`, checkError?.message ?? 'no open row matched (resolved mid-run?)')
         checksFailed.push(check.id)
       } else checksApplied++
     }
