@@ -245,7 +245,7 @@ export default function ToolsPage() {
             </Link>
           </Button>
         </div>
-        <RecommendedTools offers={getRecommendedOffers({ ids: ["helium10", "a2x", "keepa"] })} placement="tools-hub" className="mt-12" />
+        <RecommendedTools offers={getRecommendedOffers({ ids: ["helium10", "a2x", "junglescout"] })} placement="tools-hub" className="mt-12" />
       </main>
 
       {/* Footer */}

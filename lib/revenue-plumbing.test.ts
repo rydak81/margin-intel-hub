@@ -37,3 +37,11 @@ describe('newsletter sponsor slot', () => {
     expect(html).toContain('rel="sponsored nofollow noopener"')
   })
 })
+
+describe('affiliate recommendations', () => {
+  it('never names data vendors in recommended tools', () => {
+    for (const o of AFFILIATE_OFFERS) {
+      expect(`${o.id} ${o.name} ${o.blurb} ${o.envVar} ${o.fallbackUrl}`.toLowerCase()).not.toMatch(/keepa|everbee|supabase/)
+    }
+  })
+})
