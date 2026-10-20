@@ -56,7 +56,7 @@ export async function GET(request: Request) {
     const supabase = createAdminClient()
     const since = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString()
 
-    const [{ data: articles }, { data: forecasts }, { data: memoryRows }, { data: lastRun }] = await Promise.all([
+    const [articlesRes, forecastsRes, memoryRes, lastRunRes] = await Promise.all([
       supabase
         .from('articles')
         .select('title, source_name, category, ai_summary, summary, published_at')
@@ -83,11 +83,29 @@ export async function GET(request: Request) {
         .maybeSingle(),
     ])
 
+    // A run made without its required context would publish an assessment based
+    // on nothing and overwrite live indicator reads, so any failed query aborts
+    // before the model is called or any state is written.
+    const contextErrors = [
+      articlesRes.error && `articles: ${articlesRes.error.message}`,
+      forecastsRes.error && `forecasts: ${forecastsRes.error.message}`,
+      memoryRes.error && `memory: ${memoryRes.error.message}`,
+      lastRunRes.error && `last run: ${lastRunRes.error.message}`,
+    ].filter(Boolean)
+    if (contextErrors.length) {
+      return NextResponse.json({ error: `Context queries failed — run aborted: ${contextErrors.join('; ')}` }, { status: 500 })
+    }
+    const articles = articlesRes.data
+    const forecasts = forecastsRes.data
+    const memoryRows = memoryRes.data
+    const lastRun = lastRunRes.data
+
     if (!forecasts?.length) {
       return NextResponse.json({ error: 'No forecasts in ledger — nothing to analyze against' }, { status: 500 })
     }
 
     const openIds = forecasts.filter((f) => !f.outcome).map((f) => Number(f.id))
+    const allIds = forecasts.map((f) => Number(f.id))
     const prompt = buildPrompt({
       articles: (articles ?? []).map((a) => ({
         title: a.title,
@@ -116,9 +134,17 @@ export async function GET(request: Request) {
       maxTokens: 3000,
     })
 
-    const output = sanitizeAnalystOutput(rawOutput, openIds)
+    const output = sanitizeAnalystOutput(rawOutput, openIds, allIds)
     if (!output) {
       return NextResponse.json({ error: 'Analyst output failed validation', raw: String(JSON.stringify(rawOutput)).slice(0, 300) }, { status: 500 })
+    }
+
+    // Every open forecast is reviewed every run, as the public page states:
+    // one the model omitted gets an explicit 'none' check so its reviewed-at
+    // timestamp still advances.
+    const checkedIds = new Set(output.forecast_checks.map((c) => c.id))
+    for (const id of openIds) {
+      if (!checkedIds.has(id)) output.forecast_checks.push({ id, signal: 'none', note: '' })
     }
 
     // Persist the run first so memory rows can reference it.
