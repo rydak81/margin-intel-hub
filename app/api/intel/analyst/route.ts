@@ -104,6 +104,9 @@ export async function GET(request: Request) {
         .from('articles')
         .select('title, source_name, category, ai_summary, summary, published_at')
         .gte('published_at', since)
+        // Ingestion tolerates future-dated feed items; they are not evidence
+        // until they actually occur.
+        .lte('published_at', new Date().toISOString())
         .eq('relevant', true)
         .gte('relevance_score', 50)
         .order('relevance_score', { ascending: false })
@@ -289,7 +292,15 @@ export async function GET(request: Request) {
             console.error('[Analyst] Failed to supersede corrected entry, removing the correction:', supersedeError.message)
             // Without the supersession the correction would sit alongside the
             // entry it contradicts in active memory, so it is rolled back.
-            await supabase.from('intel_memory').delete().eq('id', inserted.id)
+            // If the delete also fails, self-supersession is attempted as a
+            // second path out of active memory; failing that too, the partial
+            // 500 below is the alert — nothing silent remains possible.
+            const { error: deleteError } = await supabase.from('intel_memory').delete().eq('id', inserted.id)
+            if (deleteError) {
+              console.error('[Analyst] Rollback delete also failed, self-superseding:', deleteError.message)
+              const { error: selfError } = await supabase.from('intel_memory').update({ superseded_by: inserted.id }).eq('id', inserted.id)
+              if (selfError) console.error('[Analyst] Self-supersession failed too — correction remains active:', selfError.message)
+            }
             memorySaved--
             supersessionsFailed++
           }
