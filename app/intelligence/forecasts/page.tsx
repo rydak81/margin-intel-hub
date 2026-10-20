@@ -11,7 +11,7 @@ const CTA = '/newsletter?source=campaign_forecasts#subscribe'
 
 export const metadata: Metadata = {
   title: 'Ecommerce Forecast Scorecard: 12 Public, Graded Marketplace Forecasts | MarketplaceBeta',
-  description: 'Every MarketplaceBeta forecast is published with the indicators that would confirm or invalidate it and a resolve-by date, then graded hit or miss in public. See the open ledger and our running hit/miss count.',
+  description: 'Every MarketplaceBeta forecast is published with the indicators that would confirm or invalidate it and a resolve-by date, then graded in public — hit, partial, or miss. See the open ledger and our running count.',
   alternates: { canonical: URL_ },
   openGraph: {
     title: 'The MarketplaceBeta forecast scorecard',
@@ -61,7 +61,7 @@ export default async function ForecastScorecardPage() {
           <h1 className="mt-4 text-4xl font-bold leading-tight tracking-tight sm:text-5xl">Forecasts we publish, then grade in public</h1>
           <p className="mt-5 text-lg leading-8 text-muted-foreground">
             Each forecast is logged with the indicators that would confirm or invalidate it and a resolve-by date.
-            When it resolves we mark it hit or miss here, including the misses. That is how you can tell whether our intelligence is worth acting on.
+            When it resolves we grade it here — hit, partial, or miss — including the misses. That is how you can tell whether our intelligence is worth acting on.
           </p>
         </section>
 
@@ -98,7 +98,7 @@ export default async function ForecastScorecardPage() {
             <ul className="mt-4 space-y-3 leading-7 text-muted-foreground">
               <li><strong className="text-foreground">Forecasts are evidence-based judgments, not model outputs.</strong> Each one is grounded in the cited evidence in the <Link href="/intelligence/dossier" className="text-primary underline underline-offset-4">Intelligence Dossier</Link>.</li>
               <li><strong className="text-foreground">Resolution is fixed in advance.</strong> Each forecast names the indicators that confirm or invalidate it. Where the forecast does not name a date, the resolve-by date is the end of its stated horizon from the October 2026 edition.</li>
-              <li><strong className="text-foreground">Scoring.</strong> Each resolved forecast is marked hit or miss, and the scorecard shows the running count of hits and misses. A partially correct call is marked partial — it never counts as a full hit — and a forecast whose measuring source stops publishing is marked unresolvable rather than quietly dropped. The first forecasts resolve in January 2027.</li>
+              <li><strong className="text-foreground">Scoring.</strong> Each resolved forecast receives one of four grades — hit, partial, miss, or unresolvable — and the scorecard shows the running count of each. Only a fully correct call is a hit: a partially correct call is marked partial, and a forecast whose measuring source stops publishing is marked unresolvable rather than quietly dropped. The first forecasts resolve in January 2027.</li>
               <li><strong className="text-foreground">Nothing is deleted.</strong> Misses stay on the ledger. New editions add forecasts; they do not rewrite old ones.</li>
             </ul>
             <p className="mt-4 text-sm text-muted-foreground">The first grades arrive when the holiday forecasts (F1–F4) resolve in January 2027.</p>
