@@ -16,7 +16,7 @@ describe('forecast ledger', () => {
   })
   it('reports zero hits and misses until something resolves', () => {
     const s = scoreForecasts()
-    expect(s).toEqual({ total: 12, open: 12, resolved: 0, hits: 0, misses: 0, unresolvable: 0 }) // page shows 'First forecasts resolve January 2027'
+    expect(s).toEqual({ total: 12, open: 12, resolved: 0, hits: 0, partial: 0, misses: 0, unresolvable: 0 }) // page shows 'First forecasts resolve January 2027'
   })
   it('counts hits and misses once resolved', () => {
     const resolved: Forecast[] = [
@@ -25,15 +25,16 @@ describe('forecast ledger', () => {
       ...FORECASTS.slice(2),
     ]
     const s = scoreForecasts(resolved)
-    expect(s).toEqual({ total: 12, open: 10, resolved: 2, hits: 1, misses: 1, unresolvable: 0 })
+    expect(s).toEqual({ total: 12, open: 10, resolved: 2, hits: 1, partial: 0, misses: 1, unresolvable: 0 })
   })
-  it('counts unresolvable forecasts as resolved, not open, and as neither hit nor miss', () => {
+  it('counts partial and unresolvable forecasts as resolved, never as full hits or misses', () => {
     const resolved: Forecast[] = [
       { ...FORECASTS[0], status: 'unresolvable' },
-      ...FORECASTS.slice(1),
+      { ...FORECASTS[1], status: 'partial' },
+      ...FORECASTS.slice(2),
     ]
     const s = scoreForecasts(resolved)
-    expect(s).toEqual({ total: 12, open: 11, resolved: 1, hits: 0, misses: 0, unresolvable: 1 })
+    expect(s).toEqual({ total: 12, open: 10, resolved: 2, hits: 0, partial: 1, misses: 0, unresolvable: 1 })
   })
   it('accepts the campaign_forecasts and campaign_pressure_index sources', () => {
     expect(newsletterSource('?source=campaign_forecasts')).toBe('newsletter_campaign_forecasts')

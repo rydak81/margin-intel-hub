@@ -14,7 +14,7 @@
  * To score a forecast, set status to 'hit' or 'miss' and fill resolvedOn + resolutionNote.
  */
 
-export type ForecastStatus = 'open' | 'hit' | 'miss' | 'unresolvable'
+export type ForecastStatus = 'open' | 'hit' | 'partial' | 'miss' | 'unresolvable'
 export type ForecastHorizon = '0–3m' | '3–6m' | '6–12m' | '12–24m'
 
 export interface Forecast {
@@ -56,24 +56,26 @@ export interface ForecastScore {
   total: number
   open: number
   hits: number
+  /** Partially correct: resolved, but never counted as a full hit. */
+  partial: number
   misses: number
   /** Resolved, but gradeable neither as hit nor miss (e.g. the measuring source stopped publishing). */
   unresolvable: number
   resolved: number
 }
 
-/** Scoring is a plain hit/miss count over resolved forecasts. */
+/** Scoring is a plain count per status over resolved forecasts; only a fully correct call is a hit. */
 export function scoreForecasts(forecasts: readonly Forecast[] = FORECASTS): ForecastScore {
-  const resolved = forecasts.filter(f => f.status !== 'open')
-  const hits = resolved.filter(f => f.status === 'hit').length
-  const misses = resolved.filter(f => f.status === 'miss').length
+  const count = (s: ForecastStatus) => forecasts.filter(f => f.status === s).length
+  const open = count('open')
   return {
     total: forecasts.length,
-    open: forecasts.length - resolved.length,
-    hits,
-    misses,
-    unresolvable: resolved.length - hits - misses,
-    resolved: resolved.length,
+    open,
+    hits: count('hit'),
+    partial: count('partial'),
+    misses: count('miss'),
+    unresolvable: count('unresolvable'),
+    resolved: forecasts.length - open,
   }
 }
 
@@ -98,6 +100,8 @@ export async function loadForecasts(): Promise<Forecast[]> {
       .order('id', { ascending: true })
     if (error || !data?.length) return FORECASTS
     const horizons: Record<string, ForecastHorizon> = { '0-3m': '0–3m', '3-6m': '3–6m', '6-12m': '6–12m', '12-24m': '12–24m' }
+    // The ledger stores only the date; whether it was stated or horizon-derived is documented here.
+    const basisById = new Map(FORECASTS.map(f => [f.id, f.resolveByBasis]))
     return data.map((row): Forecast => ({
       id: `F${row.id}`,
       edition: FORECAST_EDITION.id,
@@ -107,17 +111,14 @@ export async function loadForecasts(): Promise<Forecast[]> {
         ? `${row.confirming_indicators} · Invalidated by: ${row.invalidating_indicators}`
         : row.confirming_indicators,
       resolveBy: row.resolve_by,
-      resolveByBasis: 'stated',
-      status: row.outcome === 'correct' || row.outcome === 'partially_correct' ? 'hit'
+      resolveByBasis: basisById.get(`F${row.id}`) ?? 'stated',
+      status: row.outcome === 'correct' ? 'hit'
+        : row.outcome === 'partially_correct' ? 'partial'
         : row.outcome === 'incorrect' ? 'miss'
         : row.outcome === 'unresolvable' ? 'unresolvable'
         : 'open',
       resolvedOn: row.resolved_on ?? undefined,
-      resolutionNote: row.outcome === 'partially_correct'
-        ? `Partially correct${row.outcome_notes ? ` — ${row.outcome_notes}` : ''}`
-        : row.outcome === 'unresolvable'
-          ? `Unresolvable${row.outcome_notes ? ` — ${row.outcome_notes}` : ''}`
-          : row.outcome_notes ?? undefined,
+      resolutionNote: row.outcome_notes ?? undefined,
     }))
   } catch {
     return FORECASTS
