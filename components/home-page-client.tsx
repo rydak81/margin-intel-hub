@@ -446,13 +446,18 @@ export default function HomePageClient({
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
             <p className="mb-5 flex items-center gap-2.5 text-sm font-semibold tracking-wide text-blue-700 dark:text-blue-300">
-              <span className="h-2 w-2 rounded-full bg-blue-600" />Ecommerce marketplace intelligence &amp; forecasts
+              <span className="h-2 w-2 rounded-full bg-blue-600" />Human-led ecommerce intelligence, amplified by AI
             </p>
             <h1 className="max-w-4xl text-[2.5rem] font-bold leading-[1.08] tracking-[-0.045em] text-slate-950 sm:text-5xl lg:text-[3.25rem] dark:text-white">
               Marketplace intelligence<br className="hidden sm:block" /> that keeps score.
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600 md:text-xl dark:text-slate-300">
-              An AI-classified archive of 8,541 articles from 54 sources since March 2026, public forecasts we grade when they resolve, and an evidence label on every claim. Built for operators who need to know what happens next, not just what happened.
+              Built by people with years inside ecommerce, for the operators running it now. An AI
+              intelligence layer reads the market at a scale no human team could alone — 8,541
+              articles from 54 sources classified and counting, patterns surfaced across platforms,
+              our forecasts graded in public when they resolve — while human judgment decides what
+              it means. The system sharpens with every story it ingests, so you get a working read
+              on the market, not another news feed.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button size="lg" asChild className="h-12 rounded-lg bg-blue-600 px-6 text-base font-semibold text-white hover:bg-blue-700">
@@ -462,7 +467,11 @@ export default function HomePageClient({
                 <Link href="/intelligence/pressure-index">This week&apos;s Pressure Index</Link>
               </Button>
             </div>
-            {currentUser && personalizationLabel ? <p className="mt-5 text-sm text-muted-foreground">{personalizationLabel}. <Link href="/account" className="font-medium text-primary underline underline-offset-4">Edit your preferences</Link></p> : null}
+            <p className="mt-5 text-sm text-muted-foreground">
+              Human-edited, AI-assisted, and accountable in public —{" "}
+              <Link href="/editorial-policy" className="font-medium text-primary underline underline-offset-4">read how we work</Link>.
+            </p>
+            {currentUser && personalizationLabel ? <p className="mt-2 text-sm text-muted-foreground">{personalizationLabel}. <Link href="/account" className="font-medium text-primary underline underline-offset-4">Edit your preferences</Link></p> : null}
           </div>
           <IntelligenceSpotlight articles={articles} />
         </div>
