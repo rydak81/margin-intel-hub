@@ -61,6 +61,7 @@ export function sanitizeAnalystOutput(raw: unknown, openIds: number[], allIds: n
   if (!assessment) return null
   const open = new Set(openIds)
   const all = new Set(allIds)
+  const resolved = new Set(allIds.filter((id) => !open.has(id)))
 
   const watchlist = (Array.isArray(r.watchlist) ? r.watchlist : [])
     .map((w) => ({ item: str((w as Record<string, unknown>)?.item, 160), why: str((w as Record<string, unknown>)?.why, 400) }))
@@ -85,14 +86,18 @@ export function sanitizeAnalystOutput(raw: unknown, openIds: number[], allIds: n
     .map((m) => {
       const o = m as Record<string, unknown>
       const supersedes = str(o?.supersedes_title, 200)
+      const kind = MEMORY_KINDS.includes(o?.kind as MemoryKind) ? (o.kind as MemoryKind) : 'observation'
+      // A post-mortem may only link resolved forecasts: a link to an open one
+      // would mark that forecast as permanently covered before it resolves.
+      const linkable = kind === 'post_mortem' ? resolved : all
       return {
-        kind: MEMORY_KINDS.includes(o?.kind as MemoryKind) ? (o.kind as MemoryKind) : 'observation',
+        kind,
         title: str(o?.title, 200),
         body: str(o?.body, 2000),
         confidence: CONFIDENCES.includes(o?.confidence as (typeof CONFIDENCES)[number]) ? (o.confidence as 'low' | 'medium' | 'high') : 'low',
         related_forecasts: (Array.isArray(o?.related_forecasts) ? o.related_forecasts : [])
           .map(Number)
-          .filter((n) => Number.isInteger(n) && all.has(n))
+          .filter((n) => Number.isInteger(n) && linkable.has(n))
           .slice(0, 6),
         source_titles: (Array.isArray(o?.source_titles) ? o.source_titles : [])
           .map((t) => str(t, 240))
@@ -101,7 +106,9 @@ export function sanitizeAnalystOutput(raw: unknown, openIds: number[], allIds: n
         ...(supersedes ? { supersedes_title: supersedes } : {}),
       }
     })
-    .filter((m) => m.title && m.body)
+    // A post-mortem without a resolved-forecast link is an orphan the coverage
+    // tracking cannot see, so it is rejected outright.
+    .filter((m) => m.title && m.body && (m.kind !== 'post_mortem' || m.related_forecasts.length > 0))
     .slice(0, 4)
 
   return { assessment, watchlist, forecast_checks, memory }
@@ -125,6 +132,7 @@ export async function loadLatestAnalystRun(): Promise<AnalystLogRun | null> {
     const { data } = await createClient(url, key)
       .from('intel_analyst_runs')
       .select('run_date, assessment, watchlist, articles_considered, memory_written')
+      .eq('status', 'complete')
       .order('created_at', { ascending: false })
       .limit(1)
       .maybeSingle()

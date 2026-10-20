@@ -59,6 +59,18 @@ describe('analyst output sanitizer', () => {
     expect(out?.memory[0].related_forecasts).toEqual([4])
   })
 
+  it('rejects post-mortems that link no resolved forecast', () => {
+    const out = sanitizeAnalystOutput({
+      assessment: 'Premature and orphaned post-mortems.',
+      memory: [
+        { kind: 'post_mortem', title: 'Early call on F1', body: 'F1 has not resolved yet.', confidence: 'high', related_forecasts: [1] },
+        { kind: 'post_mortem', title: 'Orphan', body: 'No link at all.', confidence: 'high', related_forecasts: [] },
+        { kind: 'observation', title: 'Open link is fine here', body: 'Observations may reference open forecasts.', confidence: 'low', related_forecasts: [1] },
+      ],
+    }, OPEN_IDS, [...OPEN_IDS, 4])
+    expect(out?.memory.map((m) => m.title)).toEqual(['Open link is fine here'])
+  })
+
   it('keeps valid memory entries with whitelisted forecast links and supersedes titles', () => {
     const out = sanitizeAnalystOutput({
       assessment: 'A real shift.',
