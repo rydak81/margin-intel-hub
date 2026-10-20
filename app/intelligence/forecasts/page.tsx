@@ -25,6 +25,7 @@ const STATUS_STYLE: Record<ForecastStatus, string> = {
   open: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200',
   hit: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200',
   miss: 'bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-200',
+  unresolvable: 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200',
 }
 
 const fmtDate = (iso: string) => new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' })
@@ -65,7 +66,7 @@ export default async function ForecastScorecardPage() {
 
         <dl className="my-8 grid gap-4 sm:grid-cols-4">
           <div className="rounded-2xl border border-border bg-card p-5"><dt className="text-sm text-muted-foreground">Forecasts logged</dt><dd className="mt-2 text-3xl font-bold tabular-nums">{score.total}</dd></div>
-          <div className="rounded-2xl border border-border bg-card p-5"><dt className="text-sm text-muted-foreground">Open / hit / miss</dt><dd className="mt-2 text-3xl font-bold tabular-nums">{score.open} / {score.hits} / {score.misses}</dd></div>
+          <div className="rounded-2xl border border-border bg-card p-5"><dt className="text-sm text-muted-foreground">Open / hit / miss</dt><dd className="mt-2 text-3xl font-bold tabular-nums">{score.open} / {score.hits} / {score.misses}</dd>{score.unresolvable > 0 ? <dd className="mt-1 text-xs text-muted-foreground">+ {score.unresolvable} unresolvable</dd> : null}</div>
           <div className="rounded-2xl border border-border bg-card p-5"><dt className="text-sm text-muted-foreground">Graded so far</dt><dd className="mt-2 text-3xl font-bold tabular-nums">{score.resolved === 0 ? <span className="text-xl">First forecasts resolve January 2027</span> : `${score.hits} hit${score.hits === 1 ? '' : 's'}, ${score.misses} miss${score.misses === 1 ? '' : 'es'}`}</dd></div>
           <div className="rounded-2xl border border-border bg-card p-5"><dt className="text-sm text-muted-foreground">Next resolve-by date</dt><dd className="mt-2 text-3xl font-bold tabular-nums">{nextResolve ? fmtDate(nextResolve) : '—'}</dd></div>
         </dl>
@@ -96,7 +97,7 @@ export default async function ForecastScorecardPage() {
             <ul className="mt-4 space-y-3 leading-7 text-muted-foreground">
               <li><strong className="text-foreground">Forecasts are evidence-based judgments, not model outputs.</strong> Each one is grounded in the cited evidence in the <Link href="/intelligence/dossier" className="text-primary underline underline-offset-4">Intelligence Dossier</Link>.</li>
               <li><strong className="text-foreground">Resolution is fixed in advance.</strong> Each forecast names the indicators that confirm or invalidate it. Where the forecast does not name a date, the resolve-by date is the end of its stated horizon from the October 2026 edition.</li>
-              <li><strong className="text-foreground">Scoring.</strong> Each resolved forecast is marked hit or miss, and the scorecard shows the running count of hits and misses. The first forecasts resolve in January 2027.</li>
+              <li><strong className="text-foreground">Scoring.</strong> Each resolved forecast is marked hit or miss, and the scorecard shows the running count of hits and misses. A forecast whose measuring source stops publishing is marked unresolvable rather than quietly dropped. The first forecasts resolve in January 2027.</li>
               <li><strong className="text-foreground">Nothing is deleted.</strong> Misses stay on the ledger. New editions add forecasts; they do not rewrite old ones.</li>
             </ul>
             <p className="mt-4 text-sm text-muted-foreground">The first grades arrive when the holiday forecasts (F1–F4) resolve in January 2027.</p>
