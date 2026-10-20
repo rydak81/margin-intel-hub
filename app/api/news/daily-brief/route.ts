@@ -144,9 +144,11 @@ ${topArticles.map((a: any, i: number) => `${i + 1}. "${a.title}" (${a.source_nam
     console.log(`[DailyBrief] Generated via ${response.provider} (${response.model})`)
 
     // Persist the brief: an auditable archive and a heartbeat for the pipeline,
-    // written whether or not the email send below succeeds.
+    // written whether or not the email send below succeeds. One retry on failure;
+    // the outcome is exposed as briefPersisted/briefPersistError on every response
+    // so a silent archive gap can't hide behind a successful email run.
     const today = getEasternCalendarDate()
-    const { error: briefSaveError } = await getSupabase().from('daily_briefs').upsert({
+    const briefRow = {
       id: today.iso,
       brief_date: today.iso,
       content: response.text,
@@ -154,8 +156,17 @@ ${topArticles.map((a: any, i: number) => `${i + 1}. "${a.title}" (${a.source_nam
       article_ids: topArticles.map((a: any) => a.id),
       provider: response.provider,
       model: response.model,
-    }, { onConflict: 'id' })
-    if (briefSaveError) console.error('[DailyBrief] Failed to persist brief:', briefSaveError.message)
+    }
+    let { error: briefSaveError } = await getSupabase().from('daily_briefs').upsert(briefRow, { onConflict: 'id' })
+    if (briefSaveError) {
+      console.error('[DailyBrief] Failed to persist brief, retrying once:', briefSaveError.message)
+      ;({ error: briefSaveError } = await getSupabase().from('daily_briefs').upsert(briefRow, { onConflict: 'id' }))
+      if (briefSaveError) console.error('[DailyBrief] Brief persistence failed after retry:', briefSaveError.message)
+    }
+    const persistence = {
+      briefPersisted: !briefSaveError,
+      ...(briefSaveError ? { briefPersistError: briefSaveError.message } : {}),
+    }
 
     // ── Step 3: Fetch all subscribers ──
     const { data: subscribers, error: subError } = await getSupabase()
@@ -167,6 +178,7 @@ ${topArticles.map((a: any, i: number) => `${i + 1}. "${a.title}" (${a.source_nam
       return NextResponse.json({
         error: `Failed to fetch subscribers: ${subError.message}`,
         brief: response.text, // Still return the brief even if email fails
+        ...persistence,
       }, { status: 500 })
     }
 
@@ -178,6 +190,7 @@ ${topArticles.map((a: any, i: number) => `${i + 1}. "${a.title}" (${a.source_nam
         brief: response.text,
         emailsSent: 0,
         message: 'No subscribers to send to',
+        ...persistence,
         date: new Date().toISOString()
       })
     }
@@ -194,6 +207,7 @@ ${topArticles.map((a: any, i: number) => `${i + 1}. "${a.title}" (${a.source_nam
         emailsSent: 0,
         message: 'RESEND_API_KEY not configured — emails skipped',
         provider: response.provider,
+        ...persistence,
         date: new Date().toISOString()
       })
     }
@@ -228,6 +242,7 @@ ${topArticles.map((a: any, i: number) => `${i + 1}. "${a.title}" (${a.source_nam
       emailsSent: emailResult.sent,
       emailsFailed: emailResult.failed,
       totalSubscribers: subscribers.length,
+      ...persistence,
       date: new Date().toISOString()
     })
   } catch (error) {
