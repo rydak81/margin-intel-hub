@@ -191,12 +191,20 @@ export async function GET(request: Request) {
           body: entry.body,
           confidence: entry.confidence,
           related_forecasts: entry.related_forecasts.length ? entry.related_forecasts : null,
-          sources: entry.source_titles.length
-            ? entry.source_titles.map((t) => {
+          // Evidence-only: a cited title that matches no supplied article is
+          // dropped rather than stored as an untraceable source.
+          sources: (() => {
+            const matched = entry.source_titles
+              .map((t) => {
                 const a = articleByTitle.get(t)
-                return a ? { title: t, source_name: a.source_name, published_at: a.published_at } : { title: t }
+                return a ? { title: t, source_name: a.source_name, published_at: a.published_at } : null
               })
-            : null,
+              .filter(Boolean)
+            if (matched.length < entry.source_titles.length) {
+              console.warn(`[Analyst] Dropped ${entry.source_titles.length - matched.length} uncited source title(s) on "${entry.title}"`)
+            }
+            return matched.length ? matched : null
+          })(),
           run_id: run.id,
         })
         .select('id')
