@@ -70,14 +70,22 @@ export async function GET(request: Request) {
       .select('id')
       .single()
     if (claim.error || !claim.data) {
+      // Only a duplicate-date conflict (23505) means another run claimed today;
+      // any other claim failure is an error, not a duplicate.
+      if (claim.error && claim.error.code !== '23505') {
+        return NextResponse.json({ error: `Failed to claim run: ${claim.error.message}` }, { status: 500 })
+      }
       const staleBefore = new Date(Date.now() - 10 * 60 * 1000).toISOString()
-      const { data: reclaimed } = await supabase
+      const { data: reclaimed, error: reclaimError } = await supabase
         .from('intel_analyst_runs')
         .update({ status: 'started' })
         .eq('run_date', runDate)
         .neq('status', 'complete')
         .lt('created_at', staleBefore)
         .select('id')
+      if (reclaimError) {
+        return NextResponse.json({ error: `Failed to reclaim run: ${reclaimError.message}` }, { status: 500 })
+      }
       if (!reclaimed?.length) {
         return NextResponse.json({ success: true, skipped: true, reason: `Run for ${runDate} already exists` })
       }
@@ -158,6 +166,9 @@ export async function GET(request: Request) {
 
     const openIds = forecasts.filter((f) => !f.outcome).map((f) => Number(f.id))
     const allIds = forecasts.map((f) => Number(f.id))
+    const postMortemCoveredIds = [...new Set((postMortemCoverageRes.data ?? []).flatMap((m) => m.related_forecasts ?? []))].sort((a, b) => a - b)
+    // Resolved forecasts whose post-mortem this run is contractually required to write.
+    const uncoveredResolved = allIds.filter((id) => !openIds.includes(id) && !postMortemCoveredIds.includes(id))
     const prompt = buildPrompt({
       articles: (articles ?? []).map((a) => ({
         title: a.title,
@@ -177,7 +188,7 @@ export async function GET(request: Request) {
         lastSignal: f.indicator_signal,
       })),
       memory: (memoryRows ?? []).map((m) => ({ kind: m.kind, title: m.title, body: m.body, createdAt: m.created_at, relatedForecasts: m.related_forecasts ?? [] })),
-      postMortemCoveredIds: [...new Set((postMortemCoverageRes.data ?? []).flatMap((m) => m.related_forecasts ?? []))].sort((a, b) => a - b),
+      postMortemCoveredIds,
       lastAssessment: lastRun?.assessment ?? null,
     })
 
@@ -221,6 +232,7 @@ export async function GET(request: Request) {
     const articleByTitle = new Map((articles ?? []).map((a) => [a.title, a]))
     let memorySaved = 0
     let supersessionsFailed = 0
+    const postMortemsWrittenFor = new Set<number>()
     for (const entry of output.memory) {
       // A correction must name a real, still-active entry: without a target
       // it is not persisted, and the shortfall marks the run partial below.
@@ -262,6 +274,7 @@ export async function GET(request: Request) {
         continue
       }
       memorySaved++
+      if (entry.kind === 'post_mortem') entry.related_forecasts.forEach((id) => postMortemsWrittenFor.add(id))
       // A correction supersedes the earlier entry it names. If that update
       // fails, both the obsolete entry and its correction would stay active,
       // so the failure counts against the run.
@@ -299,17 +312,22 @@ export async function GET(request: Request) {
 
     // A run that could not stamp every open forecast is a failure for
     // monitoring purposes, even though the assessment and memory persisted.
-    if (checksFailed.length || memorySaved < output.memory.length || supersessionsFailed > 0) {
+    // Every newly resolved forecast must leave this run with its post-mortem
+    // written, as the public methodology promises.
+    const missingPostMortems = uncoveredResolved.filter((id) => !postMortemsWrittenFor.has(id))
+
+    if (checksFailed.length || memorySaved < output.memory.length || supersessionsFailed > 0 || missingPostMortems.length) {
       await supabase.from('intel_analyst_runs').update({ status: 'partial', memory_written: memorySaved }).eq('id', runId)
       return NextResponse.json({
         success: false,
-        error: 'Partial run: some writes failed',
+        error: 'Partial run: some writes failed or required post-mortems are missing',
         runDate,
         forecastChecksApplied: checksApplied,
         forecastChecksFailed: checksFailed,
         memoryWritten: memorySaved,
         memoryExpected: output.memory.length,
         supersessionsFailed,
+        missingPostMortems,
       }, { status: 500 })
     }
 
