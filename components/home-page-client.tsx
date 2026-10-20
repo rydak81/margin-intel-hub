@@ -519,9 +519,12 @@ export default function HomePageClient({
               Every article that enters the archive is classified and scored. Pattern and signal
               detection run across platforms, categories, and time. Forecasts go on a public
               scorecard with the indicators that would confirm or kill them — hits and misses
-              stay on the record, so you can judge the next call by how the last ones aged. And
-              the archive underneath is never finished: every new article deepens the market
-              history the pattern detection reads.
+              stay on the record, so you can judge the next call by how the last ones aged. A
+              resident analyst agent reviews that ledger daily against the new coverage, keeps
+              its own memory, and writes a post-mortem when a forecast resolves — so the next
+              call is made with the record of the last one in view. And the archive underneath
+              is never finished: every new article deepens the market history the pattern
+              detection reads.
             </p>
           </div>
           <div className="grid content-center gap-4">

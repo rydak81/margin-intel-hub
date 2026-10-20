@@ -29,6 +29,10 @@ export interface Forecast {
   status: ForecastStatus
   resolvedOn?: string
   resolutionNote?: string
+  /** Latest indicator read from the analyst agent (open forecasts only). */
+  indicatorSignal?: 'confirming' | 'invalidating' | 'mixed' | 'none'
+  indicatorNote?: string
+  indicatorsCheckedAt?: string
 }
 
 export const FORECAST_EDITION = { id: '2026-10', label: 'Edition 1 · October 2026', loggedOn: '2026-10-14' } as const
@@ -96,7 +100,7 @@ export async function loadForecasts(): Promise<Forecast[]> {
     const supabase = createClient(url, key)
     const { data, error } = await supabase
       .from('intel_forecasts')
-      .select('id, horizon, statement, confirming_indicators, invalidating_indicators, resolve_by, resolved_on, outcome, outcome_notes, dossier_edition')
+      .select('id, horizon, statement, confirming_indicators, invalidating_indicators, resolve_by, resolved_on, outcome, outcome_notes, dossier_edition, indicator_signal, indicator_note, indicators_checked_at')
       .eq('dossier_edition', LEDGER_EDITION_KEY)
       .order('id', { ascending: true })
     if (error || !data?.length) return FORECASTS
@@ -120,6 +124,9 @@ export async function loadForecasts(): Promise<Forecast[]> {
         : 'open',
       resolvedOn: row.resolved_on ?? undefined,
       resolutionNote: row.outcome_notes ?? undefined,
+      indicatorSignal: !row.outcome && row.indicator_signal ? row.indicator_signal : undefined,
+      indicatorNote: !row.outcome && row.indicator_note ? row.indicator_note : undefined,
+      indicatorsCheckedAt: !row.outcome && row.indicators_checked_at ? row.indicators_checked_at : undefined,
     }))
   } catch {
     return FORECASTS
