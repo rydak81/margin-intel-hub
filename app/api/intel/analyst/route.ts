@@ -181,6 +181,7 @@ export async function GET(request: Request) {
     // Memory entries; sources resolved from the exact article titles the model cited.
     const articleByTitle = new Map((articles ?? []).map((a) => [a.title, a]))
     let memorySaved = 0
+    let supersessionsFailed = 0
     for (const entry of output.memory) {
       const { data: inserted, error: memError } = await supabase
         .from('intel_memory')
@@ -205,11 +206,17 @@ export async function GET(request: Request) {
         continue
       }
       memorySaved++
-      // A correction supersedes the earlier entry it names.
+      // A correction supersedes the earlier entry it names. If that update
+      // fails, both the obsolete entry and its correction would stay active,
+      // so the failure counts against the run.
       if (entry.kind === 'correction' && entry.supersedes_title) {
         const target = (memoryRows ?? []).find((m) => m.title === entry.supersedes_title)
         if (target) {
-          await supabase.from('intel_memory').update({ superseded_by: inserted.id }).eq('id', target.id)
+          const { error: supersedeError } = await supabase.from('intel_memory').update({ superseded_by: inserted.id }).eq('id', target.id)
+          if (supersedeError) {
+            console.error('[Analyst] Failed to supersede corrected entry:', supersedeError.message)
+            supersessionsFailed++
+          }
         }
       }
     }
@@ -236,7 +243,7 @@ export async function GET(request: Request) {
 
     // A run that could not stamp every open forecast is a failure for
     // monitoring purposes, even though the assessment and memory persisted.
-    if (checksFailed.length || memorySaved < output.memory.length) {
+    if (checksFailed.length || memorySaved < output.memory.length || supersessionsFailed > 0) {
       return NextResponse.json({
         success: false,
         error: 'Partial run: some writes failed',
@@ -245,6 +252,7 @@ export async function GET(request: Request) {
         forecastChecksFailed: checksFailed,
         memoryWritten: memorySaved,
         memoryExpected: output.memory.length,
+        supersessionsFailed,
       }, { status: 500 })
     }
 
