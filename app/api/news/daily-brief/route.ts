@@ -103,11 +103,25 @@ export async function GET(request: Request) {
 
     if (!topArticles?.length) {
       console.log('[DailyBrief] No articles found for brief — skipping email send')
+      // Heartbeat: a quiet day still leaves a row, so monitoring can tell
+      // "nothing qualified" apart from "the cron never ran". ignoreDuplicates
+      // keeps this from ever clobbering a real brief already saved today.
+      const skipDay = getEasternCalendarDate()
+      const { error: skipSaveError } = await getSupabase().from('daily_briefs').upsert({
+        id: skipDay.iso,
+        brief_date: skipDay.iso,
+        content: 'No qualifying articles today — no brief generated or sent.',
+        article_count: 0,
+        article_ids: [],
+      }, { onConflict: 'id', ignoreDuplicates: true })
+      if (skipSaveError) console.error('[DailyBrief] Failed to persist skip heartbeat:', skipSaveError.message)
       return NextResponse.json({
         success: true,
         message: 'No articles for brief today — no emails sent',
         articles: 0,
         emailsSent: 0,
+        briefPersisted: !skipSaveError,
+        ...(skipSaveError ? { briefPersistError: skipSaveError.message } : {}),
         date: new Date().toISOString()
       })
     }

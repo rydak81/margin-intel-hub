@@ -70,6 +70,14 @@ describe('analyst output sanitizer', () => {
     expect(out?.memory[0].related_forecasts).toEqual([4])
   })
 
+  it('rejects a duplicate post-mortem for an already-covered forecast', () => {
+    const out = sanitizeAnalystOutput({
+      assessment: 'F4 already has a post-mortem.',
+      memory: [{ kind: 'post_mortem', title: 'F4 again', body: 'Second take on the same resolution.', confidence: 'high', related_forecasts: [4] }],
+    }, OPEN_IDS, [...OPEN_IDS, 4], [4])
+    expect(out?.memory).toEqual([])
+  })
+
   it('rejects post-mortems that link no resolved forecast', () => {
     const out = sanitizeAnalystOutput({
       assessment: 'Premature and orphaned post-mortems.',
