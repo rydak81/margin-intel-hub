@@ -14,7 +14,7 @@
  * To score a forecast, set status to 'hit' or 'miss' and fill resolvedOn + resolutionNote.
  */
 
-export type ForecastStatus = 'open' | 'hit' | 'miss'
+export type ForecastStatus = 'open' | 'hit' | 'miss' | 'unresolvable'
 export type ForecastHorizon = '0–3m' | '3–6m' | '6–12m' | '12–24m'
 
 export interface Forecast {
@@ -31,6 +31,9 @@ export interface Forecast {
 }
 
 export const FORECAST_EDITION = { id: '2026-10', label: 'Edition 1 · October 2026', loggedOn: '2026-10-14' } as const
+
+/** Exact intel_forecasts.dossier_edition value for this edition — the ledger query filters on it. */
+const LEDGER_EDITION_KEY = '2026-10 Edition 1'
 
 const E = FORECAST_EDITION.id
 
@@ -54,6 +57,8 @@ export interface ForecastScore {
   open: number
   hits: number
   misses: number
+  /** Resolved, but gradeable neither as hit nor miss (e.g. the measuring source stopped publishing). */
+  unresolvable: number
   resolved: number
 }
 
@@ -61,11 +66,13 @@ export interface ForecastScore {
 export function scoreForecasts(forecasts: readonly Forecast[] = FORECASTS): ForecastScore {
   const resolved = forecasts.filter(f => f.status !== 'open')
   const hits = resolved.filter(f => f.status === 'hit').length
+  const misses = resolved.filter(f => f.status === 'miss').length
   return {
     total: forecasts.length,
     open: forecasts.length - resolved.length,
     hits,
-    misses: resolved.length - hits,
+    misses,
+    unresolvable: resolved.length - hits - misses,
     resolved: resolved.length,
   }
 }
@@ -87,6 +94,7 @@ export async function loadForecasts(): Promise<Forecast[]> {
     const { data, error } = await supabase
       .from('intel_forecasts')
       .select('id, horizon, statement, confirming_indicators, invalidating_indicators, resolve_by, resolved_on, outcome, outcome_notes, dossier_edition')
+      .eq('dossier_edition', LEDGER_EDITION_KEY)
       .order('id', { ascending: true })
     if (error || !data?.length) return FORECASTS
     const horizons: Record<string, ForecastHorizon> = { '0-3m': '0–3m', '3-6m': '3–6m', '6-12m': '6–12m', '12-24m': '12–24m' }
@@ -100,7 +108,10 @@ export async function loadForecasts(): Promise<Forecast[]> {
         : row.confirming_indicators,
       resolveBy: row.resolve_by,
       resolveByBasis: 'stated',
-      status: row.outcome === 'correct' || row.outcome === 'partially_correct' ? 'hit' : row.outcome === 'incorrect' ? 'miss' : 'open',
+      status: row.outcome === 'correct' || row.outcome === 'partially_correct' ? 'hit'
+        : row.outcome === 'incorrect' ? 'miss'
+        : row.outcome === 'unresolvable' ? 'unresolvable'
+        : 'open',
       resolvedOn: row.resolved_on ?? undefined,
       resolutionNote: row.outcome === 'partially_correct'
         ? `Partially correct${row.outcome_notes ? ` — ${row.outcome_notes}` : ''}`
