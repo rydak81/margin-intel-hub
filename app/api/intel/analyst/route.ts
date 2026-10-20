@@ -126,6 +126,7 @@ export async function GET(request: Request) {
       supabase
         .from('intel_analyst_runs')
         .select('assessment')
+        .eq('status', 'complete')
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle(),
