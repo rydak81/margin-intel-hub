@@ -70,6 +70,17 @@ describe('analyst output sanitizer', () => {
     expect(out?.memory[0].related_forecasts).toEqual([4])
   })
 
+  it('deduplicates post-mortems for the same forecast within one response', () => {
+    const out = sanitizeAnalystOutput({
+      assessment: 'Two takes on the same resolution.',
+      memory: [
+        { kind: 'post_mortem', title: 'F4 first take', body: 'Primary analysis.', confidence: 'high', related_forecasts: [4] },
+        { kind: 'post_mortem', title: 'F4 second take', body: 'Redundant analysis.', confidence: 'high', related_forecasts: [4] },
+      ],
+    }, OPEN_IDS, [...OPEN_IDS, 4])
+    expect(out?.memory.map((m) => m.title)).toEqual(['F4 first take'])
+  })
+
   it('rejects a duplicate post-mortem for an already-covered forecast', () => {
     const out = sanitizeAnalystOutput({
       assessment: 'F4 already has a post-mortem.',

@@ -64,6 +64,7 @@ export function sanitizeAnalystOutput(raw: unknown, openIds: number[], allIds: n
   const covered = new Set(coveredIds)
   // Post-mortems may only link resolved forecasts that do not already have one.
   const resolved = new Set(allIds.filter((id) => !open.has(id) && !covered.has(id)))
+  const postMortemLinksUsed = new Set<number>()
 
   const watchlist = (Array.isArray(r.watchlist) ? r.watchlist : [])
     .map((w) => ({ item: str((w as Record<string, unknown>)?.item, 160), why: str((w as Record<string, unknown>)?.why, 400) }))
@@ -112,9 +113,17 @@ export function sanitizeAnalystOutput(raw: unknown, openIds: number[], allIds: n
         ...(supersedes ? { supersedes_title: supersedes } : {}),
       }
     })
-    // A post-mortem without a resolved-forecast link is an orphan the coverage
-    // tracking cannot see, so it is rejected outright.
-    .filter((m) => m.title && m.body && (m.kind !== 'post_mortem' || m.related_forecasts.length > 0))
+    .filter((m) => m.title && m.body)
+    // Within one response, each resolved forecast gets at most one post-mortem:
+    // a later duplicate loses the contested link (first wins). A post-mortem
+    // left with no resolved-forecast link is an orphan the coverage tracking
+    // cannot see, so it is rejected outright.
+    .flatMap((m) => {
+      if (m.kind !== 'post_mortem') return [m]
+      const links = m.related_forecasts.filter((id) => !postMortemLinksUsed.has(id))
+      links.forEach((id) => postMortemLinksUsed.add(id))
+      return links.length ? [{ ...m, related_forecasts: links }] : []
+    })
     .slice(0, 4)
 
   return { assessment, watchlist, forecast_checks, memory }
