@@ -46,6 +46,11 @@ Respond with ONLY a JSON object:
 }
 
 export async function GET(request: Request) {
+  // Set once today's run row is claimed; releases the claim on terminal
+  // failures that happen before any dependent write, so an immediate retry
+  // can claim the date fresh instead of waiting out the lease. Nulled once
+  // writes begin — from there the lease and the partial status own recovery.
+  let releaseClaim: (() => Promise<void>) | null = null
   try {
     const authHeader = request.headers.get('authorization')
     const cronSecret = process.env.CRON_SECRET
@@ -95,6 +100,9 @@ export async function GET(request: Request) {
       runId = reclaimed[0].id
     } else {
       runId = claim.data.id
+    }
+    releaseClaim = async () => {
+      await supabase.from('intel_analyst_runs').delete().eq('id', runId).neq('status', 'complete')
     }
 
     const since = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString()
@@ -158,6 +166,7 @@ export async function GET(request: Request) {
       lastRunRes.error && `last run: ${lastRunRes.error.message}`,
     ].filter(Boolean)
     if (contextErrors.length) {
+      await releaseClaim()
       return NextResponse.json({ error: `Context queries failed — run aborted: ${contextErrors.join('; ')}` }, { status: 500 })
     }
     const articles = articlesRes.data
@@ -167,6 +176,7 @@ export async function GET(request: Request) {
     const lastRun = lastRunRes.data
 
     if (!forecasts?.length) {
+      await releaseClaim()
       return NextResponse.json({ error: 'No forecasts in ledger — nothing to analyze against' }, { status: 500 })
     }
 
@@ -206,6 +216,7 @@ export async function GET(request: Request) {
 
     const output = sanitizeAnalystOutput(rawOutput, openIds, allIds, postMortemCoveredIds)
     if (!output) {
+      await releaseClaim()
       return NextResponse.json({ error: 'Analyst output failed validation', raw: String(JSON.stringify(rawOutput)).slice(0, 300) }, { status: 500 })
     }
 
@@ -231,8 +242,12 @@ export async function GET(request: Request) {
       })
       .eq('id', runId)
     if (runError) {
+      await releaseClaim()
       return NextResponse.json({ error: `Failed to persist run: ${runError.message}` }, { status: 500 })
     }
+    // Dependent writes begin here: from now on the row stays for the lease
+    // and partial-status machinery rather than being released.
+    releaseClaim = null
 
     // Memory entries; sources resolved from the exact article titles the model cited.
     const articleByTitle = new Map((articles ?? []).map((a) => [a.title, a]))
@@ -375,6 +390,9 @@ export async function GET(request: Request) {
     })
   } catch (error) {
     console.error('Analyst run error:', error)
+    // A throw before any dependent write (e.g. the AI call) releases the
+    // claim so a retry does not have to wait out the lease.
+    if (releaseClaim) await releaseClaim().catch(() => {})
     return NextResponse.json({ error: 'Analyst run failed', details: String(error) }, { status: 500 })
   }
 }
