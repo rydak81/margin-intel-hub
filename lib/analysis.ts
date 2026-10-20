@@ -132,6 +132,14 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
   },
 ]
 
+/** Newest first by publish date (ties keep file order). */
+export function latestAnalysis(limit = ANALYSIS_ARTICLES.length): AnalysisArticle[] {
+  return ANALYSIS_ARTICLES.map((a, i) => ({ a, i }))
+    .sort((x, y) => y.a.publishedOn.localeCompare(x.a.publishedOn) || x.i - y.i)
+    .slice(0, limit)
+    .map(({ a }) => a)
+}
+
 export function getAnalysis(slug: string): AnalysisArticle | undefined {
   return ANALYSIS_ARTICLES.find(a => a.slug === slug)
 }

@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { PremiumSiteHeader } from '@/components/premium-site-header'
 import { PremiumSiteFooter } from '@/components/premium-site-footer'
-import { ANALYSIS_ARTICLES } from '@/lib/analysis'
+import { latestAnalysis } from '@/lib/analysis'
 
 export const metadata: Metadata = {
   title: 'Operator Analysis: Original Marketplace Intelligence | MarketplaceBeta',
@@ -12,8 +12,8 @@ export const metadata: Metadata = {
 const fmtDate = (iso: string) => new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' })
 
 export default function AnalysisIndexPage() {
-  const items = [...ANALYSIS_ARTICLES].sort((x, y) => y.publishedOn.localeCompare(x.publishedOn))
-  return <div className="min-h-screen bg-background"><PremiumSiteHeader active="intelligence" backHref="/intelligence" backLabel="Intelligence" ctaHref="/newsletter?source=campaign_analysis#subscribe" />
+  const items = latestAnalysis()
+  return <div className="min-h-screen bg-background"><PremiumSiteHeader active="analysis" backHref="/intelligence" backLabel="Intelligence" ctaHref="/newsletter?source=campaign_analysis#subscribe" />
     <main className="mx-auto site-width px-4 py-10 sm:px-6">
       <section className="max-w-3xl">
         <p className="text-xs font-bold uppercase tracking-[.22em] text-blue-700 dark:text-blue-300">MarketplaceBeta Intelligence · Analysis</p>

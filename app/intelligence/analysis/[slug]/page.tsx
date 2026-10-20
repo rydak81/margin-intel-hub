@@ -48,7 +48,7 @@ export default async function AnalysisPage({ params }: Props) {
   ]
   return <div className="min-h-screen bg-background">
     <JsonLd data={schema} />
-    <PremiumSiteHeader active="intelligence" backHref="/intelligence/analysis" backLabel="Analysis" ctaHref={cta} />
+    <PremiumSiteHeader active="analysis" backHref="/intelligence/analysis" backLabel="Analysis" ctaHref={cta} />
     <main className="mx-auto site-width px-4 py-10 sm:px-6">
       <nav aria-label="Breadcrumb" className="mb-6 text-sm text-muted-foreground"><Link href="/intelligence" className="font-semibold text-primary">Intelligence</Link><span aria-hidden="true"> / </span><Link href="/intelligence/analysis" className="font-semibold text-primary">Analysis</Link></nav>
       <header className="editorial-intro rounded-2xl border border-border p-6 sm:p-10">
@@ -56,7 +56,7 @@ export default async function AnalysisPage({ params }: Props) {
         <h1 className="mt-4 max-w-4xl text-4xl font-bold leading-tight sm:text-5xl">{a.headline}</h1>
         <p className="mt-5 max-w-3xl text-lg text-muted-foreground">{a.dek}</p>
         <p className="mt-5 text-sm text-muted-foreground">By {a.author} · <time dateTime={a.publishedOn}>{fmtDate(a.publishedOn)}</time>{a.updatedOn !== a.publishedOn && <> · Updated <time dateTime={a.updatedOn}>{fmtDate(a.updatedOn)}</time></>} · {a.readTime} read</p>
-        <p className="mt-3 text-sm text-muted-foreground">Every figure is attributed to a linked source below. Worked examples are hypothetical. <Link href="/editorial-policy" className="underline">Our editorial method</Link>.</p>
+        <p className="mt-3 text-sm text-muted-foreground">AI-assisted, human-reviewed analysis. Every figure links to its source below; worked examples are hypothetical. Use current source documents and your own business data. <Link href="/editorial-policy" className="underline">Our editorial method</Link>.</p>
       </header>
       <div className="mt-10 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_280px]">
         <article className="guide-copy rounded-2xl border border-border bg-card p-6 sm:p-10 editorial-elevated">
