@@ -69,3 +69,46 @@ export function scoreForecasts(forecasts: readonly Forecast[] = FORECASTS): Fore
     resolved: resolved.length,
   }
 }
+
+/**
+ * Live ledger loader. Reads intel_forecasts (the production ledger, written by
+ * the intelligence pipeline) and maps it to the public shape above, so grading
+ * a forecast in the database updates the scorecard without a code change.
+ * Falls back to the static copy when the database is unavailable or empty.
+ * Probabilities are deliberately never selected: they stay internal.
+ */
+export async function loadForecasts(): Promise<Forecast[]> {
+  try {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+    if (!url || !key) return FORECASTS
+    const { createClient } = await import('@supabase/supabase-js')
+    const supabase = createClient(url, key)
+    const { data, error } = await supabase
+      .from('intel_forecasts')
+      .select('id, horizon, statement, confirming_indicators, invalidating_indicators, resolve_by, resolved_on, outcome, outcome_notes, dossier_edition')
+      .order('id', { ascending: true })
+    if (error || !data?.length) return FORECASTS
+    const horizons: Record<string, ForecastHorizon> = { '0-3m': '0–3m', '3-6m': '3–6m', '6-12m': '6–12m', '12-24m': '12–24m' }
+    return data.map((row): Forecast => ({
+      id: `F${row.id}`,
+      edition: FORECAST_EDITION.id,
+      horizon: horizons[row.horizon] ?? '0–3m',
+      statement: row.statement,
+      indicators: row.invalidating_indicators
+        ? `${row.confirming_indicators} · Invalidated by: ${row.invalidating_indicators}`
+        : row.confirming_indicators,
+      resolveBy: row.resolve_by,
+      resolveByBasis: 'stated',
+      status: row.outcome === 'correct' || row.outcome === 'partially_correct' ? 'hit' : row.outcome === 'incorrect' ? 'miss' : 'open',
+      resolvedOn: row.resolved_on ?? undefined,
+      resolutionNote: row.outcome === 'partially_correct'
+        ? `Partially correct${row.outcome_notes ? ` — ${row.outcome_notes}` : ''}`
+        : row.outcome === 'unresolvable'
+          ? `Unresolvable${row.outcome_notes ? ` — ${row.outcome_notes}` : ''}`
+          : row.outcome_notes ?? undefined,
+    }))
+  } catch {
+    return FORECASTS
+  }
+}

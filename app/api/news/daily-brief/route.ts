@@ -23,7 +23,7 @@ function getEasternCalendarDate(date = new Date()) {
   return {
     long: `${parts.weekday}, ${parts.month} ${parts.day}, ${parts.year}`,
     short: `${parts.month} ${parts.day}`,
-    iso: `${parts.year}-${parts.month}-${parts.day}`,
+    iso: new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' }).format(date),
   }
 }
 
@@ -143,6 +143,20 @@ ${topArticles.map((a: any, i: number) => `${i + 1}. "${a.title}" (${a.source_nam
     })
     console.log(`[DailyBrief] Generated via ${response.provider} (${response.model})`)
 
+    // Persist the brief: an auditable archive and a heartbeat for the pipeline,
+    // written whether or not the email send below succeeds.
+    const today = getEasternCalendarDate()
+    const { error: briefSaveError } = await getSupabase().from('daily_briefs').upsert({
+      id: today.iso,
+      brief_date: today.iso,
+      content: response.text,
+      article_count: topArticles.length,
+      article_ids: topArticles.map((a: any) => a.id),
+      provider: response.provider,
+      model: response.model,
+    }, { onConflict: 'id' })
+    if (briefSaveError) console.error('[DailyBrief] Failed to persist brief:', briefSaveError.message)
+
     // ── Step 3: Fetch all subscribers ──
     const { data: subscribers, error: subError } = await getSupabase()
       .from('subscribers')
@@ -184,7 +198,7 @@ ${topArticles.map((a: any, i: number) => `${i + 1}. "${a.title}" (${a.source_nam
       })
     }
 
-    const today = getEasternCalendarDate()
+    // (today computed above, when the brief was persisted)
 
     const emailResult = await sendBatchEmails(
       subscribers,
