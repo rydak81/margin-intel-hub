@@ -11,7 +11,8 @@
  * or methodology names one. `resolveByBasis` records which. Horizon-derived dates use the end
  * of the horizon window measured from the October 2026 edition.
  *
- * To score a forecast, set status to 'hit' or 'miss' and fill resolvedOn + resolutionNote.
+ * To score a forecast, set status to 'hit', 'partial', 'miss', or 'unresolvable'
+ * (only a fully correct call is a hit) and fill resolvedOn + resolutionNote.
  */
 
 export type ForecastStatus = 'open' | 'hit' | 'partial' | 'miss' | 'unresolvable'
