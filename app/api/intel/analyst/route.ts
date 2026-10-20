@@ -17,7 +17,7 @@ Rules you never break:
 function buildPrompt(input: {
   articles: { title: string; source: string; category: string | null; summary: string | null; publishedAt: string }[]
   forecasts: { id: number; statement: string; confirming: string; invalidating: string; resolveBy: string; outcome: string | null; outcomeNotes: string | null; lastSignal: string | null }[]
-  memory: { kind: string; title: string; body: string; createdAt: string }[]
+  memory: { kind: string; title: string; body: string; createdAt: string; relatedForecasts: number[] }[]
   lastAssessment: string | null
 }) {
   return `## Today's classified coverage (last 48h, most relevant first)
@@ -28,7 +28,7 @@ ${input.forecasts.map((f) => `- id ${f.id}${f.outcome ? ` [RESOLVED: ${f.outcome
   Confirming: ${f.confirming} | Invalidating: ${f.invalidating} | Resolve by: ${f.resolveBy}${f.lastSignal ? ` | Your last signal: ${f.lastSignal}` : ''}`).join('\n')}
 
 ## Your memory (most recent first; titles are exact for supersedes_title)
-${input.memory.map((m) => `- [${m.kind}, ${m.createdAt.slice(0, 10)}] "${m.title}": ${m.body}`).join('\n') || '(empty — this is your first run)'}
+${input.memory.map((m) => `- [${m.kind}, ${m.createdAt.slice(0, 10)}${m.relatedForecasts.length ? `, forecasts ${m.relatedForecasts.join('/')}` : ''}] "${m.title}": ${m.body}`).join('\n') || '(empty — this is your first run)'}
 
 ## Your previous assessment
 ${input.lastAssessment ?? '(none — this is your first run)'}
@@ -56,7 +56,7 @@ export async function GET(request: Request) {
     const supabase = createAdminClient()
     const since = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString()
 
-    const [articlesRes, forecastsRes, memoryRes, lastRunRes] = await Promise.all([
+    const [articlesRes, forecastsRes, memoryRes, postMortemRes, lastRunRes] = await Promise.all([
       supabase
         .from('articles')
         .select('title, source_name, category, ai_summary, summary, published_at')
@@ -71,10 +71,19 @@ export async function GET(request: Request) {
         .order('id', { ascending: true }),
       supabase
         .from('intel_memory')
-        .select('id, kind, title, body, created_at')
+        .select('id, kind, title, body, created_at, related_forecasts')
         .is('superseded_by', null)
         .order('created_at', { ascending: false })
         .limit(14),
+      // Post-mortems must never scroll out of the recency window: the agent
+      // uses them to avoid duplicating one and as context for future calls.
+      supabase
+        .from('intel_memory')
+        .select('id, kind, title, body, created_at, related_forecasts')
+        .eq('kind', 'post_mortem')
+        .is('superseded_by', null)
+        .order('created_at', { ascending: false })
+        .limit(30),
       supabase
         .from('intel_analyst_runs')
         .select('assessment')
@@ -90,6 +99,7 @@ export async function GET(request: Request) {
       articlesRes.error && `articles: ${articlesRes.error.message}`,
       forecastsRes.error && `forecasts: ${forecastsRes.error.message}`,
       memoryRes.error && `memory: ${memoryRes.error.message}`,
+      postMortemRes.error && `post-mortems: ${postMortemRes.error.message}`,
       lastRunRes.error && `last run: ${lastRunRes.error.message}`,
     ].filter(Boolean)
     if (contextErrors.length) {
@@ -97,7 +107,8 @@ export async function GET(request: Request) {
     }
     const articles = articlesRes.data
     const forecasts = forecastsRes.data
-    const memoryRows = memoryRes.data
+    const seen = new Set((memoryRes.data ?? []).map((m) => m.id))
+    const memoryRows = [...(memoryRes.data ?? []), ...(postMortemRes.data ?? []).filter((m) => !seen.has(m.id))]
     const lastRun = lastRunRes.data
 
     if (!forecasts?.length) {
@@ -124,7 +135,7 @@ export async function GET(request: Request) {
         outcomeNotes: f.outcome_notes,
         lastSignal: f.indicator_signal,
       })),
-      memory: (memoryRows ?? []).map((m) => ({ kind: m.kind, title: m.title, body: m.body, createdAt: m.created_at })),
+      memory: (memoryRows ?? []).map((m) => ({ kind: m.kind, title: m.title, body: m.body, createdAt: m.created_at, relatedForecasts: m.related_forecasts ?? [] })),
       lastAssessment: lastRun?.assessment ?? null,
     })
 
@@ -206,6 +217,7 @@ export async function GET(request: Request) {
     // Indicator status on open forecasts. 'none' still stamps the check time
     // so the scorecard can say when each forecast was last reviewed.
     let checksApplied = 0
+    const checksFailed: number[] = []
     for (const check of output.forecast_checks) {
       const { error: checkError } = await supabase
         .from('intel_forecasts')
@@ -216,8 +228,24 @@ export async function GET(request: Request) {
         })
         .eq('id', check.id)
         .is('outcome', null)
-      if (checkError) console.error(`[Analyst] Failed to update forecast ${check.id}:`, checkError.message)
-      else checksApplied++
+      if (checkError) {
+        console.error(`[Analyst] Failed to update forecast ${check.id}:`, checkError.message)
+        checksFailed.push(check.id)
+      } else checksApplied++
+    }
+
+    // A run that could not stamp every open forecast is a failure for
+    // monitoring purposes, even though the assessment and memory persisted.
+    if (checksFailed.length || memorySaved < output.memory.length) {
+      return NextResponse.json({
+        success: false,
+        error: 'Partial run: some writes failed',
+        runDate,
+        forecastChecksApplied: checksApplied,
+        forecastChecksFailed: checksFailed,
+        memoryWritten: memorySaved,
+        memoryExpected: output.memory.length,
+      }, { status: 500 })
     }
 
     console.log(`[Analyst] Run complete: ${articles?.length ?? 0} articles, ${checksApplied} forecast checks, ${memorySaved} memory entries (${provider})`)
