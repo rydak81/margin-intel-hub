@@ -452,12 +452,13 @@ export default function HomePageClient({
               Marketplace intelligence<br className="hidden sm:block" /> that keeps score.
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600 md:text-xl dark:text-slate-300">
-              Built by people with years inside ecommerce, for the operators running it now. An AI
-              intelligence layer reads the market at a scale no human team could alone — 8,541
-              articles from 54 sources classified and counting, patterns surfaced across platforms,
-              our forecasts graded in public when they resolve — while human judgment decides what
-              it means. The system sharpens with every story it ingests, so you get a working read
-              on the market, not another news feed.
+              Built by people with years inside ecommerce — and built differently. Underneath the
+              news sits a decision-intelligence system: machine learning and agentic AI that
+              classify every story, track indicator patterns and signals against a growing archive
+              of market history, and grade our own forecasts in public when they resolve. It learns
+              from every data point it ingests, and human judgment decides what it means — so
+              agencies, brands, and operators get a data-led read on the market, not another
+              headline feed.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button size="lg" asChild className="h-12 rounded-lg bg-blue-600 px-6 text-base font-semibold text-white hover:bg-blue-700">
@@ -500,7 +501,42 @@ export default function HomePageClient({
         </div>
       </section>
 
-
+      <section className="border-b border-border bg-card" aria-labelledby="why-title">
+        <div className="mx-auto site-width grid gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-14">
+          <div>
+            <p className="editorial-eyebrow">Why this exists</p>
+            <h2 id="why-title" className="mt-3 max-w-xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+              Most news tells you what happened. We built a system to tell you what it means.
+            </h2>
+            <p className="mt-6 max-w-xl text-base leading-8 text-slate-600 dark:text-slate-300">
+              MarketplaceBeta started with a frustration familiar to anyone who has run an
+              ecommerce business: plenty of headlines, very little you could act on. After years
+              operating across Amazon, Walmart, eBay, and the channels in between, we built the
+              resource we always wanted — one that treats the news as data, and research as
+              something you can hold us to.
+            </p>
+            <p className="mt-4 max-w-xl text-base leading-8 text-slate-600 dark:text-slate-300">
+              Every article that enters the archive is classified and scored. Pattern and signal
+              detection run across platforms, categories, and time. Forecasts go on a public
+              scorecard, and each graded result feeds how we weigh the next signal. The
+              intelligence layer is never finished — it sharpens with every piece of information
+              we give it.
+            </p>
+          </div>
+          <div className="grid content-center gap-4">
+            {[
+              { title: "It learns continuously", text: "Every classified article and every graded forecast improves the next read. The archive is the memory; the scorecard is the feedback loop." },
+              { title: "It reads the market in patterns", text: "Indicator movements, coverage pressure, and historical context across platforms — never a single headline taken at face value." },
+              { title: "It exists to guide decisions", text: "For the agency, the brand, and the operator who needs a defensible, data-led call — with an evidence label saying exactly how we know." },
+            ].map((point) => (
+              <div key={point.title} className="rounded-2xl border border-border bg-background p-6">
+                <h3 className="text-lg font-bold">{point.title}</h3>
+                <p className="mt-2 text-sm leading-7 text-muted-foreground">{point.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Active Filter Indicator — only shows when a filter is active */}
       {selectedCategory !== "all" && (
