@@ -18,6 +18,7 @@ function buildPrompt(input: {
   articles: { title: string; source: string; category: string | null; summary: string | null; publishedAt: string }[]
   forecasts: { id: number; statement: string; confirming: string; invalidating: string; resolveBy: string; outcome: string | null; outcomeNotes: string | null; lastSignal: string | null }[]
   memory: { kind: string; title: string; body: string; createdAt: string; relatedForecasts: number[] }[]
+  postMortemCoveredIds: number[]
   lastAssessment: string | null
 }) {
   return `## Today's classified coverage (last 48h, most relevant first)
@@ -26,6 +27,8 @@ ${input.articles.map((a, i) => `${i + 1}. [${a.category ?? 'uncategorized'}] "${
 ## Forecast ledger (check each OPEN one against today's coverage; resolved ones are context for post-mortems)
 ${input.forecasts.map((f) => `- id ${f.id}${f.outcome ? ` [RESOLVED: ${f.outcome}${f.outcomeNotes ? ` — ${f.outcomeNotes}` : ''}]` : ' [OPEN]'}: ${f.statement}
   Confirming: ${f.confirming} | Invalidating: ${f.invalidating} | Resolve by: ${f.resolveBy}${f.lastSignal ? ` | Your last signal: ${f.lastSignal}` : ''}`).join('\n')}
+
+Forecasts that already have a post-mortem (never write another for these): ${input.postMortemCoveredIds.length ? input.postMortemCoveredIds.join(', ') : '(none yet)'}
 
 ## Your memory (most recent first; titles are exact for supersedes_title)
 ${input.memory.map((m) => `- [${m.kind}, ${m.createdAt.slice(0, 10)}${m.relatedForecasts.length ? `, forecasts ${m.relatedForecasts.join('/')}` : ''}] "${m.title}": ${m.body}`).join('\n') || '(empty — this is your first run)'}
@@ -56,7 +59,7 @@ export async function GET(request: Request) {
     const supabase = createAdminClient()
     const since = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString()
 
-    const [articlesRes, forecastsRes, memoryRes, postMortemRes, lastRunRes] = await Promise.all([
+    const [articlesRes, forecastsRes, memoryRes, postMortemRes, postMortemCoverageRes, lastRunRes] = await Promise.all([
       supabase
         .from('articles')
         .select('title, source_name, category, ai_summary, summary, published_at')
@@ -77,6 +80,8 @@ export async function GET(request: Request) {
         .limit(14),
       // Post-mortems must never scroll out of the recency window: the agent
       // uses them to avoid duplicating one and as context for future calls.
+      // Prose is bounded to the 30 most recent; coverage (which forecasts
+      // already have one) is computed from the full unbounded set below.
       supabase
         .from('intel_memory')
         .select('id, kind, title, body, created_at, related_forecasts')
@@ -84,6 +89,11 @@ export async function GET(request: Request) {
         .is('superseded_by', null)
         .order('created_at', { ascending: false })
         .limit(30),
+      supabase
+        .from('intel_memory')
+        .select('related_forecasts')
+        .eq('kind', 'post_mortem')
+        .is('superseded_by', null),
       supabase
         .from('intel_analyst_runs')
         .select('assessment')
@@ -100,6 +110,7 @@ export async function GET(request: Request) {
       forecastsRes.error && `forecasts: ${forecastsRes.error.message}`,
       memoryRes.error && `memory: ${memoryRes.error.message}`,
       postMortemRes.error && `post-mortems: ${postMortemRes.error.message}`,
+      postMortemCoverageRes.error && `post-mortem coverage: ${postMortemCoverageRes.error.message}`,
       lastRunRes.error && `last run: ${lastRunRes.error.message}`,
     ].filter(Boolean)
     if (contextErrors.length) {
@@ -136,6 +147,7 @@ export async function GET(request: Request) {
         lastSignal: f.indicator_signal,
       })),
       memory: (memoryRows ?? []).map((m) => ({ kind: m.kind, title: m.title, body: m.body, createdAt: m.created_at, relatedForecasts: m.related_forecasts ?? [] })),
+      postMortemCoveredIds: [...new Set((postMortemCoverageRes.data ?? []).flatMap((m) => m.related_forecasts ?? []))].sort((a, b) => a - b),
       lastAssessment: lastRun?.assessment ?? null,
     })
 
@@ -183,6 +195,15 @@ export async function GET(request: Request) {
     let memorySaved = 0
     let supersessionsFailed = 0
     for (const entry of output.memory) {
+      // A correction must name a real, still-active entry: without a target
+      // it is not persisted, and the shortfall marks the run partial below.
+      if (entry.kind === 'correction') {
+        const hasTarget = !!entry.supersedes_title && (memoryRows ?? []).some((m) => m.title === entry.supersedes_title)
+        if (!hasTarget) {
+          console.error(`[Analyst] Correction "${entry.title}" names no existing entry (supersedes_title: ${entry.supersedes_title ?? 'missing'}) — skipped`)
+          continue
+        }
+      }
       const { data: inserted, error: memError } = await supabase
         .from('intel_memory')
         .insert({

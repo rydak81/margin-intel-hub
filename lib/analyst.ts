@@ -71,8 +71,12 @@ export function sanitizeAnalystOutput(raw: unknown, openIds: number[], allIds: n
     .map((c) => {
       const o = c as Record<string, unknown>
       const id = Number(o?.id)
-      const signal = SIGNALS.includes(o?.signal as IndicatorSignal) ? (o.signal as IndicatorSignal) : 'none'
-      return { id, signal, note: str(o?.note, 400) }
+      const note = str(o?.note, 400)
+      let signal = SIGNALS.includes(o?.signal as IndicatorSignal) ? (o.signal as IndicatorSignal) : 'none'
+      // A directional signal needs evidence: without a note it downgrades to
+      // 'none' instead of persisting as a read the public ledger cannot show.
+      if (signal !== 'none' && !note) signal = 'none'
+      return { id, signal, note }
     })
     .filter((c) => Number.isInteger(c.id) && open.has(c.id))
     .slice(0, 24)

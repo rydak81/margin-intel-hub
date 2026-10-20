@@ -35,6 +35,20 @@ describe('analyst output sanitizer', () => {
     expect(out?.memory[0]).toMatchObject({ kind: 'observation', confidence: 'low' })
   })
 
+  it('downgrades a directional signal with no evidence note to none', () => {
+    const out = sanitizeAnalystOutput({
+      assessment: 'Signals without evidence.',
+      forecast_checks: [
+        { id: 1, signal: 'confirming', note: '' },
+        { id: 2, signal: 'invalidating', note: 'Rates fell for a third week' },
+      ],
+    }, OPEN_IDS)
+    expect(out?.forecast_checks).toEqual([
+      { id: 1, signal: 'none', note: '' },
+      { id: 2, signal: 'invalidating', note: 'Rates fell for a third week' },
+    ])
+  })
+
   it('lets post-mortems reference resolved forecasts while checks stay open-only', () => {
     const out = sanitizeAnalystOutput({
       assessment: 'F4 resolved; writing the post-mortem.',
