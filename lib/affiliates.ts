@@ -67,15 +67,6 @@ const SEEDS: { seed: OfferSeed; value: string | undefined }[] = [
     },
   },
   {
-    value: process.env.NEXT_PUBLIC_AFF_KEEPA_URL,
-    seed: {
-      id: 'keepa', name: 'Keepa', category: 'Price history',
-      blurb: 'Amazon price and sales-rank history to sanity-check pricing before you list.',
-      envVar: 'NEXT_PUBLIC_AFF_KEEPA_URL', fallbackUrl: 'https://keepa.com/',
-      marketplaces: ['amazon'], topics: ['tools', 'amazon', 'deals'],
-    },
-  },
-  {
     value: process.env.NEXT_PUBLIC_AFF_REPRICER_URL,
     seed: {
       id: 'repricer', name: 'Aura Repricer', category: 'Repricing',
