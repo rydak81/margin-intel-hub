@@ -47,10 +47,14 @@ create table if not exists intel_memory (
 alter table intel_memory enable row level security;
 
 -- One row per analyst run: the day's assessment, watchlist, and which forecast
--- indicators were checked. The public analyst log reads from here.
+-- indicators were checked. The public analyst log reads from here. A row is
+-- claimed at start ('started'), published only when 'complete', and marked
+-- 'partial' when a dependent write failed; run_date is unique so overlapping
+-- same-day invocations cannot both proceed.
 create table if not exists intel_analyst_runs (
   id uuid primary key default gen_random_uuid(),
-  run_date date not null,
+  run_date date not null unique,
+  status text not null default 'complete' check (status in ('started', 'complete', 'partial')),
   created_at timestamptz not null default now(),
   assessment text not null,
   watchlist jsonb,
@@ -62,7 +66,6 @@ create table if not exists intel_analyst_runs (
 );
 alter table intel_analyst_runs enable row level security;
 
-create index if not exists intel_analyst_runs_date_idx on intel_analyst_runs (run_date desc, created_at desc);
 create index if not exists intel_memory_created_idx on intel_memory (created_at desc);
 
 -- Seed: the 12 Edition 1 forecasts with the resolve-by dates committed in

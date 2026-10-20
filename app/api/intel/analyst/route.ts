@@ -57,6 +57,35 @@ export async function GET(request: Request) {
     }
 
     const supabase = createAdminClient()
+
+    // Claim today's run before doing any work: run_date is unique, so a
+    // duplicate same-day invocation cannot race this one into contradictory
+    // memory. A non-complete claim older than 10 minutes is presumed crashed
+    // and may be retried; a completed run is never repeated.
+    const runDate = new Date().toISOString().slice(0, 10)
+    let runId: string
+    const claim = await supabase
+      .from('intel_analyst_runs')
+      .insert({ run_date: runDate, assessment: '', status: 'started' })
+      .select('id')
+      .single()
+    if (claim.error || !claim.data) {
+      const staleBefore = new Date(Date.now() - 10 * 60 * 1000).toISOString()
+      const { data: reclaimed } = await supabase
+        .from('intel_analyst_runs')
+        .update({ status: 'started' })
+        .eq('run_date', runDate)
+        .neq('status', 'complete')
+        .lt('created_at', staleBefore)
+        .select('id')
+      if (!reclaimed?.length) {
+        return NextResponse.json({ success: true, skipped: true, reason: `Run for ${runDate} already exists` })
+      }
+      runId = reclaimed[0].id
+    } else {
+      runId = claim.data.id
+    }
+
     const since = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString()
 
     const [articlesRes, forecastsRes, memoryRes, postMortemRes, postMortemCoverageRes, lastRunRes] = await Promise.all([
@@ -170,24 +199,21 @@ export async function GET(request: Request) {
       if (!checkedIds.has(id)) output.forecast_checks.push({ id, signal: 'none', note: '' })
     }
 
-    // Persist the run first so memory rows can reference it.
-    const runDate = new Date().toISOString().slice(0, 10)
-    const { data: run, error: runError } = await supabase
+    // Fill the claimed row; it stays non-public ('started') until every
+    // dependent write below succeeds.
+    const { error: runError } = await supabase
       .from('intel_analyst_runs')
-      .insert({
-        run_date: runDate,
+      .update({
         assessment: output.assessment,
         watchlist: output.watchlist,
         forecast_checks: output.forecast_checks,
         articles_considered: articles?.length ?? 0,
-        memory_written: output.memory.length,
         provider,
         model,
       })
-      .select('id')
-      .single()
-    if (runError || !run) {
-      return NextResponse.json({ error: `Failed to persist run: ${runError?.message}` }, { status: 500 })
+      .eq('id', runId)
+    if (runError) {
+      return NextResponse.json({ error: `Failed to persist run: ${runError.message}` }, { status: 500 })
     }
 
     // Memory entries; sources resolved from the exact article titles the model cited.
@@ -226,7 +252,7 @@ export async function GET(request: Request) {
             }
             return matched.length ? matched : null
           })(),
-          run_id: run.id,
+          run_id: runId,
         })
         .select('id')
         .single()
@@ -273,6 +299,7 @@ export async function GET(request: Request) {
     // A run that could not stamp every open forecast is a failure for
     // monitoring purposes, even though the assessment and memory persisted.
     if (checksFailed.length || memorySaved < output.memory.length || supersessionsFailed > 0) {
+      await supabase.from('intel_analyst_runs').update({ status: 'partial', memory_written: memorySaved }).eq('id', runId)
       return NextResponse.json({
         success: false,
         error: 'Partial run: some writes failed',
@@ -283,6 +310,15 @@ export async function GET(request: Request) {
         memoryExpected: output.memory.length,
         supersessionsFailed,
       }, { status: 500 })
+    }
+
+    // Everything persisted: publish the run to the analyst log.
+    const { error: publishError } = await supabase
+      .from('intel_analyst_runs')
+      .update({ status: 'complete', memory_written: memorySaved })
+      .eq('id', runId)
+    if (publishError) {
+      return NextResponse.json({ error: `Run persisted but failed to publish: ${publishError.message}`, runDate }, { status: 500 })
     }
 
     console.log(`[Analyst] Run complete: ${articles?.length ?? 0} articles, ${checksApplied} forecast checks, ${memorySaved} memory entries (${provider})`)
