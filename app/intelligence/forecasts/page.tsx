@@ -5,6 +5,7 @@ import { PremiumSiteHeader } from '@/components/premium-site-header'
 import { PremiumSiteFooter } from '@/components/premium-site-footer'
 import { JsonLd } from '@/components/json-ld'
 import { FORECAST_EDITION, loadForecasts, scoreForecasts, type ForecastStatus } from '@/lib/forecasts'
+import { loadLatestAnalystRun } from '@/lib/analyst'
 
 const URL_ = 'https://marketplacebeta.com/intelligence/forecasts'
 const CTA = '/newsletter?source=campaign_forecasts#subscribe'
@@ -31,10 +32,16 @@ const STATUS_STYLE: Record<ForecastStatus, string> = {
 
 const fmtDate = (iso: string) => new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' })
 
+const SIGNAL_STYLE: Record<string, string> = {
+  confirming: 'text-emerald-700 dark:text-emerald-300',
+  invalidating: 'text-rose-700 dark:text-rose-300',
+  mixed: 'text-amber-700 dark:text-amber-300',
+}
+
 export const revalidate = 300
 
 export default async function ForecastScorecardPage() {
-  const forecasts = await loadForecasts()
+  const [forecasts, analystRun] = await Promise.all([loadForecasts(), loadLatestAnalystRun()])
   const score = scoreForecasts(forecasts)
   const nextResolve = forecasts.filter(f => f.status === 'open').map(f => f.resolveBy).sort()[0]
 
@@ -83,7 +90,7 @@ export default async function ForecastScorecardPage() {
                   <td className="p-4 font-mono font-semibold">{f.id}</td>
                   <td className="p-4 whitespace-nowrap tabular-nums">{f.horizon}</td>
                   <td className="p-4 font-medium">{f.statement}{f.resolutionNote ? <p className="mt-2 text-xs text-muted-foreground">{f.resolutionNote}</p> : null}</td>
-                  <td className="p-4 text-muted-foreground">{f.indicators}</td>
+                  <td className="p-4 text-muted-foreground">{f.indicators}{f.indicatorSignal && f.indicatorSignal !== 'none' && f.indicatorNote ? <p className="mt-2 text-xs"><span className={`font-bold capitalize ${SIGNAL_STYLE[f.indicatorSignal] ?? ''}`}>{f.indicatorSignal}</span>{f.indicatorsCheckedAt ? <span> · checked {fmtDate(f.indicatorsCheckedAt.slice(0, 10))}</span> : null} — {f.indicatorNote}</p> : null}</td>
                   <td className="p-4 whitespace-nowrap tabular-nums">{fmtDate(f.resolveBy)}{f.resolveByBasis === 'horizon' ? <span className="block text-xs text-muted-foreground">end of horizon</span> : null}</td>
                   <td className="p-4"><span className={`rounded-full px-2.5 py-1 text-xs font-semibold capitalize ${STATUS_STYLE[f.status]}`}>{f.status}</span></td>
                 </tr>
@@ -92,6 +99,27 @@ export default async function ForecastScorecardPage() {
           </table>
         </div>
 
+        {analystRun ? (
+          <section className="mt-10 rounded-2xl border border-border bg-card p-7" aria-labelledby="analyst-log-title">
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h2 id="analyst-log-title" className="text-2xl font-bold">From the analyst&rsquo;s desk</h2>
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Daily agent run · {fmtDate(analystRun.runDate)} · {analystRun.articlesConsidered} articles reviewed</p>
+            </div>
+            <p className="mt-4 leading-8 text-muted-foreground">{analystRun.assessment}</p>
+            {analystRun.watchlist.length > 0 ? (
+              <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+                {analystRun.watchlist.map((w) => (
+                  <li key={w.item} className="rounded-xl border border-border bg-background p-4">
+                    <p className="text-sm font-bold">{w.item}</p>
+                    <p className="mt-1 text-sm leading-6 text-muted-foreground">{w.why}</p>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            <p className="mt-5 text-xs leading-6 text-muted-foreground">Written by our analyst agent, which runs daily over the newly classified coverage with its own persistent memory, checks every open forecast&rsquo;s indicators against the evidence, and corrects its earlier conclusions when the data turns. Its indicator reads appear on the ledger above.</p>
+          </section>
+        ) : null}
+
         <section className="mt-12 grid gap-8 lg:grid-cols-[1.4fr_1fr]">
           <div>
             <h2 className="text-2xl font-bold">Methodology</h2>
@@ -99,6 +127,7 @@ export default async function ForecastScorecardPage() {
               <li><strong className="text-foreground">Forecasts are evidence-based judgments, not model outputs.</strong> Each one is grounded in the cited evidence in the <Link href="/intelligence/dossier" className="text-primary underline underline-offset-4">Intelligence Dossier</Link>.</li>
               <li><strong className="text-foreground">Resolution is fixed in advance.</strong> Each forecast names the indicators that confirm or invalidate it. Where the forecast does not name a date, the resolve-by date is the end of its stated horizon from the October 2026 edition.</li>
               <li><strong className="text-foreground">Scoring.</strong> Each resolved forecast receives one of four grades — hit, partial, miss, or unresolvable — and the scorecard shows the running count of each. Only a fully correct call is a hit: a partially correct call is marked partial, and a forecast whose measuring source stops publishing is marked unresolvable rather than quietly dropped. The first forecasts resolve in January 2027.</li>
+              <li><strong className="text-foreground">Indicators are checked by an agent, daily.</strong> An analyst agent reviews each open forecast&rsquo;s confirming and invalidating indicators against the day&rsquo;s classified coverage and posts its read on the ledger. When a forecast resolves, it writes a post-mortem to its memory, and future runs — and future forecasts — are made with those post-mortems in context.</li>
               <li><strong className="text-foreground">Nothing is deleted.</strong> Misses stay on the ledger. New editions add forecasts; they do not rewrite old ones.</li>
             </ul>
             <p className="mt-4 text-sm text-muted-foreground">The first grades arrive when the holiday forecasts (F1–F4) resolve in January 2027.</p>
