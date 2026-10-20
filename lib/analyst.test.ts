@@ -35,6 +35,17 @@ describe('analyst output sanitizer', () => {
     expect(out?.memory[0]).toMatchObject({ kind: 'observation', confidence: 'low' })
   })
 
+  it('keeps only the first check per forecast id', () => {
+    const out = sanitizeAnalystOutput({
+      assessment: 'Duplicate checks.',
+      forecast_checks: [
+        { id: 1, signal: 'confirming', note: 'First read' },
+        { id: 1, signal: 'invalidating', note: 'Contradictory duplicate' },
+      ],
+    }, OPEN_IDS)
+    expect(out?.forecast_checks).toEqual([{ id: 1, signal: 'confirming', note: 'First read' }])
+  })
+
   it('downgrades a directional signal with no evidence note to none', () => {
     const out = sanitizeAnalystOutput({
       assessment: 'Signals without evidence.',
