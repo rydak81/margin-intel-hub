@@ -469,7 +469,7 @@ export default function HomePageClient({
               </Button>
             </div>
             <p className="mt-5 text-sm text-muted-foreground">
-              Human-edited, AI-assisted, and accountable in public —{" "}
+              Human-led analysis, AI-classified news, and a public scorecard —{" "}
               <Link href="/editorial-policy" className="font-medium text-primary underline underline-offset-4">read how we work</Link>.
             </p>
             {currentUser && personalizationLabel ? <p className="mt-2 text-sm text-muted-foreground">{personalizationLabel}. <Link href="/account" className="font-medium text-primary underline underline-offset-4">Edit your preferences</Link></p> : null}
@@ -518,14 +518,15 @@ export default function HomePageClient({
             <p className="mt-4 max-w-xl text-base leading-8 text-slate-600 dark:text-slate-300">
               Every article that enters the archive is classified and scored. Pattern and signal
               detection run across platforms, categories, and time. Forecasts go on a public
-              scorecard, and each graded result feeds how we weigh the next signal. The
-              intelligence layer is never finished — it sharpens with every piece of information
-              we give it.
+              scorecard with the indicators that would confirm or kill them — hits and misses
+              stay on the record, so you can judge the next call by how the last ones aged. And
+              the archive underneath is never finished: every new article deepens the market
+              history the pattern detection reads.
             </p>
           </div>
           <div className="grid content-center gap-4">
             {[
-              { title: "It learns continuously", text: "Every classified article and every graded forecast improves the next read. The archive is the memory; the scorecard is the feedback loop." },
+              { title: "It compounds continuously", text: "Every classified article extends the market history our pattern and signal detection reads, so each new data point lands on more context than the last. The scorecard keeps us honest about the results." },
               { title: "It reads the market in patterns", text: "Indicator movements, coverage pressure, and historical context across platforms — never a single headline taken at face value." },
               { title: "It exists to guide decisions", text: "For the agency, the brand, and the operator who needs a defensible, data-led call — with an evidence label saying exactly how we know." },
             ].map((point) => (
