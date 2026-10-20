@@ -76,9 +76,12 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: `Failed to claim run: ${claim.error.message}` }, { status: 500 })
       }
       const staleBefore = new Date(Date.now() - 10 * 60 * 1000).toISOString()
+      // Refreshing created_at renews the lease: the reclaimed row is protected
+      // for another timeout window, so a second concurrent retry cannot match
+      // the same stale row and run with the same id.
       const { data: reclaimed, error: reclaimError } = await supabase
         .from('intel_analyst_runs')
-        .update({ status: 'started' })
+        .update({ status: 'started', created_at: new Date().toISOString() })
         .eq('run_date', runDate)
         .neq('status', 'complete')
         .lt('created_at', staleBefore)

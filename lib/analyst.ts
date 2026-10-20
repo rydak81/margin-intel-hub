@@ -80,6 +80,9 @@ export function sanitizeAnalystOutput(raw: unknown, openIds: number[], allIds: n
       return { id, signal, note }
     })
     .filter((c) => Number.isInteger(c.id) && open.has(c.id))
+    // Exactly one check per forecast: the first occurrence wins, so duplicate
+    // ids cannot persist contradictory signals in sequence.
+    .filter((c, i, arr) => arr.findIndex((x) => x.id === c.id) === i)
     .slice(0, 24)
 
   const memory = (Array.isArray(r.memory) ? r.memory : [])
