@@ -11,10 +11,11 @@
  * or methodology names one. `resolveByBasis` records which. Horizon-derived dates use the end
  * of the horizon window measured from the October 2026 edition.
  *
- * To score a forecast, set status to 'hit' or 'miss' and fill resolvedOn + resolutionNote.
+ * To score a forecast, set status to 'hit', 'partial', 'miss', or 'unresolvable'
+ * (only a fully correct call is a hit) and fill resolvedOn + resolutionNote.
  */
 
-export type ForecastStatus = 'open' | 'hit' | 'miss'
+export type ForecastStatus = 'open' | 'hit' | 'partial' | 'miss' | 'unresolvable'
 export type ForecastHorizon = '0–3m' | '3–6m' | '6–12m' | '12–24m'
 
 export interface Forecast {
@@ -28,9 +29,16 @@ export interface Forecast {
   status: ForecastStatus
   resolvedOn?: string
   resolutionNote?: string
+  /** Latest indicator read from the analyst agent (open forecasts only). */
+  indicatorSignal?: 'confirming' | 'invalidating' | 'mixed' | 'none'
+  indicatorNote?: string
+  indicatorsCheckedAt?: string
 }
 
 export const FORECAST_EDITION = { id: '2026-10', label: 'Edition 1 · October 2026', loggedOn: '2026-10-14' } as const
+
+/** Exact intel_forecasts.dossier_edition value for this edition — the ledger query filters on it. */
+const LEDGER_EDITION_KEY = '2026-10 Edition 1'
 
 const E = FORECAST_EDITION.id
 
@@ -53,19 +61,74 @@ export interface ForecastScore {
   total: number
   open: number
   hits: number
+  /** Partially correct: resolved, but never counted as a full hit. */
+  partial: number
   misses: number
+  /** Resolved, but gradeable neither as hit nor miss (e.g. the measuring source stopped publishing). */
+  unresolvable: number
   resolved: number
 }
 
-/** Scoring is a plain hit/miss count over resolved forecasts. */
+/** Scoring is a plain count per status over resolved forecasts; only a fully correct call is a hit. */
 export function scoreForecasts(forecasts: readonly Forecast[] = FORECASTS): ForecastScore {
-  const resolved = forecasts.filter(f => f.status !== 'open')
-  const hits = resolved.filter(f => f.status === 'hit').length
+  const count = (s: ForecastStatus) => forecasts.filter(f => f.status === s).length
+  const open = count('open')
   return {
     total: forecasts.length,
-    open: forecasts.length - resolved.length,
-    hits,
-    misses: resolved.length - hits,
-    resolved: resolved.length,
+    open,
+    hits: count('hit'),
+    partial: count('partial'),
+    misses: count('miss'),
+    unresolvable: count('unresolvable'),
+    resolved: forecasts.length - open,
+  }
+}
+
+/**
+ * Live ledger loader. Reads intel_forecasts (the production ledger, written by
+ * the intelligence pipeline) and maps it to the public shape above, so grading
+ * a forecast in the database updates the scorecard without a code change.
+ * Falls back to the static copy when the database is unavailable or empty.
+ * Probabilities are deliberately never selected: they stay internal.
+ */
+export async function loadForecasts(): Promise<Forecast[]> {
+  try {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+    if (!url || !key) return FORECASTS
+    const { createClient } = await import('@supabase/supabase-js')
+    const supabase = createClient(url, key)
+    const { data, error } = await supabase
+      .from('intel_forecasts')
+      .select('id, horizon, statement, confirming_indicators, invalidating_indicators, resolve_by, resolved_on, outcome, outcome_notes, dossier_edition, indicator_signal, indicator_note, indicators_checked_at')
+      .eq('dossier_edition', LEDGER_EDITION_KEY)
+      .order('id', { ascending: true })
+    if (error || !data?.length) return FORECASTS
+    const horizons: Record<string, ForecastHorizon> = { '0-3m': '0–3m', '3-6m': '3–6m', '6-12m': '6–12m', '12-24m': '12–24m' }
+    // The ledger stores only the date; whether it was stated or horizon-derived is documented here.
+    const basisById = new Map(FORECASTS.map(f => [f.id, f.resolveByBasis]))
+    return data.map((row): Forecast => ({
+      id: `F${row.id}`,
+      edition: FORECAST_EDITION.id,
+      horizon: horizons[row.horizon] ?? '0–3m',
+      statement: row.statement,
+      indicators: row.invalidating_indicators
+        ? `${row.confirming_indicators} · Invalidated by: ${row.invalidating_indicators}`
+        : row.confirming_indicators,
+      resolveBy: row.resolve_by,
+      resolveByBasis: basisById.get(`F${row.id}`) ?? 'stated',
+      status: row.outcome === 'correct' ? 'hit'
+        : row.outcome === 'partially_correct' ? 'partial'
+        : row.outcome === 'incorrect' ? 'miss'
+        : row.outcome === 'unresolvable' ? 'unresolvable'
+        : 'open',
+      resolvedOn: row.resolved_on ?? undefined,
+      resolutionNote: row.outcome_notes ?? undefined,
+      indicatorSignal: !row.outcome && row.indicator_signal ? row.indicator_signal : undefined,
+      indicatorNote: !row.outcome && row.indicator_note ? row.indicator_note : undefined,
+      indicatorsCheckedAt: !row.outcome && row.indicators_checked_at ? row.indicators_checked_at : undefined,
+    }))
+  } catch {
+    return FORECASTS
   }
 }

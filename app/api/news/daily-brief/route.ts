@@ -23,7 +23,7 @@ function getEasternCalendarDate(date = new Date()) {
   return {
     long: `${parts.weekday}, ${parts.month} ${parts.day}, ${parts.year}`,
     short: `${parts.month} ${parts.day}`,
-    iso: `${parts.year}-${parts.month}-${parts.day}`,
+    iso: new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' }).format(date),
   }
 }
 
@@ -103,11 +103,25 @@ export async function GET(request: Request) {
 
     if (!topArticles?.length) {
       console.log('[DailyBrief] No articles found for brief — skipping email send')
+      // Heartbeat: a quiet day still leaves a row, so monitoring can tell
+      // "nothing qualified" apart from "the cron never ran". ignoreDuplicates
+      // keeps this from ever clobbering a real brief already saved today.
+      const skipDay = getEasternCalendarDate()
+      const { error: skipSaveError } = await getSupabase().from('daily_briefs').upsert({
+        id: skipDay.iso,
+        brief_date: skipDay.iso,
+        content: 'No qualifying articles today — no brief generated or sent.',
+        article_count: 0,
+        article_ids: [],
+      }, { onConflict: 'id', ignoreDuplicates: true })
+      if (skipSaveError) console.error('[DailyBrief] Failed to persist skip heartbeat:', skipSaveError.message)
       return NextResponse.json({
         success: true,
         message: 'No articles for brief today — no emails sent',
         articles: 0,
         emailsSent: 0,
+        briefPersisted: !skipSaveError,
+        ...(skipSaveError ? { briefPersistError: skipSaveError.message } : {}),
         date: new Date().toISOString()
       })
     }
@@ -143,6 +157,31 @@ ${topArticles.map((a: any, i: number) => `${i + 1}. "${a.title}" (${a.source_nam
     })
     console.log(`[DailyBrief] Generated via ${response.provider} (${response.model})`)
 
+    // Persist the brief: an auditable archive and a heartbeat for the pipeline,
+    // written whether or not the email send below succeeds. One retry on failure;
+    // the outcome is exposed as briefPersisted/briefPersistError on every response
+    // so a silent archive gap can't hide behind a successful email run.
+    const today = getEasternCalendarDate()
+    const briefRow = {
+      id: today.iso,
+      brief_date: today.iso,
+      content: response.text,
+      article_count: topArticles.length,
+      article_ids: topArticles.map((a: any) => a.id),
+      provider: response.provider,
+      model: response.model,
+    }
+    let { error: briefSaveError } = await getSupabase().from('daily_briefs').upsert(briefRow, { onConflict: 'id' })
+    if (briefSaveError) {
+      console.error('[DailyBrief] Failed to persist brief, retrying once:', briefSaveError.message)
+      ;({ error: briefSaveError } = await getSupabase().from('daily_briefs').upsert(briefRow, { onConflict: 'id' }))
+      if (briefSaveError) console.error('[DailyBrief] Brief persistence failed after retry:', briefSaveError.message)
+    }
+    const persistence = {
+      briefPersisted: !briefSaveError,
+      ...(briefSaveError ? { briefPersistError: briefSaveError.message } : {}),
+    }
+
     // ── Step 3: Fetch all subscribers ──
     const { data: subscribers, error: subError } = await getSupabase()
       .from('subscribers')
@@ -153,6 +192,7 @@ ${topArticles.map((a: any, i: number) => `${i + 1}. "${a.title}" (${a.source_nam
       return NextResponse.json({
         error: `Failed to fetch subscribers: ${subError.message}`,
         brief: response.text, // Still return the brief even if email fails
+        ...persistence,
       }, { status: 500 })
     }
 
@@ -164,6 +204,7 @@ ${topArticles.map((a: any, i: number) => `${i + 1}. "${a.title}" (${a.source_nam
         brief: response.text,
         emailsSent: 0,
         message: 'No subscribers to send to',
+        ...persistence,
         date: new Date().toISOString()
       })
     }
@@ -180,11 +221,12 @@ ${topArticles.map((a: any, i: number) => `${i + 1}. "${a.title}" (${a.source_nam
         emailsSent: 0,
         message: 'RESEND_API_KEY not configured — emails skipped',
         provider: response.provider,
+        ...persistence,
         date: new Date().toISOString()
       })
     }
 
-    const today = getEasternCalendarDate()
+    // (today computed above, when the brief was persisted)
 
     const emailResult = await sendBatchEmails(
       subscribers,
@@ -214,6 +256,7 @@ ${topArticles.map((a: any, i: number) => `${i + 1}. "${a.title}" (${a.source_nam
       emailsSent: emailResult.sent,
       emailsFailed: emailResult.failed,
       totalSubscribers: subscribers.length,
+      ...persistence,
       date: new Date().toISOString()
     })
   } catch (error) {

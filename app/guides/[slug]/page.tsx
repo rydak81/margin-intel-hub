@@ -11,7 +11,7 @@ import { RecommendedTools } from '@/components/recommended-tools'
 import { getRecommendedOffers } from '@/lib/affiliates'
 
 const GUIDE_OFFERS: Record<string, string[]> = {
-  'product-profitability': ['a2x', 'helium10', 'keepa'],
+  'product-profitability': ['a2x', 'helium10', 'junglescout'],
   'break-even-advertising': ['helium10', 'junglescout', 'a2x'],
   'adding-a-marketplace': ['a2x', 'linkmybooks', 'junglescout'],
 }

@@ -4,8 +4,10 @@ import type { MetadataRoute } from 'next'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { MARKETPLACES, getAllFeeRoutes } from '@/lib/marketplace-fees'
 import { getAllPairs } from '@/lib/fee-compare'
+import { CHECKED_ON as AMAZON_PEAK_CHECKED, AMAZON_PEAK_PATH } from '@/lib/amazon-holiday-peak-2026'
 import { getAllSaleRoutes, salePath } from '@/lib/sale-fee-pages'
 import { FEE_CHANGELOG } from '@/lib/fee-changelog'
+import { ANALYSIS_ARTICLES } from '@/lib/analysis'
 
 export const revalidate = 300
 
@@ -64,6 +66,18 @@ const staticRoutes: MetadataRoute.Sitemap = [
     changeFrequency: 'daily',
     priority: 0.9,
   },
+  {
+    url: `${siteUrl}/intelligence/analysis`,
+    lastModified: new Date(ANALYSIS_ARTICLES.reduce((d, a) => (a.updatedOn > d ? a.updatedOn : d), '2026-01-01')),
+    changeFrequency: 'daily',
+    priority: 0.8,
+  },
+  ...ANALYSIS_ARTICLES.map(a => ({
+    url: `${siteUrl}/intelligence/analysis/${a.slug}`,
+    lastModified: new Date(a.updatedOn),
+    changeFrequency: 'weekly' as const,
+    priority: 0.8,
+  })),
   {
     url: `${siteUrl}/fees/changelog`,
     lastModified: new Date(FEE_CHANGELOG.reduce((d, e) => (e.date > d ? e.date : d), '2026-01-01')),
@@ -147,6 +161,9 @@ function getFeeRoutes(): MetadataRoute.Sitemap {
     changeFrequency: 'weekly',
     priority: 0.7,
   }))
+
+  // Amazon holiday peak explainer sits with the hub so it inherits fee-hub priority.
+  hub.push({ url: `${siteUrl}${AMAZON_PEAK_PATH}`, lastModified: new Date(AMAZON_PEAK_CHECKED), changeFrequency: 'weekly', priority: 0.8 })
 
   const comparisons: MetadataRoute.Sitemap = getAllPairs().map((pair) => ({
     url: `${siteUrl}/fees/compare/${pair.slug}`,

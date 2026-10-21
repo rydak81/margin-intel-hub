@@ -446,13 +446,19 @@ export default function HomePageClient({
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
             <p className="mb-5 flex items-center gap-2.5 text-sm font-semibold tracking-wide text-blue-700 dark:text-blue-300">
-              <span className="h-2 w-2 rounded-full bg-blue-600" />Ecommerce marketplace intelligence &amp; forecasts
+              <span className="h-2 w-2 rounded-full bg-blue-600" />Human-led ecommerce intelligence, amplified by AI
             </p>
             <h1 className="max-w-4xl text-[2.5rem] font-bold leading-[1.08] tracking-[-0.045em] text-slate-950 sm:text-5xl lg:text-[3.25rem] dark:text-white">
               Marketplace intelligence<br className="hidden sm:block" /> that keeps score.
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600 md:text-xl dark:text-slate-300">
-              An AI-classified archive of 8,541 articles from 54 sources since March 2026, public forecasts we grade when they resolve, and an evidence label on every claim. Built for operators who need to know what happens next, not just what happened.
+              Built by people with years inside ecommerce — and built differently. Underneath the
+              news sits a decision-intelligence system: AI classifies every story into a growing
+              archive of market history, signal detection tracks indicator patterns across
+              platforms and time, and agentic AI research — directed by human judgment — turns it
+              into the dossiers and forecasts we grade in public when they resolve. Every data
+              point deepens the archive, and a human decides what it means — so agencies, brands,
+              and operators get a data-led read on the market, not another headline feed.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button size="lg" asChild className="h-12 rounded-lg bg-blue-600 px-6 text-base font-semibold text-white hover:bg-blue-700">
@@ -462,7 +468,11 @@ export default function HomePageClient({
                 <Link href="/intelligence/pressure-index">This week&apos;s Pressure Index</Link>
               </Button>
             </div>
-            {currentUser && personalizationLabel ? <p className="mt-5 text-sm text-muted-foreground">{personalizationLabel}. <Link href="/account" className="font-medium text-primary underline underline-offset-4">Edit your preferences</Link></p> : null}
+            <p className="mt-5 text-sm text-muted-foreground">
+              Human-led analysis, AI-classified news, and a public scorecard —{" "}
+              <Link href="/editorial-policy" className="font-medium text-primary underline underline-offset-4">read how we work</Link>.
+            </p>
+            {currentUser && personalizationLabel ? <p className="mt-2 text-sm text-muted-foreground">{personalizationLabel}. <Link href="/account" className="font-medium text-primary underline underline-offset-4">Edit your preferences</Link></p> : null}
           </div>
           <IntelligenceSpotlight articles={articles} />
         </div>
@@ -491,7 +501,46 @@ export default function HomePageClient({
         </div>
       </section>
 
-
+      <section className="border-b border-border bg-card" aria-labelledby="why-title">
+        <div className="mx-auto site-width grid gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-14">
+          <div>
+            <p className="editorial-eyebrow">Why this exists</p>
+            <h2 id="why-title" className="mt-3 max-w-xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+              Most news tells you what happened. We built a system to tell you what it means.
+            </h2>
+            <p className="mt-6 max-w-xl text-base leading-8 text-slate-600 dark:text-slate-300">
+              MarketplaceBeta started with a frustration familiar to anyone who has run an
+              ecommerce business: plenty of headlines, very little you could act on. After years
+              operating across Amazon, Walmart, eBay, and the channels in between, we built the
+              resource we always wanted — one that treats the news as data, and research as
+              something you can hold us to.
+            </p>
+            <p className="mt-4 max-w-xl text-base leading-8 text-slate-600 dark:text-slate-300">
+              Every article that enters the archive is classified and scored. Pattern and signal
+              detection run across platforms, categories, and time. Forecasts go on a public
+              scorecard with the indicators that would confirm or kill them — hits and misses
+              stay on the record, so you can judge the next call by how the last ones aged. A
+              resident analyst agent reviews that ledger daily against the new coverage, keeps
+              its own memory, and writes a post-mortem when a forecast resolves — so the next
+              call is made with the record of the last one in view. And the archive underneath
+              is never finished: every new article deepens the market history the pattern
+              detection reads.
+            </p>
+          </div>
+          <div className="grid content-center gap-4">
+            {[
+              { title: "It compounds continuously", text: "Every classified article extends the market history our pattern and signal detection reads, so each new data point lands on more context than the last. The scorecard keeps us honest about the results." },
+              { title: "It reads the market in patterns", text: "Indicator movements, coverage pressure, and historical context across platforms — never a single headline taken at face value." },
+              { title: "It exists to guide decisions", text: "For the agency, the brand, and the operator who needs a defensible, data-led call — with an evidence label saying exactly how we know." },
+            ].map((point) => (
+              <div key={point.title} className="rounded-2xl border border-border bg-background p-6">
+                <h3 className="text-lg font-bold">{point.title}</h3>
+                <p className="mt-2 text-sm leading-7 text-muted-foreground">{point.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Active Filter Indicator — only shows when a filter is active */}
       {selectedCategory !== "all" && (
