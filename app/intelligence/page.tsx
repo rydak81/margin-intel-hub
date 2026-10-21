@@ -7,12 +7,15 @@ import { IntelligenceDashboard } from '@/components/intelligence-dashboard'
 import { viewFromSearch } from '@/lib/intelligence-view'
 import { loadIntelligenceSnapshot } from '@/lib/intelligence-data'
 import { latestAnalysis } from '@/lib/analysis'
+import { JsonLd } from '@/components/json-ld'
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://marketplacebeta.com'
 
 const fmtDate = (iso: string) => new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' })
 export const revalidate = 300
 export const metadata: Metadata = {
-  title: 'Ecommerce intelligence dashboard | MarketplaceBeta',
-  description: 'Explore recent marketplace news by platform, audience, and operating topic. Source-linked context for sellers, agencies, technology companies, and logistics operators.',
+  title: 'Marketplace Intelligence for Ecommerce Operators | MarketplaceBeta',
+  description: 'Original analysis, the Marketplace Pressure Index, a public forecast scorecard and a source-linked news dashboard for Amazon, Walmart, TikTok Shop, eBay and Etsy sellers.',
   alternates: { canonical: '/intelligence' },
 }
 export default async function IntelligencePage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
@@ -21,7 +24,24 @@ export default async function IntelligencePage({ searchParams }: { searchParams:
   for (const [key, value] of Object.entries(query)) if (typeof value === 'string') params.set(key, value)
   const initialView = viewFromSearch(params.toString())
   const analysis = latestAnalysis(3)
-  return <div className="min-h-screen bg-background"><PremiumSiteHeader active="intelligence" /><main className="mx-auto site-width px-4 py-10 sm:px-6">
+  const sections = [
+    { name: 'Original analysis', path: '/intelligence/analysis' },
+    { name: 'Marketplace Pressure Index', path: '/intelligence/pressure-index' },
+    { name: 'Forecast scorecard', path: '/intelligence/forecasts' },
+    { name: 'Intelligence Dossier', path: '/intelligence/dossier' },
+  ]
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'MarketplaceBeta Intelligence',
+    url: `${SITE_URL}/intelligence`,
+    isPartOf: { '@type': 'WebSite', name: 'MarketplaceBeta', url: SITE_URL },
+    hasPart: [
+      ...sections.map(x => ({ '@type': 'WebPage', name: x.name, url: `${SITE_URL}${x.path}` })),
+      ...analysis.map(a => ({ '@type': 'Article', headline: a.headline, url: `${SITE_URL}/intelligence/analysis/${a.slug}`, datePublished: a.publishedOn })),
+    ],
+  }
+  return <div className="min-h-screen bg-background"><JsonLd data={jsonLd} /><PremiumSiteHeader active="intelligence" /><main className="mx-auto site-width px-4 py-10 sm:px-6">
     <Link href="/intelligence/dossier" className="editorial-elevated mb-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-blue-700 bg-gradient-to-r from-blue-700 to-slate-950 p-6 text-white hover:border-blue-500 sm:p-7">
       <div className="min-w-0">
         <p className="text-xs font-bold uppercase tracking-[.2em] text-blue-200">New · Intelligence Dossier · Edition 1</p>
@@ -42,5 +62,6 @@ export default async function IntelligencePage({ searchParams }: { searchParams:
         <p className="mt-4 text-sm font-bold text-primary">Read the analysis →</p>
       </Link></li>)}</ul>
     </section>}
+    <nav aria-label="Intelligence sections" className="mb-10 flex flex-wrap gap-3 text-sm">{sections.map(x => <Link key={x.path} href={x.path} className="rounded-lg border border-border bg-card px-4 py-2 font-semibold hover:text-primary">{x.name}</Link>)}</nav>
     <IntelligenceDashboard snapshot={snapshot} initialView={initialView} /></main><PremiumSiteFooter /></div>
 }
