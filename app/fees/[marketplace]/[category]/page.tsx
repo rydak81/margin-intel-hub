@@ -19,6 +19,7 @@ import { getRecommendedOffers } from "@/lib/affiliates"
 import { getPairsFor } from "@/lib/fee-compare"
 import { ShareButtons } from "@/components/share-buttons"
 import { SALE_PRICES, ogImageUrl, salePath } from "@/lib/sale-fee-pages"
+import { AMAZON_PEAK_PATH } from "@/lib/amazon-holiday-peak-2026"
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://marketplacebeta.com"
 
@@ -198,6 +199,14 @@ export default async function FeeCategoryPage({ params }: PageProps) {
         <p className="mt-4 leading-relaxed text-slate-600 dark:text-slate-300">
           {marketplace.summary}
         </p>
+
+        {marketplace.slug === "amazon" && (
+          <p className="mt-3 text-sm">
+            <Link href={AMAZON_PEAK_PATH} className="font-medium text-sky-600 underline underline-offset-4 hover:text-sky-700 dark:text-sky-400">
+              Using FBA? Holiday peak fees and the 3.5% surcharge apply Oct 15, 2026 to Jan 14, 2027
+            </Link>
+          </p>
+        )}
 
         <div className="mt-8">
           <FeeCalculator marketplace={marketplace} category={category} />

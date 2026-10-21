@@ -6,6 +6,7 @@ import { PremiumSiteFooter } from "@/components/premium-site-footer"
 import { MARKETPLACES, orderFeeLabel, formatVerifiedDate, getMarketplace } from "@/lib/marketplace-fees"
 import { ExternalLink } from "lucide-react"
 import { JsonLd } from "@/components/json-ld"
+import { AMAZON_PEAK_PATH } from "@/lib/amazon-holiday-peak-2026"
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://marketplacebeta.com"
 
@@ -130,6 +131,14 @@ export default async function MarketplaceFeesPage({ params }: PageProps) {
         <p className="mt-4 leading-relaxed text-slate-600 dark:text-slate-300">
           {marketplace.summary}
         </p>
+
+        {marketplace.slug === "amazon" && (
+          <p className="mt-3 text-sm">
+            <Link href={AMAZON_PEAK_PATH} className="font-medium text-sky-600 underline underline-offset-4 hover:text-sky-700 dark:text-sky-400">
+              FBA holiday peak fees (Oct 15, 2026 to Jan 14, 2027) and the 3.5% surcharge, by size tier with worked examples
+            </Link>
+          </p>
+        )}
 
         {(marketplace.accountFee || marketplace.perOrderFee || marketplace.listingFee) && (
           <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5">
