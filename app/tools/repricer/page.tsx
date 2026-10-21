@@ -7,6 +7,8 @@ import { TygrLogo } from "@/components/repricer/tygr-logo"
 import { Badge } from "@/components/ui/badge"
 import { Sparkles } from "lucide-react"
 import { RecommendedTools } from "@/components/recommended-tools"
+import { SponsoredToolListing } from "@/components/sponsored-tool-listing"
+import { sponsoredListingFor } from "@/lib/sponsored-listing"
 import { getRecommendedOffers } from "@/lib/affiliates"
 
 export const metadata: Metadata = {
@@ -78,6 +80,7 @@ export default function RepricerPage() {
         </nav>
         <p className="mb-5 rounded-xl border bg-card p-4 text-sm text-muted-foreground">Historical example data, not live inventory. Fee rates are editable assumptions: verify your actual marketplace charges before making a pricing decision. Costs and settings are saved only in this browser.</p>
         <RepricerDashboard />
+        <SponsoredToolListing listing={sponsoredListingFor("repricer")} placement="tools-repricer" className="mt-10" />
         <RecommendedTools offers={getRecommendedOffers({ ids: ["repricer", "helium10", "a2x"] })} placement="tools-repricer" title="Tools that pair with repricing" className="mt-10" />
       </main>
 

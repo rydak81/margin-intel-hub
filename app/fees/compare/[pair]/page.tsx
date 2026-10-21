@@ -7,6 +7,8 @@ import { PremiumSiteHeader } from '@/components/premium-site-header'
 import { PremiumSiteFooter } from '@/components/premium-site-footer'
 import { JsonLd } from '@/components/json-ld'
 import { RecommendedTools } from '@/components/recommended-tools'
+import { SponsoredToolListing } from '@/components/sponsored-tool-listing'
+import { sponsoredListingFor } from '@/lib/sponsored-listing'
 import { getRecommendedOffers } from '@/lib/affiliates'
 import { EXAMPLE_PRICE, comparisonDescription, getAllPairs, matchedCategories, money, overviewRows, rateRange, resolvePair } from '@/lib/fee-compare'
 import { formatVerifiedDate } from '@/lib/marketplace-fees'
@@ -158,6 +160,7 @@ export default async function ComparePage({ params }: PageProps) {
           </dl>
         </section>
 
+        <SponsoredToolListing listing={sponsoredListingFor('compare', [a.slug, b.slug])} placement={`compare-${resolved.pair.slug}`} className="mt-10" />
         <RecommendedTools offers={offers} placement={`compare-${resolved.pair.slug}`} className="mt-10" />
 
         <section className="mt-10">
