@@ -88,3 +88,24 @@ test('every placement page wires the listing next to the recommended tools', () 
   assert.match(card, />Sponsored</)
   assert.match(card, /rel="sponsored nofollow noopener"/)
 })
+
+test('rejects malformed or non-http URLs', () => {
+  for (const url of ['https://', 'http://', 'https:// bad host', 'javascript:alert(1)', 'ftp://acme.test', 'acme.test/start', 'https://exa mple.com']) {
+    assert.equal(getSponsoredListing({ ...base, SPONSORED_LISTING_URL: url }), null, url)
+  }
+  assert.equal(getSponsoredListing({ ...base, SPONSORED_LISTING_URL: 'HTTPS://Acme.test/start' })!.url, 'https://acme.test/start')
+})
+
+test('a targeting list that is set but has no valid entries hides the listing instead of widening it', () => {
+  assert.equal(getSponsoredListing({ ...base, SPONSORED_LISTING_PAGES: 'fess' }), null)
+  assert.equal(getSponsoredListing({ ...base, SPONSORED_LISTING_MARKETPLACES: 'amazn, wallmart' }), null)
+  assert.deepEqual(getSponsoredListing({ ...base, SPONSORED_LISTING_PAGES: 'fees, fess' })!.pages, ['fees'], 'valid entries are kept')
+  assert.deepEqual(getSponsoredListing({ ...base, SPONSORED_LISTING_PAGES: ' , ' })!.pages, ['fees', 'compare', 'guides', 'repricer'], 'blank means unset')
+  assert.equal(getSponsoredListing({ ...base, SPONSORED_LISTING_MARKETPLACES: '' })!.marketplaces, null)
+})
+
+test('the card keeps re-checking a dated window while the page stays open', () => {
+  const card = readFileSync(new URL('../components/sponsored-tool-listing.tsx', import.meta.url), 'utf8')
+  assert.match(card, /setInterval\(check, RECHECK_MS\)/)
+  assert.match(card, /clearInterval\(timer\)/)
+})

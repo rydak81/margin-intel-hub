@@ -4,6 +4,9 @@ import { track } from '@vercel/analytics'
 import { isWithinSponsorWindow } from '@/lib/sponsor-window'
 import type { SponsoredListingView } from '@/lib/sponsored-listing'
 
+/** How often an open page re-evaluates a dated booking. */
+export const RECHECK_MS = 60_000
+
 /**
  * Paid tool listing, labelled "Sponsored". Pass the result of sponsoredListingFor()
  * from the server; renders nothing when it is null. When the booking has dates the
@@ -14,7 +17,13 @@ export function SponsoredToolListing({ listing, placement, className = '' }: { l
   const dated = !!(listing?.window.start || listing?.window.end)
   const [active, setActive] = useState(!dated)
   useEffect(() => {
-    if (listing && dated) setActive(isWithinSponsorWindow(listing.window))
+    if (!listing || !dated) return
+    const check = () => setActive(isWithinSponsorWindow(listing.window))
+    check()
+    // Re-check while the tab stays open, so the card appears/disappears when the
+    // Eastern date crosses the start or end boundary.
+    const timer = setInterval(check, RECHECK_MS)
+    return () => clearInterval(timer)
   }, [listing, dated])
   if (!listing || !active) return null
   return (

@@ -10,6 +10,8 @@
 //   SPONSORED_LISTING_CTA           optional  link text (default "Visit {name}")
 //   SPONSORED_LISTING_MARKETPLACES  optional  comma list (amazon, walmart, ebay, etsy, tiktok-shop, shopify); default all
 //   SPONSORED_LISTING_PAGES         optional  comma list (fees, compare, guides, repricer); default all
+// A list that is set but has no recognised entries hides the listing (fails closed)
+// rather than widening a targeted booking to every page or marketplace.
 //   SPONSORED_LISTING_START         optional  YYYY-MM-DD, first day shown (America/New_York, inclusive)
 //   SPONSORED_LISTING_ENDS          optional  YYYY-MM-DD, last day shown (America/New_York, inclusive)
 import { withUtm } from '@/lib/utm'
@@ -33,25 +35,47 @@ export interface SponsoredListing {
 /** What the client card needs. Dates travel with it so a statically built page still starts/stops on time. */
 export type SponsoredListingView = Pick<SponsoredListing, 'name' | 'url' | 'blurb' | 'category' | 'ctaText' | 'window'>
 
+export const LISTING_MARKETPLACES = ['amazon', 'walmart', 'ebay', 'etsy', 'tiktok-shop', 'shopify'] as const
+
 const list = (value: string | undefined) =>
   (value ?? '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean)
 
+/** undefined = unset or blank (use the default); [] = set but nothing recognised. */
+function allowList<T extends string>(value: string | undefined, allowed: readonly T[]): T[] | undefined {
+  const raw = list(value)
+  if (!raw.length) return undefined
+  return raw.filter((v): v is T => (allowed as readonly string[]).includes(v))
+}
+
+/** Parsed, absolute http(s) URL, or null. */
+function safeHttpUrl(raw: string | undefined): string | null {
+  if (!raw) return null
+  try {
+    const u = new URL(raw)
+    if ((u.protocol !== 'http:' && u.protocol !== 'https:') || !u.hostname) return null
+    return u.toString()
+  } catch {
+    return null
+  }
+}
+
 export function getSponsoredListing(env: Record<string, string | undefined> = process.env): SponsoredListing | null {
   const name = env.SPONSORED_LISTING_NAME?.trim()
-  const rawUrl = env.SPONSORED_LISTING_URL?.trim()
-  if (!name || !rawUrl || !/^https?:\/\//i.test(rawUrl)) return null
+  const url = safeHttpUrl(env.SPONSORED_LISTING_URL?.trim())
+  if (!name || !url) return null
   const window = readSponsorWindow(env.SPONSORED_LISTING_START, env.SPONSORED_LISTING_ENDS)
   if (!window) return null // misconfigured dates: hide rather than run indefinitely
-  const marketplaces = list(env.SPONSORED_LISTING_MARKETPLACES)
-  const pages = list(env.SPONSORED_LISTING_PAGES).filter((p): p is ListingPage => (LISTING_PAGES as readonly string[]).includes(p))
+  const marketplaces = allowList(env.SPONSORED_LISTING_MARKETPLACES, LISTING_MARKETPLACES)
+  const pages = allowList(env.SPONSORED_LISTING_PAGES, LISTING_PAGES)
+  if (marketplaces?.length === 0 || pages?.length === 0) return null // typo'd targeting: hide, don't widen
   return {
     name,
-    url: rawUrl,
+    url,
     blurb: env.SPONSORED_LISTING_BLURB?.trim() || undefined,
     category: env.SPONSORED_LISTING_CATEGORY?.trim() || undefined,
     ctaText: env.SPONSORED_LISTING_CTA?.trim() || `Visit ${name}`,
-    marketplaces: marketplaces.length ? marketplaces : null,
-    pages: pages.length ? pages : [...LISTING_PAGES],
+    marketplaces: marketplaces ?? null,
+    pages: pages ?? [...LISTING_PAGES],
     window,
   }
 }
