@@ -7,6 +7,7 @@ import { getAllPairs } from '@/lib/fee-compare'
 import { CHECKED_ON as AMAZON_PEAK_CHECKED, AMAZON_PEAK_PATH } from '@/lib/amazon-holiday-peak-2026'
 import { getAllSaleRoutes, salePath } from '@/lib/sale-fee-pages'
 import { FEE_CHANGELOG } from '@/lib/fee-changelog'
+import { CHECKED_ON as TIKTOK_FEE_CHANGE_CHECKED, TIKTOK_FEE_CHANGE_PATH } from '@/lib/tiktok-fee-change-2026'
 import { ANALYSIS_ARTICLES } from '@/lib/analysis'
 import { INDEXABLE_NEWS_SOURCE_TYPES, dedupeByTitle } from '@/lib/seo-indexing'
 
@@ -185,7 +186,11 @@ function getFeeRoutes(): MetadataRoute.Sitemap {
     priority: 0.7,
   }))
 
-  return [...hub, ...comparisons, ...categories, ...sales]
+  const explainers: MetadataRoute.Sitemap = [
+    { url: `${siteUrl}${TIKTOK_FEE_CHANGE_PATH}`, lastModified: new Date(TIKTOK_FEE_CHANGE_CHECKED), changeFrequency: 'weekly', priority: 0.8 },
+  ]
+
+  return [...hub, ...explainers, ...comparisons, ...categories, ...sales]
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
