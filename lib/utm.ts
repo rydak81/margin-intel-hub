@@ -22,3 +22,15 @@ export function withUtm(url: string, medium: string, extra: { campaign?: string;
   setIfAbsent('utm_content', extra.content)
   return parsed.toString()
 }
+
+/** The URL normalised, if it parses as an absolute http(s) URL with a host; otherwise null. */
+export function parseHttpUrl(raw: string | undefined | null): string | null {
+  if (!raw) return null
+  try {
+    const u = new URL(raw.trim())
+    if ((u.protocol !== 'http:' && u.protocol !== 'https:') || !u.hostname) return null
+    return u.toString()
+  } catch {
+    return null
+  }
+}

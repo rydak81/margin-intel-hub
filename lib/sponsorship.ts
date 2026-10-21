@@ -1,5 +1,5 @@
 // Sponsorship configuration: media-kit contact and the optional newsletter sponsor slot.
-import { withUtm } from '@/lib/utm'
+import { parseHttpUrl, withUtm } from '@/lib/utm'
 
 export const SPONSOR_CONTACT_EMAIL = process.env.NEXT_PUBLIC_SPONSOR_CONTACT_EMAIL?.trim() || 'hello@marketplacebeta.com'
 
@@ -33,8 +33,6 @@ export interface DossierSponsor {
   logoUrl?: string
 }
 
-const HTTP_URL = /^https?:\/\//
-
 /**
  * Presenting sponsor credit for the Intelligence Dossier page and its delivery email.
  * Returns null (credit renders nothing) unless DOSSIER_SPONSOR_NAME and an http(s)
@@ -43,8 +41,7 @@ const HTTP_URL = /^https?:\/\//
  */
 export function getDossierSponsor(env: Record<string, string | undefined> = process.env): DossierSponsor | null {
   const name = env.DOSSIER_SPONSOR_NAME?.trim()
-  const url = env.DOSSIER_SPONSOR_URL?.trim()
-  if (!name || !url || !HTTP_URL.test(url)) return null
-  const logo = env.DOSSIER_SPONSOR_LOGO_URL?.trim()
-  return { name, url: withUtm(url, 'dossier'), logoUrl: logo && HTTP_URL.test(logo) ? logo : undefined }
+  const url = parseHttpUrl(env.DOSSIER_SPONSOR_URL)
+  if (!name || !url) return null
+  return { name, url: withUtm(url, 'dossier'), logoUrl: parseHttpUrl(env.DOSSIER_SPONSOR_LOGO_URL) ?? undefined }
 }

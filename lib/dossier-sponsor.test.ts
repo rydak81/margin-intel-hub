@@ -7,6 +7,10 @@ describe('dossier presenting sponsor', () => {
     expect(getDossierSponsor({})).toBeNull()
     expect(getDossierSponsor({ DOSSIER_SPONSOR_NAME: 'Acme' })).toBeNull()
     expect(getDossierSponsor({ DOSSIER_SPONSOR_NAME: 'Acme', DOSSIER_SPONSOR_URL: 'javascript:alert(1)' })).toBeNull()
+    for (const bad of ['https://', 'http://', 'https://exa mple.com']) {
+      expect(getDossierSponsor({ DOSSIER_SPONSOR_NAME: 'Acme', DOSSIER_SPONSOR_URL: bad }), bad).toBeNull()
+    }
+    expect(getDossierSponsor({ DOSSIER_SPONSOR_NAME: 'Acme', DOSSIER_SPONSOR_URL: 'https://acme.test', DOSSIER_SPONSOR_LOGO_URL: 'https://' })?.logoUrl).toBeUndefined()
     expect(renderDossierSponsorCredit(null)).toBe('')
     const html = generateDossierEmail('Sam', 'sam@example.com', null)
     expect(html).not.toContain('Presented by')
