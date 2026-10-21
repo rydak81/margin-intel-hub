@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { ArrowRight, BookOpen, Download, LineChart, ShieldCheck } from 'lucide-react'
 import { PremiumSiteHeader } from '@/components/premium-site-header'
 import { PremiumSiteFooter } from '@/components/premium-site-footer'
+import { DossierSponsorCredit } from '@/components/dossier-sponsor-credit'
+import { getDossierSponsor } from '@/lib/sponsorship'
 
 export const metadata: Metadata = {
   title: 'Intelligence Dossier: The 2026 Margin Squeeze | MarketplaceBeta',
@@ -27,6 +29,7 @@ const FINDINGS = [
 ]
 
 export default function DossierPage() {
+  const sponsor = getDossierSponsor()
   return (
     <div className="min-h-screen bg-background">
       <PremiumSiteHeader active="intelligence" deskLabel="Intelligence Dossier" backHref="/intelligence" backLabel="Intelligence" />
@@ -49,6 +52,7 @@ export default function DossierPage() {
                 <Download className="h-4 w-4" />Download the PDF (29 pages)
               </a>
             </div>
+            <DossierSponsorCredit sponsor={sponsor} />
           </div>
         </section>
 

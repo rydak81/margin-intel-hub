@@ -45,3 +45,22 @@ export function getNewsletterSponsor(env: Record<string, string | undefined> = p
     ctaText: env.NEWSLETTER_SPONSOR_CTA?.trim() || undefined,
   }
 }
+
+export interface DossierSponsor {
+  name: string
+  url: string
+  logoUrl?: string
+}
+
+/**
+ * Presenting sponsor credit for the Intelligence Dossier page and its delivery email.
+ * Returns null (credit renders nothing) unless DOSSIER_SPONSOR_NAME and an http(s)
+ * DOSSIER_SPONSOR_URL are set. DOSSIER_SPONSOR_LOGO_URL is optional and ignored unless http(s).
+ * The URL gets utm_source=marketplacebeta&utm_medium=dossier unless the sponsor already set those keys.
+ */
+export function getDossierSponsor(env: Record<string, string | undefined> = process.env): DossierSponsor | null {
+  const name = env.DOSSIER_SPONSOR_NAME?.trim()
+  const url = parseHttpUrl(env.DOSSIER_SPONSOR_URL)
+  if (!name || !url) return null
+  return { name, url: withUtm(url, 'dossier'), logoUrl: parseHttpUrl(env.DOSSIER_SPONSOR_LOGO_URL) ?? undefined }
+}

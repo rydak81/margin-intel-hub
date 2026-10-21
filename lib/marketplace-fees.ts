@@ -207,19 +207,23 @@ const WALMART_CATEGORIES: FeeCategory[] = [
 
 // ── TikTok Shop ───────────────────────────────────────────────────────────────
 
+// Verified 2026-10-21 against TikTok Shop Academy "Referral Fees by Category" (page dated 10/08/2026).
+const TIKTOK_NOTE =
+  "TikTok's published US table lists 6%. Some trade reports say most non-food categories moved to 8% on Aug 4, 2026, but TikTok has not confirmed it publicly. Check the referral fee line on your settlement statement; at 8% the fee is a third higher."
+
 const TIKTOK_CATEGORIES: FeeCategory[] = [
-  { slug: "apparel-accessories", label: "Apparel & Accessories", referralPct: 8 },
-  { slug: "beauty-personal-care", label: "Beauty & Personal Care", referralPct: 8 },
-  { slug: "consumer-electronics", label: "Consumer Electronics", referralPct: 8 },
-  { slug: "food-beverage", label: "Food & Beverage", referralPct: 8 },
-  { slug: "health", label: "Health", referralPct: 8 },
-  { slug: "home-supplies", label: "Home Supplies", referralPct: 8 },
-  { slug: "jewelry-accessories", label: "Jewelry & Accessories", referralPct: 8 },
-  { slug: "kitchenware", label: "Kitchenware", referralPct: 8 },
-  { slug: "pet-supplies", label: "Pet Supplies", referralPct: 8 },
-  { slug: "shoes", label: "Shoes", referralPct: 8 },
-  { slug: "sports-outdoor", label: "Sports & Outdoor", referralPct: 8 },
-  { slug: "toys-hobbies", label: "Toys & Hobbies", referralPct: 8 },
+  { slug: "apparel-accessories", label: "Apparel & Accessories", referralPct: 6, note: TIKTOK_NOTE },
+  { slug: "beauty-personal-care", label: "Beauty & Personal Care", referralPct: 6, note: TIKTOK_NOTE },
+  { slug: "consumer-electronics", label: "Consumer Electronics", referralPct: 6, note: TIKTOK_NOTE },
+  { slug: "food-beverage", label: "Food & Beverage", referralPct: 6, note: TIKTOK_NOTE },
+  { slug: "health", label: "Health", referralPct: 6, note: TIKTOK_NOTE },
+  { slug: "home-supplies", label: "Home Supplies", referralPct: 6, note: TIKTOK_NOTE },
+  { slug: "jewelry-accessories", label: "Jewelry & Accessories", referralPct: 6, note: "6% for most jewelry; TikTok lists 5% for its Diamond, Gold, Jade, Platinum/Carat Gold and Ruby, Sapphire & Emerald sub-categories. Some trade reports say most non-food rates moved to 8% on Aug 4, 2026; TikTok has not confirmed it, so check your settlement statement." },
+  { slug: "kitchenware", label: "Kitchenware", referralPct: 6, note: TIKTOK_NOTE },
+  { slug: "pet-supplies", label: "Pet Supplies", referralPct: 6, note: TIKTOK_NOTE },
+  { slug: "shoes", label: "Shoes", referralPct: 6, note: TIKTOK_NOTE },
+  { slug: "sports-outdoor", label: "Sports & Outdoor", referralPct: 6, note: TIKTOK_NOTE },
+  { slug: "toys-hobbies", label: "Toys & Hobbies", referralPct: 6, note: TIKTOK_NOTE },
 ]
 
 // ── eBay ──────────────────────────────────────────────────────────────────────
@@ -295,10 +299,10 @@ export const MARKETPLACES: Marketplace[] = [
     shortName: "TikTok Shop",
     feeName: "commission",
     fulfillmentName: "Fulfilled by TikTok",
-    sourceUrl: "https://seller-us.tiktok.com/university/essay?knowledge_id=10004017",
-    lastVerified: "2026-08-12",
+    sourceUrl: "https://seller-us.tiktok.com/university/essay?knowledge_id=5988482086864682&lang=en",
+    lastVerified: "2026-10-21",
     summary:
-      "TikTok Shop charges a commission on each order, with payment processing bundled into it rather than billed as a separate line. Rates have moved several times since the US launch as introductory pricing wound down, so this is the schedule most worth re-checking before you model margin on it.",
+      "TikTok Shop charges a commission on each order, with payment processing bundled into it rather than billed as a separate line. Rates have moved several times since the US launch as introductory pricing wound down, so this is the schedule most worth re-checking before you model margin on it. TikTok's published US rate is 6% for most categories; some trade reports say it moved to 8% on Aug 4, 2026, which TikTok has not confirmed, so check your settlement statement.",
     categories: TIKTOK_CATEGORIES,
   },
   {
