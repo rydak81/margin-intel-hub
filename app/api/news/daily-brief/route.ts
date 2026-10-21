@@ -23,6 +23,7 @@ export async function GET(request: Request) {
   // Set once this run has claimed today's daily_briefs row. Released on failures
   // that happen before the brief is written, so a later run can try again.
   let releaseClaim: (() => Promise<void>) | null = null
+  let heldClaimContent = ''
   try {
     const url = new URL(request.url)
     const forceSend = url.searchParams.get('force') === '1'
@@ -84,6 +85,7 @@ export async function GET(request: Request) {
         console.error('[DailyBrief] Could not claim today\'s brief, continuing without the guard:', claim.message)
       } else {
         const heldContent = claim.content
+        heldClaimContent = heldContent
         releaseClaim = async () => {
           const { error } = await getSupabase().from('daily_briefs').delete().eq('id', claimDay.iso).eq('content', heldContent)
           if (error) console.error('[DailyBrief] Failed to release claim:', error.message)
@@ -187,9 +189,33 @@ ${topArticles.map((a: any, i: number) => `${i + 1}. "${a.title}" (${a.source_nam
       ;({ error: briefSaveError } = await getSupabase().from('daily_briefs').upsert(briefRow, { onConflict: 'id' }))
       if (briefSaveError) console.error('[DailyBrief] Brief persistence failed after retry:', briefSaveError.message)
     }
-    // The brief row now replaces the claim and delivery follows immediately.
-    // From here a retry is skipped even if sending fails part-way, because some
-    // subscribers may already have it; use ?force=1 to re-send deliberately.
+    // While we hold a claim, the row must stop looking like a claim before we
+    // mail anyone; otherwise, once the lease expires, a retry would take it over
+    // and send a second time. If the brief couldn't be saved, try a small
+    // non-claim marker instead; if even that fails, don't send: release the
+    // claim and return 500 so a retry (or ?force=1) can do the whole run.
+    // Unguarded runs (forced, or claim error) keep "persistence never blocks
+    // the send".
+    if (releaseClaim && briefSaveError) {
+      const { data: marked, error: markError } = await getSupabase()
+        .from('daily_briefs')
+        .update({ content: `Brief delivery started at ${new Date().toISOString()} (brief text not archived: ${briefSaveError.message})` })
+        .eq('id', today.iso)
+        .eq('content', heldClaimContent)
+        .select('id')
+      if (markError || !marked?.length) {
+        console.error('[DailyBrief] Could not record that delivery is starting; not sending, to avoid a duplicate on retry:', markError?.message ?? 'claim no longer held')
+        await releaseClaim()
+        return NextResponse.json({
+          error: 'Brief could not be recorded as sent, so no emails were sent; retry, or re-send with ?force=1',
+          briefPersisted: false,
+          briefPersistError: briefSaveError.message,
+        }, { status: 500 })
+      }
+    }
+    // The day is now recorded and delivery follows immediately. From here a
+    // retry is skipped even if sending fails part-way, because some subscribers
+    // may already have it; use ?force=1 to re-send deliberately.
     releaseClaim = null
     const persistence = {
       briefPersisted: !briefSaveError,

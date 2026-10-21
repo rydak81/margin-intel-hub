@@ -52,7 +52,7 @@ describe('Daily Brief send window (7 AM Eastern)', () => {
 })
 
 // Fake daily_briefs table with a unique id, enough for the route's claim guard.
-function setupDb(articles: any[] = [{ id: 'a1', title: 'Fee change', source_name: 'Src', ai_summary: 'Fees rose.' }], opts: { subscriberError?: boolean } = {}) {
+function setupDb(articles: any[] = [{ id: 'a1', title: 'Fee change', source_name: 'Src', ai_summary: 'Fees rose.' }], opts: { subscriberError?: boolean; briefSaveFails?: boolean; markerFails?: boolean } = {}) {
   const briefs = new Map<string, any>()
   const filtered = () => {
     const filters: Record<string, unknown> = {}
@@ -67,6 +67,7 @@ function setupDb(articles: any[] = [{ id: 'a1', title: 'Fee change', source_name
           briefs.set(row.id, { ...row }); return { error: null }
         },
         upsert: async (row: any, o: any) => {
+          if (opts.briefSaveFails && row.provider) return { error: { code: '57P01', message: 'db restarting' } }
           if (briefs.has(row.id) && o?.ignoreDuplicates) return { error: null }
           briefs.set(row.id, { ...row }); return { error: null }
         },
@@ -80,6 +81,7 @@ function setupDb(articles: any[] = [{ id: 'a1', title: 'Fee change', source_name
           const f = filtered()
           const q: any = { eq: (k: string, v: unknown) => { f.filters[k] = v; return q },
             select: async () => {
+              if (opts.markerFails && String(patch.content).startsWith('Brief delivery started')) return { data: null, error: { message: 'db restarting' } }
               const row = briefs.get(f.filters.id as string)
               if (!f.matches(row)) return { data: [], error: null }
               Object.assign(row, patch); return { data: [{ id: row.id }], error: null }
@@ -223,6 +225,48 @@ describe('Daily Brief route: recovering from failed runs', () => {
     // (a missing key is a config problem, not a transient one); ?force=1 re-sends.
     expect((await run('2026-11-02T12:10:00Z')).skipped).toBe(true)
     expect(mocks.send).not.toHaveBeenCalled()
+  })
+})
+
+
+describe('Daily Brief route: brief archive fails while a claim is held', () => {
+  const env = { ...process.env }
+  beforeEach(() => {
+    vi.resetModules()
+    vi.useFakeTimers({ toFake: ['Date'] })
+    process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://db.test.invalid'
+    process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-only'
+    process.env.ANTHROPIC_API_KEY = 'test-only'
+    process.env.RESEND_API_KEY = 'test-only'
+    delete process.env.CRON_SECRET
+    mocks.callAI.mockReset().mockResolvedValue({ text: 'Brief body', provider: 'test', model: 'test' })
+    mocks.send.mockReset().mockResolvedValue({ sent: 1, failed: 0 })
+  })
+  afterEach(() => { vi.useRealTimers(); process.env = { ...env } })
+
+  const run = async (iso: string) => {
+    vi.setSystemTime(new Date(iso))
+    const { GET } = await import('../app/api/news/daily-brief/route')
+    return (await GET(new Request('http://test.invalid/api/news/daily-brief'))).json()
+  }
+
+  it('records a non-claim marker and sends once; a retry after the lease does not re-send', async () => {
+    const { briefs } = setupDb(undefined, { briefSaveFails: true })
+    const res = await run('2026-11-02T12:00:05Z')
+    expect(res.emailsSent).toBe(1)
+    expect(res.briefPersisted).toBe(false)
+    expect(briefs.get('2026-11-02').content).toMatch(/^Brief delivery started at /)
+    vi.resetModules()
+    expect((await run('2026-11-02T12:30:00Z')).skipped).toBe(true)
+    expect(mocks.send).toHaveBeenCalledTimes(1)
+  })
+
+  it('if even the marker cannot be written, sends nothing and frees the day for a retry', async () => {
+    const { briefs } = setupDb(undefined, { briefSaveFails: true, markerFails: true })
+    const res = await run('2026-11-02T12:00:05Z')
+    expect(res.error).toMatch(/no emails were sent/)
+    expect(mocks.send).not.toHaveBeenCalled()
+    expect(briefs.has('2026-11-02')).toBe(false)
   })
 })
 
