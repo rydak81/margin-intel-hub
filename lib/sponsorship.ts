@@ -1,5 +1,5 @@
 // Sponsorship configuration: media-kit contact and the optional newsletter sponsor slot.
-import { withUtm } from '@/lib/utm'
+import { parseHttpUrl, withUtm } from '@/lib/utm'
 import { isEasternWeekday, isWithinSponsorWindow, readSponsorWindow } from '@/lib/sponsor-window'
 
 export const SPONSOR_CONTACT_EMAIL = process.env.NEXT_PUBLIC_SPONSOR_CONTACT_EMAIL?.trim() || 'hello@marketplacebeta.com'
@@ -31,8 +31,8 @@ const falsy = (v: string | undefined) => /^(0|false|no|off)$/i.test(v?.trim() ??
  */
 export function getNewsletterSponsor(env: Record<string, string | undefined> = process.env, now: Date = new Date()): NewsletterSponsor | null {
   const name = env.NEWSLETTER_SPONSOR_NAME?.trim()
-  const url = env.NEWSLETTER_SPONSOR_URL?.trim()
-  if (!name || !url || !/^https?:\/\//.test(url)) return null
+  const url = parseHttpUrl(env.NEWSLETTER_SPONSOR_URL)
+  if (!name || !url) return null
   const window = readSponsorWindow(env.NEWSLETTER_SPONSOR_START, env.NEWSLETTER_SPONSOR_END)
   if (!window || !isWithinSponsorWindow(window, now)) return null
   const weekdaysOnly = truthy(env.NEWSLETTER_SPONSOR_WEEKDAYS_ONLY)

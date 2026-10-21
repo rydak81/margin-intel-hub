@@ -54,6 +54,12 @@ describe('Brief sponsor booking window (America/New_York, inclusive)', () => {
     expect(getNewsletterSponsor({ ...base, NEWSLETTER_SPONSOR_START: '11/09/2026' }, sendAt('2026-11-10'))).toBeNull()
     expect(getNewsletterSponsor({ ...base, NEWSLETTER_SPONSOR_START: '2026-11-13', NEWSLETTER_SPONSOR_END: '2026-11-09' }, sendAt('2026-11-10'))).toBeNull()
   })
+
+  it('hides the slot when the URL does not parse as http(s)', () => {
+    for (const bad of ['https://', 'http://', 'https://exa mple.com', 'javascript:alert(1)', 'acme.test']) {
+      expect(getNewsletterSponsor({ ...base, NEWSLETTER_SPONSOR_URL: bad }, sendAt('2026-11-10')), bad).toBeNull()
+    }
+  })
 })
 
 describe('Brief sponsor UTM tagging', () => {
