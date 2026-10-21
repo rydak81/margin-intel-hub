@@ -5,10 +5,10 @@ import { PremiumSiteHeader } from '@/components/premium-site-header'
 import { PremiumSiteFooter } from '@/components/premium-site-footer'
 import { JsonLd } from '@/components/json-ld'
 import { ShareButtons } from '@/components/share-buttons'
+import { AMAZON_PEAK_PATH } from '@/lib/amazon-holiday-peak-2026'
 import { formatVerifiedDate } from '@/lib/marketplace-fees'
 import { SALE_PRICES, feeRangeLabel, getAllSaleRoutes, money, ogImageUrl, parseSalePrice, saleFeeSummary, salePath } from '@/lib/sale-fee-pages'
 import { getPairsFor } from '@/lib/fee-compare'
-import { AMAZON_PEAK_PATH } from '@/lib/amazon-holiday-peak-2026'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://marketplacebeta.com'
 
@@ -94,7 +94,6 @@ export default async function SaleFeePage({ params }: PageProps) {
         <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">How much does {m.shortName} take from a ${s.price} sale?</h1>
         <p className="mt-4 text-5xl font-bold text-sky-600 tabular-nums">{range}</p>
         <p className="mt-3 text-lg leading-relaxed text-muted-foreground">{faqs[0].answer}</p>
-        {m.slug === 'amazon' && <p className="mt-2 text-sm"><Link href={AMAZON_PEAK_PATH} className="font-medium text-primary underline underline-offset-4">Selling with FBA this holiday? See the 2026 peak fulfillment fees and 3.5% surcharge</Link></p>}
         <ShareButtons className="mt-5" url={canonical} placement={`sale-${m.slug}-${s.price}`} text={`${m.shortName} takes ${range} from a $${s.price} sale. Category-by-category breakdown:`} />
 
         <section className="mt-8 overflow-x-auto rounded-xl border border-border">
@@ -119,6 +118,8 @@ export default async function SaleFeePage({ params }: PageProps) {
           </table>
         </section>
         <p className="mt-2 text-xs text-muted-foreground">* Before product cost, fulfillment, shipping and ads. Computed with the same engine as our fee calculators from <a href={m.sourceUrl} target="_blank" rel="noopener noreferrer nofollow" className="underline">{m.name}&apos;s official schedule</a>, verified {formatVerifiedDate(m.lastVerified)}.</p>
+
+        {m.slug === 'amazon' && <p className="mt-4 text-sm"><Link href={AMAZON_PEAK_PATH} className="font-medium text-primary underline underline-offset-4">Selling with FBA this holiday? See the 2026 peak fulfillment fees and 3.5% surcharge</Link></p>}
 
         <section className="mt-8">
           <h2 className="text-xl font-bold">Other sale prices</h2>
