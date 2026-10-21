@@ -14,7 +14,7 @@
 // rather than widening a targeted booking to every page or marketplace.
 //   SPONSORED_LISTING_START         optional  YYYY-MM-DD, first day shown (America/New_York, inclusive)
 //   SPONSORED_LISTING_ENDS          optional  YYYY-MM-DD, last day shown (America/New_York, inclusive)
-import { withUtm } from '@/lib/utm'
+import { parseHttpUrl, withUtm } from '@/lib/utm'
 import { isWithinSponsorWindow, readSponsorWindow, type SponsorWindow } from '@/lib/sponsor-window'
 
 export const LISTING_PAGES = ['fees', 'compare', 'guides', 'repricer'] as const
@@ -47,21 +47,9 @@ function allowList<T extends string>(value: string | undefined, allowed: readonl
   return raw.filter((v): v is T => (allowed as readonly string[]).includes(v))
 }
 
-/** Parsed, absolute http(s) URL, or null. */
-function safeHttpUrl(raw: string | undefined): string | null {
-  if (!raw) return null
-  try {
-    const u = new URL(raw)
-    if ((u.protocol !== 'http:' && u.protocol !== 'https:') || !u.hostname) return null
-    return u.toString()
-  } catch {
-    return null
-  }
-}
-
 export function getSponsoredListing(env: Record<string, string | undefined> = process.env): SponsoredListing | null {
   const name = env.SPONSORED_LISTING_NAME?.trim()
-  const url = safeHttpUrl(env.SPONSORED_LISTING_URL?.trim())
+  const url = parseHttpUrl(env.SPONSORED_LISTING_URL)
   if (!name || !url) return null
   const window = readSponsorWindow(env.SPONSORED_LISTING_START, env.SPONSORED_LISTING_ENDS)
   if (!window) return null // misconfigured dates: hide rather than run indefinitely
