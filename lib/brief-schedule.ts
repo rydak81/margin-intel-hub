@@ -10,8 +10,54 @@ const EASTERN = 'America/New_York'
 
 export const BRIEF_SEND_HOUR_ET = 7
 
-/** Placeholder content for the daily_briefs row a run claims before it does any work. */
-export const BRIEF_CLAIM_CONTENT = 'Brief run claimed; generation in progress.'
+/** Prefix of the placeholder content for the daily_briefs row a run claims before it does any work. */
+export const BRIEF_CLAIM_PREFIX = 'Brief run claimed at '
+
+/** A claim older than this is presumed abandoned (the route's maxDuration is 60 s). */
+export const BRIEF_CLAIM_LEASE_MS = 5 * 60 * 1000
+
+export function briefClaimContent(now: Date = new Date()): string {
+  return `${BRIEF_CLAIM_PREFIX}${now.toISOString()}; generation in progress.`
+}
+
+/** When `content` is a claim placeholder, the time it was claimed; otherwise null (a real brief or heartbeat). */
+export function claimedAt(content: string | null | undefined): Date | null {
+  if (!content?.startsWith(BRIEF_CLAIM_PREFIX)) return null
+  const at = new Date(content.slice(BRIEF_CLAIM_PREFIX.length).split(';')[0])
+  return Number.isNaN(at.getTime()) ? null : at
+}
+
+export type BriefClaim =
+  | { status: 'claimed'; content: string }
+  | { status: 'taken' }
+  | { status: 'error'; message: string }
+
+// Minimal shape of the Supabase client calls used below.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Db = { from: (table: string) => any }
+
+/**
+ * Claim today's Brief by inserting the daily_briefs row for the Eastern date (id is
+ * unique). A conflicting row means another run already sent or is sending it, unless
+ * that row is a claim placeholder older than the lease, which is taken over with a
+ * compare-and-swap update so only one retry can win.
+ */
+export async function claimTodaysBrief(db: Db, dayIso: string, now: Date = new Date()): Promise<BriefClaim> {
+  const content = briefClaimContent(now)
+  const { error } = await db.from('daily_briefs').insert({ id: dayIso, brief_date: dayIso, content, article_count: 0, article_ids: [] })
+  if (!error) return { status: 'claimed', content }
+  if (error.code !== '23505') return { status: 'error', message: error.message }
+
+  const { data: existing, error: readError } = await db.from('daily_briefs').select('content').eq('id', dayIso).maybeSingle()
+  if (readError) return { status: 'error', message: readError.message }
+  const at = claimedAt(existing?.content)
+  if (!at || now.getTime() - at.getTime() < BRIEF_CLAIM_LEASE_MS) return { status: 'taken' }
+
+  const { data: swapped, error: swapError } = await db.from('daily_briefs')
+    .update({ content }).eq('id', dayIso).eq('content', existing!.content).select('id')
+  if (swapError) return { status: 'error', message: swapError.message }
+  return swapped?.length ? { status: 'claimed', content } : { status: 'taken' }
+}
 
 export function getEasternCalendarDate(date = new Date()) {
   const parts = new Intl.DateTimeFormat('en-US', {

@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { getEasternCalendarDate, isBriefSendWindow } from './brief-schedule'
+import { BRIEF_CLAIM_LEASE_MS, briefClaimContent, claimedAt, getEasternCalendarDate, isBriefSendWindow } from './brief-schedule'
 
 const mocks = vi.hoisted(() => ({ client: vi.fn(), callAI: vi.fn(), send: vi.fn() }))
 vi.mock('@supabase/supabase-js', () => ({ createClient: mocks.client }))
@@ -52,26 +52,46 @@ describe('Daily Brief send window (7 AM Eastern)', () => {
 })
 
 // Fake daily_briefs table with a unique id, enough for the route's claim guard.
-function setupDb(articles: any[] = [{ id: 'a1', title: 'Fee change', source_name: 'Src', ai_summary: 'Fees rose.' }]) {
+function setupDb(articles: any[] = [{ id: 'a1', title: 'Fee change', source_name: 'Src', ai_summary: 'Fees rose.' }], opts: { subscriberError?: boolean } = {}) {
   const briefs = new Map<string, any>()
+  const filtered = () => {
+    const filters: Record<string, unknown> = {}
+    const matches = (row: any) => row && Object.entries(filters).every(([k, v]) => row[k] === v)
+    return { filters, matches }
+  }
   const from = vi.fn((table: string) => {
     if (table === 'daily_briefs') {
       return {
         insert: async (row: any) => {
           if (briefs.has(row.id)) return { error: { code: '23505', message: 'duplicate key' } }
-          briefs.set(row.id, row); return { error: null }
+          briefs.set(row.id, { ...row }); return { error: null }
         },
-        upsert: async (row: any, opts: any) => {
-          if (briefs.has(row.id) && opts?.ignoreDuplicates) return { error: null }
-          briefs.set(row.id, row); return { error: null }
+        upsert: async (row: any, o: any) => {
+          if (briefs.has(row.id) && o?.ignoreDuplicates) return { error: null }
+          briefs.set(row.id, { ...row }); return { error: null }
+        },
+        select: () => {
+          const f = filtered()
+          const q: any = { eq: (k: string, v: unknown) => { f.filters[k] = v; return q },
+            maybeSingle: async () => { const row = briefs.get(f.filters.id as string); return { data: f.matches(row) ? { content: row.content } : null, error: null } } }
+          return q
+        },
+        update: (patch: any) => {
+          const f = filtered()
+          const q: any = { eq: (k: string, v: unknown) => { f.filters[k] = v; return q },
+            select: async () => {
+              const row = briefs.get(f.filters.id as string)
+              if (!f.matches(row)) return { data: [], error: null }
+              Object.assign(row, patch); return { data: [{ id: row.id }], error: null }
+            } }
+          return q
         },
         delete: () => {
-          const filters: Record<string, unknown> = {}
+          const f = filtered()
           const q: any = {
-            eq: (k: string, v: unknown) => { filters[k] = v; return q },
+            eq: (k: string, v: unknown) => { f.filters[k] = v; return q },
             then: (resolve: any) => {
-              const row = briefs.get(filters.id as string)
-              if (row && Object.entries(filters).every(([k, v]) => row[k] === v)) briefs.delete(filters.id as string)
+              if (f.matches(briefs.get(f.filters.id as string))) briefs.delete(f.filters.id as string)
               return Promise.resolve({ error: null }).then(resolve)
             },
           }
@@ -79,12 +99,12 @@ function setupDb(articles: any[] = [{ id: 'a1', title: 'Fee change', source_name
         },
       }
     }
-    const rows = table === 'articles'
-      ? articles
-      : [{ email: 'reader@example.com', first_name: 'Sam' }]
+    const isArticles = table === 'articles'
+    const rows = isArticles ? articles : [{ email: 'reader@example.com', first_name: 'Sam' }]
+    const error = !isArticles && opts.subscriberError ? { message: 'subscribers down' } : null
     const q: any = {
       select: () => q, gte: () => q, eq: () => q, order: () => q, limit: () => q,
-      then: (resolve: any) => Promise.resolve({ data: rows, error: null }).then(resolve),
+      then: (resolve: any) => Promise.resolve({ data: error ? null : rows, error }).then(resolve),
     }
     return q
   })
@@ -150,5 +170,68 @@ describe('Daily Brief route: one send per Eastern day', () => {
     await run('2026-11-02T12:00:05Z')
     expect((await run('2026-11-02T15:00:00Z', '?force=1')).emailsSent).toBe(1)
     expect(mocks.send).toHaveBeenCalledTimes(2)
+  })
+})
+
+describe('Daily Brief route: recovering from failed runs', () => {
+  const env = { ...process.env }
+  beforeEach(() => {
+    vi.resetModules()
+    vi.useFakeTimers({ toFake: ['Date'] })
+    process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://db.test.invalid'
+    process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-only'
+    process.env.ANTHROPIC_API_KEY = 'test-only'
+    process.env.RESEND_API_KEY = 'test-only'
+    delete process.env.CRON_SECRET
+    mocks.callAI.mockReset().mockResolvedValue({ text: 'Brief body', provider: 'test', model: 'test' })
+    mocks.send.mockReset().mockResolvedValue({ sent: 1, failed: 0 })
+  })
+  afterEach(() => { vi.useRealTimers(); process.env = { ...env } })
+
+  const run = async (iso: string) => {
+    vi.setSystemTime(new Date(iso))
+    const { GET } = await import('../app/api/news/daily-brief/route')
+    return (await GET(new Request('http://test.invalid/api/news/daily-brief'))).json()
+  }
+
+  it('takes over a claim abandoned by a run that died, but not a fresh one', async () => {
+    const { briefs } = setupDb()
+    briefs.set('2026-11-02', { id: '2026-11-02', content: briefClaimContent(new Date('2026-11-02T12:00:05Z')) })
+    expect((await run('2026-11-02T12:02:00Z')).skipped).toBe(true) // still within the lease
+    expect((await run('2026-11-02T12:06:00Z')).emailsSent).toBe(1) // lease expired
+    expect(mocks.send).toHaveBeenCalledTimes(1)
+    expect(briefs.get('2026-11-02').content).toBe('Brief body')
+  })
+
+  it('a subscriber-query failure claims nothing, so a retry still sends', async () => {
+    const { briefs } = setupDb(undefined, { subscriberError: true })
+    const res = await run('2026-11-02T12:00:05Z')
+    expect(res.error).toMatch(/subscribers/)
+    expect(briefs.has('2026-11-02')).toBe(false)
+    setupDb()
+    vi.resetModules() // drop the route's cached DB client
+    expect((await run('2026-11-02T12:05:00Z')).emailsSent).toBe(1)
+  })
+
+  it('without a Resend key it archives the brief but takes no claim, so a later run can still send', async () => {
+    delete process.env.RESEND_API_KEY
+    const { briefs } = setupDb()
+    expect((await run('2026-11-02T12:00:05Z')).emailsSent).toBe(0)
+    expect(briefs.get('2026-11-02').content).toBe('Brief body')
+    process.env.RESEND_API_KEY = 'test-only'
+    // The archived brief is a real row, so a normal run treats the day as done
+    // (a missing key is a config problem, not a transient one); ?force=1 re-sends.
+    expect((await run('2026-11-02T12:10:00Z')).skipped).toBe(true)
+    expect(mocks.send).not.toHaveBeenCalled()
+  })
+})
+
+describe('claim lease helpers', () => {
+  it('recognises claim placeholders and their time', () => {
+    const at = new Date('2026-11-02T12:00:05Z')
+    expect(claimedAt(briefClaimContent(at))?.toISOString()).toBe(at.toISOString())
+    expect(claimedAt('Brief body')).toBeNull()
+    expect(claimedAt('No qualifying articles today — no brief generated or sent.')).toBeNull()
+    expect(BRIEF_CLAIM_LEASE_MS).toBeGreaterThan(60_000)
   })
 })
