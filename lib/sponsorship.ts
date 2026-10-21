@@ -1,4 +1,7 @@
 // Sponsorship configuration: media-kit contact and the optional newsletter sponsor slot.
+import { withUtm } from '@/lib/utm'
+import { isEasternWeekday, isWithinSponsorWindow, readSponsorWindow } from '@/lib/sponsor-window'
+
 export const SPONSOR_CONTACT_EMAIL = process.env.NEXT_PUBLIC_SPONSOR_CONTACT_EMAIL?.trim() || 'hello@marketplacebeta.com'
 
 export function sponsorMailto(subject = 'Sponsorship rates: Daily Marketplace Brief'): string {
@@ -7,19 +10,37 @@ export function sponsorMailto(subject = 'Sponsorship rates: Daily Marketplace Br
 
 export interface NewsletterSponsor {
   name: string
+  /** Destination, UTM-tagged (utm_source=marketplacebeta, utm_medium=brief) unless the sponsor already set those keys. */
   url: string
   tagline?: string
   ctaText?: string
 }
 
-/** Newsletter sponsor slot, driven by env. Returns null (slot renders nothing) unless name and an http(s) URL are set. */
-export function getNewsletterSponsor(env: Record<string, string | undefined> = process.env): NewsletterSponsor | null {
+const truthy = (v: string | undefined) => /^(1|true|yes|on)$/i.test(v?.trim() ?? '')
+const falsy = (v: string | undefined) => /^(0|false|no|off)$/i.test(v?.trim() ?? '')
+
+/**
+ * Newsletter sponsor slot, driven by env. Returns null (slot renders nothing) unless
+ * name and an http(s) URL are set and `now` is inside the booking:
+ *
+ * - NEWSLETTER_SPONSOR_START / NEWSLETTER_SPONSOR_END: optional YYYY-MM-DD dates on the
+ *   America/New_York calendar, both inclusive. Unset = always on (the previous behaviour).
+ *   An invalid date, or END before START, hides the slot rather than running it open-ended.
+ * - NEWSLETTER_SPONSOR_WEEKDAYS_ONLY: true/false. Defaults to true when both START and END
+ *   are set (a "5 weekday slots" booking never lands in a weekend issue), false otherwise.
+ */
+export function getNewsletterSponsor(env: Record<string, string | undefined> = process.env, now: Date = new Date()): NewsletterSponsor | null {
   const name = env.NEWSLETTER_SPONSOR_NAME?.trim()
   const url = env.NEWSLETTER_SPONSOR_URL?.trim()
   if (!name || !url || !/^https?:\/\//.test(url)) return null
+  const window = readSponsorWindow(env.NEWSLETTER_SPONSOR_START, env.NEWSLETTER_SPONSOR_END)
+  if (!window || !isWithinSponsorWindow(window, now)) return null
+  const weekdaysOnly = truthy(env.NEWSLETTER_SPONSOR_WEEKDAYS_ONLY)
+    || (!falsy(env.NEWSLETTER_SPONSOR_WEEKDAYS_ONLY) && !!window.start && !!window.end)
+  if (weekdaysOnly && !isEasternWeekday(now)) return null
   return {
     name,
-    url,
+    url: withUtm(url, 'brief'),
     tagline: env.NEWSLETTER_SPONSOR_TAGLINE?.trim() || undefined,
     ctaText: env.NEWSLETTER_SPONSOR_CTA?.trim() || undefined,
   }

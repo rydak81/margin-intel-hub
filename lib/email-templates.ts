@@ -29,6 +29,13 @@ export function renderSponsorSlot(sponsor: NewsletterSponsor | null = getNewslet
               </table>`
 }
 
+/** Plain-text sponsor block for the text/plain part of the Brief. Empty string when no sponsor is configured. */
+export function renderSponsorText(sponsor: NewsletterSponsor | null = getNewsletterSponsor()): string {
+  if (!sponsor) return ''
+  const cta = sponsor.ctaText || `Learn more about ${sponsor.name}`
+  return ['---', 'SPONSORED', sponsor.name, ...(sponsor.tagline ? [sponsor.tagline] : []), `${cta}: ${sponsor.url}`, '---'].join('\n')
+}
+
 interface DailyBriefData {
   subscriberEmail: string
   briefContent: string  // AI-generated brief text
@@ -138,8 +145,10 @@ function formatInlineStyles(text: string): string {
   return text
 }
 
+const withBlankLine = (block: string) => (block ? `\n\n${block}` : '')
+
 export function generateDailyBriefText(data: DailyBriefData): string {
-  return `Daily Marketplace Brief — ${data.date}\n\n${sanitizeBriefText(data.briefContent, data.date)}\n\nUnsubscribe: https://marketplacebeta.com/api/unsubscribe?email=${encodeURIComponent(data.subscriberEmail.trim().toLowerCase())}`
+  return `Daily Marketplace Brief — ${data.date}\n\n${sanitizeBriefText(data.briefContent, data.date)}${withBlankLine(renderSponsorText())}\n\nUnsubscribe: https://marketplacebeta.com/api/unsubscribe?email=${encodeURIComponent(data.subscriberEmail.trim().toLowerCase())}`
 }
 
 export function generateDailyBriefEmail(data: DailyBriefData): string {
