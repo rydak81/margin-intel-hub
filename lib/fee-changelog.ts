@@ -57,6 +57,15 @@ export const FEE_CHANGELOG: FeeChangelogEntry[] = [
       { marketplace: 'amazon', category: 'Baby Products, Beauty, Consumer Electronics, Health & Personal Care, Kitchen', before: 'No minimum referral fee', after: '$0.30 minimum referral fee' },
     ],
   },
+  {
+    date: '2026-10-21',
+    title: 'TikTok Shop commission corrected to the published 6%',
+    summary: 'TikTok Shop re-verified against its US "Referral Fees by Category" table (page dated 10/08/2026), which lists 6% for most categories and 5% for five fine-jewelry sub-categories. We had modelled 8%, a figure some trade reports date to Aug 4, 2026 but that TikTok has not confirmed publicly. Each TikTok Shop page now notes the reported 8% so you can check it against your settlement statement. The source link is updated because the old Academy URL no longer loads.',
+    sources: ['https://seller-us.tiktok.com/university/essay?knowledge_id=5988482086864682&lang=en'],
+    changes: [
+      { marketplace: 'tiktok-shop', category: 'All modelled categories', before: '8%', after: '6% (reported 8% noted as unconfirmed)' },
+    ],
+  },
 ]
 
 export function feeChangelogNewestFirst(): FeeChangelogEntry[] {
