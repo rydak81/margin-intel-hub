@@ -3,52 +3,9 @@ import { createClient } from '@supabase/supabase-js'
 import { callAI } from '@/lib/ai-client'
 import { sendBatchEmails } from '@/lib/email'
 import { generateDailyBriefEmail, generateDailyBriefText } from '@/lib/email-templates'
+import { claimTodaysBrief, getEasternCalendarDate, getEasternSendWindow, isBriefSendWindow } from '@/lib/brief-schedule'
 
 export const maxDuration = 60
-
-function getEasternCalendarDate(date = new Date()) {
-  const parts = new Intl.DateTimeFormat('en-US', {
-    timeZone: 'America/New_York',
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
-    .formatToParts(date)
-    .reduce<Record<string, string>>((acc, part) => {
-      if (part.type !== 'literal') acc[part.type] = part.value
-      return acc
-    }, {})
-
-  return {
-    long: `${parts.weekday}, ${parts.month} ${parts.day}, ${parts.year}`,
-    short: `${parts.month} ${parts.day}`,
-    iso: new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' }).format(date),
-  }
-}
-
-function getEasternSendWindow(date = new Date()) {
-  const parts = new Intl.DateTimeFormat('en-US', {
-    timeZone: 'America/New_York',
-    hour12: false,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-    .formatToParts(date)
-    .reduce<Record<string, string>>((acc, part) => {
-      if (part.type !== 'literal') acc[part.type] = part.value
-      return acc
-    }, {})
-
-  return {
-    hour: Number(parts.hour),
-    minute: Number(parts.minute),
-    display: `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute} ET`,
-  }
-}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let _supabase: any = null
@@ -63,6 +20,10 @@ function getSupabase() {
 }
 
 export async function GET(request: Request) {
+  // Set once this run has claimed today's daily_briefs row. Released on failures
+  // that happen before the brief is written, so a later run can try again.
+  let releaseClaim: (() => Promise<void>) | null = null
+  let heldClaimContent = ''
   try {
     const url = new URL(request.url)
     const forceSend = url.searchParams.get('force') === '1'
@@ -75,7 +36,7 @@ export async function GET(request: Request) {
     }
 
     const easternWindow = getEasternSendWindow()
-    if (!forceSend && easternWindow.hour !== 7) {
+    if (!forceSend && !isBriefSendWindow()) {
       console.log(`[DailyBrief] Skipping send at ${easternWindow.display} — waiting for 7:00 AM ET window`)
       return NextResponse.json({
         success: true,
@@ -83,6 +44,53 @@ export async function GET(request: Request) {
         reason: 'Outside 7:00 AM ET send window',
         sendWindow: easternWindow.display,
       })
+    }
+
+    // ── Step 0: Recipients, then claim today's brief (idempotency) ──
+    // Subscribers are fetched before the claim so a failure here leaves nothing
+    // claimed and a retry can still send. The claim is only taken when a send
+    // will actually be attempted (Resend configured and at least one subscriber);
+    // archive-only runs stay unclaimed, exactly as before.
+    const { data: subscribers, error: subError } = await getSupabase()
+      .from('subscribers')
+      .select('email, first_name')
+
+    if (subError) {
+      console.error('[DailyBrief] Failed to fetch subscribers:', subError.message)
+      return NextResponse.json({ error: `Failed to fetch subscribers: ${subError.message}` }, { status: 500 })
+    }
+
+    // vercel.json runs this route at 11:00 and 12:00 UTC so the 7 AM ET send
+    // survives DST; the hour check above lets only one of them through. The claim
+    // also stops a duplicated or retried cron delivery from mailing subscribers
+    // twice: daily_briefs.id is the Eastern date, so a second insert conflicts.
+    // A claim left behind by a run that died mid-flight expires after
+    // BRIEF_CLAIM_LEASE_MS and is taken over atomically. ?force=1 (manual
+    // re-send) skips the claim on purpose. Any other claim error fails open,
+    // matching the existing "persistence never blocks the send" rule.
+    const claimDay = getEasternCalendarDate()
+    const willDeliver = !!process.env.RESEND_API_KEY && !!subscribers?.length
+    if (!forceSend && willDeliver) {
+      const claim = await claimTodaysBrief(getSupabase(), claimDay.iso)
+      if (claim.status === 'taken') {
+        console.log(`[DailyBrief] Brief for ${claimDay.iso} already sent or in progress — skipping duplicate run`)
+        return NextResponse.json({
+          success: true,
+          skipped: true,
+          reason: 'Brief already sent or in progress today',
+          date: claimDay.iso,
+        })
+      }
+      if (claim.status === 'error') {
+        console.error('[DailyBrief] Could not claim today\'s brief, continuing without the guard:', claim.message)
+      } else {
+        const heldContent = claim.content
+        heldClaimContent = heldContent
+        releaseClaim = async () => {
+          const { error } = await getSupabase().from('daily_briefs').delete().eq('id', claimDay.iso).eq('content', heldContent)
+          if (error) console.error('[DailyBrief] Failed to release claim:', error.message)
+        }
+      }
     }
 
     // ── Step 1: Get top articles from the last 24 hours ──
@@ -98,6 +106,7 @@ export async function GET(request: Request) {
       .limit(7)
 
     if (articlesError) {
+      await releaseClaim?.()
       return NextResponse.json({ error: `DB query failed: ${articlesError.message}` }, { status: 500 })
     }
 
@@ -113,7 +122,9 @@ export async function GET(request: Request) {
         content: 'No qualifying articles today — no brief generated or sent.',
         article_count: 0,
         article_ids: [],
-      }, { onConflict: 'id', ignoreDuplicates: true })
+      // With our claim held, the only row today is the claim, so replace it;
+      // a forced run keeps ignoreDuplicates so it never clobbers a real brief.
+      }, { onConflict: 'id', ignoreDuplicates: !releaseClaim })
       if (skipSaveError) console.error('[DailyBrief] Failed to persist skip heartbeat:', skipSaveError.message)
       return NextResponse.json({
         success: true,
@@ -129,6 +140,7 @@ export async function GET(request: Request) {
     // ── Step 2: Generate AI brief ──
     const hasAIKey = process.env.AI_GATEWAY_API_KEY || process.env.ANTHROPIC_API_KEY
     if (!hasAIKey) {
+      await releaseClaim?.()
       return NextResponse.json({
         error: 'No AI API key configured',
         articles: topArticles.length,
@@ -177,25 +189,40 @@ ${topArticles.map((a: any, i: number) => `${i + 1}. "${a.title}" (${a.source_nam
       ;({ error: briefSaveError } = await getSupabase().from('daily_briefs').upsert(briefRow, { onConflict: 'id' }))
       if (briefSaveError) console.error('[DailyBrief] Brief persistence failed after retry:', briefSaveError.message)
     }
+    // While we hold a claim, the row must stop looking like a claim before we
+    // mail anyone; otherwise, once the lease expires, a retry would take it over
+    // and send a second time. If the brief couldn't be saved, try a small
+    // non-claim marker instead; if even that fails, don't send: release the
+    // claim and return 500 so a retry (or ?force=1) can do the whole run.
+    // Unguarded runs (forced, or claim error) keep "persistence never blocks
+    // the send".
+    if (releaseClaim && briefSaveError) {
+      const { data: marked, error: markError } = await getSupabase()
+        .from('daily_briefs')
+        .update({ content: `Brief delivery started at ${new Date().toISOString()} (brief text not archived: ${briefSaveError.message})` })
+        .eq('id', today.iso)
+        .eq('content', heldClaimContent)
+        .select('id')
+      if (markError || !marked?.length) {
+        console.error('[DailyBrief] Could not record that delivery is starting; not sending, to avoid a duplicate on retry:', markError?.message ?? 'claim no longer held')
+        await releaseClaim()
+        return NextResponse.json({
+          error: 'Brief could not be recorded as sent, so no emails were sent; retry, or re-send with ?force=1',
+          briefPersisted: false,
+          briefPersistError: briefSaveError.message,
+        }, { status: 500 })
+      }
+    }
+    // The day is now recorded and delivery follows immediately. From here a
+    // retry is skipped even if sending fails part-way, because some subscribers
+    // may already have it; use ?force=1 to re-send deliberately.
+    releaseClaim = null
     const persistence = {
       briefPersisted: !briefSaveError,
       ...(briefSaveError ? { briefPersistError: briefSaveError.message } : {}),
     }
 
-    // ── Step 3: Fetch all subscribers ──
-    const { data: subscribers, error: subError } = await getSupabase()
-      .from('subscribers')
-      .select('email, first_name')
-
-    if (subError) {
-      console.error('[DailyBrief] Failed to fetch subscribers:', subError.message)
-      return NextResponse.json({
-        error: `Failed to fetch subscribers: ${subError.message}`,
-        brief: response.text, // Still return the brief even if email fails
-        ...persistence,
-      }, { status: 500 })
-    }
-
+    // ── Step 3: Subscribers were fetched before the claim (Step 0) ──
     if (!subscribers?.length) {
       console.log('[DailyBrief] No subscribers found — brief generated but no emails sent')
       return NextResponse.json({
@@ -260,6 +287,7 @@ ${topArticles.map((a: any, i: number) => `${i + 1}. "${a.title}" (${a.source_nam
       date: new Date().toISOString()
     })
   } catch (error) {
+    await releaseClaim?.()
     console.error('Daily brief error:', error)
     return NextResponse.json(
       { error: 'Failed to generate daily brief', details: String(error) },
