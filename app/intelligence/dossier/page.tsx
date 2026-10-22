@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { ArrowRight, BookOpen, Download, LineChart, ShieldCheck } from 'lucide-react'
 import { PremiumSiteHeader } from '@/components/premium-site-header'
 import { PremiumSiteFooter } from '@/components/premium-site-footer'
+import { UpgradeCta } from '@/components/upgrade-cta'
 import { DossierSponsorCredit } from '@/components/dossier-sponsor-credit'
 import { getDossierSponsor } from '@/lib/sponsorship'
 
@@ -62,6 +63,8 @@ export default function DossierPage() {
           <div className="editorial-elevated rounded-2xl border border-border bg-card p-5"><dt className="text-sm text-muted-foreground">Marketplace sellers thriving</dt><dd className="mt-2 text-3xl font-bold tabular-nums">23%</dd><dd className="mt-1 text-xs text-muted-foreground">38% distressed · Marketplace Pulse</dd></div>
           <div className="editorial-elevated rounded-2xl border border-border bg-card p-5"><dt className="text-sm text-muted-foreground">Forecasts logged for scoring</dt><dd className="mt-2 text-3xl font-bold tabular-nums">12</dd><dd className="mt-1 text-xs text-muted-foreground">first four resolve Jan 2027</dd></div>
         </dl>
+
+        <UpgradeCta placement="dossier_top" headline="Want the data behind this dossier and every edition first?" className="my-8" />
 
         <section className="my-10" aria-labelledby="findings-title">
           <p className="editorial-eyebrow">Executive brief</p>

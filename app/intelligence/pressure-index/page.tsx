@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { PremiumSiteHeader } from '@/components/premium-site-header'
 import { PremiumSiteFooter } from '@/components/premium-site-footer'
+import { UpgradeCta } from '@/components/upgrade-cta'
 import { JsonLd } from '@/components/json-ld'
 import { computePressureIndex, loadPressureArticles, MIN_CURRENT, type PressureIndexResult } from '@/lib/pressure-index'
 
@@ -149,6 +150,7 @@ export default async function PressureIndexPage() {
             <Link href={CTA} className="mt-5 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700">Get the free brief<ArrowRight className="h-4 w-4" /></Link>
           </aside>
         </section>
+        <UpgradeCta placement="pressure_index" headline="Get the movers explained, with the operator move, every week" className="mt-12" />
       </main>
       <PremiumSiteFooter />
     </div>
