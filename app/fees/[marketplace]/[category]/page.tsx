@@ -16,6 +16,8 @@ import {
 import { ArrowUpRight, ExternalLink } from "lucide-react"
 import { AMAZON_PEAK_PATH } from "@/lib/amazon-holiday-peak-2026"
 import { RecommendedTools } from "@/components/recommended-tools"
+import { SponsoredToolListing } from "@/components/sponsored-tool-listing"
+import { sponsoredListingFor } from "@/lib/sponsored-listing"
 import { getRecommendedOffers } from "@/lib/affiliates"
 import { getPairsFor } from "@/lib/fee-compare"
 import { ShareButtons } from "@/components/share-buttons"
@@ -275,6 +277,12 @@ export default async function FeeCategoryPage({ params }: PageProps) {
             })}
           </div>
         </section>
+
+        <SponsoredToolListing
+          listing={sponsoredListingFor("fees", [marketplace.slug])}
+          placement={`fees-${marketplace.slug}`}
+          className="mt-12"
+        />
 
         <RecommendedTools
           offers={getRecommendedOffers({ marketplace: marketplace.slug, topic: "profitability" })}
