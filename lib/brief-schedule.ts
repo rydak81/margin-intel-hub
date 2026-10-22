@@ -48,14 +48,18 @@ export async function claimTodaysBrief(db: Db, dayIso: string, now: Date = new D
   if (!error) return { status: 'claimed', content }
   if (error.code !== '23505') return { status: 'error', message: error.message }
 
+  // Past this point a row for today provably exists (the insert hit the unique
+  // id), so a transient read/swap failure must fail CLOSED: sending anyway
+  // could duplicate the brief to every subscriber, while skipping costs at
+  // most one takeover attempt of an already-abandoned claim.
   const { data: existing, error: readError } = await db.from('daily_briefs').select('content').eq('id', dayIso).maybeSingle()
-  if (readError) return { status: 'error', message: readError.message }
+  if (readError) return { status: 'taken' }
   const at = claimedAt(existing?.content)
   if (!at || now.getTime() - at.getTime() < BRIEF_CLAIM_LEASE_MS) return { status: 'taken' }
 
   const { data: swapped, error: swapError } = await db.from('daily_briefs')
     .update({ content }).eq('id', dayIso).eq('content', existing!.content).select('id')
-  if (swapError) return { status: 'error', message: swapError.message }
+  if (swapError) return { status: 'taken' }
   return swapped?.length ? { status: 'claimed', content } : { status: 'taken' }
 }
 
