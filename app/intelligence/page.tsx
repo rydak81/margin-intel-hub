@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { PremiumSiteHeader } from '@/components/premium-site-header'
 import { PremiumSiteFooter } from '@/components/premium-site-footer'
+import { UpgradeCta } from '@/components/upgrade-cta'
 import { IntelligenceDashboard } from '@/components/intelligence-dashboard'
 import { viewFromSearch } from '@/lib/intelligence-view'
 import { loadIntelligenceSnapshot } from '@/lib/intelligence-data'
@@ -42,5 +43,6 @@ export default async function IntelligencePage({ searchParams }: { searchParams:
         <p className="mt-4 text-sm font-bold text-primary">Read the analysis →</p>
       </Link></li>)}</ul>
     </section>}
-    <IntelligenceDashboard snapshot={snapshot} initialView={initialView} /></main><PremiumSiteFooter /></div>
+    <IntelligenceDashboard snapshot={snapshot} initialView={initialView} />
+    <UpgradeCta placement="intelligence_dashboard" headline="The dashboard shows what is happening. Pro tells you what to do about it." className="mt-12" /></main><PremiumSiteFooter /></div>
 }

@@ -20,6 +20,7 @@ import {
   Waves,
 } from "lucide-react"
 import { PremiumSiteFooter } from "@/components/premium-site-footer"
+import { UpgradeCta } from "@/components/upgrade-cta"
 import { PremiumSiteHeader } from "@/components/premium-site-header"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -441,6 +442,8 @@ export default async function ArticlePage({
                 </Button>
               </CardContent>
             </Card>
+
+            <UpgradeCta placement="article_sidebar" variant="card" headline="What does this mean for your margins?" />
 
             {relatedArticles.length > 0 ? (
               <div>
