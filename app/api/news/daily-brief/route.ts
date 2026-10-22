@@ -66,8 +66,12 @@ export async function GET(request: Request) {
     // twice: daily_briefs.id is the Eastern date, so a second insert conflicts.
     // A claim left behind by a run that died mid-flight expires after
     // BRIEF_CLAIM_LEASE_MS and is taken over atomically. ?force=1 (manual
-    // re-send) skips the claim on purpose. Any other claim error fails open,
-    // matching the existing "persistence never blocks the send" rule.
+    // re-send) skips the claim on purpose. An error on the INITIAL insert
+    // (row existence unknown) fails open, matching the existing "persistence
+    // never blocks the send" rule; once the insert has hit the unique id,
+    // claimTodaysBrief fails CLOSED on transient read/swap errors, because a
+    // row for today provably exists and sending anyway could duplicate the
+    // brief to every subscriber.
     const claimDay = getEasternCalendarDate()
     const willDeliver = !!process.env.RESEND_API_KEY && !!subscribers?.length
     if (!forceSend && willDeliver) {
