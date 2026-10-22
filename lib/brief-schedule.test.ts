@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { BRIEF_CLAIM_LEASE_MS, briefClaimContent, claimedAt, getEasternCalendarDate, isBriefSendWindow } from './brief-schedule'
+import { BRIEF_CLAIM_LEASE_MS, briefClaimContent, claimTodaysBrief, claimedAt, getEasternCalendarDate, isBriefSendWindow } from './brief-schedule'
 
 const mocks = vi.hoisted(() => ({ client: vi.fn(), callAI: vi.fn(), send: vi.fn() }))
 vi.mock('@supabase/supabase-js', () => ({ createClient: mocks.client }))
@@ -267,6 +267,30 @@ describe('Daily Brief route: brief archive fails while a claim is held', () => {
     expect(res.error).toMatch(/no emails were sent/)
     expect(mocks.send).not.toHaveBeenCalled()
     expect(briefs.has('2026-11-02')).toBe(false)
+  })
+})
+
+describe('claim fails closed after a confirmed duplicate', () => {
+  const conflictingDb = (after: { readError?: boolean; swapError?: boolean }) => ({
+    from: () => ({
+      insert: async () => ({ error: { code: '23505', message: 'duplicate key' } }),
+      select: () => {
+        const q: any = { eq: () => q, maybeSingle: async () => after.readError
+          ? { data: null, error: { message: 'db restarting' } }
+          : { data: { content: briefClaimContent(new Date(Date.now() - BRIEF_CLAIM_LEASE_MS - 60_000)) }, error: null } }
+        return q
+      },
+      update: () => {
+        const q: any = { eq: () => q, select: async () => ({ data: null, error: { message: 'db restarting' } }) }
+        return q
+      },
+    }),
+  })
+  it('a transient read error after the 23505 skips the send instead of running unguarded', async () => {
+    expect(await claimTodaysBrief(conflictingDb({ readError: true }) as any, '2026-11-03')).toEqual({ status: 'taken' })
+  })
+  it('a transient swap error during takeover skips the send instead of running unguarded', async () => {
+    expect(await claimTodaysBrief(conflictingDb({ swapError: true }) as any, '2026-11-03')).toEqual({ status: 'taken' })
   })
 })
 
