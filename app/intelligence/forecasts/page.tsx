@@ -4,6 +4,7 @@ import { ArrowRight } from 'lucide-react'
 import { PremiumSiteHeader } from '@/components/premium-site-header'
 import { PremiumSiteFooter } from '@/components/premium-site-footer'
 import { JsonLd } from '@/components/json-ld'
+import { UpgradeCta } from '@/components/upgrade-cta'
 import { FORECAST_EDITION, loadForecasts, scoreForecasts, type ForecastStatus } from '@/lib/forecasts'
 import { loadLatestAnalystRun } from '@/lib/analyst'
 
@@ -119,6 +120,8 @@ export default async function ForecastScorecardPage() {
             <p className="mt-5 text-xs leading-6 text-muted-foreground">Written by our analyst agent, which runs daily over the newly classified coverage with its own persistent memory, checks every open forecast&rsquo;s indicators against the evidence, and corrects its earlier conclusions when the data turns. Its indicator reads appear on the ledger above.</p>
           </section>
         ) : null}
+
+        <UpgradeCta placement="forecasts_table" headline="Track every indicator behind these forecasts, monthly" className="mt-10" />
 
         <section className="mt-12 grid gap-8 lg:grid-cols-[1.4fr_1fr]">
           <div>
