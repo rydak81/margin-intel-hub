@@ -18,16 +18,28 @@ export interface AffiliateOffer {
   envVar: string
   fallbackUrl: string
   url: string
+  /** URL configuration only; not proof of merchant approval, attribution or payouts. */
+  affiliateLinkConfigured: boolean
   marketplaces: AffiliateMarketplace[]
   topics: SponsorTopic[]
 }
 
-function pick(value: string | undefined, fallback: string): string {
-  const v = value?.trim()
-  return v && /^https?:\/\//.test(v) ? v : fallback
+export function affiliateDestination(value: string | undefined, fallback: string): Pick<AffiliateOffer, 'url' | 'affiliateLinkConfigured'> {
+  const direct = { url: fallback, affiliateLinkConfigured: false }
+  if (!value?.trim()) return direct
+  try {
+    const url = new URL(value.trim())
+    if (url.protocol !== 'https:' || url.username || url.password) return direct
+    // Compare by components: `href` preserves a bare trailing "?" or "#"
+    // (empty query/fragment delimiters) that carries no referral data, and
+    // such a URL must still count as the unchanged homepage.
+    const key = (u: URL) => u.origin + u.pathname + u.search + u.hash
+    if (key(url) === key(new URL(fallback))) return direct
+    return { url: url.href, affiliateLinkConfigured: true }
+  } catch { return direct }
 }
 
-type OfferSeed = Omit<AffiliateOffer, 'url'>
+type OfferSeed = Omit<AffiliateOffer, 'url' | 'affiliateLinkConfigured'>
 
 const SEEDS: { seed: OfferSeed; value: string | undefined }[] = [
   {
@@ -77,7 +89,7 @@ const SEEDS: { seed: OfferSeed; value: string | undefined }[] = [
   },
 ]
 
-export const AFFILIATE_OFFERS: AffiliateOffer[] = SEEDS.map(({ seed, value }) => ({ ...seed, url: pick(value, seed.fallbackUrl) }))
+export const AFFILIATE_OFFERS: AffiliateOffer[] = SEEDS.map(({ seed, value }) => ({ ...seed, ...affiliateDestination(value, seed.fallbackUrl) }))
 
 export const AFFILIATE_ENV_VARS = AFFILIATE_OFFERS.map(o => o.envVar)
 
