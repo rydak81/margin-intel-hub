@@ -30,7 +30,11 @@ export function affiliateDestination(value: string | undefined, fallback: string
   try {
     const url = new URL(value.trim())
     if (url.protocol !== 'https:' || url.username || url.password) return direct
-    if (url.href === new URL(fallback).href) return direct
+    // Compare by components: `href` preserves a bare trailing "?" or "#"
+    // (empty query/fragment delimiters) that carries no referral data, and
+    // such a URL must still count as the unchanged homepage.
+    const key = (u: URL) => u.origin + u.pathname + u.search + u.hash
+    if (key(url) === key(new URL(fallback))) return direct
     return { url: url.href, affiliateLinkConfigured: true }
   } catch { return direct }
 }

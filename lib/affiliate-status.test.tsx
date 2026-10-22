@@ -9,7 +9,7 @@ const fallback = 'https://vendor.example/'
 const offer = (configured: boolean, id = 'fixture') => ({ id, name: 'Fixture', category: 'Tools', blurb: 'Synthetic fixture', url: fallback, affiliateLinkConfigured: configured })
 
 describe('affiliate destination configuration', () => {
-  it.each([undefined, '', '   ', fallback, 'https://vendor.example', 'https://', 'javascript:alert(1)', 'http://vendor.example/?ref=fixture', 'https://user:secret@vendor.example/'])('does not report a usable affiliate URL for %s', value => {
+  it.each([undefined, '', '   ', fallback, 'https://vendor.example', 'https://vendor.example/?', 'https://vendor.example/#', 'https://', 'javascript:alert(1)', 'http://vendor.example/?ref=fixture', 'https://user:secret@vendor.example/'])('does not report a usable affiliate URL for %s', value => {
     expect(affiliateDestination(value, fallback)).toEqual({ url: fallback, affiliateLinkConfigured: false })
   })
   it('preserves merchant-issued referral parameters without claiming approval', () => {
