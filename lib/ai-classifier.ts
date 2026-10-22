@@ -95,7 +95,9 @@ export interface RawArticle {
   originalRssImage?: string // Original RSS image before fallback
   hasRealImage?: boolean // Flag for hero selection
   tier: number
-  sourceType: 'industry' | 'google'
+  // 'original' marks a first-party post (indexable, see lib/seo-indexing.ts);
+  // the ingest pipeline itself only produces 'industry' and 'google'.
+  sourceType: 'industry' | 'google' | 'original'
 }
 
 export interface ClassifiedArticle extends RawArticle {

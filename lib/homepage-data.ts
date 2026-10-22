@@ -40,7 +40,7 @@ export interface NewsArticle {
   hasRealImage?: boolean
   platforms?: string[]
   tier?: number
-  sourceType?: "industry" | "google"
+  sourceType?: "industry" | "google" | "original"
   audience?: string[]
   impactLevel?: "high" | "medium" | "low"
   impactDetail?: string
