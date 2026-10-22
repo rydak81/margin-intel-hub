@@ -3,6 +3,9 @@ import Link from 'next/link'
 import { PremiumSiteHeader } from '@/components/premium-site-header'
 import { PremiumSiteFooter } from '@/components/premium-site-footer'
 import { latestAnalysis } from '@/lib/analysis'
+import { JsonLd } from '@/components/json-ld'
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://marketplacebeta.com'
 
 export const metadata: Metadata = {
   title: 'Operator Analysis: Original Marketplace Intelligence | MarketplaceBeta',
@@ -13,7 +16,18 @@ const fmtDate = (iso: string) => new Date(`${iso}T00:00:00Z`).toLocaleDateString
 
 export default function AnalysisIndexPage() {
   const items = latestAnalysis()
-  return <div className="min-h-screen bg-background"><PremiumSiteHeader active="analysis" backHref="/intelligence" backLabel="Intelligence" ctaHref="/newsletter?source=campaign_analysis#subscribe" />
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Original analysis for operators',
+    url: `${SITE_URL}/intelligence/analysis`,
+    isPartOf: { '@type': 'WebSite', name: 'MarketplaceBeta', url: SITE_URL },
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: items.map((a, i) => ({ '@type': 'ListItem', position: i + 1, url: `${SITE_URL}/intelligence/analysis/${a.slug}`, name: a.headline })),
+    },
+  }
+  return <div className="min-h-screen bg-background"><JsonLd data={jsonLd} /><PremiumSiteHeader active="analysis" backHref="/intelligence" backLabel="Intelligence" ctaHref="/newsletter?source=campaign_analysis#subscribe" />
     <main className="mx-auto site-width px-4 py-10 sm:px-6">
       <section className="max-w-3xl">
         <p className="text-xs font-bold uppercase tracking-[.22em] text-blue-700 dark:text-blue-300">MarketplaceBeta Intelligence · Analysis</p>

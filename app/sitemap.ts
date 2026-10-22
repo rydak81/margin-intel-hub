@@ -8,6 +8,7 @@ import { CHECKED_ON as AMAZON_PEAK_CHECKED, AMAZON_PEAK_PATH } from '@/lib/amazo
 import { getAllSaleRoutes, salePath } from '@/lib/sale-fee-pages'
 import { FEE_CHANGELOG } from '@/lib/fee-changelog'
 import { ANALYSIS_ARTICLES } from '@/lib/analysis'
+import { INDEXABLE_NEWS_SOURCE_TYPES, dedupeByTitle } from '@/lib/seo-indexing'
 
 export const revalidate = 300
 
@@ -49,7 +50,9 @@ const staticRoutes: MetadataRoute.Sitemap = [
     changeFrequency: 'weekly' as const,
     priority: 0.7,
   })),
-  ...['partners', 'solutions', 'community', 'sponsor'].map(path => ({
+  // /partners, /solutions and /community redirect (next.config.mjs), so only
+  // their destinations belong in the sitemap.
+  ...['sponsor'].map(path => ({
     url: `${siteUrl}/${path}`,
     lastModified: new Date(SITE_SECTIONS_UPDATED),
     changeFrequency: 'weekly' as const,
@@ -98,6 +101,7 @@ type SitemapArticleRow = {
   summary: string | null
   ai_summary: string | null
   published_at: string | null
+  source_type: string | null
 }
 
 async function getArticleRoutes(): Promise<MetadataRoute.Sitemap> {
@@ -112,7 +116,9 @@ async function getArticleRoutes(): Promise<MetadataRoute.Sitemap> {
     const supabase = createAdminClient()
     const { data, error } = await supabase
       .from('articles')
-      .select('id, title, category, summary, ai_summary, published_at')
+      .select('id, title, category, summary, ai_summary, published_at, source_type')
+      // Only first-party posts; ingested briefings are noindex (lib/seo-indexing.ts).
+      .in('source_type', [...INDEXABLE_NEWS_SOURCE_TYPES])
       .eq('relevant', true)
       .gte('relevance_score', 40)
       .order('published_at', { ascending: false })
@@ -123,7 +129,7 @@ async function getArticleRoutes(): Promise<MetadataRoute.Sitemap> {
       return []
     }
 
-    return ((data ?? []) as SitemapArticleRow[]).filter(article => isOperatorRelevant({ ...article, summary: article.summary || "", aiSummary: article.ai_summary || "" })).map((article) => ({
+    return dedupeByTitle((data ?? []) as SitemapArticleRow[]).filter(article => isOperatorRelevant({ ...article, summary: article.summary || "", aiSummary: article.ai_summary || "" })).map((article) => ({
       url: `${siteUrl}/news/${article.id}`,
       ...(article.published_at && Number.isFinite(Date.parse(article.published_at)) ? { lastModified: new Date(article.published_at) } : {}),
       changeFrequency: 'weekly',

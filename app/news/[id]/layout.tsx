@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import { isOperatorRelevant } from '@/lib/operator-editorial-policy'
 import { datedSummary } from '@/lib/news-freshness'
+import { isIndexableNewsArticle, splitSourceSuffix, withheldSummaryDescription } from '@/lib/seo-indexing'
 import { createClient } from '@supabase/supabase-js'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -16,7 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
   const { data: article } = await supabase
     .from('articles')
-    .select('id, title, ai_summary, summary, image_url, source_name, category, impact_level, platforms, relevant, published_at')
+    .select('id, title, ai_summary, summary, image_url, source_name, source_type, category, impact_level, platforms, relevant, published_at')
     .eq('id', id)
     .single()
 
@@ -24,7 +25,12 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     return { title: 'Article Not Found | MarketplaceBeta', robots: { index: false, follow: true } }
   }
 
-  const description = datedSummary(article.ai_summary || article.summary || 'Read the full analysis on MarketplaceBeta', article.published_at)
+  const rawSummary = article.ai_summary || article.summary || 'Read the full analysis on MarketplaceBeta'
+  const { headline, publisher } = splitSourceSuffix(article.title, article.source_name)
+  const dated = datedSummary(rawSummary, article.published_at)
+  // A withheld (stale, time-relative) summary falls back to a per-page line
+  // instead of one boilerplate sentence shared across many URLs.
+  const description = dated === rawSummary ? dated : withheldSummaryDescription(headline, publisher ?? article.source_name, article.published_at)
   const truncatedDesc = description.length > 200 ? description.substring(0, 197) + '...' : description
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://marketplacebeta.com'
   // Use dynamic OG image generator for all articles (branded, consistent)
@@ -32,9 +38,10 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const articleUrl = `${siteUrl}/news/${article.id}`
 
   return {
-    title: `${article.title} | MarketplaceBeta`,
+    title: `${headline} | MarketplaceBeta`,
     description: truncatedDesc,
-    robots: { index: isOperatorRelevant({ ...article, aiSummary: article.ai_summary }), follow: true },
+    // Ingested third-party briefings are noindex,follow; see lib/seo-indexing.ts.
+    robots: { index: isIndexableNewsArticle(article) && isOperatorRelevant({ ...article, aiSummary: article.ai_summary }), follow: true },
     alternates: {
       canonical: articleUrl,
     },

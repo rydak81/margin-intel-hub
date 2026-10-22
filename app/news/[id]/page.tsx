@@ -1,6 +1,6 @@
 import { ArticleImage } from "@/components/article-image"
 import Link from "next/link"
-import Script from "next/script"
+import { JsonLd } from "@/components/json-ld"
 import { notFound } from "next/navigation"
 import {
   ArrowRight,
@@ -32,6 +32,7 @@ import type { ClassifiedArticle } from "@/lib/ai-classifier"
 import { getArticleById, getRelatedArticles } from "@/lib/article-store"
 import { getSourceIntelligence } from "@/lib/source-intelligence"
 import { LinkedInPostGenerator } from "@/components/linkedin-post-generator"
+import { latestAnalysis } from "@/lib/analysis"
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString("en-US", {
@@ -146,19 +147,28 @@ export default async function ArticlePage({
         url: `${siteUrl}/brand-icon.png`,
       },
     },
+    // The briefing (summary, operator take, next steps) is MarketplaceBeta's;
+    // the underlying report is credited via isBasedOn rather than as author.
     author: {
       "@type": "Organization",
-      name: article.sourceName || "MarketplaceBeta",
+      name: "MarketplaceBeta",
+      url: siteUrl,
     },
+    ...(article.sourceUrl
+      ? {
+          isBasedOn: {
+            "@type": "CreativeWork",
+            url: article.sourceUrl,
+            ...(article.sourceName ? { publisher: { "@type": "Organization", name: article.sourceName } } : {}),
+          },
+        }
+      : {}),
   }
 
   return (
     <div className="min-h-screen bg-background">
-      <Script
-        id={`news-article-jsonld-${article.id}`}
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
-      />
+      {/* Server-rendered so the structured data is in the initial HTML. */}
+      <JsonLd data={articleJsonLd} />
       <PremiumSiteHeader active="news" deskLabel="Intelligence Brief" backHref="/news" backLabel="News Desk" />
 
       <main className="site-width mx-auto px-4 py-8">
@@ -443,6 +453,34 @@ export default async function ArticlePage({
               </CardContent>
             </Card>
 
+            {/* Crawlable links from every briefing into the indexed original-analysis section. */}
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="font-bold text-base mb-3">Original analysis</h3>
+                <ul className="space-y-3 text-sm">
+                  {latestAnalysis(3).map((a) => (
+                    <li key={a.slug}>
+                      <Link href={`/intelligence/analysis/${a.slug}`} className="font-semibold hover:text-primary">
+                        {a.headline}
+                      </Link>
+                    </li>
+                  ))}
+                  <li>
+                    <Link href="/intelligence/pressure-index" className="font-semibold hover:text-primary">
+                      Marketplace Pressure Index
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/intelligence/forecasts" className="font-semibold hover:text-primary">
+                      Forecast scorecard
+                    </Link>
+                  </li>
+                </ul>
+                <Link href="/intelligence/analysis" className="mt-4 inline-block text-sm font-bold text-primary">
+                  All analysis →
+                </Link>
+              </CardContent>
+            </Card>
             <UpgradeCta placement="article_sidebar" variant="card" headline="What does this mean for your margins?" />
 
             {relatedArticles.length > 0 ? (
