@@ -15,6 +15,9 @@ export const revalidate = 300
 // Last substantive update to the tools / partner / community sections.
 const SITE_SECTIONS_UPDATED = '2026-10-16'
 
+// /pricing launched 2026-10-21 (#97).
+const PRICING_UPDATED = '2026-10-21'
+
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://marketplacebeta.com'
 
 const staticRoutes: MetadataRoute.Sitemap = [
@@ -50,6 +53,12 @@ const staticRoutes: MetadataRoute.Sitemap = [
     changeFrequency: 'weekly' as const,
     priority: 0.7,
   })),
+  {
+    url: `${siteUrl}/pricing`,
+    lastModified: new Date(PRICING_UPDATED),
+    changeFrequency: 'weekly',
+    priority: 0.8,
+  },
   // /partners, /solutions and /community redirect (next.config.mjs), so only
   // their destinations belong in the sitemap.
   ...['sponsor'].map(path => ({

@@ -6,10 +6,16 @@ import { PremiumSiteFooter } from '@/components/premium-site-footer'
 import { UpgradeLink } from '@/components/upgrade-link'
 import { DOSSIER_OPERATOR_FEATURES, FREE_FEATURES, PRO_FEATURES, resolveOffers } from '@/lib/paid-offer'
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://marketplacebeta.com'
+const title = 'Pricing: Free Brief and MarketplaceBeta Pro | MarketplaceBeta'
+// Under ~160 characters so it is not truncated in results; every item is on the page (lib/paid-offer.ts).
+const description = 'Free: the Daily Marketplace Brief, forecast scorecard, Marketplace Pressure Index and fee tools. Pro adds a weekly memo, forecast tracker and Dossier data.'
+
 export const metadata: Metadata = {
-  title: 'Pricing: Free Brief and MarketplaceBeta Pro | MarketplaceBeta',
-  description: 'The Daily Marketplace Brief and public intelligence stay free. MarketplaceBeta Pro adds a weekly decision memo, a forecast tracker, every Dossier edition first with data, and research on your questions.',
-  alternates: { canonical: 'https://marketplacebeta.com/pricing' },
+  title,
+  description,
+  alternates: { canonical: `${SITE_URL}/pricing` },
+  openGraph: { title, description, url: `${SITE_URL}/pricing`, type: 'website' },
 }
 
 const FAQ = [
@@ -23,7 +29,7 @@ export default function PricingPage() {
   const { pro, dossier } = resolveOffers()
   return (
     <div className="min-h-screen bg-background">
-      <PremiumSiteHeader active="intelligence" backHref="/intelligence" backLabel="Intelligence" />
+      <PremiumSiteHeader active="pricing" backHref="/intelligence" backLabel="Intelligence" />
       <main className="mx-auto site-width px-4 py-10 sm:px-6">
         <section className="max-w-3xl">
           <p className="text-xs font-bold uppercase tracking-[.22em] text-blue-700 dark:text-blue-300">Pricing</p>
