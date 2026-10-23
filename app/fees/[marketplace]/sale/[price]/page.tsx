@@ -9,6 +9,7 @@ import { AMAZON_PEAK_PATH } from '@/lib/amazon-holiday-peak-2026'
 import { formatVerifiedDate } from '@/lib/marketplace-fees'
 import { SALE_PRICES, feeRangeLabel, getAllSaleRoutes, money, ogImageUrl, parseSalePrice, saleFeeSummary, salePath } from '@/lib/sale-fee-pages'
 import { getPairsFor } from '@/lib/fee-compare'
+import { TIKTOK_FEE_CHANGE_PATH } from '@/lib/tiktok-fee-change-2026'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://marketplacebeta.com'
 
@@ -94,6 +95,7 @@ export default async function SaleFeePage({ params }: PageProps) {
         <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">How much does {m.shortName} take from a ${s.price} sale?</h1>
         <p className="mt-4 text-5xl font-bold text-sky-600 tabular-nums">{range}</p>
         <p className="mt-3 text-lg leading-relaxed text-muted-foreground">{faqs[0].answer}</p>
+        {m.slug === 'tiktok-shop' && <p className="mt-2 text-sm"><Link href={TIKTOK_FEE_CHANGE_PATH} className="font-medium text-primary underline underline-offset-4">Seeing 8% on your statement? What&apos;s confirmed about the 2026 TikTok Shop fee change</Link></p>}
         <ShareButtons className="mt-5" url={canonical} placement={`sale-${m.slug}-${s.price}`} text={`${m.shortName} takes ${range} from a $${s.price} sale. Category-by-category breakdown:`} />
 
         <section className="mt-8 overflow-x-auto rounded-xl border border-border">

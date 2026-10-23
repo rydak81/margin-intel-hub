@@ -30,6 +30,7 @@ export default function FeeChangelogPage() {
               <p className="text-sm font-semibold text-muted-foreground"><time dateTime={entry.date}>{fmt(entry.date)}</time></p>
               <h2 className="mt-1 text-2xl font-bold">{entry.title}</h2>
               <p className="mt-3 leading-7 text-muted-foreground">{entry.summary}</p>
+              {entry.explainer && <p className="mt-3 text-sm"><Link href={entry.explainer.href} className="font-medium text-primary underline underline-offset-4">{entry.explainer.label}</Link></p>}
               <div className="mt-5 overflow-x-auto">
                 <table className="w-full min-w-[640px] text-left text-sm">
                   <thead className="border-b border-border text-xs uppercase tracking-wider text-muted-foreground"><tr><th className="py-2 pr-4">Marketplace</th><th className="py-2 pr-4">Category</th><th className="py-2 pr-4">Before</th><th className="py-2">After</th></tr></thead>

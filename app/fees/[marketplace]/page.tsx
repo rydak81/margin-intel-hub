@@ -7,6 +7,7 @@ import { MARKETPLACES, orderFeeLabel, formatVerifiedDate, getMarketplace } from 
 import { ExternalLink } from "lucide-react"
 import { AMAZON_PEAK_PATH } from "@/lib/amazon-holiday-peak-2026"
 import { JsonLd } from "@/components/json-ld"
+import { TIKTOK_FEE_CHANGE_PATH } from "@/lib/tiktok-fee-change-2026"
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://marketplacebeta.com"
 
@@ -131,6 +132,14 @@ export default async function MarketplaceFeesPage({ params }: PageProps) {
         <p className="mt-4 leading-relaxed text-slate-600 dark:text-slate-300">
           {marketplace.summary}
         </p>
+
+        {marketplace.slug === "tiktok-shop" && (
+          <p className="mt-3 text-sm">
+            <Link href={TIKTOK_FEE_CHANGE_PATH} className="font-medium text-sky-600 underline underline-offset-4 hover:text-sky-700 dark:text-sky-400">
+              6% or 8%? What&apos;s confirmed about the 2026 TikTok Shop fee change, and how to check your settlement statement
+            </Link>
+          </p>
+        )}
 
         {(marketplace.accountFee || marketplace.perOrderFee || marketplace.listingFee) && (
           <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5">
