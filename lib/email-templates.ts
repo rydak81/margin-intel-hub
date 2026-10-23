@@ -441,7 +441,7 @@ export function generateDossierEmail(subscriberName: string | null | undefined, 
                 <tr>
                   <td>
                     <h1 style="color: #ffffff; font-size: 26px; font-weight: 700; line-height: 1.25; margin: 0 0 8px 0;">The 2026 margin squeeze, and where the next edge is</h1>
-                    <p style="color: #94a3b8; font-size: 14px; margin: 0;">October 2026 &bull; 29 pages &bull; 12 logged forecasts</p>
+                    <p style="color: #94a3b8; font-size: 14px; margin: 0;">October 2026 &bull; 25 pages &bull; 12 logged forecasts</p>
                   </td>
                 </tr>
               </table>

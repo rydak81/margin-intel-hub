@@ -50,7 +50,7 @@ export default function DossierPage() {
                 Read the full dossier<ArrowRight className="h-4 w-4" />
               </a>
               <a href="/intelligence/MarketplaceBeta-Intelligence-Dossier-2026-10.pdf" className="inline-flex items-center gap-2 rounded-lg border border-white/25 px-5 py-3 font-semibold hover:bg-white/10">
-                <Download className="h-4 w-4" />Download the PDF (29 pages)
+                <Download className="h-4 w-4" />Download the PDF (25 pages)
               </a>
             </div>
             <DossierSponsorCredit sponsor={sponsor} />
@@ -82,9 +82,9 @@ export default function DossierPage() {
 
         <section className="my-12 grid gap-6 lg:grid-cols-3" aria-label="What makes this dossier different">
           {[
-            { icon: LineChart, title: 'Proprietary analysis', text: 'Pattern discovery runs on our own archive and market data — coverage-attention indicators, keyword acceleration, and competitive-density structure — with reproducible queries published in the appendix.' },
+            { icon: LineChart, title: 'Proprietary analysis', text: 'Pattern discovery runs on our own archive and market data — coverage-attention indicators, keyword acceleration, and competitive-density structure — with method notes published in the appendix.' },
             { icon: ShieldCheck, title: 'Labeled confidence', text: 'Every claim is tagged Observed, Reported, Hypothesis, or Forecast. Conflicting sources are disclosed, and a could-not-verify list is published rather than papered over.' },
-            { icon: BookOpen, title: 'A scored forecast ledger', text: 'Twelve dated forecasts with confirming and invalidating indicators and resolve-by dates are stored in a database ledger. Future editions must score them — hits and misses alike.' },
+            { icon: BookOpen, title: 'A scored forecast ledger', text: 'Twelve dated forecasts with confirming and invalidating indicators and resolve-by dates are logged in a ledger. Future editions must score them — hits and misses alike.' },
           ].map((item) => (
             <div key={item.title} className="editorial-elevated rounded-2xl border border-border bg-card p-7">
               <item.icon className="h-7 w-7 text-primary" />
