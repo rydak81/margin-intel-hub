@@ -4,6 +4,7 @@
  * Rendered at /fees/changelog.
  */
 import type { MarketplaceSlug } from '@/lib/marketplace-fees'
+import { TIKTOK_FEE_CHANGE_PATH } from '@/lib/tiktok-fee-change-2026'
 
 export interface FeeChange {
   marketplace: MarketplaceSlug
@@ -19,6 +20,8 @@ export interface FeeChangelogEntry {
   summary: string
   sources: string[]
   changes: FeeChange[]
+  /** Optional on-site explainer that covers this change in depth. */
+  explainer?: { href: string; label: string }
 }
 
 export const FEE_CHANGELOG: FeeChangelogEntry[] = [
@@ -62,6 +65,7 @@ export const FEE_CHANGELOG: FeeChangelogEntry[] = [
     title: 'TikTok Shop commission corrected to the published 6%',
     summary: 'TikTok Shop re-verified against its US "Referral Fees by Category" table (page dated 10/08/2026), which lists 6% for most categories and 5% for five fine-jewelry sub-categories. We had modelled 8%, a figure some trade reports date to Aug 4, 2026 but that TikTok has not confirmed publicly. Each TikTok Shop page now notes the reported 8% so you can check it against your settlement statement. The source link is updated because the old Academy URL no longer loads.',
     sources: ['https://seller-us.tiktok.com/university/essay?knowledge_id=5988482086864682&lang=en'],
+    explainer: { href: TIKTOK_FEE_CHANGE_PATH, label: 'Published 6% vs reported 8%: what\'s confirmed, and how to check your settlement statement' },
     changes: [
       { marketplace: 'tiktok-shop', category: 'All modelled categories', before: '8%', after: '6% (reported 8% noted as unconfirmed)' },
     ],

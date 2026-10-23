@@ -51,3 +51,11 @@ test('every source is https, official ones are TikTok-hosted, and copy is clean'
   const text = JSON.stringify({ SOURCES, faqs: faqs() })
   assert.doesNotMatch(text, /keepa|everbee|supabase|\bCPI\b|probabilit/i)
 })
+
+test('the change log entry for the TikTok correction links to the explainer', async () => {
+  const { FEE_CHANGELOG } = await import('@/lib/fee-changelog')
+  const { TIKTOK_FEE_CHANGE_PATH } = await import('@/lib/tiktok-fee-change-2026')
+  const linked = FEE_CHANGELOG.filter(e => e.explainer?.href === TIKTOK_FEE_CHANGE_PATH)
+  assert.equal(linked.length, 1)
+  assert.ok(linked[0].changes.some(c => c.marketplace === 'tiktok-shop'))
+})
