@@ -11,6 +11,7 @@ export const SITE_NAVIGATION = [
   { key: "guides", href: "/guides", label: "Guides" },
   { key: "manufacturing", href: "/desktop-manufacturing", label: "Manufacturing" },
   { key: "events", href: "/events", label: "Events" },
+  { key: "pricing", href: "/pricing", label: "Pricing" },
 ] as const
 
 export const RESEARCH_DESKS = [
