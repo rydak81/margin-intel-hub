@@ -50,7 +50,7 @@ export default function DossierPage() {
                 Read the full dossier<ArrowRight className="h-4 w-4" />
               </a>
               <a href="/intelligence/MarketplaceBeta-Intelligence-Dossier-2026-10.pdf" className="inline-flex items-center gap-2 rounded-lg border border-white/25 px-5 py-3 font-semibold hover:bg-white/10">
-                <Download className="h-4 w-4" />Download the PDF (29 pages)
+                <Download className="h-4 w-4" />Download the PDF (25 pages)
               </a>
             </div>
             <DossierSponsorCredit sponsor={sponsor} />
