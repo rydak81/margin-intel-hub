@@ -226,7 +226,7 @@
       <li>US e-commerce was <strong>$340.2B in Q2 2026, +12.2% YoY</strong>, 17.1% of retail; total retail grew 6.7%. <cite class="src">US Census Bureau, Aug 18, 2026</cite></li>
       <li>Holiday forecasts converge: Adobe <strong>$275.1B online, +6.7%</strong> (Nov 1–Dec 31); Deloitte e-commerce <strong>+7.5–8.4%</strong>; Bain nonstore <strong>+9%</strong> with total retail topping $1T for the first time and <strong>more than half of nominal growth attributable to inflation</strong>. <cite class="src">Adobe Sept 28; Deloitte Sept 10; Bain Sept 3 / Oct 13, 2026</cite></li>
       <li>Consumer stress is visible: Michigan sentiment at a five-month low (46.3, Oct 9), year-ahead inflation expectations 4.7%, over 75% of consumers trading down (McKinsey), and record BNPL use forecast for the holiday ($21.3B, ~8% of online spend). <cite class="src">UMich; McKinsey State of the Consumer 2026; Adobe</cite></li>
-      <li>Tariff pass-through is real but partial: ~26% of 2025–26 tariff increases reached consumer prices, adding roughly 2.9 points to goods CPI by Feb 2026 (NY Fed); Harvard's retail tracker finds consumers bearing ~45% of the border cost. <cite class="src">NY Fed staff report, Oct 2026; Cavallo et al., Sept 2026</cite></li>
+      <li>Tariff pass-through is real but partial: ~26% of 2025–26 tariff increases reached consumer prices, adding roughly 2.9 points to the consumer price index for goods by Feb 2026 (NY Fed); Harvard's retail tracker finds consumers bearing ~45% of the border cost. <cite class="src">NY Fed staff report, Oct 2026; Cavallo et al., Sept 2026</cite></li>
     </ul>
     <h3>The platform scoreboard</h3>
     <div class="tablewrap"><table>
@@ -266,7 +266,7 @@
   <div class="wrap">
     <p class="secno">Section 4</p>
     <h2>Pattern discovery in our own data</h2>
-    <p>This section reports analyses run for this edition on two proprietary datasets: the MarketplaceBeta news archive (8,541 relevant classified articles from 54 fixed sources, March–October 2026) and a 77-SKU refurbished-Apple market snapshot (one marketplace, one audit day). Reproducible queries are in the appendix (Section 12). Findings are labeled honestly: one of them is validated against an outcome; the others are measured facts or hypotheses awaiting the next edition.</p>
+    <p>This section reports analyses run for this edition on two proprietary datasets: the MarketplaceBeta news archive (8,541 relevant classified articles from 54 fixed sources, March–October 2026) and a 77-SKU refurbished-Apple market snapshot (one marketplace, one audit day). Method notes are in the appendix (Section 12). Findings are labeled honestly: one of them is validated against an outcome; the others are measured facts or hypotheses awaiting the next edition.</p>
 
     <h3>4.1 Coverage attention as a leading indicator <span class="tag obs">Observed</span> <span class="tag hyp">Hypothesis as predictor</span></h3>
     <p>We computed each category's share of monthly relevant coverage across our fixed source panel. Logistics coverage rose from a third of all coverage in April to more than half in July — before holiday-season freight commentary became mainstream in late September.</p>
@@ -275,13 +275,13 @@
       <figcaption><strong>Logistics share of relevant trade coverage, by month.</strong> MarketplaceBeta archive, fixed 54-source panel; share of monthly classified-relevant articles. The number of logistics-producing sources <em>fell</em> from 6 to 4 over the same period, ruling out a source-mix explanation: the shift is publishing intensity, not instrumentation.</figcaption>
     </figure>
     <p>The surge was content-confirmed: the underlying articles carried record diesel prints, 3–4x container-rate moves, and explicit Q4 surge warnings from carriers and brokers. Keyword acceleration over the last eight weeks (rate-normalized against the April–August baseline) points the same way: <code>policy</code> 6.9x, <code>diesel</code> 3.5x, <code>rates</code> 2.8x, <code>border</code> 2.7x, <code>truckload</code> 2.5x, <code>fee</code> 2.3x, <code>returns</code> 1.9x. The two quieter accelerations worth watching: <code>walmart</code> (2.7x) and advertising-category coverage, which doubled from its spring level and held through September.</p>
-    <div class="formula"><em>Coverage Pressure Index (CPI_c)</em> — proposed composite, per category c and month m:
+    <div class="formula"><em>Marketplace Pressure Index</em> — proposed composite, per category and month:
 
-CPI_c(m) = share_c(m) / mean(share_c(m−6 … m−1))
-
-share_c  = category c's fraction of classified-relevant articles that month,
-           computed on a FIXED source panel (no additions/removals in window)
-Signal   : CPI ≥ 1.5 for 2 consecutive months = attention regime change
+a category's share of classified-relevant articles that month, relative to
+its own average share over the prior six months, computed on a FIXED source
+panel (no additions/removals in window)
+Signal   : a sustained rise above that baseline for 2 consecutive months =
+           attention regime change
 Status   : one validated episode (logistics, Jul 2026 → confirmed by Sept–Oct
            freight outcomes). n=1. This is a hypothesis generator, not a
            proven predictor; it enters the forecast ledger for scoring.</div>
@@ -311,8 +311,8 @@ DAMH = (market_price − margin_floor_price) / market_price  −  λ · ln(1 + s
 margin_floor_price = fixed_costs / (1 − variable_rate − floor_margin)
 λ ≈ 0.02 (penalty per e-fold of competitor density; calibrate per category)
 Use      : rank acquisition and listing targets; negative DAMH = walk away
-Status   : implemented in spirit in the ProfitTygr sourcing engine (floor math
-           is exact; the density penalty is this edition's proposed extension)</div>
+Status   : the floor math is exact; the density penalty is this edition's
+           proposed extension</div>
 
     <h3>4.3 Cross-dataset read: the squeeze shows up in attention, prices, and surveys at once <span class="tag obs">Observed</span></h3>
     <p>Three independent measurements agree. Our archive shows fees/logistics/advertising displacing general commerce coverage. External surveys show the gross-to-net margin spread at a record. Our market snapshot shows the mechanism at listing level: crowded segments trade below rational floors while platforms collect the same fees either way. When attention data, price data, and survey data triangulate, we treat the finding as high-confidence — and the triangulation method itself is the editorial standard for this dossier going forward.</p>
@@ -323,7 +323,7 @@ Status   : implemented in spirit in the ProfitTygr sourcing engine (floor math
   <div class="wrap">
     <p class="secno">Section 5</p>
     <h2>Predictive outlook</h2>
-    <p>Every forecast below is stored in a database ledger (<code>intel_forecasts</code>, created for this edition) with its confirming and invalidating indicators and a resolve-by date. Next editions score each one as a hit or a miss. Forecasts are judgments grounded in the cited evidence, not model outputs.</p>
+    <p>Every forecast below is logged in a dated forecast ledger with its confirming and invalidating indicators and a resolve-by date. Next editions score each one as a hit or a miss. Forecasts are judgments grounded in the cited evidence, not model outputs.</p>
 
     <h3>Holiday 2026 scenarios (resolve: January 2027)</h3>
     <div class="tablewrap"><table>
@@ -369,7 +369,7 @@ Status   : implemented in spirit in the ProfitTygr sourcing engine (floor math
     </table></div>
 
     <h3>O1 — Floor-disciplined, density-aware refurb positioning</h3>
-    <p><strong>Signals:</strong> recommerce demand step-change (eBay 35%→47% monthly secondhand buyers); tariff-driven new-device price pressure; our snapshot's −0.81 density/price correlation and ~31% below-floor share in the crowded tier. <strong>The play:</strong> concentrate acquisition capital in high-ticket, low-density segments (the $500+ laptop tier in our data); price with explicit margin floors; deliberately hold above irrational markets instead of chasing them; use the DAMH ranking (Sec. 4.2) at buy time, not just at pricing time. <strong>Economics:</strong> in our snapshot the thin-density tier won the Buy Box 3x as often at half the price gap — the same capital works harder. <strong>Requirements:</strong> real landed-cost data per SKU, a repricing engine with floor discipline (ProfitTygr implements this), and warranty/grading quality that clears the branded-program bar (Renewed Premium / Restored Premium both now carry 1-year warranties). <strong>Risks:</strong> single-snapshot evidence; Apple trade-in repricing compresses sourcing spreads; velocity at high tickets is structurally lower. <strong>Time to value:</strong> 30–60 days. <strong>Confidence: medium-high.</strong></p>
+    <p><strong>Signals:</strong> recommerce demand step-change (eBay 35%→47% monthly secondhand buyers); tariff-driven new-device price pressure; our snapshot's −0.81 density/price correlation and ~31% below-floor share in the crowded tier. <strong>The play:</strong> concentrate acquisition capital in high-ticket, low-density segments (the $500+ laptop tier in our data); price with explicit margin floors; deliberately hold above irrational markets instead of chasing them; use the DAMH ranking (Sec. 4.2) at buy time, not just at pricing time. <strong>Economics:</strong> in our snapshot the thin-density tier won the Buy Box 3x as often at half the price gap — the same capital works harder. <strong>Requirements:</strong> real landed-cost data per SKU, repricing with floor discipline, and warranty/grading quality that clears the branded-program bar (Renewed Premium / Restored Premium both now carry 1-year warranties). <strong>Risks:</strong> single-snapshot evidence; Apple trade-in repricing compresses sourcing spreads; velocity at high tickets is structurally lower. <strong>Time to value:</strong> 30–60 days. <strong>Confidence: medium-high.</strong></p>
 
     <h3>O2 — Channel fee arbitrage and pooled fulfillment</h3>
     <p><strong>Signals:</strong> Walmart's June fee cuts and 50%+ marketplace growth; Amazon's surcharge stack; carrier residential surcharges up 23–25%; Amazon's own 25%-cheaper-MCF claim for off-Amazon orders. <strong>The play:</strong> re-run per-channel contribution margin quarterly with current fee tables (fees are now seasonal variables); shift catalog weight toward the cheapest competent channel per category; pool fulfillment where residential surcharges bite hardest. A 2-point referral delta plus pooled last-mile is a 3–5 point net-margin swing on affected SKUs — larger than most conversion-optimization programs deliver. <strong>Risks:</strong> Walmart's cuts are acquisition spend and may reverse; cross-channel consoles (incl. Amazon's) see your sales data. <strong>Time to value:</strong> 30–60 days.</p>
@@ -489,7 +489,7 @@ Status   : implemented in spirit in the ProfitTygr sourcing engine (floor math
       <tr><td class="sans">Tariff actions (232/301, Section 122 expiry)</td><td>Federal Register; Yale Budget Lab tracker</td><td class="num">Event</td><td>≥2-point effective-rate move = reprice imports, revisit IOR plan (F8)</td></tr>
       <tr><td class="sans">UMich consumer sentiment</td><td>sca.isr.umich.edu</td><td class="num">Monthly</td><td>&lt;44 = bear holiday scenario gains; deepen discount contingency</td></tr>
       <tr><td class="sans">Census quarterly e-commerce</td><td>census.gov (next: Nov 19)</td><td class="num">Quarterly</td><td>YoY growth &lt;9% = demand-side deterioration beyond the price effect</td></tr>
-      <tr><td class="sans">Archive: logistics coverage share</td><td>MarketplaceBeta intelligence (internal)</td><td class="num">Monthly</td><td>Any category's CPI ≥1.5 two months running = investigate before it's news</td></tr>
+      <tr><td class="sans">Archive: logistics coverage share</td><td>MarketplaceBeta intelligence (internal)</td><td class="num">Monthly</td><td>Any category's Marketplace Pressure Index rising well above its own baseline two months running = investigate before it's news</td></tr>
       <tr><td class="sans">Archive: keyword acceleration table</td><td>MarketplaceBeta intelligence (internal)</td><td class="num">Monthly</td><td>New non-calendar term &gt;3x = candidate emerging signal; verify against primary sources</td></tr>
     </table></div>
   </div>
@@ -518,49 +518,28 @@ Status   : implemented in spirit in the ProfitTygr sourcing engine (floor math
     </ul>
 
     <h3>Revisiting the prior edition's claims</h3>
-    <p>The August 2026 ProfitTygr dossier embedded several market assumptions this edition can now test. <strong>Held up:</strong> the Walmart June fee-cut note (externally corroborated in direction); the race-to-the-bottom premise behind margin-floor repricing (now supported by two independent seller surveys and our below-floor measurements); the refurb demand thesis (strengthened by eBay's 35%→47% and tariff pass-through data). <strong>Revised:</strong> we previously treated "tariffs push buyers to refurbished" as near-axiomatic; the direct substitution evidence is thinner than assumed (the one survey found only 6% switching intent), so the thesis now rests on the broader value-seeking shift rather than a tariff-specific mechanism. <strong>Unchanged risk:</strong> dependence on third-party market history, pending first-party price capture.</p>
+    <p>Our August 2026 dossier embedded several market assumptions this edition can now test. <strong>Held up:</strong> the Walmart June fee-cut note (externally corroborated in direction); the race-to-the-bottom premise behind margin-floor repricing (now supported by two independent seller surveys and our below-floor measurements); the refurb demand thesis (strengthened by eBay's 35%→47% and tariff pass-through data). <strong>Revised:</strong> we previously treated "tariffs push buyers to refurbished" as near-axiomatic; the direct substitution evidence is thinner than assumed (the one survey found only 6% switching intent), so the thesis now rests on the broader value-seeking shift rather than a tariff-specific mechanism.</p>
 
     <h3>The three-layer system: what exists today vs. what is proposed</h3>
     <div class="tablewrap"><table>
       <tr><th>Layer</th><th>Implemented today</th><th>Proposed next</th></tr>
-      <tr><td class="sans"><strong>Market intelligence engine</strong></td><td>Aggregation pipeline (54 sources → classification, keywords, impact levels, a database); manufacturing desk feeds; ProfitTygr live market data from third-party market history; the archive analyses in Section 4 with reproducible SQL (appendix)</td><td>Scheduled monthly runs of the CPI/keyword-acceleration queries; marketplace price/seller-count sampling beyond one catalog; complaint-theme mining from review data</td></tr>
-      <tr><td class="sans"><strong>Strategic decision engine</strong></td><td>ProfitTygr pricing engine (exact floor/ladder math, elasticity-based Monte Carlo sales forecasting, reverse max-buy sourcing) — tested, deterministic; the opportunity-scoring rubric of Section 6</td><td>DAMH density penalty wired into sourcing; automated opportunity flags joining search-interest, complaint, and density signals; backtests for the CPI</td></tr>
-      <tr><td class="sans"><strong>Intelligence dossier</strong></td><td>This publication; forecast ledger <code>intel_forecasts</code> created in the production database with all 12 forecasts, indicators, and resolve-by dates</td><td>Monthly edition cadence; a public-facing "forecast scoreboard" page showing every hit and miss as forecasts resolve</td></tr>
+      <tr><td class="sans"><strong>Market intelligence engine</strong></td><td>Our classified archive of marketplace news and fee data (54 sources, with categories, keywords, and impact levels); the archive analyses in Section 4, with method notes in the appendix</td><td>Monthly Marketplace Pressure Index and keyword-acceleration updates; marketplace price/seller-count sampling beyond one catalog; complaint-theme mining from review data</td></tr>
+      <tr><td class="sans"><strong>Strategic decision engine</strong></td><td>Margin-floor pricing method (exact floor and price-ladder math, elasticity-based sales scenarios, maximum-buy-price sourcing); the opportunity-scoring rubric of Section 6</td><td>DAMH density penalty applied to sourcing decisions; opportunity flags combining search-interest, complaint, and density signals; backtests for the Marketplace Pressure Index</td></tr>
+      <tr><td class="sans"><strong>Intelligence dossier</strong></td><td>This publication; a dated forecast ledger with all 12 forecasts, indicators, and resolve-by dates</td><td>Monthly edition cadence; a public-facing "forecast scoreboard" page showing every hit and miss as forecasts resolve</td></tr>
     </table></div>
     <p><strong>The critical requirement, honored:</strong> nothing here claims to be a continuously learning system. What exists is the storage-and-scoring mechanism that makes learning possible — forecasts are written to a ledger with resolution dates, and the next edition is obligated to score them. The first hit/miss grades arrive when the holiday forecasts (F1–F4) resolve in January 2027.</p>
 
     <h3>Confidence vocabulary</h3>
-    <p><span class="tag obs">Observed</span> measured directly in our datasets, query reproducible. <span class="tag rep">Reported</span> external source with publisher and date; conflicts disclosed. <span class="tag hyp">Hypothesis</span> consistent with evidence, not yet validated; never the basis of a recommendation on its own. <span class="tag fct">Forecast</span> dated judgment logged with a resolve-by date and graded hit or miss when it resolves. Forecasts are evidence-based judgments, not model outputs; the ledger shows every hit and every miss.</p>
+    <p><span class="tag obs">Observed</span> measured directly in our datasets, method documented in the appendix. <span class="tag rep">Reported</span> external source with publisher and date; conflicts disclosed. <span class="tag hyp">Hypothesis</span> consistent with evidence, not yet validated; never the basis of a recommendation on its own. <span class="tag fct">Forecast</span> dated judgment logged with a resolve-by date and graded hit or miss when it resolves. Forecasts are evidence-based judgments, not model outputs; the ledger shows every hit and every miss.</p>
 
     <details class="appendix">
-      <summary>Appendix: reproducible queries (archive analyses, Section 4)</summary>
-      <pre>
--- Category share by month (fixed panel; relevant only)
-select category, date_trunc('month', published_at)::date mo, count(*)
-from articles where relevant and published_at >= '2026-04-01'
-group by 1,2 order by 1,2;
-
--- Source-mix confound check
-select date_trunc('month', published_at)::date mo,
-       count(distinct source_name) sources, count(*) n
-from articles where relevant and category='logistics'
-  and published_at >= '2026-04-01' group by 1 order by 1;
-
--- Keyword acceleration (last 8 weeks vs Apr-Aug baseline, rate-normalized)
-with recent as (select k.keyword, count(*) n from article_keywords k
-  join articles a on a.id=k.article_id
-  where a.relevant and a.published_at >= '2026-08-20' group by 1),
-prior as (select k.keyword, count(*) n from article_keywords k
-  join articles a on a.id=k.article_id
-  where a.relevant and a.published_at >= '2026-04-01'
-    and a.published_at < '2026-08-20' group by 1)
-select r.keyword, r.n n_recent, coalesce(p.n,0) n_prior,
-  round(r.n::numeric/(coalesce(p.n,0)*(55.0/141.0)+1),2) accel
-from recent r left join prior p using (keyword)
-where r.n >= 12 order by accel desc limit 40;
-
--- Catalog statistics: see lib/repricer analysis script (node),
--- Spearman rank correlations computed with midrank ties.</pre>
+      <summary>Appendix: method notes (archive analyses, Section 4)</summary>
+      <ul>
+        <li><strong>Category share by month.</strong> Relevant articles per category per month, divided by all relevant articles that month, on the fixed source panel from April 1, 2026.</li>
+        <li><strong>Source-mix check.</strong> The number of distinct sources producing relevant logistics coverage each month, alongside the article count, from April 1, 2026.</li>
+        <li><strong>Keyword acceleration.</strong> Keyword mentions in relevant articles over the last eight weeks (from August 20, 2026) compared with the April 1–August 19 baseline, normalized for the different window lengths; keywords with at least 12 recent mentions.</li>
+        <li><strong>Catalog statistics.</strong> Spearman rank correlations computed with midrank ties.</li>
+      </ul>
     </details>
   </div>
 </section>
