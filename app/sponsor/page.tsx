@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { PremiumSiteHeader } from '@/components/premium-site-header'
 import { PremiumSiteFooter } from '@/components/premium-site-footer'
 import { JsonLd } from '@/components/json-ld'
-import { SPONSOR_CONTACT_EMAIL, sponsorMailto } from '@/lib/sponsorship'
+import { SponsorInquiryForm } from '@/components/sponsor-inquiry-form'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://marketplacebeta.com'
 const title = 'Sponsor the Daily Marketplace Brief | MarketplaceBeta'
@@ -29,7 +29,6 @@ const PLACEMENTS = [
 ]
 
 export default function SponsorPage() {
-  const mailto = sponsorMailto()
   const jsonLd = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
     { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
     { '@type': 'ListItem', position: 2, name: 'Sponsor', item: `${SITE_URL}/sponsor` },
@@ -66,11 +65,10 @@ export default function SponsorPage() {
           </ul>
         </section>
 
-        <section id="request-rates" className="mt-10 rounded-2xl bg-slate-950 p-8 text-white">
+        <section id="inquiry" className="mt-10 rounded-2xl bg-slate-950 p-8 text-white">
           <h2 className="text-2xl font-bold">Request rates and availability</h2>
           <p className="mt-3 text-slate-300">Tell us about your product, the audience you want to reach and your timing. We&apos;ll reply with current audience details, available dates and rates.</p>
-          <a href={mailto} className="mt-6 inline-flex rounded-lg bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-500">Request rates →</a>
-          <p className="mt-3 text-sm text-slate-400">Or email <a href={mailto} className="underline">{SPONSOR_CONTACT_EMAIL}</a></p>
+          <SponsorInquiryForm sourcePage="sponsor" />
         </section>
 
         <p className="mt-8 text-sm text-muted-foreground">Looking for a partner introduction instead? Visit the <Link href="/partners" className="underline">partner marketplace</Link>.</p>
