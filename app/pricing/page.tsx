@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { ArrowRight, Check, FileText, Lock } from 'lucide-react'
 import { PremiumSiteHeader } from '@/components/premium-site-header'
 import { PremiumSiteFooter } from '@/components/premium-site-footer'
+import { SponsorInquiryForm } from '@/components/sponsor-inquiry-form'
 import { UpgradeLink } from '@/components/upgrade-link'
 import { DOSSIER_OPERATOR_FEATURES, FREE_FEATURES, PRO_FEATURES, resolveOffers } from '@/lib/paid-offer'
 
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
 const FAQ = [
   ['Will the free Brief and public pages stay free?', 'Yes. The Daily Marketplace Brief, the dashboard, the forecast scorecard, the Pressure Index and the fee tools stay free. Pro is for operators who want the analysis turned into decisions.'],
   ['How is Pro different from the free Brief?', 'The Brief tells you what happened. Pro tells you what it means for your margins, which forecast indicators moved, and what we would do about it, with the underlying data.'],
-  ['Can I cancel?', 'Yes, any time. Email hello@marketplacebeta.com and we cancel the same day. You keep access until the end of the period you paid for.'],
+  ['Can I cancel?', 'Yes, any time. Send a note through the form at the bottom of this page (choose \u201cSomething else\u201d) and we cancel the same day. You keep access until the end of the period you paid for.'],
   ['Do you publish odds or probabilities?', 'No. Forecasts are dated calls graded hit or miss in public. Pro adds the indicator tracking behind them.'],
 ] as const
 
@@ -78,7 +79,13 @@ export default function PricingPage() {
           <dl className="mt-5 space-y-5">
             {FAQ.map(([q, a]) => <div key={q}><dt className="font-semibold">{q}</dt><dd className="mt-1 leading-7 text-muted-foreground">{a}</dd></div>)}
           </dl>
-          <p className="mt-6 text-sm text-muted-foreground">Payments are processed by Stripe. Questions before you join? <a href="mailto:hello@marketplacebeta.com" className="text-primary underline underline-offset-4">hello@marketplacebeta.com</a>. Market intelligence, not investment, legal or tax advice.</p>
+          <p className="mt-6 text-sm text-muted-foreground">Payments are processed by Stripe. Questions before you join? <a href="#inquiry" className="text-primary underline underline-offset-4">Send us a message</a>. Market intelligence, not investment, legal or tax advice.</p>
+        </section>
+
+        <section id="inquiry" className="my-12 max-w-3xl rounded-2xl bg-slate-950 p-8 text-white" aria-labelledby="inquiry-title">
+          <h2 id="inquiry-title" className="text-2xl font-bold">Sponsorship and other questions</h2>
+          <p className="mt-3 text-slate-300">Interested in sponsoring the Daily Marketplace Brief, or have a question about Pro or the Dossier? Tell us a little about what you need and we&apos;ll reply by email. Rates and availability are in the <Link href="/sponsor" className="underline">sponsor media kit</Link>.</p>
+          <SponsorInquiryForm sourcePage="pricing" />
         </section>
       </main>
       <PremiumSiteFooter />
