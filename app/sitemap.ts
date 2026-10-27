@@ -5,11 +5,10 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { MARKETPLACES, getAllFeeRoutes } from '@/lib/marketplace-fees'
 import { getAllPairs } from '@/lib/fee-compare'
 import { CHECKED_ON as AMAZON_PEAK_CHECKED, AMAZON_PEAK_PATH } from '@/lib/amazon-holiday-peak-2026'
-import { getAllSaleRoutes, salePath } from '@/lib/sale-fee-pages'
 import { FEE_CHANGELOG } from '@/lib/fee-changelog'
 import { CHECKED_ON as TIKTOK_FEE_CHANGE_CHECKED, TIKTOK_FEE_CHANGE_PATH } from '@/lib/tiktok-fee-change-2026'
 import { ANALYSIS_ARTICLES } from '@/lib/analysis'
-import { INDEXABLE_NEWS_SOURCE_TYPES, dedupeByTitle } from '@/lib/seo-indexing'
+import { INDEXABLE_NEWS_SOURCE_TYPES, dedupeByTitle, isSelfCanonicalFeeCategory } from '@/lib/seo-indexing'
 
 export const revalidate = 300
 
@@ -171,7 +170,9 @@ function getFeeRoutes(): MetadataRoute.Sitemap {
     })),
   ]
 
-  const categories: MetadataRoute.Sitemap = getAllFeeRoutes().map((route) => ({
+  // TikTok Shop and Etsy category pages canonicalise to their marketplace page
+  // (lib/seo-indexing.ts), so only self-canonical category pages are listed.
+  const categories: MetadataRoute.Sitemap = getAllFeeRoutes().filter((route) => isSelfCanonicalFeeCategory(route.marketplace)).map((route) => ({
     url: `${siteUrl}/fees/${route.marketplace}/${route.category}`,
     lastModified: new Date(MARKETPLACES.find(m => m.slug === route.marketplace)!.lastVerified),
     changeFrequency: 'weekly',
@@ -188,18 +189,13 @@ function getFeeRoutes(): MetadataRoute.Sitemap {
     priority: 0.7,
   }))
 
-  const sales: MetadataRoute.Sitemap = getAllSaleRoutes().map((route) => ({
-    url: `${siteUrl}${salePath(route.marketplace, Number(route.price))}`,
-    lastModified: new Date(MARKETPLACES.find(m => m.slug === route.marketplace)!.lastVerified),
-    changeFrequency: 'weekly',
-    priority: 0.7,
-  }))
+  // The "$N sale" pages are noindex (lib/seo-indexing.ts), so they are not listed.
 
   const explainers: MetadataRoute.Sitemap = [
     { url: `${siteUrl}${TIKTOK_FEE_CHANGE_PATH}`, lastModified: new Date(TIKTOK_FEE_CHANGE_CHECKED), changeFrequency: 'weekly', priority: 0.8 },
   ]
 
-  return [...hub, ...explainers, ...comparisons, ...categories, ...sales]
+  return [...hub, ...explainers, ...comparisons, ...categories]
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
