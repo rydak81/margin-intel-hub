@@ -13,8 +13,8 @@ const URL_ = 'https://marketplacebeta.com/intelligence/forecasts'
 const CTA = '/newsletter?source=campaign_forecasts#subscribe'
 
 export const metadata: Metadata = {
-  title: 'Ecommerce Forecast Scorecard: 12 Public, Graded Marketplace Forecasts | MarketplaceBeta',
-  description: 'Every MarketplaceBeta forecast is published with the indicators that would confirm or invalidate it and a resolve-by date, then graded in public — hit, partial, or miss. See the open ledger and our running count.',
+  title: '2026 Holiday Forecast for Sellers, Graded | MarketplaceBeta',
+  description: 'Our 2026 holiday forecast for sellers and other marketplace calls, each published with the indicators that would confirm or invalidate it and a resolve-by date, then graded in public: hit, partial, or miss.',
   alternates: { canonical: URL_ },
   openGraph: {
     title: 'The MarketplaceBeta forecast scorecard',
