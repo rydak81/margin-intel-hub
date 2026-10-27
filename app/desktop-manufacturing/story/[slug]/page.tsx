@@ -1,3 +1,4 @@
+import { ORGANIZATION_REF } from '@/lib/site-jsonld'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import Script from 'next/script'
@@ -87,10 +88,11 @@ export default async function ManufacturingStoryPage({ params }: { params: Promi
     '@type': 'NewsArticle',
     headline: story.title,
     datePublished: story.publishedAt,
+    dateModified: story.publishedAt,
     image: [story.imageUrl || `${SITE_URL}${manufacturingFallbackCover(story.process)}`],
     mainEntityOfPage: storyUrl,
     isBasedOn: story.url,
-    publisher: { '@type': 'Organization', name: 'MarketplaceBeta', logo: { '@type': 'ImageObject', url: `${SITE_URL}/brand-icon.png` } },
+    publisher: ORGANIZATION_REF,
     author: { '@type': 'Organization', name: story.sourceName },
   }
 

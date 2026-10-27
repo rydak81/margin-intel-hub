@@ -8,6 +8,7 @@ import { JsonLd } from '@/components/json-ld'
 import { AnalysisInline } from '@/components/analysis-inline'
 import { ANALYSIS_ARTICLES, getAnalysis } from '@/lib/analysis'
 import { FORECASTS } from '@/lib/forecasts'
+import { ORGANIZATION_REF } from '@/lib/site-jsonld'
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://marketplacebeta.com'
 type Props = { params: Promise<{ slug: string }> }
@@ -39,7 +40,7 @@ export default async function AnalysisPage({ params }: Props) {
   const forecasts = FORECASTS.filter(f => a.forecastIds.includes(f.id))
   const url = `${siteUrl}/intelligence/analysis/${slug}`
   const schema = [
-    { '@context': 'https://schema.org', '@type': 'Article', headline: a.headline, description: a.metaDescription, datePublished: a.publishedOn, dateModified: a.updatedOn, keywords: a.tags.join(', '), mainEntityOfPage: url, author: { '@type': 'Organization', name: 'MarketplaceBeta', url: `${siteUrl}/about` }, publisher: { '@type': 'Organization', name: 'MarketplaceBeta', logo: { '@type': 'ImageObject', url: `${siteUrl}/brand-icon.png` } } },
+    { '@context': 'https://schema.org', '@type': 'Article', headline: a.headline, description: a.metaDescription, datePublished: a.publishedOn, dateModified: a.updatedOn, keywords: a.tags.join(', '), mainEntityOfPage: url, author: { '@type': 'Organization', name: 'MarketplaceBeta', url: `${siteUrl}/about` }, publisher: ORGANIZATION_REF },
     { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Intelligence', item: `${siteUrl}/intelligence` },
       { '@type': 'ListItem', position: 2, name: 'Analysis', item: `${siteUrl}/intelligence/analysis` },
