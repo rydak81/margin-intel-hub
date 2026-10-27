@@ -4,8 +4,12 @@ import { ArrowRight, Check, FileText, Lock } from 'lucide-react'
 import { PremiumSiteHeader } from '@/components/premium-site-header'
 import { PremiumSiteFooter } from '@/components/premium-site-footer'
 import { SponsorInquiryForm } from '@/components/sponsor-inquiry-form'
+import { SponsorOfferCards } from '@/components/sponsor-offer-cards'
 import { UpgradeLink } from '@/components/upgrade-link'
 import { DOSSIER_OPERATOR_FEATURES, FREE_FEATURES, PRO_FEATURES, resolveOffers } from '@/lib/paid-offer'
+
+// Re-render daily so the sponsor founding rate-lock line drops off after its deadline.
+export const revalidate = 86400
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://marketplacebeta.com'
 const title = 'Pricing: Free Brief and MarketplaceBeta Pro | MarketplaceBeta'
@@ -82,9 +86,15 @@ export default function PricingPage() {
           <p className="mt-6 text-sm text-muted-foreground">Payments are processed by Stripe. Questions before you join? <a href="#inquiry" className="text-primary underline underline-offset-4">Send us a message</a>. Market intelligence, not investment, legal or tax advice.</p>
         </section>
 
+        <section id="sponsorship" className="my-12" aria-labelledby="sponsorship-title">
+          <h2 id="sponsorship-title" className="text-2xl font-bold">Sponsorship rates</h2>
+          <p className="mt-2 max-w-3xl text-muted-foreground">Reach marketplace sellers through the Daily Marketplace Brief, sponsored tool listings and the Dossier. Every placement is labelled as sponsored. See the <Link href="/sponsor" className="underline">sponsor media kit</Link> for details.</p>
+          <SponsorOfferCards />
+        </section>
+
         <section id="inquiry" className="my-12 max-w-3xl rounded-2xl bg-slate-950 p-8 text-white" aria-labelledby="inquiry-title">
           <h2 id="inquiry-title" className="text-2xl font-bold">Sponsorship and other questions</h2>
-          <p className="mt-3 text-slate-300">Interested in sponsoring the Daily Marketplace Brief, or have a question about Pro or the Dossier? Tell us a little about what you need and we&apos;ll reply by email. Rates and availability are in the <Link href="/sponsor" className="underline">sponsor media kit</Link>.</p>
+          <p className="mt-3 text-slate-300">Interested in sponsoring the Daily Marketplace Brief, or have a question about Pro or the Dossier? Tell us a little about what you need and we&apos;ll reply by email. Pick an offer from the rates above, or choose \u201cSomething else\u201d for a question. Payment for sponsorships is by invoice or payment link after your inquiry (PayPal is also possible).</p>
           <SponsorInquiryForm sourcePage="pricing" />
         </section>
       </main>

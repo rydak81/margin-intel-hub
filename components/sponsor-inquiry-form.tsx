@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, type FormEvent } from 'react'
+import { SPONSOR_PAYMENT_NOTE } from '@/lib/sponsor-offers'
 import { HONEYPOT_FIELD, SPONSOR_LIMITS, SPONSOR_OFFERS, type SponsorSourcePage } from '@/lib/sponsor-inquiry'
 
 type Status = 'idle' | 'sending' | 'success' | 'error'
@@ -42,7 +43,7 @@ export function SponsorInquiryForm({ sourcePage, defaultOffer = '' }: { sourcePa
     return (
       <div role="status" className="mt-6 rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-5 text-emerald-100">
         <p className="font-semibold">Thanks, we got your message.</p>
-        <p className="mt-1 text-sm">We&apos;ll reply to the email address you gave us with current audience details, dates and rates.</p>
+        <p className="mt-1 text-sm">We&apos;ll reply to the email address you gave us with available dates. Payment is by invoice or payment link after your inquiry (PayPal is also possible).</p>
       </div>
     )
   }
@@ -75,6 +76,7 @@ export function SponsorInquiryForm({ sourcePage, defaultOffer = '' }: { sourcePa
         <button type="submit" disabled={status === 'sending'} className="inline-flex rounded-lg bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-500 disabled:opacity-60">
           {status === 'sending' ? 'Sending…' : 'Send inquiry →'}
         </button>
+        <p className="mt-3 text-sm text-slate-400">{SPONSOR_PAYMENT_NOTE}</p>
         {status === 'error' ? <p role="alert" className="mt-3 text-sm text-red-300">{error}</p> : null}
       </div>
     </form>

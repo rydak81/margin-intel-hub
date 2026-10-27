@@ -1,15 +1,16 @@
 import { readFileSync } from 'node:fs'
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest'
 import {
-  HONEYPOT_FIELD, SPONSOR_OFFERS, createRateLimiter, clientIp, inquiryRecipient, sponsorInquiryEmail, validateSponsorInquiry,
+  HONEYPOT_FIELD, SPONSOR_OFFERS, SPONSOR_OFFER_VALUES, createRateLimiter, clientIp, inquiryRecipient, sponsorInquiryEmail, validateSponsorInquiry,
 } from './sponsor-inquiry'
+import { FOUNDING_LOCK_TEXT, SPONSOR_OFFER_DEFS, SPONSOR_PAYMENT_NOTE, foundingLockOpen } from './sponsor-offers'
 
-const valid = { name: 'Ada Lovelace', email: 'Ada@Example.com ', company: 'Acme', offer: 'newsletter_slot', message: 'We sell repricing software.', sourcePage: 'sponsor' }
+const valid = { name: 'Ada Lovelace', email: 'Ada@Example.com ', company: 'Acme', offer: 'single_slot', message: 'We sell repricing software.', sourcePage: 'sponsor' }
 
 describe('validateSponsorInquiry', () => {
   it('accepts a valid inquiry and normalises it', () => {
     const r = validateSponsorInquiry(valid)
-    expect(r).toMatchObject({ ok: true, honeypot: false, value: { email: 'ada@example.com', offer: 'newsletter_slot', sourcePage: 'sponsor' } })
+    expect(r).toMatchObject({ ok: true, honeypot: false, value: { email: 'ada@example.com', offer: 'single_slot', sourcePage: 'sponsor' } })
   })
   it('rejects bad email addresses', () => {
     for (const email of ['', 'nope', 'a@b', 'a b@c.com', `${'a'.repeat(250)}@x.com`]) {
@@ -27,9 +28,18 @@ describe('validateSponsorInquiry', () => {
   })
   it('only allows listed offers', () => {
     for (const o of SPONSOR_OFFERS) expect(validateSponsorInquiry({ ...valid, offer: o.value })).toMatchObject({ ok: true })
-    for (const offer of ['', 'free_money', '$149', 'NEWSLETTER_SLOT', 5, null]) {
+    for (const offer of ['', 'free_money', '$149', 'SINGLE_SLOT', 'newsletter_slot', 'tool_listing', 5, null]) {
       expect(validateSponsorInquiry({ ...valid, offer })).toMatchObject({ ok: false })
     }
+  })
+  it('maps the allowlist to the approved offers with prices in the labels', () => {
+    expect(SPONSOR_OFFER_VALUES).toEqual(['founding_sponsor', 'single_slot', 'dossier_sponsor', 'other'])
+    expect(SPONSOR_OFFERS.map(o => o.label)).toEqual([
+      'Founding Sponsor \u2014 $149/week',
+      'Single Brief slot \u2014 $39',
+      'Dossier presenting sponsor \u2014 $299',
+      'Something else / question',
+    ])
   })
   it('falls back to "other" for an unknown source page', () => {
     expect(validateSponsorInquiry({ ...valid, sourcePage: 'evil' })).toMatchObject({ ok: true, value: { sourcePage: 'other' } })
@@ -40,6 +50,36 @@ describe('validateSponsorInquiry', () => {
   })
   it('rejects non-object bodies', () => {
     for (const raw of [null, 'x', 5, [], undefined]) expect(validateSponsorInquiry(raw)).toMatchObject({ ok: false })
+  })
+})
+
+describe('sponsor pricing copy', () => {
+  const read = (p: string) => readFileSync(new URL(`../${p}`, import.meta.url), 'utf8')
+  it('foundingLockOpen follows the Nov 15, 2026 deadline in New York time', () => {
+    expect(foundingLockOpen(new Date('2026-11-15T23:00:00-05:00'))).toBe(true)
+    expect(foundingLockOpen(new Date('2026-11-16T00:30:00-05:00'))).toBe(false)
+    expect(foundingLockOpen(new Date('2026-10-26T12:00:00-04:00'))).toBe(true)
+  })
+  it('terms are as approved and mention invoice, payment link and PayPal but not a payment processor', () => {
+    expect(SPONSOR_OFFER_DEFS.map(o => [o.name, o.price, o.unit])).toEqual([
+      ['Founding Sponsor', '$149', 'per week'], ['Single Brief slot', '$39', ''], ['Dossier presenting sponsor', '$299', ''],
+    ])
+    expect(SPONSOR_OFFER_DEFS[0].detail).toMatch(/5 Daily Marketplace Brief slots.*30-day sponsored tool listing/)
+    expect(FOUNDING_LOCK_TEXT).toMatch(/6 months.*November 15, 2026/)
+    expect(SPONSOR_PAYMENT_NOTE).toMatch(/invoice or payment link.*PayPal/)
+  })
+  it('/sponsor and /pricing render prices from the shared component, with no hard-coded prices', () => {
+    for (const p of ['app/sponsor/page.tsx', 'app/pricing/page.tsx']) {
+      const src = read(p)
+      expect(src, p).toContain('SponsorOfferCards')
+      expect(src, p).not.toMatch(/\$(149|39|299)/)
+    }
+  })
+  it('sponsor copy has no stripe mention, traffic numbers, tool names or probabilities', () => {
+    const copy = ['lib/sponsor-offers.ts', 'components/sponsor-offer-cards.tsx', 'components/sponsor-inquiry-form.tsx', 'app/sponsor/page.tsx'].map(read).join('\n')
+    expect(copy).not.toMatch(/stripe|keepa|everbee|supabase|\bCPI\b/i)
+    expect(copy).not.toMatch(/\d[\d,.]*\s*(k|m)?\+?\s*(subscribers|readers|visitors|visits|page ?views|opens)/i)
+    expect(copy).not.toMatch(/contact for pricing|request rates/i)
   })
 })
 
@@ -102,7 +142,7 @@ describe('POST /api/sponsor-inquiry', () => {
   it('stores, emails the owner with reply-to set to the visitor, and succeeds', async () => {
     const res = await post(valid)
     expect(res.status).toBe(200); expect(await res.json()).toEqual({ success: true })
-    expect(mocks.insert).toHaveBeenCalledWith('sponsor_inquiries', expect.objectContaining({ email: 'ada@example.com', offer: 'newsletter_slot', source_page: 'sponsor' }))
+    expect(mocks.insert).toHaveBeenCalledWith('sponsor_inquiries', expect.objectContaining({ email: 'ada@example.com', offer: 'single_slot', source_page: 'sponsor' }))
     expect(mocks.send).toHaveBeenCalledWith(expect.objectContaining({ to: 'owner@example.com', replyTo: 'ada@example.com' }))
   })
   it('returns a fake success for honeypot hits and does nothing', async () => {
