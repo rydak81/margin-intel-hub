@@ -46,6 +46,189 @@ export interface AnalysisArticle {
 
 export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
   {
+    slug: "usps-january-2027-price-change-fuel-surcharge",
+    seoTitle: "USPS January 2027 Price Change: The Fuel Surcharge Arrives",
+    metaDescription: "USPS's temporary 8% and holiday prices end Jan 17, 2027, and a weekly fuel surcharge starts in January. What it means for sellers' shipping costs.",
+    headline: "January 17 is not a USPS price cut. It is the day your shipping cost starts moving every week.",
+    dek: "Two temporary USPS increases roll off on January 17, 2027. A permanent, weekly fuel surcharge is coming in the same month, and UPS and FedEx raise rates on either side of it. Here is the calendar, the one number to watch, and what to fix before peak ends.",
+    publishedOn: "2026-10-27",
+    updatedOn: "2026-10-27",
+    author: "MarketplaceBeta Intelligence",
+    readTime: "6 min",
+    tags: [
+      "logistics",
+      "USPS",
+      "parcel",
+      "shipping costs",
+      "2027",
+    ],
+    takeaway: "Do not plan for cheaper USPS labels after January 17, 2027. Price shipping for January as a range, not a number, until USPS publishes its first fuel-surcharge percentage, and treat 8% as the line: a fuel surcharge under 8% of base postage leaves January labels cheaper than they were all summer, and one above it leaves them dearer.",
+    forecastIds: [
+      "F2",
+      "F5",
+    ],
+    newsletterSource: "campaign_kw_usps_2027",
+    sections: [
+      {
+        id: "what-changed",
+        title: "What changed",
+        paragraphs: [
+          "On October 26 the Postal Service published a fuel surcharge FAQ on its PostalPro site: a surcharge on its competitively priced packages, calculated as a percentage of base postage and updated weekly from diesel and jet fuel prices published by the US Energy Information Administration. Supply Chain Dive reported the same day that it starts in January 2027 and covers USPS Ground Advantage, Priority Mail, Priority Mail Express and Parcel Select, domestic only, with negotiated contracts that \"may have customized language\".",
+          "Value Added Resource, reading the same FAQ, reported that Ground Advantage and Parcel Select will follow diesel while Priority Mail and Priority Mail Express follow jet fuel, that each week's percentage will be announced only three to five days ahead for diesel and three to four days ahead for jet fuel, and that USPS has not disclosed the starting percentage, the formula, or any cap or floor. As of October 27 we have not seen a published start date beyond \"January\".",
+          "This lands on top of two temporary increases that both end at 12:00 a.m. Central on January 17, 2027. The first is the 8% across-the-board increase on base postage for the same four products that took effect April 26, which USPS called in its March 25 notice a \"bridge to a permanent mechanism\". The second is the holiday pricing that started October 4, which adds $0.40 to $0.75 to a 0–3 lb Ground Advantage label depending on zone and price category, per the USPS announcement of August 25. In other words, the fuel surcharge is the permanent mechanism the 8% was bridging to.",
+          "The private carriers move on either side of that date. UPS raises daily rates an average 5.9% on December 21, in the middle of peak, according to Supply Chain Dive's October 26 report of UPS's notice. FedEx list rates rise an average 5.9% on January 4, 2027, with its residential delivery charge going from $6.95 to $7.35 and its residential delivery area surcharge from $6.60 to $7.00, per FedEx as reported by Supply Chain Dive. Their residential peak demand surcharges end January 16 (UPS) and January 17 (FedEx), as we laid out in our [Q4 parcel surcharge calendar](/intelligence/analysis/q4-2026-parcel-surcharge-calendar).",
+        ],
+        table: {
+          caption: "The winter parcel price calendar · Sources: USPS (Mar 25, Aug 25 and Oct 26, 2026), FedEx, UPS via Supply Chain Dive (Sep 21 and Oct 26, 2026)",
+          headings: [
+            "Date",
+            "Carrier",
+            "What happens",
+          ],
+          rows: [
+            [
+              "Dec 21, 2026",
+              "UPS",
+              "Daily rates up an average 5.9% (ground, air, international)",
+            ],
+            [
+              "Jan 4, 2027",
+              "FedEx",
+              "List rates up an average 5.9%; residential delivery charge $6.95 to $7.35; residential delivery area surcharge $6.60 to $7.00",
+            ],
+            [
+              "Jan 16–17, 2027",
+              "UPS, FedEx",
+              "Residential peak demand surcharges end",
+            ],
+            [
+              "Jan 17, 2027, 12:00 a.m. CT",
+              "USPS",
+              "Temporary 8% increase and holiday prices both roll back",
+            ],
+            [
+              "January 2027, date not yet published",
+              "USPS",
+              "Weekly fuel surcharge begins, as a percentage of base postage",
+            ],
+            [
+              "Feb 1, 2027",
+              "FedEx",
+              "Zone changes for select US origin-destination ZIP pairs",
+            ],
+          ],
+        },
+      },
+      {
+        id: "why-it-matters",
+        title: "Why it matters: the 8% line",
+        paragraphs: [
+          "Until now, a USPS label had one price that changed on dates announced well in advance; even this year's two temporary increases were filed weeks or months before they took effect. From January, USPS behaves like UPS and FedEx, with a cost that can move every week on a few days' notice.",
+          "The arithmetic for the January rollback is simple, because the 8% and the fuel surcharge are both percentages of base postage. Take any label whose pre-April base price is B. From April 26 to January 16 it costs 1.08 × B, plus the holiday add-on from October 4. After January 17 it costs B × (1 + the fuel percentage). So a fuel surcharge below 8% leaves your January labels cheaper than your summer labels, and anything above 8% leaves them more expensive. That 8% is the number to watch when USPS publishes its first rate.",
+          "We do not know where it will start, and neither does anyone else outside USPS. For scale only: in its March filing USPS cited FedEx's ground fuel surcharge at 25.50% and UPS's at 26.00%, and described its own 8% as less than one-third of what competitors charge for fuel alone. Hypothesis, not a forecast: USPS will price the surcharge below the private carriers' fuel rates to protect its share of light parcels, but Postmaster General David Steiner told the Governors in August, as Supply Chain Dive reported, that USPS has \"more price to take in the marketplace\". Plan for both.",
+          "This is the pattern our [forecast scorecard](/intelligence/forecasts) has been tracking. Forecast F2 says effective Q4 residential parcel cost inflation for DTC sellers lands at or above 8% despite 5.9% general rate increases, and resolves January 31, 2027. Forecast F5 says Amazon's 2027 US fee announcement raises net cost through surcharge or restructuring layers rather than a headline referral increase. USPS has just made the same move: the headline temporary increase goes away and a variable surcharge takes its place. Each forecast is a dated call we will grade hit or miss in public.",
+          "Marketplace fees amplify any shipping change you pass on. eBay calculates its final value fee on the total amount of the sale including shipping charged to the buyer, and Etsy charges its 6.5% transaction fee on the shipping price as well as the item price, per each marketplace's fee pages. If a fuel surcharge pushes you to raise buyer-paid shipping by $0.50, you pay roughly $0.07 of it back to eBay at 13.6% or about $0.03 to Etsy at 6.5% (our arithmetic, hypothetical). See our [eBay fees](/fees/ebay) and [Etsy fees](/fees/etsy) pages for the current rates.",
+        ],
+      },
+      {
+        id: "what-to-do-this-week",
+        title: "What to do this week",
+        paragraphs: [
+          "None of this needs a new tool, and most of it is a spreadsheet change you can make before peak gets loud.",
+        ],
+        bullets: [
+          "Price January shipping as a range. For your three highest-volume USPS label types, write down today's price, the pre-April base (today's price minus the holiday add-on, divided by 1.08), and the January cost at three hypothetical fuel rates, say 0%, 8% and 15%. If a free-shipping promise or flat shipping charge only works in the 0% case, fix it now.",
+          "Do not cut shipping prices in a January promo plan on the assumption that USPS gets cheaper on the 17th. It may, by a little, if the first fuel rate is under 8%. It may not.",
+          "Ask your label provider, marketplace label program or 3PL two questions in writing: will negotiated rates carry the USPS fuel surcharge, and what happens to a label bought before a weekly change and mailed after it? Value Added Resource reports the USPS FAQ says items must have correct postage at the time of mailing and short-paid items are subject to postage due. Until you have an answer, stop buying labels days ahead of ship date from January.",
+          "Watch the December 21 to January 17 window if you ship UPS. UPS's 5.9% increase lands while USPS is still on holiday pricing, so the carrier comparison you ran in October will be wrong for the last week of peak. Re-run it with December 21 rates once UPS posts them.",
+          "Agencies and multi-brand operators: add a weekly line for each carrier's fuel percentage to client reporting from January. A cost that moves weekly needs to be seen weekly.",
+        ],
+      },
+      {
+        id: "what-we-are-watching",
+        title: "What we are watching next",
+        paragraphs: [
+          "USPS's first published fuel percentage and its start date. That single number decides whether January labels go up or down against the 8% line. We will add it to the [fee change log](/fees/changelog) and to the [intelligence dashboard](/intelligence) when it appears.",
+          "Whether marketplace label programs and negotiated contracts are exempt, discounted or fully exposed. USPS says contracts \"may have customized language\"; that sentence matters more to most sellers than the base rule.",
+          "Whether USPS files a separate January 2027 price change for shipping products. As of October 19, resellerindex.com reported no filing for stamps or Media Mail, and we have seen none for packages.",
+          "January 31, 2027: forecast F2 resolves on the [scorecard](/intelligence/forecasts). December–January: Amazon's 2027 US fee notice, which tests F5. Background on both is in the October [Intelligence Dossier](/intelligence/dossier), and logistics coverage share is tracked weekly in the [Marketplace Pressure Index](/intelligence/pressure-index).",
+        ],
+      },
+    ],
+    sources: [
+      {
+        label: "USPS PostalPro: Fuel Surcharge Implementation FAQ (Oct 26, 2026)",
+        href: "https://postalpro.usps.com/fuel-surcharge-faqs",
+        context: "Fuel surcharge on competitively priced packages, a percentage of base postage, updated weekly from EIA diesel and jet fuel prices.",
+      },
+      {
+        label: "Supply Chain Dive: USPS to debut weekly fuel fee in 2027 (Oct 26, 2026)",
+        href: "https://www.supplychaindive.com/news/usps-to-debut-weekly-fuel-fee-in-2027-matching-fedex-ups-practices/872778/",
+        context: "January 2027 start; products covered; domestic only; contracts may have customized language; publication lead times; Steiner quote from the August Governors meeting.",
+      },
+      {
+        label: "Value Added Resource: USPS plans weekly variable fuel surcharge for 2027",
+        href: "https://www.valueaddedresource.net/usps-weekly-variable-fuel-surcharge/",
+        context: "Diesel vs jet fuel by product; starting percentage, formula and caps not disclosed; postage due on short-paid items.",
+      },
+      {
+        label: "USPS: Transportation-related, time-limited price change (Mar 25, 2026)",
+        href: "https://about.usps.com/newsroom/national-releases/2026/0325-usps-announces-transportation-related-time-limited-price-change.htm",
+        context: "8% increase on base postage for four products, April 26, 2026 to January 17, 2027; \"bridge to a permanent mechanism\".",
+      },
+      {
+        label: "USPS notice to the Postal Regulatory Commission, Docket CP2026-4 (Mar 25, 2026)",
+        href: "https://prc.arkcase.com/api/prc-dockets/filing/downloadFile?fileId=252397&inline=true",
+        context: "Rollback on January 17, 2027; FedEx ground fuel surcharge cited at 25.50% and UPS at 26.00%.",
+      },
+      {
+        label: "USPS: Temporary price change for 2026 holiday shipping season (Aug 25, 2026)",
+        href: "https://about.usps.com/newsroom/national-releases/2026/0825-usps-announces-temporary-price-change-for-2026-holiday-shipping-season.htm",
+        context: "Holiday add-ons from October 4, 2026 to January 17, 2027, including $0.40 to $0.75 on a 0–3 lb Ground Advantage label depending on zone and price category.",
+      },
+      {
+        label: "Supply Chain Dive: UPS plans 5.9% rate increase on Dec. 21 (Oct 26, 2026)",
+        href: "https://www.supplychaindive.com/news/ups-plans-59-rate-increase-on-dec-21/872751/",
+        context: "UPS average 5.9% increase on ground, air and international daily rates from December 21, 2026.",
+      },
+      {
+        label: "Supply Chain Dive: FedEx preps 5.9% rate hike, surcharge increases for 2027 (Sep 21, 2026)",
+        href: "https://www.supplychaindive.com/news/fedex-preps-59-rate-hike-surcharge-increases-for-2027/830903/",
+        context: "FedEx average 5.9% from January 4, 2027; residential delivery and delivery area surcharge changes.",
+      },
+      {
+        label: "FedEx: Shipping rate changes",
+        href: "https://www.fedex.com/en-us/shipping/rate-changes.html",
+        context: "January 4, 2027 rate increase and February 1, 2027 zone changes.",
+      },
+      {
+        label: "resellerindex.com: USPS price increase 2027, what's known as of Oct 19, 2026",
+        href: "https://resellerindex.com/rates/usps-price-change-2027/",
+        context: "No January 2027 stamp or Media Mail filing as of October 19, 2026.",
+      },
+      {
+        label: "eBay selling fees",
+        href: "https://www.ebay.com/help/selling/fees-credits-invoices/selling-fees?id=4822",
+        context: "Final value fee is calculated on the total amount of the sale, including shipping charged to the buyer.",
+      },
+      {
+        label: "Etsy fees and payments policy",
+        href: "https://www.etsy.com/legal/fees/",
+        context: "6.5% transaction fee applies to the item price and the shipping and gift-wrap price.",
+      },
+      {
+        label: "MarketplaceBeta: Q4 2026 parcel surcharge calendar (Oct 20, 2026)",
+        href: "/intelligence/analysis/q4-2026-parcel-surcharge-calendar",
+        context: "UPS and FedEx residential peak demand surcharge windows ending January 16 and 17, 2027, with carrier sources.",
+      },
+      {
+        label: "MarketplaceBeta Intelligence Dossier, Edition 1 (Oct 14, 2026)",
+        href: "/intelligence/dossier",
+        context: "Parcel cost stack and forecasts F2 and F5, with the dossier's own cited sources.",
+      },
+    ],
+  },
+  {
     slug: 'ieepa-tariff-refunds-marketplace-sellers',
     seoTitle: 'IEEPA Tariff Refunds for Amazon and Marketplace Sellers',
     metaDescription: 'Only the importer of record gets IEEPA refunds, and the easy filing window closes entry by entry. Who qualifies, the dates, and what to file this week.',
