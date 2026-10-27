@@ -27,9 +27,9 @@ const nextConfig = {
   },
   async redirects() {
     return [
-      { source: '/solutions/:path*', destination: '/tools', permanent: false },
-      { source: '/partners/:path*', destination: '/articles', permanent: false },
-      { source: '/community/:path*', destination: '/articles', permanent: false },
+      { source: '/solutions/:path*', destination: '/tools', permanent: true },
+      { source: '/partners/:path*', destination: '/articles', permanent: true },
+      { source: '/community/:path*', destination: '/articles', permanent: true },
     ]
   },
   images: {

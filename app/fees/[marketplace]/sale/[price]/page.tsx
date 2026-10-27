@@ -10,6 +10,7 @@ import { formatVerifiedDate } from '@/lib/marketplace-fees'
 import { SALE_PRICES, feeRangeLabel, getAllSaleRoutes, money, ogImageUrl, parseSalePrice, saleFeeSummary, salePath } from '@/lib/sale-fee-pages'
 import { getPairsFor } from '@/lib/fee-compare'
 import { TIKTOK_FEE_CHANGE_PATH } from '@/lib/tiktok-fee-change-2026'
+import { SALE_PAGE_ROBOTS } from '@/lib/seo-indexing'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://marketplacebeta.com'
 
@@ -38,6 +39,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const image = ogImageUrl(`${m.shortName} fees on a $${s.price} sale`, range)
   return {
     title, description, alternates: { canonical },
+    // Price-only template pages: usable and crawlable, but not indexed.
+    robots: { ...SALE_PAGE_ROBOTS },
     openGraph: { title, description, url: canonical, type: 'article', images: [{ url: image, width: 1200, height: 630 }] },
     twitter: { card: 'summary_large_image', title, description, images: [image] },
   }
