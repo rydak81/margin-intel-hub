@@ -8,6 +8,7 @@ import { MARKETPLACES, getAllFeeRoutes } from '@/lib/marketplace-fees'
 import { SALE_PRICES, getAllSaleRoutes } from '@/lib/sale-fee-pages'
 import { feeCategoryCanonicalPath, isSelfCanonicalFeeCategory } from '@/lib/seo-indexing'
 import { parseInitialArticles } from '@/lib/articles-initial'
+import { ANALYSIS_ARTICLES } from '@/lib/analysis'
 
 const SITE = 'https://marketplacebeta.com'
 const params = (p: object) => ({ params: Promise.resolve(p) }) as never
@@ -60,9 +61,10 @@ describe('sitemap after dedupe', () => {
     expect(urls.filter(u => /\/fees\/(amazon|walmart|ebay)\/[^/]+$/.test(u) && !/holiday-peak/.test(u))).toHaveLength(expectedCategories)
   })
   it('lists 44 fewer URLs than before (19 category + 25 sale pages)', async () => {
-    // 157 URLs on main before this change; the sitemap has no news rows without database credentials.
+    // 157 URLs on main before this change, when there were 5 analysis articles; the sitemap has no news
+    // rows without database credentials. Each new analysis article adds one sitemap URL, so count them.
     const urls = (await sitemap()).map(e => e.url)
-    expect(urls).toHaveLength(157 - 19 - 25)
+    expect(urls).toHaveLength(157 - 19 - 25 + (ANALYSIS_ARTICLES.length - 5))
     expect(new Set(urls).size).toBe(urls.length)
   })
 })
