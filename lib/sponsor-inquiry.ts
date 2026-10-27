@@ -1,14 +1,14 @@
 // Sponsor inquiry form: shared validation, rate limiting and the notification email body.
 // Used by app/api/sponsor-inquiry/route.ts and components/sponsor-inquiry-form.tsx.
+// Offers and prices come from lib/sponsor-offers.ts.
+import { SPONSOR_OFFER_DEFS, SPONSOR_OTHER_OFFER } from '@/lib/sponsor-offers'
 
 export const SPONSOR_OFFERS = [
-  { value: 'newsletter_slot', label: 'Newsletter sponsor slot' },
-  { value: 'tool_listing', label: 'Sponsored tool listing' },
-  { value: 'dossier_sponsor', label: 'Dossier sponsor' },
-  { value: 'other', label: 'Something else / general question' },
+  ...SPONSOR_OFFER_DEFS.map(o => ({ value: o.value, label: o.label })),
+  SPONSOR_OTHER_OFFER,
 ] as const
 
-export type SponsorOffer = (typeof SPONSOR_OFFERS)[number]['value']
+export type SponsorOffer = string
 export const SPONSOR_OFFER_VALUES: readonly string[] = SPONSOR_OFFERS.map(o => o.value)
 export const SPONSOR_SOURCE_PAGES = ['sponsor', 'pricing', 'other'] as const
 export type SponsorSourcePage = (typeof SPONSOR_SOURCE_PAGES)[number]
