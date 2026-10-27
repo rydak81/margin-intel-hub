@@ -134,7 +134,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
           "Four things can break that line. First, USPS has not said when in January the surcharge starts. If it starts before January 17, it would sit on top of the 8% and holiday prices; that is a hypothesis, and nothing published says it. Second, the Governors can act again before January 17. Third, we have not checked the restored price schedules in the PRC filings (Dockets CP2026-4 and CP2026-10) label by label, so the base price you land on after the rollback may not equal your price today minus the add-ons divided by 1.08. Fourth, negotiated rates may carry the surcharge differently, since USPS says they \"may have customized language\".",
           "We do not know where the surcharge will start, and neither does anyone else outside USPS. For scale only: in its March notice to the PRC, USPS cited FedEx's ground fuel surcharge at 25.50% and UPS's at 26.00% as of that date, and in its March 25 release called its 8% \"less than one-third of what our competitors charge for fuel alone\". Hypothesis, not a forecast: USPS will price the surcharge below the private carriers' fuel rates to protect its share of light parcels. But Postmaster General David Steiner told the Governors in August, as Supply Chain Dive reported, that USPS has \"more price to take in the marketplace\". Plan for both.",
           "This is the pattern our [forecast scorecard](/intelligence/forecasts) has been tracking. Forecast F2 says effective Q4 residential parcel cost inflation for DTC sellers lands at or above 8% despite 5.9% general rate increases, and resolves January 31, 2027. Forecast F5 says Amazon's 2027 US fee announcement raises net cost through surcharge or restructuring layers rather than a headline referral increase. USPS may be making a similar move: the headline temporary increase goes away and a variable surcharge may take its place. Each forecast is a dated call we will grade hit or miss in public.",
-          "Marketplace fees amplify any shipping change you pass on. eBay calculates its final value fee on the total amount of the sale including shipping charged to the buyer, and Etsy charges its 6.5% transaction fee on the shipping price as well as the item price, per each marketplace's fee pages. If a fuel surcharge pushes you to raise buyer-paid shipping by $0.50, you pay roughly $0.07 of it back to eBay at 13.6% or about $0.03 to Etsy at 6.5% (our arithmetic, hypothetical). See our [eBay fees](/fees/ebay) and [Etsy fees](/fees/etsy) pages for the current rates."
+          "Marketplace fees amplify any shipping change you pass on. eBay's fee page says its final value fee is a percentage of the total amount of the sale, which includes shipping costs collected from the buyer (with some exceptions, such as free domestic shipping offered alongside international or 1-day options). For most categories that percentage is 13.6% on the first $7,500 per item, per a copy of the page archived October 25, 2026; some categories differ, for example 15.3% for books, movies and music. Etsy's help page says its 6.5% transaction fee applies to shipping and gift wrapping as well as the item price, and its Fees & Payments Policy (last updated October 5, 2026) says the same. Etsy's US payment processing fee of 3% + $0.25 is also taken from the total sale price including shipping. Worked example (hypothetical, our arithmetic): if a fuel surcharge pushes you to raise buyer-paid shipping by $0.50, you would pay about $0.07 more to eBay (13.6% × $0.50 = $0.068, most categories) or about $0.03 more to Etsy in transaction fees (6.5% × $0.50 = $0.0325), plus about $0.015 in Etsy payment processing (3% × $0.50). Rates change, so check the marketplaces' own pages before you rely on them. Our own [eBay fees](/fees/ebay) and [Etsy fees](/fees/etsy) pages list the rates we last checked."
         ]
       },
       {
@@ -249,14 +249,19 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
         "context": "No January 2027 stamp or Media Mail filing as of October 26, 2026."
       },
       {
-        "label": "eBay selling fees",
+        "label": "eBay selling fees (copy archived Oct 25, 2026)",
         "href": "https://www.ebay.com/help/selling/fees-credits-invoices/selling-fees?id=4822",
-        "context": "Final value fee is calculated on the total amount of the sale, including shipping charged to the buyer."
+        "context": "Final value fee is 13.6% of the total amount of the sale up to $7,500 per item in most categories, plus a $0.30 or $0.40 per-order fee; the total includes shipping collected from the buyer, with exceptions."
       },
       {
-        "label": "Etsy fees and payments policy",
+        "label": "Etsy Fees & Payments Policy (last updated Oct 5, 2026)",
         "href": "https://www.etsy.com/legal/fees/",
-        "context": "6.5% transaction fee applies to the item price and the shipping and gift-wrap price."
+        "context": "6.5% transaction fee applies to the listing price plus shipping and gift wrapping charged."
+      },
+      {
+        "label": "Etsy Help: Fees and taxes for selling on Etsy",
+        "href": "https://help.etsy.com/hc/en-us/articles/115014483627-What-are-the-Fees-and-Taxes-for-Selling-on-Etsy",
+        "context": "Transaction fee is 6.5% of the total order amount and applies to shipping and gift wrapping; payment processing fees are taken from the total sale price including shipping (US: 3% + $0.25, per Etsy's payment processing help page)."
       },
       {
         "label": "MarketplaceBeta: Q4 2026 parcel surcharge calendar (Oct 20, 2026)",
