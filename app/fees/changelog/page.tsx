@@ -2,8 +2,10 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { PremiumSiteHeader } from '@/components/premium-site-header'
 import { PremiumSiteFooter } from '@/components/premium-site-footer'
-import { feeChangelogNewestFirst } from '@/lib/fee-changelog'
+import { feeChangelogId, feeChangelogNewestFirst } from '@/lib/fee-changelog'
 import { getMarketplace } from '@/lib/marketplace-fees'
+import { JsonLd } from '@/components/json-ld'
+import { ORGANIZATION_REF, SITE_URL } from '@/lib/site-jsonld'
 
 export const metadata: Metadata = {
   title: 'Marketplace Fee Change Log: Dated Amazon, Walmart, eBay & Etsy Fee History | MarketplaceBeta',
@@ -15,8 +17,22 @@ const fmt = (iso: string) => new Date(`${iso}T00:00:00Z`).toLocaleDateString('en
 
 export default function FeeChangelogPage() {
   const entries = feeChangelogNewestFirst()
+  const dataset = {
+    '@context': 'https://schema.org',
+    '@type': 'Dataset',
+    name: 'Marketplace seller fee change log',
+    description: 'Dated history of changes to the marketplace seller fee tables (Amazon, Walmart, TikTok Shop, eBay, Etsy), with the exact old and new rates and the official source each was checked against.',
+    url: `${SITE_URL}/fees/changelog`,
+    dateModified: entries[0].date,
+    creator: ORGANIZATION_REF,
+    isAccessibleForFree: true,
+    keywords: ['marketplace fee changes', 'Amazon referral fee history', 'eBay final value fee history', 'TikTok Shop commission history', 'Walmart referral fee history', 'Etsy fees'],
+    variableMeasured: 'Fee rate before and after each change',
+    temporalCoverage: `${entries[entries.length - 1].date}/${entries[0].date}`,
+  }
   return (
     <div className="min-h-screen bg-background">
+      <JsonLd data={dataset} />
       <PremiumSiteHeader active="fees" backHref="/fees" backLabel="Fees" />
       <main className="mx-auto site-width px-4 py-10 sm:px-6">
         <section className="max-w-3xl">
@@ -26,7 +42,7 @@ export default function FeeChangelogPage() {
         </section>
         <ol className="mt-10 space-y-10">
           {entries.map((entry, i) => (
-            <li key={`${entry.date}-${i}`} className="rounded-2xl border border-border bg-card p-6">
+            <li key={`${entry.date}-${i}`} id={feeChangelogId(entry)} className="rounded-2xl border border-border bg-card p-6">
               <p className="text-sm font-semibold text-muted-foreground"><time dateTime={entry.date}>{fmt(entry.date)}</time></p>
               <h2 className="mt-1 text-2xl font-bold">{entry.title}</h2>
               <p className="mt-3 leading-7 text-muted-foreground">{entry.summary}</p>

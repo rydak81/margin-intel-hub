@@ -1,3 +1,4 @@
+import { ORGANIZATION_REF } from '@/lib/site-jsonld'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
@@ -39,7 +40,7 @@ export default async function IntelligencePage({ searchParams }: { searchParams:
     isPartOf: { '@type': 'WebSite', name: 'MarketplaceBeta', url: SITE_URL },
     hasPart: [
       ...sections.map(x => ({ '@type': 'WebPage', name: x.name, url: `${SITE_URL}${x.path}` })),
-      ...analysis.map(a => ({ '@type': 'Article', headline: a.headline, url: `${SITE_URL}/intelligence/analysis/${a.slug}`, datePublished: a.publishedOn })),
+      ...analysis.map(a => ({ '@type': 'Article', headline: a.headline, url: `${SITE_URL}/intelligence/analysis/${a.slug}`, datePublished: a.publishedOn, dateModified: a.updatedOn, publisher: ORGANIZATION_REF })),
     ],
   }
   return <div className="min-h-screen bg-background"><JsonLd data={jsonLd} /><PremiumSiteHeader active="intelligence" /><main className="mx-auto site-width px-4 py-10 sm:px-6">

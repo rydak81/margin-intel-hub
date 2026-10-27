@@ -8,6 +8,8 @@ import { ExternalLink } from "lucide-react"
 import { AMAZON_PEAK_PATH } from "@/lib/amazon-holiday-peak-2026"
 import { JsonLd } from "@/components/json-ld"
 import { TIKTOK_FEE_CHANGE_PATH } from "@/lib/tiktok-fee-change-2026"
+import { feeFaq, feeShortAnswer } from "@/lib/fee-short-answer"
+import { ORGANIZATION_REF } from "@/lib/site-jsonld"
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://marketplacebeta.com"
 
@@ -49,12 +51,9 @@ export default async function MarketplaceFeesPage({ params }: PageProps) {
   if (!marketplace) notFound()
 
   const verified = formatVerifiedDate(marketplace.lastVerified)
-  const rates = marketplace.categories.map((c) => c.referralPct)
-  const lowest = Math.min(...rates)
-  const highest = Math.max(...rates)
   const pageUrl = `${SITE_URL}/fees/${marketplace.slug}`
-  const lowestCats = marketplace.categories.filter((c) => c.referralPct === lowest).map((c) => c.label)
-  const highestCats = marketplace.categories.filter((c) => c.referralPct === highest).map((c) => c.label)
+  const shortAnswer = feeShortAnswer(marketplace)
+  const faq = feeFaq(marketplace)
   const jsonLd = [
     {
       "@context": "https://schema.org",
@@ -68,26 +67,24 @@ export default async function MarketplaceFeesPage({ params }: PageProps) {
     {
       "@context": "https://schema.org",
       "@type": "FAQPage",
-      mainEntity: [
-        {
-          "@type": "Question",
-          name: `How much does ${marketplace.name} charge sellers?`,
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: `${marketplace.name} ${marketplace.feeName}s range from ${lowest}% to ${highest}% depending on category (verified ${verified}). ${marketplace.summary}`,
-          },
-        },
-        {
-          "@type": "Question",
-          name: `Which ${marketplace.name} category has the lowest fee?`,
-          acceptedAnswer: { "@type": "Answer", text: `${lowestCats.join(", ")}: ${lowest}%.` },
-        },
-        {
-          "@type": "Question",
-          name: `Which ${marketplace.name} category has the highest fee?`,
-          acceptedAnswer: { "@type": "Answer", text: `${highestCats.join(", ")}: ${highest}%.` },
-        },
-      ],
+      mainEntity: faq.map((f) => ({
+        "@type": "Question",
+        name: f.question,
+        acceptedAnswer: { "@type": "Answer", text: f.answer },
+      })),
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Dataset",
+      name: `${marketplace.name} seller ${marketplace.feeName}s by category`,
+      description: `${marketplace.name} ${marketplace.feeName} for each of ${marketplace.categories.length} seller categories, checked against the marketplace's published fee schedule on ${verified}.`,
+      url: pageUrl,
+      dateModified: marketplace.lastVerified,
+      creator: ORGANIZATION_REF,
+      isAccessibleForFree: true,
+      keywords: [`${marketplace.name} fees`, `${marketplace.name} ${marketplace.feeName}`, "marketplace seller fees", "ecommerce referral fees"],
+      variableMeasured: `${marketplace.feeName} (percent of sale price)`,
+      isBasedOn: marketplace.sourceUrl,
     },
   ]
 
@@ -109,11 +106,8 @@ export default async function MarketplaceFeesPage({ params }: PageProps) {
           {marketplace.name} fees by category
         </h1>
 
-        <p className="mt-4 text-lg leading-relaxed text-slate-700 dark:text-slate-200">
-          {marketplace.name} {marketplace.feeName}s range from{" "}
-          <strong className="text-slate-900 dark:text-white">{lowest}%</strong> to{" "}
-          <strong className="text-slate-900 dark:text-white">{highest}%</strong> depending on
-          category.
+        <p id="short-answer" className="mt-4 text-lg leading-relaxed text-slate-700 dark:text-slate-200">
+          {shortAnswer}
         </p>
 
         <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-500 dark:text-slate-400">
@@ -215,6 +209,20 @@ export default async function MarketplaceFeesPage({ params }: PageProps) {
             </Link>
           </p>
         )}
+
+        <section id="faq" className="mt-12">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+            {marketplace.name} fees: frequently asked questions
+          </h2>
+          <dl className="mt-4 space-y-5">
+            {faq.map((f) => (
+              <div key={f.question}>
+                <dt className="font-semibold text-slate-900 dark:text-white">{f.question}</dt>
+                <dd className="mt-1 leading-relaxed text-slate-600 dark:text-slate-300">{f.answer}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
 
         <section className="mt-12">
           <h2 className="text-2xl font-bold text-slate-900 dark:text-white">

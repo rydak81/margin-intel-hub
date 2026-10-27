@@ -3,6 +3,7 @@ import Link from "next/link"
 import { ExternalLink } from "lucide-react"
 import { PremiumSiteHeader } from "@/components/premium-site-header"
 import { PremiumSiteFooter } from "@/components/premium-site-footer"
+import { ORGANIZATION_REF } from "@/lib/site-jsonld"
 import { JsonLd } from "@/components/json-ld"
 import { ShareButtons } from "@/components/share-buttons"
 import {
@@ -78,7 +79,7 @@ export default function AmazonHolidayPeak2026Page() {
       dateModified: CHECKED_ON,
       mainEntityOfPage: canonical,
       author: { "@type": "Organization", name: "MarketplaceBeta", url: `${SITE_URL}/about` },
-      publisher: { "@type": "Organization", name: "MarketplaceBeta", logo: { "@type": "ImageObject", url: `${SITE_URL}/brand-icon.png` } },
+      publisher: ORGANIZATION_REF,
       citation: SOURCES.map((s) => s.url),
     },
     {
