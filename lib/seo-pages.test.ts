@@ -60,9 +60,9 @@ describe('sitemap after dedupe', () => {
     expect(urls.filter(u => /\/fees\/(amazon|walmart|ebay)\/[^/]+$/.test(u) && !/holiday-peak/.test(u))).toHaveLength(expectedCategories)
   })
   it('lists 44 fewer URLs than before (19 category + 25 sale pages)', async () => {
-    // 156 URLs before this change; the sitemap has no news rows without database credentials.
+    // 157 URLs on main before this change; the sitemap has no news rows without database credentials.
     const urls = (await sitemap()).map(e => e.url)
-    expect(urls).toHaveLength(156 - 19 - 25)
+    expect(urls).toHaveLength(157 - 19 - 25)
     expect(new Set(urls).size).toBe(urls.length)
   })
 })
