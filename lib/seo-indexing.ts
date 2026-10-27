@@ -69,3 +69,39 @@ export function withheldSummaryDescription(title: string, sourceName: string | n
   const source = named ? `${named} report` : 'Report'
   return `${source}${date ? ` from ${date}` : ''}: ${title}. Operator impact, why it matters and what to check next.`
 }
+
+/**
+ * Flat-rate marketplaces whose fee category pages only differ by the category
+ * name: the rule, the rate and ~85% of the copy are the same on every page
+ * (5-word-shingle similarity >= 0.8 for every pair, see the SEO audit). Their
+ * category URLs stay live for visitors and internal links, but declare the
+ * marketplace fee page as canonical and stay out of the sitemap, so the
+ * signals consolidate on one page instead of 19 near-duplicates.
+ *
+ * Amazon, Walmart and eBay have genuinely different rates per category and
+ * keep self-canonical, indexable category pages.
+ */
+export const CANONICALISED_CATEGORY_MARKETPLACES: readonly string[] = ['tiktok-shop', 'etsy']
+
+export function isCanonicalisedCategoryMarketplace(marketplaceSlug: string): boolean {
+  return CANONICALISED_CATEGORY_MARKETPLACES.includes(marketplaceSlug)
+}
+
+/** Path (no origin) that a fee category page declares as its canonical. */
+export function feeCategoryCanonicalPath(marketplaceSlug: string, categorySlug: string): string {
+  return isCanonicalisedCategoryMarketplace(marketplaceSlug)
+    ? `/fees/${marketplaceSlug}`
+    : `/fees/${marketplaceSlug}/${categorySlug}`
+}
+
+/** Whether a fee category page is its own canonical (and so belongs in the sitemap). */
+export function isSelfCanonicalFeeCategory(marketplaceSlug: string): boolean {
+  return !isCanonicalisedCategoryMarketplace(marketplaceSlug)
+}
+
+/**
+ * The "$N sale" fee pages are price-only template variants of the category
+ * pages. They stay crawlable (follow: links still pass) and usable, but out of
+ * the index and the sitemap.
+ */
+export const SALE_PAGE_ROBOTS = { index: false, follow: true } as const

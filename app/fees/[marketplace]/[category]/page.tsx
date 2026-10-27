@@ -23,6 +23,7 @@ import { getPairsFor } from "@/lib/fee-compare"
 import { ShareButtons } from "@/components/share-buttons"
 import { SALE_PRICES, ogImageUrl, salePath } from "@/lib/sale-fee-pages"
 import { TIKTOK_FEE_CHANGE_PATH } from "@/lib/tiktok-fee-change-2026"
+import { feeCategoryCanonicalPath } from "@/lib/seo-indexing"
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://marketplacebeta.com"
 
@@ -52,7 +53,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // for recency before they click.
   const title = `${marketplace.shortName} ${feeLabel} for ${category.label}: ${rate} (${verified})`
   const description = `${marketplace.name} charges ${category.tiers ? `a ${rate} ${marketplace.feeName} (tiered by price)` : `a ${rate} ${marketplace.feeName}`} on ${category.label}. See the full fee breakdown, calculate your margin, and inspect supported category comparisons.`
-  const canonical = `${SITE_URL}/fees/${marketplace.slug}/${category.slug}`
+  // Flat-rate marketplaces (TikTok Shop, Etsy) canonicalise to the marketplace
+  // page; the rest are self-canonical. See lib/seo-indexing.ts.
+  const canonical = `${SITE_URL}${feeCategoryCanonicalPath(marketplace.slug, category.slug)}`
   const image = ogImageUrl(`${marketplace.shortName} ${marketplace.feeName} for ${category.label}`, rate)
 
   return {
