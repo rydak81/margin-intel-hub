@@ -270,10 +270,10 @@ export default function EventsPage() {
                   asChild
                   className="border-slate-200 bg-white/72 text-slate-800 hover:bg-white dark:border-white/10 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-950/55"
                 >
-                  <a href="mailto:hello@marketplacebeta.com?subject=Submit%20an%20event%20to%20MarketplaceBeta">
+                  <Link href="/sponsor#inquiry">
                     Submit an Event
                     <Mail className="ml-2 h-4 w-4" />
-                  </a>
+                  </Link>
                 </Button>
               </div>
 
@@ -451,10 +451,10 @@ export default function EventsPage() {
               </div>
               <div className="flex flex-col gap-3">
                 <Button asChild className="bg-white text-slate-950 hover:bg-white/92">
-                  <a href="mailto:hello@marketplacebeta.com?subject=Submit%20an%20event%20to%20MarketplaceBeta">
-                    Submit by email
+                  <Link href="/sponsor#inquiry">
+                    Submit via our contact form
                     <Mail className="ml-2 h-4 w-4" />
-                  </a>
+                  </Link>
                 </Button>
                 <Button asChild variant="outline" className="border-white/12 bg-white/6 text-white hover:bg-white/10 hover:text-white">
                   <Link href="/newsletter">Subscribe for event updates</Link>

@@ -1,12 +1,6 @@
-// Sponsorship configuration: media-kit contact and the optional newsletter sponsor slot.
+// Sponsorship configuration: the optional newsletter sponsor slot and dossier sponsor credit.
 import { parseHttpUrl, withUtm } from '@/lib/utm'
 import { isEasternWeekday, isWithinSponsorWindow, readSponsorWindow } from '@/lib/sponsor-window'
-
-export const SPONSOR_CONTACT_EMAIL = process.env.NEXT_PUBLIC_SPONSOR_CONTACT_EMAIL?.trim() || 'hello@marketplacebeta.com'
-
-export function sponsorMailto(subject = 'Sponsorship rates: Daily Marketplace Brief'): string {
-  return `mailto:${SPONSOR_CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}`
-}
 
 export interface NewsletterSponsor {
   name: string
