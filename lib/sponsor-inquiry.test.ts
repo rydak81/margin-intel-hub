@@ -112,17 +112,31 @@ describe('notification email', () => {
 describe('inquiryRecipient', () => {
   it('prefers SPONSOR_INQUIRY_TO, then EMAIL_REPLY_TO, never a hard-coded address', () => {
     expect(inquiryRecipient({ SPONSOR_INQUIRY_TO: ' a@x.com ', EMAIL_REPLY_TO: 'b@x.com' })).toBe('a@x.com')
-    expect(inquiryRecipient({ EMAIL_REPLY_TO: 'b@x.com' })).toBe('b@x.com')
+    expect(inquiryRecipient({ EMAIL_REPLY_TO: 'b@x.com' })).toBeNull()
+    expect(inquiryRecipient({ SPONSOR_INQUIRY_TO: 'bad-address' })).toBeNull()
     expect(inquiryRecipient({})).toBeNull()
   })
 })
 
 // ── Route ─────────────────────────────────────────────────────────────────────
-const mocks = vi.hoisted(() => ({ insert: vi.fn(), send: vi.fn() }))
-vi.mock('@/lib/supabase/admin', () => ({ createAdminClient: () => ({ from: (t: string) => ({ insert: (row: unknown) => mocks.insert(t, row) }) }) }))
+const inquiryId = '9088b49e-c6ed-4f7b-928f-9b05076ec393'
+const savedRow = { id: inquiryId, name: valid.name, email: 'ada@example.com', company: valid.company,
+  offer: valid.offer, message: valid.message, source_page: valid.sourcePage, notification_email_id: null }
+const mocks = vi.hoisted(() => ({ insert: vi.fn(), read: vi.fn(), update: vi.fn(), send: vi.fn(), configured: vi.fn() }))
+vi.mock('@/lib/supabase/admin', () => {
+  const query = (result: () => unknown) => {
+    const q = { select: () => q, eq: () => q, abortSignal: () => q, single: result }
+    return q
+  }
+  return { hasAdminConfig: mocks.configured, createAdminClient: () => ({ from: () => ({
+    insert: (row: unknown) => query(() => mocks.insert(row)),
+    select: () => query(() => mocks.read()),
+    update: (row: unknown) => query(() => mocks.update(row)),
+  }) }) }
+})
 vi.mock('@/lib/email', () => ({ sendEmail: mocks.send }))
 
-const post = async (body: unknown, ip = '3.3.3.3') => {
+const post = async (body: unknown = { ...valid, inquiryId }, ip = '3.3.3.3') => {
   const { POST } = await import('../app/api/sponsor-inquiry/route')
   return POST(new Request('http://test.invalid/api/sponsor-inquiry', {
     method: 'POST', headers: { 'content-type': 'application/json', 'x-forwarded-for': ip },
@@ -132,51 +146,110 @@ const post = async (body: unknown, ip = '3.3.3.3') => {
 
 describe('POST /api/sponsor-inquiry', () => {
   beforeEach(() => {
-    vi.resetModules(); vi.clearAllMocks()
+    vi.resetModules(); vi.resetAllMocks()
     vi.stubEnv('SPONSOR_INQUIRY_TO', 'owner@example.com')
-    mocks.insert.mockResolvedValue({ error: null }); mocks.send.mockResolvedValue({ success: true, id: 'e1' })
+    mocks.configured.mockReturnValue(true)
+    mocks.insert.mockImplementation(row => Promise.resolve({ data: { id: row.id }, error: null }))
+    mocks.read.mockResolvedValue({ data: savedRow, error: null })
+    mocks.update.mockResolvedValue({ data: { id: inquiryId }, error: null })
+    mocks.send.mockResolvedValue({ success: true, id: 'e1' })
     vi.spyOn(console, 'error').mockImplementation(() => {})
   })
   afterEach(() => { vi.unstubAllEnvs(); vi.restoreAllMocks() })
 
-  it('stores, emails the owner with reply-to set to the visitor, and succeeds', async () => {
-    const res = await post(valid)
-    expect(res.status).toBe(200); expect(await res.json()).toEqual({ success: true })
-    expect(mocks.insert).toHaveBeenCalledWith('sponsor_inquiries', expect.objectContaining({ email: 'ada@example.com', offer: 'single_slot', source_page: 'sponsor' }))
-    expect(mocks.send).toHaveBeenCalledWith(expect.objectContaining({ to: 'owner@example.com', replyTo: 'ada@example.com' }))
+  it('confirms storage and email acceptance, recording a provider receipt', async () => {
+    const res = await post()
+    expect(res.status).toBe(200)
+    expect(await res.json()).toEqual({ success: true, stored: true, inquiryId })
+    expect(mocks.insert).toHaveBeenCalledWith(expect.objectContaining({ id: inquiryId, email: 'ada@example.com', message: valid.message, source_page: 'sponsor' }))
+    expect(mocks.send).toHaveBeenCalledWith(expect.objectContaining({ to: 'owner@example.com', replyTo: 'ada@example.com',
+      idempotencyKey: `sponsor-inquiry/${inquiryId}`, signal: expect.any(AbortSignal) }))
+    expect(mocks.update).toHaveBeenCalledWith({ notification_email_id: 'e1', notification_accepted_at: expect.any(String) })
   })
-  it('returns a fake success for honeypot hits and does nothing', async () => {
-    const res = await post({ ...valid, [HONEYPOT_FIELD]: 'spam' })
-    expect(await res.json()).toEqual({ success: true })
+  it('keeps legacy callers working without an inquiry ID', async () => {
+    const res = await post(valid)
+    expect(res.status).toBe(200)
+    expect((await res.json()).inquiryId).toMatch(/^[a-f0-9-]{36}$/)
+  })
+  it('returns fake success only for honeypot hits and does nothing', async () => {
+    expect(await (await post({ ...valid, [HONEYPOT_FIELD]: 'spam' })).json()).toEqual({ success: true })
     expect(mocks.insert).not.toHaveBeenCalled(); expect(mocks.send).not.toHaveBeenCalled()
   })
-  it('400s on invalid input and malformed JSON', async () => {
-    expect((await post({ ...valid, offer: 'nope' })).status).toBe(400)
-    expect((await post('{not json')).status).toBe(400)
-    expect(mocks.insert).not.toHaveBeenCalled()
+  it('rejects invalid input, invalid references and malformed JSON without side effects', async () => {
+    for (const body of [{ ...valid, offer: 'nope' }, { ...valid, inquiryId: 'bad' }, '{not json']) {
+      expect((await post(body)).status).toBe(400)
+    }
+    expect(mocks.insert).not.toHaveBeenCalled(); expect(mocks.send).not.toHaveBeenCalled()
   })
-  it('rate limits per IP after 5 accepted inquiries', async () => {
-    for (let i = 0; i < 5; i++) expect((await post(valid, '4.4.4.4')).status).toBe(200)
-    const res = await post(valid, '4.4.4.4')
+  it('rate limits per IP after 5 attempts', async () => {
+    for (let i = 0; i < 5; i++) expect((await post(undefined, '4.4.4.4')).status).toBe(200)
+    const res = await post(undefined, '4.4.4.4')
     expect(res.status).toBe(429); expect(res.headers.get('retry-after')).toBe('3600')
-    expect((await post(valid, '5.5.5.5')).status).toBe(200)
+    expect((await post(undefined, '5.5.5.5')).status).toBe(200)
   })
-  it('still succeeds when the email fails (stored)', async () => {
-    mocks.send.mockResolvedValue({ success: false, error: 'boom' })
-    expect((await post(valid)).status).toBe(200); expect(mocks.insert).toHaveBeenCalled()
+  it.each([false, true])('returns an actionable error for database failure even if email acceptance is %s', async accepted => {
+    mocks.insert.mockResolvedValue({ data: null, error: { code: '42P01', message: 'private provider detail' } })
+    mocks.send.mockResolvedValue(accepted ? { success: true, id: 'e1' } : { success: false, error: 'private email detail' })
+    const res = await post()
+    expect(res.status).toBe(503); expect(res.headers.get('retry-after')).toBe('60')
+    const json = await res.json()
+    expect(json).toMatchObject({ success: false, stored: false, inquiryId })
+    expect(json.error).toContain('try again')
+    expect(JSON.stringify(json)).not.toContain('private')
+    expect(mocks.send).toHaveBeenCalled(); expect(mocks.update).not.toHaveBeenCalled()
   })
-  it('still succeeds when storage fails but email works', async () => {
-    mocks.insert.mockResolvedValue({ error: { message: 'relation does not exist', code: '42P01' } })
-    expect((await post(valid)).status).toBe(200); expect(mocks.send).toHaveBeenCalled()
+  it.each(['reject', 'throw', 'missing_id'])('preserves the saved inquiry when notification fails: %s', async failure => {
+    if (failure === 'throw') mocks.send.mockRejectedValue(new Error('network'))
+    else mocks.send.mockResolvedValue(failure === 'missing_id' ? { success: true } : { success: false })
+    const res = await post()
+    expect(res.status).toBe(503)
+    expect(await res.json()).toMatchObject({ success: false, stored: true, error: expect.stringContaining('was saved') })
+    expect(mocks.insert).toHaveBeenCalled(); expect(mocks.update).not.toHaveBeenCalled()
   })
-  it('still succeeds when storage throws', async () => {
-    mocks.insert.mockRejectedValue(new Error('network'))
-    expect((await post(valid)).status).toBe(200); expect(mocks.send).toHaveBeenCalled()
+  it('handles both providers throwing without reporting success', async () => {
+    mocks.insert.mockRejectedValue(new Error('timeout')); mocks.send.mockRejectedValue(new Error('timeout'))
+    expect(await (await post()).json()).toMatchObject({ success: false, stored: false })
   })
-  it('stores but skips email when no recipient is configured', async () => {
-    vi.stubEnv('SPONSOR_INQUIRY_TO', ''); vi.stubEnv('EMAIL_REPLY_TO', '')
-    expect((await post(valid)).status).toBe(200)
-    expect(mocks.insert).toHaveBeenCalled(); expect(mocks.send).not.toHaveBeenCalled()
+  it('fails closed when storage returns no receipt or is unconfigured', async () => {
+    mocks.insert.mockResolvedValue({ data: null, error: null })
+    expect((await post()).status).toBe(503)
+    mocks.configured.mockReturnValue(false)
+    expect((await post()).status).toBe(503)
+  })
+  it('preserves storage but reports an absent recipient instead of using reply-to', async () => {
+    vi.stubEnv('SPONSOR_INQUIRY_TO', ''); vi.stubEnv('EMAIL_REPLY_TO', 'dead@example.com')
+    expect(await (await post()).json()).toMatchObject({ success: false, stored: true })
+    expect(mocks.send).not.toHaveBeenCalled()
+  })
+  it('retries a saved pending inquiry without overwriting it', async () => {
+    mocks.insert.mockResolvedValue({ error: { code: '23505' } })
+    const res = await post()
+    expect(res.status).toBe(200)
+    expect(mocks.send).toHaveBeenCalledOnce()
+    expect(mocks.update).toHaveBeenCalledWith(expect.not.objectContaining({ message: expect.anything() }))
+  })
+  it('does not notify again after an acknowledged retry or reload', async () => {
+    mocks.insert.mockResolvedValue({ error: { code: '23505' } })
+    mocks.read.mockResolvedValue({ data: { ...savedRow, notification_email_id: 'e1' }, error: null })
+    expect((await post()).status).toBe(200)
+    expect(mocks.send).not.toHaveBeenCalled()
+  })
+  it('rejects reference reuse with different contents without leaking the saved inquiry', async () => {
+    mocks.insert.mockResolvedValue({ error: { code: '23505' } })
+    const res = await post({ ...valid, inquiryId, message: 'Changed inquiry text' })
+    expect(res.status).toBe(409)
+    expect(JSON.stringify(await res.json())).not.toContain(savedRow.email)
+    expect(mocks.send).not.toHaveBeenCalled()
+  })
+  it('does not mistake an unreadable duplicate for a confirmed save', async () => {
+    mocks.insert.mockResolvedValue({ error: { code: '23505' } })
+    mocks.read.mockResolvedValue({ data: null, error: { code: 'network' } })
+    expect(await (await post()).json()).toMatchObject({ success: false, stored: false })
+  })
+  it('retains the durable inquiry if recording email acceptance fails', async () => {
+    mocks.update.mockResolvedValue({ data: null, error: { code: 'network' } })
+    expect(await (await post()).json()).toMatchObject({ success: true, stored: true })
+    expect(console.error).toHaveBeenCalledWith('[SponsorInquiry] notification_receipt_failed', { inquiryId, emailId: 'e1' })
   })
 })
 

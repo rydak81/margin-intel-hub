@@ -9,6 +9,8 @@ interface SendEmailOptions {
   text?: string
   from?: string
   replyTo?: string
+  idempotencyKey?: string
+  signal?: AbortSignal
 }
 
 interface SendEmailResult {
@@ -30,9 +32,11 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
   try {
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
+      signal: options.signal,
       headers: {
         'Authorization': `Bearer ${RESEND_API_KEY}`,
         'Content-Type': 'application/json',
+        ...(options.idempotencyKey ? { 'Idempotency-Key': options.idempotencyKey } : {}),
       },
       body: JSON.stringify({
         from: options.from || DEFAULT_FROM,
@@ -46,14 +50,15 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
 
     if (!response.ok) {
       const errorData = await response.text()
-      console.error(`[Email] Resend API error ${response.status}:`, errorData)
+      console.error(`[Email] Resend API error ${response.status}`)
       return { success: false, error: `Resend API ${response.status}: ${errorData}` }
     }
 
     const data = await response.json()
+    if (typeof data?.id !== 'string' || !data.id) return { success: false, error: 'Email provider returned no message ID' }
     return { success: true, id: data.id }
   } catch (error) {
-    console.error('[Email] Send failed:', error)
+    console.error('[Email] Send failed')
     return { success: false, error: String(error) }
   }
 }

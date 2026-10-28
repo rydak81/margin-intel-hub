@@ -16,6 +16,15 @@ create table if not exists public.sponsor_inquiries (
 create index if not exists idx_sponsor_inquiries_created_at on public.sponsor_inquiries (created_at desc);
 alter table public.sponsor_inquiries enable row level security;
 
+-- Explicit permissions also work when automatic Data API grants are disabled.
+revoke all on public.sponsor_inquiries from public, anon, authenticated;
+grant select, insert, update on public.sponsor_inquiries to service_role;
+
+-- Acceptance by the email provider is NOT proof of inbox delivery. Null means
+-- pending or unconfirmed; these rows remain available for operator follow-up.
+alter table public.sponsor_inquiries add column if not exists notification_email_id text;
+alter table public.sponsor_inquiries add column if not exists notification_accepted_at timestamptz;
+
 -- Replace the offer check on a table created by an earlier version of this script (safe to re-run).
 alter table public.sponsor_inquiries drop constraint if exists sponsor_inquiries_offer_check;
 alter table public.sponsor_inquiries add constraint sponsor_inquiries_offer_check
