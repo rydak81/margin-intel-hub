@@ -1,3 +1,4 @@
+import { ORGANIZATION_REF } from '@/lib/site-jsonld'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
@@ -52,7 +53,7 @@ export default async function ForecastScorecardPage() {
     name: 'MarketplaceBeta forecast ledger',
     description: 'Dated ecommerce and marketplace forecasts with confirming and invalidating indicators, resolve-by dates and hit/miss outcomes.',
     url: URL_,
-    creator: { '@type': 'Organization', name: 'MarketplaceBeta', url: 'https://marketplacebeta.com' },
+    creator: ORGANIZATION_REF,
     datePublished: FORECAST_EDITION.loggedOn,
     isAccessibleForFree: true,
     variableMeasured: ['status', 'resolveBy'],

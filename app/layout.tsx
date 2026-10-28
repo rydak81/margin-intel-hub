@@ -4,6 +4,8 @@ import { SiteAnalytics } from '@/components/site-analytics'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { GoogleAnalytics } from '@next/third-parties/google'
 import { ThemeProvider } from '@/components/theme-provider'
+import { JsonLd } from '@/components/json-ld'
+import { organizationJsonLd } from '@/lib/site-jsonld'
 import './globals.css'
 
 const geist = localFont({
@@ -61,7 +63,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={geist.variable} suppressHydrationWarning>
+      {/* Written as a plain <link>, not metadata.alternates: pages that set their own canonical would replace a metadata-level feed link. */}
+      <head>
+        <link rel="alternate" type="application/rss+xml" title="MarketplaceBeta: analysis and fee changes" href="/feed.xml" />
+      </head>
       <body className="font-sans antialiased text-base">
+        {/* The one Organization entity; Articles and Datasets reference it by @id. */}
+        <JsonLd data={organizationJsonLd()} />
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           {children}
           <SiteAnalytics />

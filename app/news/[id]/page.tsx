@@ -1,3 +1,4 @@
+import { ORGANIZATION_REF } from "@/lib/site-jsonld"
 import { ArticleImage } from "@/components/article-image"
 import Link from "next/link"
 import { JsonLd } from "@/components/json-ld"
@@ -139,14 +140,7 @@ export default async function ArticlePage({
     dateModified: article.publishedAt,
     image: [articleImage],
     mainEntityOfPage: articleUrl,
-    publisher: {
-      "@type": "Organization",
-      name: "MarketplaceBeta",
-      logo: {
-        "@type": "ImageObject",
-        url: `${siteUrl}/brand-icon.png`,
-      },
-    },
+    publisher: ORGANIZATION_REF,
     // The briefing (summary, operator take, next steps) is MarketplaceBeta's;
     // the underlying report is credited via isBasedOn rather than as author.
     author: {

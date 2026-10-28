@@ -1,3 +1,4 @@
+import { ORGANIZATION_REF } from '@/lib/site-jsonld'
 import type { Metadata } from 'next'
 import { cache } from 'react'
 import Link from 'next/link'
@@ -66,7 +67,7 @@ export default async function PressureIndexPage() {
     name: 'Marketplace Pressure Index',
     description: 'Weekly coverage intensity by marketplace and topic: each key\'s share of all relevant classified articles in the last 7 days divided by its average weekly share over the trailing 12 weeks. Share-normalized so changes in total archive volume do not move the index. Measures publisher attention, not market size.',
     url: URL_,
-    creator: { '@type': 'Organization', name: 'MarketplaceBeta', url: 'https://marketplacebeta.com' },
+    creator: ORGANIZATION_REF,
     isAccessibleForFree: true,
     dateModified: index.asOf,
     ...(index.archiveStart ? { temporalCoverage: `${index.archiveStart.slice(0, 10)}/${index.asOf.slice(0, 10)}` } : {}),

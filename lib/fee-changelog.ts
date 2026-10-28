@@ -77,3 +77,8 @@ export function feeChangelogNewestFirst(): FeeChangelogEntry[] {
     .sort((a, b) => b.entry.date.localeCompare(a.entry.date) || b.index - a.index)
     .map(({ entry }) => entry)
 }
+
+/** Stable anchor for a change-log entry, used as the entry's DOM id and the feed link fragment. */
+export function feeChangelogId(entry: Pick<FeeChangelogEntry, 'date' | 'title'>): string {
+  return `${entry.date}-${entry.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`
+}
