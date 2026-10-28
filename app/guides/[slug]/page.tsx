@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { ORGANIZATION_REF } from '@/lib/site-jsonld'
 import { OPERATOR_GUIDES, GUIDE_UPDATED, GUIDE_PUBLISHED } from '@/lib/operator-guides'
 import { PremiumSiteHeader } from '@/components/premium-site-header'
 import { PremiumSiteFooter } from '@/components/premium-site-footer'
@@ -30,7 +31,7 @@ export default async function GuidePage({ params }: Props) {
   const { slug } = await params
   const guide = OPERATOR_GUIDES.find(g => g.slug === slug)
   if (!guide) notFound()
-  const schema = { '@context': 'https://schema.org', '@type': 'Article', headline: guide.title, description: guide.description, datePublished: GUIDE_PUBLISHED, dateModified: GUIDE_UPDATED, mainEntityOfPage: `${siteUrl}/guides/${slug}`, author: { '@type': 'Organization', name: 'MarketplaceBeta', url: `${siteUrl}/about` }, publisher: { '@type': 'Organization', name: 'MarketplaceBeta', logo: { '@type': 'ImageObject', url: `${siteUrl}/brand-icon.png` } } }
+  const schema = { '@context': 'https://schema.org', '@type': 'Article', headline: guide.title, description: guide.description, datePublished: GUIDE_PUBLISHED, dateModified: GUIDE_UPDATED, mainEntityOfPage: `${siteUrl}/guides/${slug}`, author: { '@type': 'Organization', name: 'MarketplaceBeta', url: `${siteUrl}/about` }, publisher: ORGANIZATION_REF }
   const breadcrumb = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
     { '@type': 'ListItem', position: 1, name: 'Operator guides', item: `${siteUrl}/guides` },
     { '@type': 'ListItem', position: 2, name: guide.title, item: `${siteUrl}/guides/${slug}` },

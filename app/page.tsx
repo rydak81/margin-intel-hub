@@ -4,16 +4,9 @@ import { JsonLd } from "@/components/json-ld"
 
 const SITE_URL = "https://marketplacebeta.com"
 
+// The Organization node (@id .../#organization) is rendered once in app/layout.tsx.
+
 const homepageJsonLd = [
-  {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "@id": `${SITE_URL}/#organization`,
-    name: "MarketplaceBeta",
-    url: SITE_URL,
-    logo: `${SITE_URL}/icon-192.png`,
-    description: "Human-led ecommerce intelligence, amplified by AI: an AI-classified news archive, publicly graded forecasts, and evidence-labeled research — built by ecommerce operators for Amazon, Walmart, TikTok Shop, eBay, and Etsy sellers.",
-  },
   {
     "@context": "https://schema.org",
     "@type": "WebSite",
