@@ -9,6 +9,7 @@ import { AnalysisInline } from '@/components/analysis-inline'
 import { ANALYSIS_ARTICLES, getAnalysis } from '@/lib/analysis'
 import { FORECASTS } from '@/lib/forecasts'
 import { ORGANIZATION_REF } from '@/lib/site-jsonld'
+import { analysisFaqJsonLd, parseFaqSection } from '@/lib/analysis-faq'
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://marketplacebeta.com'
 type Props = { params: Promise<{ slug: string }> }
@@ -39,7 +40,7 @@ export default async function AnalysisPage({ params }: Props) {
   const cta = `/newsletter?source=${a.newsletterSource}#subscribe`
   const forecasts = FORECASTS.filter(f => a.forecastIds.includes(f.id))
   const url = `${siteUrl}/intelligence/analysis/${slug}`
-  const schema = [
+  const schema: Record<string, unknown>[] = [
     { '@context': 'https://schema.org', '@type': 'Article', headline: a.headline, description: a.metaDescription, datePublished: a.publishedOn, dateModified: a.updatedOn, keywords: a.tags.join(', '), mainEntityOfPage: url, author: { '@type': 'Organization', name: 'MarketplaceBeta', url: `${siteUrl}/about` }, publisher: ORGANIZATION_REF },
     { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Intelligence', item: `${siteUrl}/intelligence` },
@@ -47,6 +48,8 @@ export default async function AnalysisPage({ params }: Props) {
       { '@type': 'ListItem', position: 3, name: a.seoTitle, item: url },
     ] },
   ]
+  const faqSchema = analysisFaqJsonLd(a)
+  if (faqSchema) schema.push(faqSchema)
   return <div className="min-h-screen bg-background">
     <JsonLd data={schema} />
     <PremiumSiteHeader active="analysis" backHref="/intelligence/analysis" backLabel="Analysis" ctaHref={cta} />
@@ -66,7 +69,12 @@ export default async function AnalysisPage({ params }: Props) {
             <h2 className="mb-5 text-2xl font-bold sm:text-3xl">{section.title}</h2>
             {section.paragraphs.map((p, i) => <p key={i} className="mb-5 leading-8 text-muted-foreground"><AnalysisInline text={p} /></p>)}
             {section.table && <div className="my-6 overflow-x-auto rounded-xl border border-border"><table className="w-full min-w-[480px] text-left text-sm"><caption className="bg-secondary px-4 py-3 text-left font-semibold">{section.table.caption}</caption><thead><tr>{section.table.headings.map(h => <th key={h} scope="col" className="border-b border-border px-4 py-3">{h}</th>)}</tr></thead><tbody>{section.table.rows.map((row, i) => <tr key={i} className="border-b border-border last:border-0 even:bg-secondary/40">{row.map((cell, j) => j === 0 ? <th key={j} scope="row" className="px-4 py-3 font-medium">{cell}</th> : <td key={j} className="px-4 py-3 tabular-nums">{cell}</td>)}</tr>)}</tbody></table></div>}
-            {section.bullets && <ul className="list-disc space-y-3 pl-6 leading-8 text-muted-foreground">{section.bullets.map(item => <li key={item}><AnalysisInline text={item} /></li>)}</ul>}
+            {section.bullets && (() => {
+              const faqItems = parseFaqSection(section)
+              return faqItems.length > 0
+                ? <dl className="space-y-5 leading-8">{faqItems.map(f => <div key={f.question}><dt className="font-semibold text-foreground">{f.question}</dt><dd className="mt-1 text-muted-foreground"><AnalysisInline text={f.answerMarkup} /></dd></div>)}</dl>
+                : <ul className="list-disc space-y-3 pl-6 leading-8 text-muted-foreground">{section.bullets.map(item => <li key={item}><AnalysisInline text={item} /></li>)}</ul>
+            })()}
           </section>)}
           {forecasts.length > 0 && <section id="forecasts" className="mt-10 scroll-mt-48 border-t border-border pt-8"><h2 className="text-2xl font-bold">Forecasts this piece tracks</h2><p className="mt-3 text-sm text-muted-foreground">Dated calls from our public ledger, graded hit or miss when they resolve.</p><ul className="mt-5 space-y-4">{forecasts.map(f => <li key={f.id} className="rounded-xl border border-border p-4"><p className="font-semibold">{f.id} · {f.statement}</p><p className="mt-2 text-sm text-muted-foreground">Resolve by <time dateTime={f.resolveBy}>{fmtDate(f.resolveBy)}</time> · Status: {f.status}</p></li>)}</ul><Link href="/intelligence/forecasts" className="mt-4 inline-block text-sm font-bold text-primary">See the full scorecard →</Link></section>}
           <section id="sources" className="mt-10 border-t border-border pt-8"><h2 className="text-2xl font-bold">Sources</h2><p className="mt-3 text-sm text-muted-foreground">Consulted {fmtDate(a.updatedOn)}. Carrier and platform terms change; check the current official documents and your own contract before acting.</p><ul className="mt-5 space-y-5">{a.sources.map(s => <li key={s.href}>{s.href.startsWith('/') ? <Link href={s.href} className="font-semibold text-primary underline">{s.label}</Link> : <a href={s.href} target="_blank" rel="noopener noreferrer" className="font-semibold text-primary underline">{s.label} ↗</a>}<p className="mt-2 text-sm text-muted-foreground">{s.context}</p></li>)}</ul></section>
