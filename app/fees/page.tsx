@@ -5,6 +5,7 @@ import { PremiumSiteHeader } from "@/components/premium-site-header"
 import { PremiumSiteFooter } from "@/components/premium-site-footer"
 import { MARKETPLACES } from "@/lib/marketplace-fees"
 import { TIKTOK_FEE_CHANGE_PATH } from "@/lib/tiktok-fee-change-2026"
+import { FEE_BY_PRICE_PATH } from "@/lib/fee-by-price"
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://marketplacebeta.com"
 
@@ -35,7 +36,18 @@ export default function FeesIndexPage() {
         <p className="mt-4 text-sm text-muted-foreground">Rates change. See the <Link href="/fees/changelog" className="font-medium text-primary underline underline-offset-4">dated fee change log</Link> for every update, with old and new figures.</p>
         <p className="mt-2 text-sm text-muted-foreground">Heard TikTok Shop went to 8%? <Link href={TIKTOK_FEE_CHANGE_PATH} className="font-medium text-primary underline underline-offset-4">What&apos;s confirmed about the 2026 TikTok Shop fee change, and how to check your settlement statement</Link>.</p>
 
-        <div className="mt-8 grid gap-4 md:grid-cols-2">
+        <Link
+          href={FEE_BY_PRICE_PATH}
+          className="editorial-elevated editorial-lift bg-card mt-8 block rounded-2xl border border-sky-300 p-6 transition hover:border-sky-500 hover:bg-sky-50/50 dark:border-sky-400/40 dark:hover:bg-sky-400/5"
+        >
+          <p className="text-xs font-bold uppercase tracking-[.22em] text-sky-700 dark:text-sky-300">Compare by price</p>
+          <h2 className="mt-2 text-xl font-bold text-slate-900 dark:text-white">What each marketplace takes at $10, $25, $50 and $100</h2>
+          <p className="mt-2 leading-relaxed text-slate-600 dark:text-slate-300">
+            Total fees and net after fees for Amazon, Walmart, TikTok Shop, eBay and Etsy side by side, with Etsy Offsite Ads shown as a separate line. Hypothetical examples computed from the fee tables below.
+          </p>
+        </Link>
+
+        <div className="mt-6 grid gap-4 md:grid-cols-2">
           {MARKETPLACES.map((marketplace) => {
             const rates = marketplace.categories.map((c) => c.referralPct)
             return (

@@ -8,6 +8,7 @@ import { OPERATOR_GUIDES } from '@/lib/operator-guides'
 import { MARKETPLACES, formatVerifiedDate } from '@/lib/marketplace-fees'
 import { FEE_CHANGELOG } from '@/lib/fee-changelog'
 import { SITE_URL } from '@/lib/site-jsonld'
+import { FEE_BY_PRICE_PATH } from '@/lib/fee-by-price'
 
 export function buildLlmsTxt(): string {
   const latestFeeCheck = [...MARKETPLACES.map((m) => m.lastVerified), ...FEE_CHANGELOG.map((e) => e.date)].sort().pop()!
@@ -21,6 +22,7 @@ export function buildLlmsTxt(): string {
     '## Seller fees (dated, with change history)',
     `- [Marketplace seller fees](${SITE_URL}/fees): Referral-fee comparison across Amazon, Walmart, TikTok Shop, eBay and Etsy, with a margin calculator.`,
     ...MARKETPLACES.map((m) => `- [${m.name} fees](${SITE_URL}/fees/${m.slug}): ${m.categories.length} categories, checked ${formatVerifiedDate(m.lastVerified)}.`),
+    `- [Marketplace fees by item price](${SITE_URL}${FEE_BY_PRICE_PATH}): Hypothetical total fees and net after fees at $10, $25, $50 and $100 for all five marketplaces, computed from the fee tables.`,
     `- [Fee change log](${SITE_URL}/fees/changelog): Dated old and new rates for every change to the fee tables.`,
     `- [Amazon holiday peak fees 2026](${SITE_URL}/fees/amazon/holiday-peak-2026): Peak-season fulfillment fees and the surcharge, with worked examples.`,
     `- [TikTok Shop fee change 2026](${SITE_URL}/fees/tiktok-shop/fee-change-2026): The published 6% rate versus the reported 8%, and what is confirmed.`,
