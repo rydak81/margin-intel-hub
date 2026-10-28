@@ -126,7 +126,8 @@ export function sponsorInquiryEmail(i: SponsorInquiry): { subject: string; html:
   return { subject, html, text }
 }
 
-/** Where inquiries are emailed: SPONSOR_INQUIRY_TO, else the existing EMAIL_REPLY_TO. */
+/** Explicit recipient: a reply-to address does not establish a working inbox. */
 export function inquiryRecipient(env: Record<string, string | undefined> = process.env): string | null {
-  return env.SPONSOR_INQUIRY_TO?.trim() || env.EMAIL_REPLY_TO?.trim() || null
+  const recipient = env.SPONSOR_INQUIRY_TO?.trim()
+  return recipient && EMAIL_REGEX.test(recipient) ? recipient : null
 }
