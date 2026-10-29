@@ -46,6 +46,96 @@ export interface AnalysisArticle {
 
 export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
   {
+    slug: "la-long-beach-rail-backlog-strike-holiday-inventory",
+    seoTitle: "LA–Long Beach Backlog and Strike Risk: Q4 Stock Plan",
+    metaDescription: "35,688 containers waited for rail at LA–Long Beach on Oct 26, and a Nov 1 strike could hit key terminals. What sellers should do this week.",
+    headline: "Your Cyber Week stock may be stuck at LA–Long Beach. Plan as if it misses.",
+    dek: "A rail backlog is already holding thousands of import containers for nine days or more, and a watchmen's strike could hit terminals that handle 85% of Long Beach cargo from Sunday. Here is how to triage inventory, promotions and ad spend before Black Friday.",
+    publishedOn: "2026-10-29",
+    updatedOn: "2026-10-29",
+    author: "MarketplaceBeta Intelligence",
+    readTime: "6 min",
+    tags: ["logistics", "ports", "inventory", "peak season", "Q4 2026"],
+    takeaway: "If any Cyber Week inventory is still at Los Angeles or Long Beach, or on a ship headed there, treat its arrival date as unknown. This week, find those purchase orders, move promotions and ad budget onto stock that is already in a fulfillment center, and decide which SKUs you would rather run out of than pay to expedite.",
+    forecastIds: ["F2", "F1"],
+    newsletterSource: "campaign_port_backlog_q4",
+    sections: [
+      {
+        id: "what-changed",
+        title: "What changed",
+        paragraphs: [
+          "Two things hit the country's busiest container port complex in the same week. The first is already happening. On October 26, 35,688 import containers were waiting for on-dock trains at the ports of Los Angeles and Long Beach, and 10,562 of them had been on the terminals for at least nine days, according to FreightWaves' report of The Dwell's compilation of the ports' daily rail reports. Los Angeles was worse: 8,133 of its 19,626 rail-bound containers had waited nine days or longer, or 41.4%, against 15.1% at Long Beach.",
+          "The queue has been building. Average dwell for containers leaving by rail rose to 7.19 days in September from 6.75 days in August, and for containers leaving by local truck to 3.18 days from 2.95, per Pacific Merchant Shipping Association data cited by FreightWaves. C.H. Robinson's October market update named Southern California intermodal railcar shortages as the constraint, and said truck-bound containers were moving relatively normally by comparison.",
+          "The cause is volume. Los Angeles handled 1,042,652 TEU in September, its busiest month on record, and Long Beach handled a record 997,177 TEU. Loaded imports across the complex totalled 1,055,086 TEU, up 24.4% year on year, per the World Ports Organization.",
+          "The second thing is a deadline. About 250 watchmen in International Longshore and Warehouse Union Local 26 have authorized a strike that could start at 5 p.m. Pacific on Sunday, November 1 (8 p.m. Eastern), when their latest contract extension expires. The Pacific Maritime Association, which represents the employers, says they are about 2% of the ILWU workforce at the two ports but work at terminals handling roughly 85% of Long Beach's cargo and 33% of Los Angeles' cargo, and that it expects other ILWU members to honor picket lines, which could halt vessel, yard and gate operations at those terminals. Talks were continuing with federal mediators as of October 28, per FreightWaves and the Long Beach Post.",
+        ],
+        table: {"caption": "Import containers awaiting on-dock rail, October 26, 2026 · Source: FreightWaves (Oct 28, 2026), citing The Dwell's compilation of the ports' daily rail reports", "headings": ["Port", "Awaiting rail", "Waiting 9+ days", "Share waiting 9+ days"], "rows": [["Los Angeles", "19,626", "8,133", "41.4%"], ["Long Beach", "16,062", "2,429", "15.1%"], ["Complex total", "35,688", "10,562", "about 30% (our arithmetic)"]]},
+      },
+      {
+        id: "why-it-matters",
+        title: "Why it matters: the calendar is shorter than the queue",
+        paragraphs: [
+          "Black Friday is November 27. That is 29 days from today, and inventory has to clear the port, move inland, and be received at a fulfillment center before it can sell. For the 10,562 containers already past nine days on the terminal, more than a week of that runway is gone before a train is even assigned.",
+          "Amazon's own date has already passed. For Prime badge eligibility during Black Friday Week and Cyber Monday, Amazon asked that FBA inventory sent with Amazon-optimized shipment splits arrive by October 28, as we noted in our [Q4 holiday forecasts piece](/intelligence/analysis/q4-2026-holiday-forecasts-marketplace-sellers). Anything still sitting at a Southern California terminal today arrives after that date.",
+          "The strike, if it happens, turns a slow lane into a stopped one at the terminals involved. The FreightWaves strike report notes that the complex is already contending with the rail backlog, which raises concerns about getting holiday merchandise to the eastern United States. Note the split, though. Truck-bound boxes are moving relatively normally, per C.H. Robinson. The rail lane is the one that is jammed.",
+          "Hypothesis, not yet measured: the sellers most exposed are importers who land goods in Southern California and rail them to Midwest or East Coast warehouses, especially those with one or two containers of Cyber Week stock and no buffer. Large importers can reroute or split shipments. A small seller with one late container usually cannot.",
+          "The cost side does not ease either. Our [October Intelligence Dossier](/intelligence/dossier) recorded diesel at an all-time high of $6.53 a gallon in late September and FedEx's domestic fuel surcharge at 32.25%. Fuel executives at the WEX OTR Summit this week warned diesel could stay elevated into spring 2027, and Dow Jones Energy's Denton Cinquegrana said US refineries have been running above 95% of capacity, per FreightWaves. Every workaround for a stuck container, whether transloading to truck, splitting shipments, or air freight on a few SKUs, costs more than the plan it replaces.",
+        ],
+      },
+      {
+        id: "forecasts",
+        title: "Where this lands on our forecast scorecard",
+        paragraphs: [
+          "Two calls on our [forecast scorecard](/intelligence/forecasts) are exposed. Forecast F2 says effective Q4 residential parcel cost inflation for DTC sellers lands at or above 8% despite 5.9% general rate increases. A port disruption does not change parcel rate cards directly, but expedited and rerouted freight pushes the same way on landed cost. Forecast F1 says US online holiday sales from November 1 to December 31 grow at least 6% year on year. Demand is not the variable a port problem moves. Available inventory is. Both resolve January 31, 2027, and we will grade them hit or miss in public.",
+        ],
+      },
+      {
+        id: "what-to-do-this-week",
+        title: "What to do this week",
+        paragraphs: [
+          "Do these before Sunday's deadline, not after the first missed delivery date.",
+        ],
+        bullets: [
+          "List every open purchase order with goods on the water or at a terminal. For each one, ask your forwarder three things: which port and terminal, whether it leaves by rail or truck, and the current estimate to your warehouse or fulfillment center. The Local 26 strike notice named eight locations, per the World Ports Organization: APM Terminals, Long Beach Container Terminal, Total Terminals International, SSA C-60, SSA A-90, SSA LB 206, Pacific Container Terminal and OH 55.",
+          "For rail-bound containers that matter for Cyber Week, ask for a price to transload to truck out of Southern California. Truck-bound containers are the lane that is still moving, per C.H. Robinson. Compare the extra cost per unit with the margin on those units at your planned deal price, not at full price.",
+          "Move promotions and ad budget onto stock you already have. Do not commit a Cyber Week deal or a budget increase to a SKU whose replenishment is in the rail queue. On Amazon, a Black Friday Week or Cyber Monday deal carries a $100 upfront fee plus 1.5% of promotional sales, capped at $5,000, as covered in our [holiday forecasts piece](/intelligence/analysis/q4-2026-holiday-forecasts-marketplace-sellers), and you pay to run a deal you may not be able to fill.",
+          "If a SKU sells on more than one channel and stock will be short, allocate units to the channel that keeps the most margin at peak fees. Start with our [Amazon holiday peak fee page](/fees/amazon/holiday-peak-2026), the [Amazon vs Walmart comparison](/fees/compare/amazon-vs-walmart) and the [fee change log](/fees/changelog).",
+          "Decide now which SKUs justify air freight or a domestic reorder, and which you will let run out. Make that list while you have options, before November 1, rather than after a strike starts.",
+          "On channels where you set your own handling time, lengthen it on SKUs that depend on stuck replenishment instead of cancelling orders later.",
+        ],
+      },
+      {
+        id: "what-were-watching",
+        title: "What we're watching next",
+        paragraphs: [
+          "We will update this piece if a strike starts or a deal is announced. The signals we are tracking:",
+        ],
+        bullets: [
+          "The November 1, 5 p.m. Pacific deadline, and whether other ILWU members honor Local 26 picket lines.",
+          "The ports' daily rail reports, specifically whether the count of containers waiting nine days or more starts to fall.",
+          "Weekly diesel prices from the US Energy Information Administration, which our dossier lists as a leading signal for forecast F2.",
+          "Cyber Week sales tracking against forecast F1. See the full context on the [intelligence hub](/intelligence).",
+        ],
+      },
+      {
+        id: "note",
+        title: "How this was made",
+        paragraphs: [
+          "AI-assisted, human-reviewed. Figures come from the linked sources below, dated as shown. The share of containers waiting nine days or more across the whole complex is our arithmetic from FreightWaves' figures. Statements labeled as hypotheses have not been measured.",
+        ],
+      },
+    ],
+    sources: [
+      {"label": "FreightWaves: Backlog grows as 35,000 containers await rail service at LA–Long Beach (Oct 28, 2026)", "href": "https://www.freightwaves.com/news/backlog-grows-as-35000-containers-await-rail-service-at-la-long-beach", "context": "35,688 containers awaiting rail on Oct 26, 10,562 for nine days or more; port splits; PMSA dwell data (7.19 vs 6.75 days rail, 3.18 vs 2.95 truck); C.H. Robinson on Southern California railcar shortages and truck-bound containers moving relatively normally."},
+      {"label": "FreightWaves: Strike threat by port security workers at Los Angeles–Long Beach (Oct 28, 2026)", "href": "https://www.freightwaves.com/news/strike-threat-by-port-security-workers-at-los-angeles-long-beach", "context": "About 250 ILWU Local 26 watchmen; strike possible from 5 p.m. Pacific Nov 1; PMA figures of 2% of the workforce and terminals handling about 85% of Long Beach and 33% of Los Angeles cargo; talks continuing with federal mediators."},
+      {"label": "Long Beach Post: Strike vote by security workers threatens to halt most cargo at Port of Long Beach (Oct 28, 2026)", "href": "https://lbpost.com/news/business/trade-transportation/strike-port-security-la-long-beach-cargo-halt", "context": "Negotiations since July 2025; PMA and Port of Long Beach statements; no deal as of Oct 28."},
+      {"label": "World Ports Organization: 250 watchmen authorise strike at busiest US container port complex", "href": "https://www.worldports.org/250-watchmen-authorise-strike-at-busiest-us-container-port-complex/", "context": "Eight locations named in Local 26's Oct 23 notice; September volumes of 1,042,652 TEU (Los Angeles) and 997,177 TEU (Long Beach); loaded imports of 1,055,086 TEU, up 24.4% year on year."},
+      {"label": "FreightWaves: Diesel prices may stay elevated into spring 2027, fuel executives warn (Oct 28, 2026)", "href": "https://www.freightwaves.com/news/diesel-prices-may-stay-elevated-into-spring-2027-fuel-executives-warn", "context": "WEX OTR Summit panel; diesel elevated into spring 2027; US refineries above 95% of capacity per Dow Jones Energy."},
+      {"label": "Amazon Seller Forums: Holiday 2026 fees and deadlines", "href": "https://sellercentral.amazon.com/seller-forums/discussions/t/3e31fbb7-04e0-4ed4-873e-f74b1052e2ff", "context": "Oct 28 inbound arrival date for Prime badge eligibility with Amazon-optimized splits; deal fees of $100 upfront plus 1.5% of promotional sales, capped at $5,000."},
+      {"label": "MarketplaceBeta Intelligence Dossier, Edition 1 (Oct 14, 2026)", "href": "/intelligence/dossier", "context": "Record diesel of $6.53 a gallon in late September and FedEx's 32.25% domestic fuel surcharge, with the dossier's own cited sources; EIA diesel as a leading indicator for forecast F2."},
+    ],
+  },
+  {
     "slug": "eu-3-euro-duty-2-euro-handling-fee-us-sellers",
     "seoTitle": "EU €3 Duty and €2 Handling Fee: What US Sellers Pay",
     "metaDescription": "From Nov 1, 2026 the EU adds a €2 handling fee to the €3 duty, per distinct item. Worked examples for US sellers shipping to EU buyers.",
