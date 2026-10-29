@@ -142,7 +142,7 @@ describe('Organization entity', () => {
   })
   it('is the creator of every Dataset', () => {
     const files = walk('app').filter(f => /['"]@type['"]:\s*['"]Dataset['"]/.test(read(f)))
-    expect(files.sort()).toEqual(['app/fees/[marketplace]/page.tsx', 'app/fees/changelog/page.tsx', 'app/intelligence/forecasts/page.tsx', 'app/intelligence/pressure-index/page.tsx'].sort())
+    expect(files.sort()).toEqual(['app/fees/[marketplace]/page.tsx', 'app/fees/changelog/page.tsx', 'app/fees/compare-by-item-price/page.tsx', 'app/intelligence/forecasts/page.tsx', 'app/intelligence/pressure-index/page.tsx'].sort())
     for (const f of files) expect(read(f), f).toContain('creator: ORGANIZATION_REF')
   })
 })

@@ -6,6 +6,7 @@ import { MARKETPLACES, getAllFeeRoutes } from '@/lib/marketplace-fees'
 import { getAllPairs } from '@/lib/fee-compare'
 import { CHECKED_ON as AMAZON_PEAK_CHECKED, AMAZON_PEAK_PATH } from '@/lib/amazon-holiday-peak-2026'
 import { FEE_CHANGELOG } from '@/lib/fee-changelog'
+import { FEE_BY_PRICE_PATH, verifiedRange as feeByPriceVerified } from '@/lib/fee-by-price'
 import { CHECKED_ON as TIKTOK_FEE_CHANGE_CHECKED, TIKTOK_FEE_CHANGE_PATH } from '@/lib/tiktok-fee-change-2026'
 import { ANALYSIS_ARTICLES } from '@/lib/analysis'
 import { INDEXABLE_NEWS_SOURCE_TYPES, dedupeByTitle, isSelfCanonicalFeeCategory } from '@/lib/seo-indexing'
@@ -193,6 +194,7 @@ function getFeeRoutes(): MetadataRoute.Sitemap {
 
   const explainers: MetadataRoute.Sitemap = [
     { url: `${siteUrl}${TIKTOK_FEE_CHANGE_PATH}`, lastModified: new Date(TIKTOK_FEE_CHANGE_CHECKED), changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${siteUrl}${FEE_BY_PRICE_PATH}`, lastModified: new Date(feeByPriceVerified().newest), changeFrequency: 'weekly', priority: 0.8 },
   ]
 
   return [...hub, ...explainers, ...comparisons, ...categories]
