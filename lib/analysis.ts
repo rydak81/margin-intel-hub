@@ -262,6 +262,309 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
     ]
   },
   {
+    "slug": "etsy-offsite-ads-fees-2026",
+    "seoTitle": "Etsy Offsite Ads Fees 2026: 15%, 12%, $100 Cap, Opt-Out",
+    "metaDescription": "Etsy takes 15% of the whole order, shipping included, or 12% above $10,000 in sales, capped at $100. Who can opt out, plus the pricing math.",
+    "headline": "Etsy's Offsite Ads fee takes 12% to 15% of the whole order, shipping included, and you can only opt out below $10,000",
+    "dek": "On any order placed within 30 days of a click on one of Etsy's Offsite Ads, Etsy charges 15% of item price plus shipping, or 12% once your shop has made $10,000 in sales over 365 days, capped at $100 an order. Here is the math on a $20, $50 and $100 sale, how to price for it, and what to check in your dashboard this week.",
+    "publishedOn": "2026-10-27",
+    "updatedOn": "2026-10-27",
+    "author": "MarketplaceBeta Intelligence",
+    "readTime": "8 min",
+    "tags": [
+      "Etsy",
+      "fees",
+      "Offsite Ads",
+      "advertising",
+      "2026"
+    ],
+    "takeaway": "If your Etsy shop has never reached $10,000 in sales over 365 days, you can still opt out of Offsite Ads, and you lose that choice for the life of the shop once you cross the line. Either way, price for a fee that runs on the whole order, shipping included: an order sold through an ad needs a price about 20% higher at the 15% rate, or about 15% higher at the 12% rate, to leave you the same money.",
+    "forecastIds": [],
+    "newsletterSource": "campaign_kw_etsy_offsite_ads",
+    "sections": [
+      {
+        "id": "what-changed",
+        "title": "The answer, and what has and has not changed",
+        "paragraphs": [
+          "Etsy charges an advertising fee on any order a buyer places within 30 days of clicking one of its Offsite Ads, and the fee is a percentage of the whole order: the price of the item plus the shipping and gift wrapping you charge. It is 15% if your shop has always made less than $10,000 in sales in any 365-day period and 12% once it has made $10,000 or more, and it never exceeds $100 on one order. Below $10,000 you can opt out. At $10,000 you cannot, for the life of the shop. All of that comes from Etsy's own [Offsite Ads help page](https://help.etsy.com/hc/en-us/articles/360000338367-How-Etsy-s-Offsite-Ads-Work) and [Fees & Payments Policy](https://www.etsy.com/legal/fees/), read on October 27, 2026.",
+          "We found no change to those numbers. The copy of the Fees & Payments Policy we read is headed \"Last updated on Oct 5, 2026\" and carries the same 15%, 12%, $10,000 and $100 figures as the help page. We did not have the earlier version to compare, so we cannot say what the October 5 edit touched. What Etsy has announced is tooling: its seller-updates page lists a redesigned Offsite Ads dashboard that shows revenue, fees, visits, top channels and listings, and traffic from ads that did not end in a sale.",
+          "Offsite Ads are optional only below the $10,000 line. Per Etsy's help page, that stops being true once the shop has made $10,000 or more in any consecutive 365-day period."
+        ]
+      },
+      {
+        "id": "how-the-fee-works",
+        "title": "The rules, in one table",
+        "paragraphs": [
+          "Eight rules decide what you pay. Each row is Etsy's wording or a close paraphrase, and the right-hand column says where it appears."
+        ],
+        "table": {
+          "caption": "Etsy Offsite Ads rules, checked October 27, 2026",
+          "headings": [
+            "Rule",
+            "What Etsy says",
+            "Where"
+          ],
+          "rows": [
+            [
+              "Rate below the line",
+              "15% of the order total, for a shop that has always made less than $10,000 in any consecutive 365-day period.",
+              "Help page; Fees & Payments Policy"
+            ],
+            [
+              "Rate at or above the line",
+              "12%. Participation is required for the lifetime of the shop, even if sales later fall back below $10,000.",
+              "Help page; Fees & Payments Policy"
+            ],
+            [
+              "Opt-out",
+              "Only while the shop is below $10,000: Shop Manager, Settings, Offsite Ads, Opt out. If you opted out earlier and then reach $10,000, the opt-out no longer applies.",
+              "Help page; Fees & Payments Policy"
+            ],
+            [
+              "Attribution",
+              "A buyer clicks an ad and orders from your shop within 30 days. One click can produce several attributed orders, and each can be charged. If the buyer's last click before buying was an Etsy Ads click, only the Etsy Ads fee applies.",
+              "Help page; Fees & Payments Policy"
+            ],
+            [
+              "Cap",
+              "The fee on any one order never exceeds $100, whatever the order total.",
+              "Help page; Fees & Payments Policy"
+            ],
+            [
+              "Fee base",
+              "The price shown for each listing plus the shipping and gift wrapping you charge, plus any personalization fee. US sellers: not sales tax. Sellers outside the US: taxes included in listing prices are in the base.",
+              "Fees & Payments Policy"
+            ],
+            [
+              "How the $10,000 is counted",
+              "Item price times quantity, minus discounts and cancelled orders. It excludes shipping, taxes, gift wrap, Etsy fees, Pattern orders and in-person orders. The policy says it is calculated on the first day of each month over the prior 365 days; the help page says any consecutive 365-day period.",
+              "Fees & Payments Policy; help page"
+            ],
+            [
+              "Your controls",
+              "No budget setting. You cannot choose which listings are advertised. You pay only when an attributed order happens.",
+              "Help page"
+            ]
+          ]
+        }
+      },
+      {
+        "id": "the-math",
+        "title": "What it does to a $20, $50 and $100 sale",
+        "paragraphs": [
+          "Hypothetical US seller on Etsy Payments, one item per order, no buyer-paid shipping, no sales tax. Etsy's other fees come from our [Etsy fee table](/fees/etsy): 6.5% transaction fee, $0.20 listing fee, and 3% plus $0.25 payment processing. They match our [$20 sale](/fees/etsy/on-a-20-sale) and [$50 sale](/fees/etsy/on-a-50-sale) pages. The Offsite Ads fee is Etsy's rate applied to the order total. All amounts are before product cost and postage.",
+          "Read the table as an add-on. On a $20 sale, Etsy's other fees take $2.35, or 11.8% of the sale. An attributed order at 15% takes another $3.00, which lifts total Etsy fees to 26.8% of the sale. At 12% the total is 23.8%."
+        ],
+        "table": {
+          "caption": "Hypothetical: what is left from one order, with and without an Offsite Ads fee",
+          "headings": [
+            "Item price",
+            "Other Etsy fees",
+            "Left after those",
+            "Ad fee at 15%",
+            "Left at 15%",
+            "Ad fee at 12%",
+            "Left at 12%"
+          ],
+          "rows": [
+            [
+              "$20",
+              "$2.35",
+              "$17.65",
+              "$3.00",
+              "$14.65",
+              "$2.40",
+              "$15.25"
+            ],
+            [
+              "$50",
+              "$5.20",
+              "$44.80",
+              "$7.50",
+              "$37.30",
+              "$6.00",
+              "$38.80"
+            ],
+            [
+              "$100",
+              "$9.95",
+              "$90.05",
+              "$15.00",
+              "$75.05",
+              "$12.00",
+              "$78.05"
+            ]
+          ]
+        }
+      },
+      {
+        "id": "price-to-hold",
+        "title": "Why it matters: the fee is a share of the price you raise",
+        "paragraphs": [
+          "Covering the fee takes more than the fee itself, because the fee grows with the price. An attributed order needs a price about 20% higher at 15%, or about 15% higher at 12%, to leave the same money as an order with no ad fee (our arithmetic, same assumptions as above). The table shows the exact prices."
+        ],
+        "table": {
+          "caption": "Hypothetical: price needed on an attributed order to leave the same amount",
+          "headings": [
+            "Price today",
+            "At the 15% rate",
+            "At the 12% rate"
+          ],
+          "rows": [
+            [
+              "$20",
+              "$23.97 (+19.8%)",
+              "$23.06 (+15.3%)"
+            ],
+            [
+              "$50",
+              "$59.93 (+19.9%)",
+              "$57.64 (+15.3%)"
+            ],
+            [
+              "$100",
+              "$119.87 (+19.9%)",
+              "$115.29 (+15.3%)"
+            ]
+          ]
+        }
+      },
+      {
+        "id": "blend",
+        "title": "You cannot price attributed orders separately",
+        "paragraphs": [
+          "Etsy decides which listings it advertises and where. There is no budget and no per-listing switch. The levers you hold are the opt-out below $10,000, your prices, and what you charge for shipping. Hypothesis, not an Etsy rule: for most shops the fee is best modeled as a blend, meaning the share of your orders attributed to Offsite Ads times the rate. Your Offsite Ads dashboard shows that share. We cannot.",
+          "The table shows what a blend does to a hypothetical $50 item. Raising the price lifts the fee base on every order, so the figures include that. They ignore any change in how many buyers purchase at the higher price."
+        ],
+        "table": {
+          "caption": "Hypothetical: $50 item, price that holds take-home if a share of orders are attributed",
+          "headings": [
+            "Share of orders attributed",
+            "Blended fee at 15%",
+            "Price at 15%",
+            "Blended fee at 12%",
+            "Price at 12%"
+          ],
+          "rows": [
+            [
+              "10%",
+              "1.5%",
+              "$50.84 (+1.7%)",
+              "1.2%",
+              "$50.67 (+1.3%)"
+            ],
+            [
+              "25%",
+              "3.75%",
+              "$52.16 (+4.3%)",
+              "3%",
+              "$51.71 (+3.4%)"
+            ],
+            [
+              "50%",
+              "7.5%",
+              "$54.52 (+9.0%)",
+              "6%",
+              "$53.55 (+7.1%)"
+            ]
+          ]
+        }
+      },
+      {
+        "id": "shipping-and-the-line",
+        "title": "Shipping, the cap and the $10,000 line",
+        "paragraphs": [
+          "Shipping is in the fee base. Hypothetical: a $26 item with $50 of buyer-paid shipping is a $76 order. At 15% the Offsite Ads fee is $11.40, and at 12% it is $9.12, not the $3.90 or $3.12 you would get from the item price alone. Etsy's other fees also run on the shipping, so they come to $7.67 on that order by our fee table. The seller keeps $56.93 at 15% or $59.21 at 12%, before paying for postage. Moving cost from the price into the shipping charge does not get around the fee, because the fee covers both.",
+          "At 15% the $100 cap binds at an order total of $666.67, and at 12% at $833.33 (our arithmetic: $100 divided by the rate). Above those totals the effective rate falls. For most small shops the cap never applies.",
+          "The $10,000 line and the fee base are not the same measure. The line counts item price only, per the policy, so shipping charges never move you toward it. The fee runs on the whole order, so shipping charges always add to what you pay. And the line is a one-way door: Etsy's policy says a shop that opted out and then reaches $10,000 \"will be required to participate\" and that the earlier opt-out \"will no longer apply.\" Our reading: for a shop approaching $10,000, an opt-out has a short shelf life."
+        ]
+      },
+      {
+        "id": "what-to-do-this-week",
+        "title": "What to do this week",
+        "paragraphs": [
+          "None of this needs a new tool. It needs three numbers from your own shop and one spreadsheet column."
+        ],
+        "bullets": [
+          "Pull your share. In Shop Manager, open Marketing, then Offsite Ads, which is the dashboard path in Etsy's help page. For a period you choose, note attributed orders, attributed revenue and fees, then divide attributed orders by all orders. That share times 15% or 12% is your blended fee.",
+          "Find your line. Etsy's help center tells you to set a custom 365-day range on your Stats page. The policy counts item price times quantity and excludes shipping, taxes and gift wrap, so check that your Stats figure uses the same definition before you rely on it. We did not verify what the Stats page includes.",
+          "If you are under $10,000, decide on the opt-out on purpose. Offsite Ads charge nothing until a sale happens, and opting out removes that traffic as well as the fee. Etsy says you can re-enroll with Turn on Offsite Ads. Whether the traffic is worth the fee is a question about your margins and your dashboard. Etsy's pages do not say how much traffic Offsite Ads bring to any given shop.",
+          "Reprice the thin items first. Any listing whose margin after Etsy's other fees is smaller than the ad fee loses money on an attributed order: on a $20 item that is $3.00 at 15%. Use the tables above to set a floor, then compare with what the same item nets on [eBay](/fees/compare/ebay-vs-etsy).",
+          "Check what you charge for shipping. If you charge more than postage costs, the fee runs on the surplus as well, and the surplus does not count toward the $10,000 line.",
+          "After a refund, read your payment account. Etsy's Payments Policy says that on seller refunds the payment processing fee is recalculated and \"Other applicable fees will be refunded to the seller's payment account.\" It does not say in so many words how a partial refund affects an Offsite Ads fee, so check the entry rather than assume."
+        ]
+      },
+      {
+        "id": "faq",
+        "title": "Questions sellers ask about Etsy Offsite Ads",
+        "paragraphs": [
+          "Answers are from Etsy's help page, its Fees & Payments Policy and its Payments Policy, read October 27, 2026. Where Etsy's pages are silent, we say so."
+        ],
+        "bullets": [
+          "Can I opt out of Etsy Offsite Ads? Only if your shop has always made less than $10,000 in any consecutive 365-day period. Go to Shop Manager, Settings, Offsite Ads, then Opt out. If you reach $10,000 later, you are required to participate for the lifetime of the shop and the earlier opt-out no longer applies.",
+          "What is the difference between the 15% and 12% rate? Both apply to the same base, the order total. Shops below $10,000 pay 15%. Shops at or above $10,000 pay 12%, which Etsy calls a discount, and cannot opt out. On $50 of order total that is $7.50 against $6.00.",
+          "Does the 30-day window apply to custom or repeat orders? Etsy's policy says it applies to \"any orders\" a buyer places from your shop within 30 days of the ad click, and the help page says each order in that window can be charged. Neither page carves out custom or repeat orders. Your Offsite Ads dashboard lists the orders attributed to ads.",
+          "Is the fee charged on shipping? Yes. Etsy's policy says the fee is a percentage of the total order amount, which is the listing price plus the shipping and gift wrapping you charge. US sellers do not pay it on sales tax. Sellers outside the US pay it on taxes included in listing prices.",
+          "How do I price items so Offsite Ads do not wipe out my margin? Work out the share of your orders that are attributed, multiply by 15% or 12%, and raise prices so your take-home holds at that blended fee. The tables above show the method for a hypothetical $50 item.",
+          "Does this apply to 3D-printed items I sell? The rate and the opt-out depend on your shop's sales, not on the type of item. The Etsy pages we read list no exemption for 3D-printed items or any other item type. Whether a given 3D print may be listed on Etsy at all is a separate question that this piece does not cover.",
+          "Can I choose which listings are advertised or set a budget? No. Etsy's help page says listings are advertised based on what performs best on each channel, and that Offsite Ads have no budget setting. The only cost control is the cap of $100 per order and, below $10,000, the opt-out.",
+          "Do I get the fee back if I refund the order? Etsy's Payments Policy says that when a seller refunds a buyer, the processing fee is recalculated and other applicable fees are refunded, but that for full refunds Etsy itself covers, such as through its protection program, the fees \"including without limitation: transaction fee, offsite ads fee, etc.\" are not credited back. It does not spell out the partial-refund case for the Offsite Ads fee, so check your payment account."
+        ]
+      },
+      {
+        "id": "what-we-are-watching",
+        "title": "What we are watching next",
+        "paragraphs": [
+          "Any edit to the 15%, 12%, $10,000 or $100 figures. Etsy last updated its Fees & Payments Policy on October 5, 2026, and we will log any rate change on the [fee change log](/fees/changelog) with the old and new values.",
+          "Our Etsy calculators do not yet include an Offsite Ads line, so the tables above are computed from the same fee table plus Etsy's ad rate. Fee-layering is a theme we track on the [forecast scorecard](/intelligence/forecasts), where Forecast F5 covers Amazon's 2027 fee announcement. No forecast covers Etsy today. Our broader marketplace analysis is in the October [Intelligence Dossier](/intelligence/dossier), and the rest of our operator analysis is on the [intelligence dashboard](/intelligence).",
+          "How Etsy's redesigned Offsite Ads dashboard reports attributed orders. Etsy's description is brief, so we have not tested what it shows. Compare your own dashboard with your payment account entries for a few orders before you build prices on it."
+        ]
+      }
+    ],
+    "sources": [
+      {
+        "label": "Etsy Help: How Etsy's Offsite Ads Work (read Oct 27, 2026)",
+        "href": "https://help.etsy.com/hc/en-us/articles/360000338367-How-Etsy-s-Offsite-Ads-Work",
+        "context": "15% below $10,000 and 12% at or above, in any consecutive 365-day period; opt-out only below $10,000 and required participation for the life of the shop at $10,000; 30-day attribution, each attributed order can be charged; Etsy Ads last-click rule; $100 cap per order; no budget setting; listings advertised at Etsy's discretion; opt-out path."
+      },
+      {
+        "label": "Etsy: Fees & Payments Policy (archived copy headed \"Last updated on Oct 5, 2026\", read Oct 27, 2026)",
+        "href": "https://www.etsy.com/legal/fees/",
+        "context": "Direct fetch was blocked, so we read a web-archive copy. Offsite Ads fee tiers, the $10,000 definition and monthly calculation, lifetime 12% rule, fee base (listing price plus shipping and gift wrapping, taxes by jurisdiction), $100 cap; also $0.20 listing fee, 6.5% transaction fee and payment processing on the order total."
+      },
+      {
+        "label": "Etsy Help: What are the Fees and Taxes for Selling on Etsy?",
+        "href": "https://help.etsy.com/hc/en-us/articles/115014483627-What-are-the-Fees-and-Taxes-for-Selling-on-Etsy",
+        "context": "Search-result excerpt read Oct 27, 2026: 15% below $10,000, 12% at or above, $100 cap per order. Page not opened in full."
+      },
+      {
+        "label": "Etsy Help: How to Set Up and Manage an Etsy Ads Campaign",
+        "href": "https://help.etsy.com/hc/en-us/articles/360033701174-How-to-Set-Up-and-Manage-an-Etsy-Ads-Campaign",
+        "context": "Search-result excerpt read Oct 27, 2026: all sellers are enrolled automatically; opt-out depends on revenue; how to check 365-day earnings on the Stats page. Page not opened in full."
+      },
+      {
+        "label": "Etsy Help: What are Payment Processing Fees for Selling on Etsy?",
+        "href": "https://help.etsy.com/hc/en-us/articles/115015628847-What-are-Payment-Processing-Fees-for-Selling-on-Etsy",
+        "context": "Search-result excerpt read Oct 27, 2026: United States 3% plus $0.25, charged on the total sale price including shipping and sales tax."
+      },
+      {
+        "label": "Etsy: Payments Policy",
+        "href": "https://www.etsy.com/legal/etsy-payments/",
+        "context": "Search-result excerpt read Oct 27, 2026: fee treatment on refunds, including the exception for full refunds Etsy covers. Page not opened in full."
+      },
+      {
+        "label": "Etsy Help: Newly Crafted, Etsy Updates for Your Shop",
+        "href": "https://help.etsy.com/hc/en-us/articles/10603291042967-Newly-Crafted-Etsy-Updates-for-Your-Shop",
+        "context": "Seller-updates page read Oct 27, 2026; lists a redesigned Offsite Ads dashboard (revenue, fees, visits, top channels and listings, traffic that did not end in a sale). The page does not date that item; it appears in its 2026 update sections."
+      },
+      {
+        "label": "MarketplaceBeta Etsy fee table",
+        "href": "/fees/etsy",
+        "context": "Our figures for the other Etsy fees used in the tables, last checked Oct 16, 2026 against Etsy's published fees."
+      }
+    ]
+  },
+  {
     "slug": "usps-january-2027-price-change-fuel-surcharge",
     "seoTitle": "USPS January 2027 Price Change: The Fuel Surcharge Arrives",
     "metaDescription": "USPS's temporary 8% and holiday prices end Jan 17, 2027, and a weekly fuel surcharge starts in January. What it means for your shipping costs.",
@@ -488,6 +791,244 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
         "label": "MarketplaceBeta Intelligence Dossier, Edition 1 (Oct 14, 2026)",
         "href": "/intelligence/dossier",
         "context": "Parcel cost stack and forecasts F2 and F5, with the dossier's own cited sources."
+      }
+    ]
+  },
+  {
+    "slug": "usps-foreign-duty-billing-2026",
+    "seoTitle": "USPS Can Bill You for Unpaid Foreign Duties: What Changed",
+    "metaDescription": "Since Oct 19, 2026 USPS can bill senders for unpaid foreign duties, even on lost or returned parcels, plus 6% interest. Who's exposed and what DDP covers.",
+    "headline": "USPS can now bill you for the duties your overseas buyer did not pay, even if the package was lost or sent back",
+    "dek": "A USPS rule in effect since October 19, 2026 lets the Postal Service invoice the sender for unpaid foreign duties, taxes and import fees, with 6% a year interest on late payment and no way to contest the foreign amount through USPS. It was written because of the EU's new low-value parcel charges, but its text names no country. Here is who is exposed, what prepaying through USPS Delivered Duty Paid does and does not cover, and what to change this week.",
+    "publishedOn": "2026-10-27",
+    "updatedOn": "2026-10-27",
+    "author": "MarketplaceBeta Intelligence",
+    "readTime": "8 min",
+    "tags": [
+      "USPS",
+      "international shipping",
+      "customs",
+      "duties",
+      "2026"
+    ],
+    "takeaway": "Before your next international order, check whether the destination is one where USPS Delivered Duty Paid (DDP) is required or available, and prepay where you can. Where you cannot, the buyer still pays at the door, as before. What is new is that if the buyer does not pay and someone in the destination country goes after you or USPS, USPS now invoices you for it, whether the parcel was delivered, lost, damaged or returned. Price that risk into those destinations, or stop shipping there.",
+    "forecastIds": [],
+    "newsletterSource": "campaign_kw_usps_duty_billing",
+    "sections": [
+      {
+        "id": "what-changed",
+        "title": "What changed on October 19",
+        "paragraphs": [
+          "Since October 19, 2026, USPS can send you an invoice for duties, taxes or import fees on a package you mailed abroad if a customs authority, postal operator, customs broker or customs representative in the destination country asks you or USPS for them and they were not paid in full. You must pay the whole invoice by its due date even if you dispute it, and you owe it whether the item is delivered, lost, damaged or returned. Late payment carries 6% a year interest, and USPS can recover its collection costs. The source is USPS's interim final rule, [91 FR 66000 (document 2026-21310)](https://www.federalregister.gov/documents/2026/10/19/2026-21310/customs-requirements-and-payment-procedures-for-certain-customs-charges), published and effective October 19, 2026. It adds section 424 to the International Mail Manual (IMM), and USPS is taking comments until November 18, 2026.",
+          "USPS's stated reason is the EU. Its notice says the European Commission eliminated the de minimis exemption for most low-value goods as of July 1, 2026, that some EU postal operators now require a delivered duty paid solution, and that when an item is sent duty unpaid and the charges cannot be recovered from the addressee, the destination postal operator may seek the unpaid amount from the mailer. Section 424 itself is not limited to the EU. It applies when any \"relevant party in the destination country\" seeks the money.",
+          "This is the outbound side. The US ending de minimis, and the January 20, 2027 deadline for some mail shipments, concern goods coming into the US, and we cover them in our [de minimis analysis](/intelligence/analysis/de-minimis-suspension-small-sellers-2026). The 12.5% Section 301 duty discussed there does not apply to what you mail abroad."
+        ]
+      },
+      {
+        "id": "the-rule",
+        "title": "The rule in one table",
+        "paragraphs": [
+          "Every row is the rule's own wording or a close paraphrase. Section numbers refer to the IMM text printed in the Federal Register notice."
+        ],
+        "table": {
+          "caption": "What USPS's new customs-charges rule says, checked October 27, 2026",
+          "headings": [
+            "Question",
+            "What the rule says",
+            "Section"
+          ],
+          "rows": [
+            [
+              "When does USPS invoice you?",
+              "If a customs authority, postal operator (or its agent), customs broker or customs representative in the destination country seeks duties, taxes or import fees from you or USPS, and they have not been paid in full, USPS or its representative \"will send an invoice to the mailer.\"",
+              "424.1"
+            ],
+            [
+              "What must you pay?",
+              "\"The entire amount due in accordance with the invoice terms, even if the mailer disputes the assessment.\" The rule sets no number of days and no payment method; those are in the invoice.",
+              "424.2"
+            ],
+            [
+              "Does a lost or returned parcel change that?",
+              "No. The mailer \"is not relieved of its obligation to pay for duties, taxes, and import fees, regardless of whether the item is delivered, lost, damaged, or returned.\"",
+              "424.2"
+            ],
+            [
+              "What if you pay late?",
+              "Interest accrues at 6 percent per annum until paid in full. USPS may also collect its costs \"to the extent permitted by applicable law,\" and may treat unpaid amounts as revenue deficiencies under DMM 607.3.0.",
+              "424.4"
+            ],
+            [
+              "What can you dispute with USPS?",
+              "\"Only accounting errors related to Postal Service invoicing.\" Challenges to the amount charged abroad go to the foreign party, \"without involvement from the Postal Service.\"",
+              "424.5"
+            ],
+            [
+              "Who checks the foreign amount?",
+              "No one at USPS. It \"is not responsible for the accuracy\" of charges calculated by foreign customs, postal, law enforcement or tax authorities.",
+              "424.3"
+            ],
+            [
+              "Do you get money back if the foreign side refunds?",
+              "USPS will make a corresponding adjustment or refund \"if deemed practical in the Postal Service's reasonable judgment.\" For amounts paid through USPS DDP, refunds follow section 365.",
+              "424.6"
+            ],
+            [
+              "Where DDP is required",
+              "The mailer \"must send the mailpiece on a delivered duty paid basis\" and make sure all duties, taxes and import fees are paid on time.",
+              "112"
+            ]
+          ]
+        }
+      },
+      {
+        "id": "who-is-exposed",
+        "title": "Who is exposed: where you can prepay and where you cannot",
+        "paragraphs": [
+          "Who pays duties on a USPS package abroad depends on the destination. Section 424.1 says it depends on factors \"including, but not limited to, the customs requirements of the destination country.\" USPS's [Prepaid Import Duties page](https://www.usps.com/international/prepaid-import-duties.htm) says that if you do not prepay, \"the recipient will have to pay the required amounts before they can get their package.\" The new rule adds the step after that: if the recipient does not pay and the destination goes after you or USPS, USPS invoices you.",
+          "The way to prepay is USPS Delivered Duty Paid. It works only with Priority Mail Express International, Priority Mail International and First-Class Package International Service. It is not available with First-Class Mail International, International Priority Airmail or M-bag service, and only through USPS systems: a Post Office counter, Click-N-Ship, certain USPS APIs or USPS Global Shipping Software. Shippers who create their own manifests or pay by permit cannot use it. USPS charges no fee for DDP, but its service provider does, and that fee is included in the quote along with the duties, taxes and fees."
+        ],
+        "table": {
+          "caption": "USPS Delivered Duty Paid by destination (Postal Bulletin of July 23, 2026; USPS page read October 27, 2026)",
+          "headings": [
+            "Status",
+            "Destinations",
+            "Limits in the listing"
+          ],
+          "rows": [
+            [
+              "Required for dutiable items",
+              "Andorra, Belgium, Denmark, Finland, France (including French Guiana, Guadeloupe, Martinique, Mayotte, Monaco and Reunion), Germany, Luxembourg, Portugal",
+              "Not available for items declared as gifts with a value up to 45 EUR. Germany: not for Helgoland and Büsingen."
+            ],
+            [
+              "Available, not required",
+              "Austria, Canada, Estonia, Italy, Malta, Netherlands, Slovakia, Spain, Sweden, United Kingdom",
+              "UK: only dutiable items valued 135 to 900 GBP sent by Priority Mail Express International or Priority Mail International. EU listings: not for gifts declared up to 45 EUR."
+            ],
+            [
+              "Not listed",
+              "Every other destination",
+              "USPS says more countries are expected to be added. Until then there is no USPS way to prepay."
+            ]
+          ]
+        }
+      },
+      {
+        "id": "what-it-can-cost",
+        "title": "What the charges can look like: the EU example",
+        "paragraphs": [
+          "The EU is the case USPS had in mind, and its charges are public. The European Commission says that from July 1, 2026 a temporary €3 customs duty applies on low-value parcels, per item by tariff classification and not by quantity: five T-shirts cost €3, and three T-shirts and a watch cost €6. USPS describes the same duty as \"flat, nonrefundable\" and says it applies to business-to-consumer packages up to €150. From November 1, 2026 the EU adds a €2 Union handling fee. The Commission's customs-reform page says so, and Dutch Customs describes it as €2 per declaration line, regardless of value, and non-refundable when delivery fails or the recipient refuses or returns the shipment. VAT and country-specific fees come on top.",
+          "Hypothetical, using only those published amounts: a parcel with 3 T-shirts and a watch that a buyer in the Netherlands refuses. Under our reading that two tariff classifications make two declaration lines, the duty is €6 and, from November 1, the handling fee is €4, so €10 before VAT and any national fees. The numbers are small. The point is that none of it is refundable, and since October 19 USPS has a written process to invoice it to you if the destination looks to the sender."
+        ]
+      },
+      {
+        "id": "why-it-matters",
+        "title": "Why it matters: the refused parcel is the exposure",
+        "paragraphs": [
+          "Hypothesis, not a USPS statement: on a delivered order the buyer pays at the door and the question never reaches you. The new exposure is the parcel that is refused, abandoned or returned, where the destination may now look to the sender and USPS has a billing path. Before October 19 a refusal cost you the postage, the return and the sale. Now it can also cost the foreign charges, which USPS will not let you argue about and which are not refunded when you refund the buyer (the EU's €3 duty and €2 fee are non-refundable, per USPS and Dutch Customs). On a €15 item, €5 of EU duty and handling fee is a third of the sale before VAT (hypothetical).",
+          "Where the destination requires DDP, the exposure is yours from the start, because IMM 112 now says you must send those parcels on a DDP basis. USPS's notice says the invoice can follow when charges \"have not been paid in full using USPS Delivered Duty Paid service,\" so our reading is that paying in full through DDP removes the usual trigger. It is not a blanket shield. USPS's page says the DDP provider covers a shortfall between its quote and what customs actually charges only subject to the terms and limitations in its terms of service, and when a limitation applies the customer pays the provider the balance.",
+          "Prepaying also changes your price. The quote includes the duties, taxes, fees and the provider's fee, and USPS adds it to the postage. That cost is real whether the buyer pays it at checkout or you absorb it, so decide before you list which destinations you will serve and what you charge them."
+        ]
+      },
+      {
+        "id": "what-to-do-this-week",
+        "title": "What to do this week",
+        "paragraphs": [
+          "None of this needs new software. It needs a list of destinations and a decision for each."
+        ],
+        "bullets": [
+          "List every country you shipped to in the last 90 days and mark each as required, available or not listed using the table above. Check your own label provider's list as well, because USPS's list covers only USPS systems.",
+          "For required countries, ship only if your label tool prepays duties, whether that is USPS DDP or another solution your marketplace or label provider offers. IMM 362 says USPS-approved PC Postage providers and third-party marketplaces may use alternative solutions for collecting and remitting duties, and USPS employees accept those parcels as they would DDP ones. Ask your provider in writing which solution it uses.",
+          "For available countries, use DDP on orders where a buyer who refuses would cost you most: low-value items and anything bound for the EU. Add the quoted duties, taxes and fees to the shipping charge or the price.",
+          "For countries you cannot prepay, choose: stop shipping there, add a clear buyer-pays-duties notice to the listing and order message, or accept the risk with the numbers in front of you. Keep the notice, the customs form and the tracking number for each order so a later invoice can be matched to it.",
+          "Make customs forms exact. The EU duty counts per tariff classification, and USPS's system assigns codes from your item descriptions. IMM 112 now says a mailer that provides false or incomplete information may have the parcel returned or confiscated and \"may be subject to additional charges.\"",
+          "Open invoices the day they arrive. You can contest USPS accounting errors only. The foreign amount must be challenged with the foreign customs authority, postal operator or broker, and USPS does not wait for that to finish.",
+          "If you want to weigh in on the rule, USPS takes comments until November 18, 2026 at PCFederalRegister@usps.gov with the subject line \"Customs Requirements and Payment Procedures.\""
+        ]
+      },
+      {
+        "id": "faq",
+        "title": "Questions sellers ask about USPS duty billing",
+        "paragraphs": [
+          "Answers are from the Federal Register notice, USPS's own pages and the EU authorities named, read October 27, 2026. Where the sources are silent, we say so."
+        ],
+        "bullets": [
+          "Does USPS bill me if the recipient refuses the package? The rule does not mention refusals by name. It says you remain liable \"regardless of whether the item is delivered, lost, damaged, or returned,\" and a refused parcel usually ends as a returned one. The trigger is a destination party seeking unpaid amounts from you or USPS, so a refusal that leads to such a demand can end in an invoice. USPS's DDP page adds that duties, taxes and fees on a refused or undeliverable DDP package are not refunded unless the provider's terms say so.",
+          "What is USPS DDP and which services include it? It is a service that lets you prepay a destination's duties, taxes and fees at the time of mailing. It covers Priority Mail Express International, Priority Mail International and First-Class Package International Service, to the countries in the table above. USPS charges no fee itself, but its service provider's fee is built into the quote.",
+          "Do returned or lost items still generate a bill? Yes, if the destination seeks unpaid charges from you or USPS. Section 424.2 says the obligation does not depend on delivery, loss, damage or return.",
+          "Is there interest on late payment? Yes. Section 424.4 sets interest at 6 percent per annum if payment is not received by the invoice due date, plus collection costs where the law allows. It does not say how many days you get, because that is in the invoice terms.",
+          "Does this affect Etsy or eBay international orders? It affects any order where you buy a USPS international label and are the sender on the customs form. Etsy's help center says US sellers can buy USPS labels, domestic and international, on Etsy, and it recommends carriers that offer DDP. We could not verify whether Etsy's USPS international labels prepay duties automatically, or how Etsy's or eBay's US programs treat a refused parcel. IMM 362 says marketplaces and label providers may use their own duty-collection solutions, so read your provider's terms before assuming either way.",
+          "Can I dispute the duty amount with USPS? Only USPS accounting errors. The amount the foreign side charged must be challenged with the foreign party, and you must pay the invoice meanwhile.",
+          "Does this apply only to the EU? No. USPS wrote it because of the EU, but section 424 applies to any destination country where a relevant party seeks unpaid duties, taxes or import fees from you or USPS.",
+          "Is this the same as the US ending de minimis? No. That concerns goods mailed into the US. This rule concerns what other countries charge on parcels you mail out."
+        ]
+      },
+      {
+        "id": "what-we-are-watching",
+        "title": "What we are watching next",
+        "paragraphs": [
+          "November 1, 2026: the EU's €2 handling fee, which the Commission says starts then. USPS's DDP page did not mention it when we read it on October 27, so watch whether USPS quotes it in DDP prices and whether it updates its country listings.",
+          "November 18, 2026: the end of the comment period. Because this is an interim final rule, USPS can revise it. Watch for invoice terms, such as due dates and payment methods, which the rule leaves to the invoice.",
+          "Additions to the DDP country list. USPS says more destinations are expected. Each one moves a country from \"not listed\" to a place you can prepay. The rest of our shipping coverage is in the [parcel surcharge calendar](/intelligence/analysis/q4-2026-parcel-surcharge-calendar), and our wider analysis is on the [intelligence dashboard](/intelligence). Our dated calls are on the [forecast scorecard](/intelligence/forecasts); none covers this rule today. Our broader marketplace analysis is in the October [Intelligence Dossier](/intelligence/dossier). If your marketplace fees stack with shipping, see our [Etsy](/fees/etsy) and [eBay](/fees/ebay) fee pages."
+        ]
+      }
+    ],
+    "sources": [
+      {
+        "label": "Federal Register: Customs Requirements and Payment Procedures for Certain Customs Charges (91 FR 66000, Oct 19, 2026)",
+        "href": "https://www.federalregister.gov/documents/2026/10/19/2026-21310/customs-requirements-and-payment-procedures-for-certain-customs-charges",
+        "context": "USPS rule, document 2026-21310, effective October 19, 2026, comments due November 18, 2026. New IMM 424 (invoice, payment even if disputed, delivered/lost/damaged/returned, 6% interest, disputes, adjustments); revised IMM 112, 131.34 and 361.13; the EU rationale. Read in full Oct 27, 2026."
+      },
+      {
+        "label": "GovInfo: Federal Register, October 19, 2026, document 2026-21310",
+        "href": "https://www.govinfo.gov/content/pkg/FR-2026-10-19/html/2026-21310.htm",
+        "context": "Official printed text; shows the action type as an interim final rule."
+      },
+      {
+        "label": "USPS: Prepaid Import Duties (read Oct 27, 2026)",
+        "href": "https://www.usps.com/international/prepaid-import-duties.htm",
+        "context": "Eligible DDP countries; the three eligible services; how to buy; provider fee and landed cost guarantee subject to limitations; refused or undeliverable packages not refunded; the EU €3 duty summary; \"More countries are expected to be added.\""
+      },
+      {
+        "label": "USPS Postal Bulletin 22707: IMM Revision: Availability of USPS Delivered Duty Paid (Jul 23, 2026)",
+        "href": "https://about.usps.com/postal-bulletin/2026/pb22707/html/updt_002.htm",
+        "context": "IMM 362 and the country listings: which destinations require or offer DDP, services covered and excluded, gifts up to 45 EUR, UK 135 to 900 GBP limit, and the sentence allowing PC Postage providers and third-party marketplaces to use alternative solutions."
+      },
+      {
+        "label": "European Commission: €3 customs duty for low-value parcels (Jun 29, 2026)",
+        "href": "https://commission.europa.eu/news-and-media/news/ensuring-fairness-and-safety-eur3-customs-duty-low-value-parcels-2026-06-29_en",
+        "context": "Temporary €3 duty from July 1, 2026, per item by tariff classification and not quantity; the T-shirts and watch example; seller or importer responsible for declaring and paying."
+      },
+      {
+        "label": "European Commission: EU Customs Reform (news of Oct 7, 2026)",
+        "href": "https://taxation-customs.ec.europa.eu/customs/eu-customs-reform_en",
+        "context": "\"From 1 November 2026, the EU will apply the €2 Union handling fee.\""
+      },
+      {
+        "label": "Dutch Customs: Handling fee for e-commerce (last updated Oct 22, 2026)",
+        "href": "https://www.douane.nl/en/themes/import-and-export/import/e-commerce/handling-fee-for-e-commerce/",
+        "context": "€2 per declaration line from November 1, 2026, regardless of value; example of 3 declaration lines costing €6; non-refundable including when the recipient refuses or returns."
+      },
+      {
+        "label": "Irish Revenue: Union Handling Fee, 1 November 2026 (published Sep 30, 2026)",
+        "href": "https://www.revenue.ie/en/customs/individuals/union-handling-fee/index.aspx",
+        "context": "€2 per distinct item regardless of value, separate from and in addition to the €3 duty; non-refundable even when goods are faulty or returned."
+      },
+      {
+        "label": "Etsy Help: Information for Managing International Shipments",
+        "href": "https://help.etsy.com/hc/en-us/articles/360001987487-Information-for-Managing-International-Shipments",
+        "context": "Etsy recommends DDP carriers and notes sellers are responsible for customs-form accuracy; lists USPS among commonly used DDP carriers for US-based sellers. Read Oct 27, 2026."
+      },
+      {
+        "label": "Etsy Help: USPS Shipping Labels on Etsy",
+        "href": "https://help.etsy.com/hc/en-us/articles/360000336887-USPS-Shipping-Labels-on-Etsy",
+        "context": "US sellers can buy USPS labels for domestic and international addresses on Etsy; the seller completes the required forms. Read Oct 27, 2026."
+      },
+      {
+        "label": "MarketplaceBeta: De minimis suspension and small sellers",
+        "href": "/intelligence/analysis/de-minimis-suspension-small-sellers-2026",
+        "context": "The inbound US de minimis change, kept separate from this outbound rule."
       }
     ]
   },
