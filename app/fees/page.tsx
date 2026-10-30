@@ -3,6 +3,8 @@ import Link from "next/link"
 import { EditorialIntro } from "@/components/editorial-intro"
 import { PremiumSiteHeader } from "@/components/premium-site-header"
 import { PremiumSiteFooter } from "@/components/premium-site-footer"
+import { BriefCta } from "@/components/brief-cta"
+import { BRIEF_CTA_KEYS } from "@/lib/brief-cta"
 import { MARKETPLACES } from "@/lib/marketplace-fees"
 import { TIKTOK_FEE_CHANGE_PATH } from "@/lib/tiktok-fee-change-2026"
 import { FEE_BY_PRICE_PATH } from "@/lib/fee-by-price"
@@ -75,6 +77,8 @@ export default function FeesIndexPage() {
             )
           })}
         </div>
+
+        <BriefCta source={BRIEF_CTA_KEYS.feeHub} />
       </main>
 
       <PremiumSiteFooter />
