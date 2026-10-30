@@ -21,6 +21,9 @@ import {
   Waves,
 } from "lucide-react"
 import { PremiumSiteFooter } from "@/components/premium-site-footer"
+import { SponsorBriefLink } from "@/components/brief-cta"
+import { BRIEF_CTA_KEYS } from "@/lib/brief-cta"
+import { BriefSignupLink } from "@/components/brief-signup-link"
 import { UpgradeCta } from "@/components/upgrade-cta"
 import { PremiumSiteHeader } from "@/components/premium-site-header"
 import { Badge } from "@/components/ui/badge"
@@ -442,8 +445,9 @@ export default async function ArticlePage({
                   Get the most important marketplace news delivered to your inbox daily.
                 </p>
                 <Button variant="secondary" className="w-full" asChild>
-                  <Link href="/newsletter">Subscribe Free</Link>
+                  <BriefSignupLink source={BRIEF_CTA_KEYS.news}>Subscribe Free</BriefSignupLink>
                 </Button>
+                <SponsorBriefLink className="mt-3 [&_a]:text-primary-foreground/80 [&_a:hover]:text-primary-foreground" />
               </CardContent>
             </Card>
 

@@ -6,6 +6,8 @@ import { ArrowLeft, ArrowUpRight, Menu, X, Search, LayoutDashboard } from "lucid
 import { Button } from "@/components/ui/button"
 import { SITE_NAVIGATION } from "@/lib/site-navigation"
 import { SiteBrand } from "@/components/site-brand"
+import { useBriefHref } from "@/components/brief-signup-link"
+import { HEADER_BRIEF_HREF } from "@/lib/brief-cta"
 
 type NavKey = "forecasts" | "pressure" | "analysis" | "manufacturing" | "guides" | "intelligence" | "home" | "articles" | "news" | "partners" | "tools" | "fees" | "community" | "events" | "solutions" | "newsletter" | "pricing"
 
@@ -24,10 +26,12 @@ interface PremiumSiteHeaderProps {
 const NAV_ITEMS = SITE_NAVIGATION
 
 export function PremiumSiteHeader({
-  active, backHref, backLabel = "Back", ctaHref = "/newsletter", ctaLabel = "Get the daily brief",
+  active, backHref, backLabel = "Back", ctaHref: pageCtaHref = HEADER_BRIEF_HREF, ctaLabel = "Get the daily brief",
   actions, mobileContent, navExtra,
 }: PremiumSiteHeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  // Page key by default; a valid incoming ?source replaces it after mount.
+  const ctaHref = useBriefHref(pageCtaHref)
 
   return (
     <header className="site-masthead sticky top-0 z-50 border-b border-slate-800 bg-slate-950 text-white">

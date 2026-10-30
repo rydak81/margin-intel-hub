@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { PremiumSiteHeader } from '@/components/premium-site-header'
 import { PremiumSiteFooter } from '@/components/premium-site-footer'
+import { BriefCta } from '@/components/brief-cta'
+import { BRIEF_CTA_KEYS } from '@/lib/brief-cta'
 import { feeChangelogId, feeChangelogNewestFirst } from '@/lib/fee-changelog'
 import { getMarketplace } from '@/lib/marketplace-fees'
 import { JsonLd } from '@/components/json-ld'
@@ -66,6 +68,8 @@ export default function FeeChangelogPage() {
             </li>
           ))}
         </ol>
+
+        <BriefCta source={BRIEF_CTA_KEYS.feeChangelog} heading="Get the next fee change the day it happens" body="The free Daily Marketplace Brief flags fee and policy changes across Amazon, Walmart, TikTok Shop, eBay and Etsy, with the old and new figures and the source document." />
       </main>
       <PremiumSiteFooter />
     </div>

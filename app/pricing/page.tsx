@@ -83,7 +83,7 @@ export default function PricingPage() {
           <dl className="mt-5 space-y-5">
             {FAQ.map(([q, a]) => <div key={q}><dt className="font-semibold">{q}</dt><dd className="mt-1 leading-7 text-muted-foreground">{a}</dd></div>)}
           </dl>
-          <p className="mt-6 text-sm text-muted-foreground">Payments are processed by Stripe. Questions before you join? <a href="#inquiry" className="text-primary underline underline-offset-4">Send us a message</a>. Market intelligence, not investment, legal or tax advice.</p>
+          <p className="mt-6 text-sm text-muted-foreground">Questions before you join? <a href="#inquiry" className="text-primary underline underline-offset-4">Send us a message</a>. Market intelligence, not investment, legal or tax advice.</p>
         </section>
 
         <section id="sponsorship" className="my-12" aria-labelledby="sponsorship-title">

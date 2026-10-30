@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { PremiumSiteHeader } from '@/components/premium-site-header'
 import { PremiumSiteFooter } from '@/components/premium-site-footer'
+import { BriefCta } from '@/components/brief-cta'
+import { BRIEF_CTA_KEYS } from '@/lib/brief-cta'
 import { EditorialIntro } from '@/components/editorial-intro'
 import { GuideCards } from '@/components/guide-cards'
 import { ResourceLink } from '@/components/resource-link'
@@ -24,6 +26,7 @@ export default function GuidesPage() {
           <ResourceLink event="resource_download_click" resource="launch-checklist" href="/downloads/marketplace-launch-checklist.html" download className="rounded-xl border border-border bg-background p-5 font-bold text-primary">Marketplace launch checklist <span className="mt-2 block text-sm font-normal text-muted-foreground">Evidence, owners, and a pilot decision · HTML download ↓</span></ResourceLink>
         </div>
       </section>
+      <BriefCta source={BRIEF_CTA_KEYS.guidesHub} heading="Get the decisions behind the numbers, daily" body="The free Daily Marketplace Brief: fee and policy changes across Amazon, Walmart, TikTok Shop, eBay and Etsy, plus operator analysis." />
       <div className="mt-10 flex flex-wrap gap-5 text-sm font-semibold text-primary"><Link href="/tools">Open the operator tools →</Link><Link href="/editorial-policy">How we work with sources and AI →</Link></div>
     </main><PremiumSiteFooter /></div>
 }

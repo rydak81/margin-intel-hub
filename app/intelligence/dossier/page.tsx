@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { ArrowRight, BookOpen, Download, LineChart, ShieldCheck } from 'lucide-react'
 import { PremiumSiteHeader } from '@/components/premium-site-header'
 import { PremiumSiteFooter } from '@/components/premium-site-footer'
+import { SponsorBriefLink } from '@/components/brief-cta'
 import { UpgradeCta } from '@/components/upgrade-cta'
 import { DossierSponsorCredit } from '@/components/dossier-sponsor-credit'
 import { getDossierSponsor } from '@/lib/sponsorship'
@@ -101,6 +102,7 @@ export default function DossierPage() {
             <Link href="/newsletter?source=dossier_2026_10#subscribe" className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 font-bold text-blue-800 hover:bg-blue-50">Subscribe free<ArrowRight className="h-4 w-4" /></Link>
             <a href="/intelligence/dossier-2026-10.html" className="inline-flex items-center gap-2 rounded-lg border border-white/30 px-5 py-3 font-semibold hover:bg-white/10">Read Edition 1</a>
           </div>
+          <SponsorBriefLink tone="dark" className="mt-5" />
         </section>
         <p className="mb-6 text-xs leading-6 text-muted-foreground">This dossier is market intelligence, not investment, legal, or tax advice. Third-party figures belong to their cited publishers; verify fee rates against each platform&rsquo;s current schedule before acting.</p>
       </main>

@@ -5,6 +5,8 @@ import { ogImageUrl } from '@/lib/sale-fee-pages'
 import { notFound, permanentRedirect } from 'next/navigation'
 import { PremiumSiteHeader } from '@/components/premium-site-header'
 import { PremiumSiteFooter } from '@/components/premium-site-footer'
+import { BriefCta } from '@/components/brief-cta'
+import { BRIEF_CTA_KEYS } from '@/lib/brief-cta'
 import { JsonLd } from '@/components/json-ld'
 import { RecommendedTools } from '@/components/recommended-tools'
 import { SponsoredToolListing } from '@/components/sponsored-tool-listing'
@@ -171,6 +173,8 @@ export default async function ComparePage({ params }: PageProps) {
             ))}
           </div>
         </section>
+
+        <BriefCta source={BRIEF_CTA_KEYS.feeCompare(resolved.pair.slug)} heading={`Know when ${a.shortName} or ${b.shortName} fees move`} />
       </main>
       <PremiumSiteFooter />
     </div>

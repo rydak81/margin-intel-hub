@@ -3,6 +3,8 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { PremiumSiteHeader } from "@/components/premium-site-header"
 import { PremiumSiteFooter } from "@/components/premium-site-footer"
+import { BriefCta } from "@/components/brief-cta"
+import { BRIEF_CTA_KEYS } from "@/lib/brief-cta"
 import { FeeCalculator } from "@/components/fee-calculator"
 import {
   formatVerifiedDate,
@@ -344,6 +346,8 @@ export default async function FeeCategoryPage({ params }: PageProps) {
             <ArrowUpRight className="h-4 w-4" />
           </Link>
         </section>
+
+        <BriefCta source={BRIEF_CTA_KEYS.feeCategory(marketplace.slug)} heading={`Know when ${marketplace.shortName} fees move`} />
       </main>
 
       <PremiumSiteFooter />

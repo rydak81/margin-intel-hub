@@ -3,6 +3,8 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { PremiumSiteHeader } from "@/components/premium-site-header"
 import { PremiumSiteFooter } from "@/components/premium-site-footer"
+import { BriefCta } from "@/components/brief-cta"
+import { BRIEF_CTA_KEYS } from "@/lib/brief-cta"
 import { MARKETPLACES, orderFeeLabel, formatVerifiedDate, getMarketplace } from "@/lib/marketplace-fees"
 import { ExternalLink } from "lucide-react"
 import { AMAZON_PEAK_PATH } from "@/lib/amazon-holiday-peak-2026"
@@ -245,6 +247,8 @@ export default async function MarketplaceFeesPage({ params }: PageProps) {
             ))}
           </div>
         </section>
+
+        <BriefCta source={BRIEF_CTA_KEYS.feeMarketplace(marketplace.slug)} heading={`Know when ${marketplace.shortName} fees move`} />
       </main>
 
       <PremiumSiteFooter />
