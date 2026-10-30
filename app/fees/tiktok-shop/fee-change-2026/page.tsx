@@ -3,6 +3,7 @@ import Link from "next/link"
 import { ExternalLink } from "lucide-react"
 import { PremiumSiteHeader } from "@/components/premium-site-header"
 import { PremiumSiteFooter } from "@/components/premium-site-footer"
+import { BriefCta } from "@/components/brief-cta"
 import { ORGANIZATION_REF } from "@/lib/site-jsonld"
 import { JsonLd } from "@/components/json-ld"
 import { ShareButtons } from "@/components/share-buttons"
@@ -14,6 +15,7 @@ import {
   REPORTED_RATE_PCT,
   SOURCES,
   TIKTOK_FEE_CHANGE_CTA,
+  TIKTOK_FEE_CHANGE_SOURCE_KEY,
   TIKTOK_FEE_CHANGE_PATH,
   faqs,
   formatDate,
@@ -340,16 +342,11 @@ export default function TikTokFeeChange2026Page() {
           </ul>
         </section>
 
-        <section className="mt-10 rounded-2xl border border-sky-200 bg-sky-50 p-6 dark:border-sky-900 dark:bg-sky-950/40">
-          <h2 className="text-xl font-bold">Know when TikTok Shop changes its rate</h2>
-          <p className="mt-2 text-muted-foreground">
-            The Daily Marketplace Brief flags fee and policy changes across TikTok Shop, Amazon, Walmart, eBay and Etsy, with the
-            source document. Free.
-          </p>
-          <Link href={TIKTOK_FEE_CHANGE_CTA} className="mt-4 inline-block rounded-xl bg-sky-600 px-5 py-2.5 font-semibold text-white hover:bg-sky-700">
-            Get the free Brief
-          </Link>
-        </section>
+        <BriefCta
+          source={TIKTOK_FEE_CHANGE_SOURCE_KEY}
+          heading="Know when TikTok Shop changes its rate"
+          body="The Daily Marketplace Brief flags fee and policy changes across TikTok Shop, Amazon, Walmart, eBay and Etsy, with the source document. Free."
+        />
       </main>
 
       <PremiumSiteFooter />

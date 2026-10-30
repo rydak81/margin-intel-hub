@@ -11,6 +11,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { PremiumSiteHeader } from "@/components/premium-site-header"
 import { PremiumSiteFooter } from "@/components/premium-site-footer"
+import { SponsorBriefLink } from "@/components/brief-cta"
+import { BRIEF_CTA_KEYS, briefSignupHref } from "@/lib/brief-cta"
 import { ArticleImage } from "@/components/article-image"
 import { useAuthAccount } from "@/hooks/use-auth-account"
 import { buildUserPreferenceProfile, getNewsDeskDefaults, getPersonalizationLabel } from "@/lib/personalization"
@@ -472,7 +474,7 @@ export function ArticlesBrowser({ mode = "articles", initial = null }: ArticlesP
                   </p>
                   <div className="mt-6 flex flex-wrap gap-3">
                     <Button asChild size="lg" className="rounded-full bg-white text-slate-950 hover:bg-white/92">
-                      <Link href="/newsletter">
+                      <Link href={briefSignupHref(BRIEF_CTA_KEYS.articles)}>
                         <Mail className="mr-2 h-4 w-4" />
                         Get the Daily Brief
                       </Link>
@@ -481,6 +483,7 @@ export function ArticlesBrowser({ mode = "articles", initial = null }: ArticlesP
                       <Link href="/tools">Explore Operator Tools</Link>
                     </Button>
                   </div>
+                  <SponsorBriefLink tone="dark" className="mt-4" />
                 </div>
 
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">

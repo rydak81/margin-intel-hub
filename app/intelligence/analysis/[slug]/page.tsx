@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { ArrowRight } from 'lucide-react'
 import { PremiumSiteHeader } from '@/components/premium-site-header'
 import { PremiumSiteFooter } from '@/components/premium-site-footer'
+import { SponsorBriefLink } from '@/components/brief-cta'
 import { JsonLd } from '@/components/json-ld'
 import { AnalysisInline } from '@/components/analysis-inline'
 import { ANALYSIS_ARTICLES, getAnalysis } from '@/lib/analysis'
@@ -81,7 +82,7 @@ export default async function AnalysisPage({ params }: Props) {
         </article>
         <aside className="space-y-6 lg:sticky lg:top-44">
           <nav aria-label="On this page" className="rounded-2xl border border-border bg-card p-6 editorial-elevated"><p className="editorial-eyebrow">On this page</p><ul className="mt-4 space-y-3 text-sm">{a.sections.map(s => <li key={s.id}><a href={`#${s.id}`} className="hover:text-primary hover:underline">{s.title}</a></li>)}{forecasts.length > 0 && <li><a href="#forecasts" className="hover:text-primary">Forecasts tracked</a></li>}<li><a href="#sources" className="hover:text-primary">Sources</a></li></ul></nav>
-          <div className="rounded-2xl bg-slate-950 p-6 text-white editorial-elevated"><h2 className="text-xl font-bold">Get the next one in your inbox</h2><p className="mt-3 text-sm text-slate-300">The free Daily Marketplace Brief: fee changes, forecast grades and operator analysis like this.</p><Link href={cta} className="mt-5 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-3 text-sm font-bold text-white">Subscribe free<ArrowRight className="h-4 w-4" /></Link></div>
+          <div className="rounded-2xl bg-slate-950 p-6 text-white editorial-elevated"><h2 className="text-xl font-bold">Get the next one in your inbox</h2><p className="mt-3 text-sm text-slate-300">The free Daily Marketplace Brief: fee changes, forecast grades and operator analysis like this.</p><Link href={cta} className="mt-5 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-3 text-sm font-bold text-white">Subscribe free<ArrowRight className="h-4 w-4" /></Link><SponsorBriefLink tone="dark" className="mt-4" /></div>
         </aside>
       </div>
     </main><PremiumSiteFooter /></div>

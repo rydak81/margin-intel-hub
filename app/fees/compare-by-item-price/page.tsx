@@ -2,12 +2,13 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { PremiumSiteHeader } from "@/components/premium-site-header"
 import { PremiumSiteFooter } from "@/components/premium-site-footer"
+import { BriefCta } from "@/components/brief-cta"
 import { JsonLd } from "@/components/json-ld"
 import { formatVerifiedDate, MARKETPLACES } from "@/lib/marketplace-fees"
 import {
   COMPARE_PRICES,
   ETSY_FEES_POLICY_URL,
-  FEE_BY_PRICE_CTA,
+  FEE_BY_PRICE_SOURCE_KEY,
   FEE_BY_PRICE_DESCRIPTION,
   FEE_BY_PRICE_PATH,
   FEE_BY_PRICE_TITLE,
@@ -219,11 +220,14 @@ export default function FeeComparisonByPricePage() {
           </dl>
         </section>
 
-        <section className="mt-12 rounded-2xl bg-slate-950 p-6 text-white">
-          <h2 className="text-xl font-bold">Get fee changes in your inbox</h2>
-          <p className="mt-2 text-sm text-slate-300">The free Daily Marketplace Brief tracks fee changes with the old and new figures, dated.</p>
-          <Link href={FEE_BY_PRICE_CTA} className="mt-4 inline-flex rounded-lg bg-blue-600 px-4 py-3 text-sm font-bold text-white">Subscribe free</Link>
-        </section>
+        <BriefCta
+          source={FEE_BY_PRICE_SOURCE_KEY}
+          tone="dark"
+          className="mt-12"
+          heading="Get fee changes in your inbox"
+          body="The free Daily Marketplace Brief tracks fee changes with the old and new figures, dated."
+          buttonLabel="Subscribe free"
+        />
 
         <section className="mt-12">
           <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Fee tables by marketplace</h2>

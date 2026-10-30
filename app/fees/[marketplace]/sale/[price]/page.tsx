@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { PremiumSiteHeader } from '@/components/premium-site-header'
 import { PremiumSiteFooter } from '@/components/premium-site-footer'
+import { BriefCta } from '@/components/brief-cta'
+import { BRIEF_CTA_KEYS } from '@/lib/brief-cta'
 import { JsonLd } from '@/components/json-ld'
 import { ShareButtons } from '@/components/share-buttons'
 import { AMAZON_PEAK_PATH } from '@/lib/amazon-holiday-peak-2026'
@@ -145,11 +147,12 @@ export default async function SaleFeePage({ params }: PageProps) {
           </dl>
         </section>
 
-        <section className="mt-10 rounded-2xl border border-sky-200 bg-sky-50 p-6 dark:border-sky-900 dark:bg-sky-950/40">
-          <h2 className="text-xl font-bold">Get fee changes before they hit your margin</h2>
-          <p className="mt-2 text-muted-foreground">The Daily Marketplace Brief flags fee and policy changes across Amazon, Walmart, TikTok Shop, eBay and Etsy. Free.</p>
-          <Link href="/newsletter?source=fee_compare" className="mt-4 inline-block rounded-xl bg-sky-600 px-5 py-2.5 font-semibold text-white hover:bg-sky-700">Subscribe to the Daily Brief</Link>
-        </section>
+        <BriefCta
+          source={BRIEF_CTA_KEYS.feeSale(m.slug)}
+          heading="Get fee changes before they hit your margin"
+          body="The Daily Marketplace Brief flags fee and policy changes across Amazon, Walmart, TikTok Shop, eBay and Etsy. Free."
+          buttonLabel="Subscribe to the Daily Brief"
+        />
       </main>
       <PremiumSiteFooter />
     </div>

@@ -5,6 +5,8 @@ import { ORGANIZATION_REF } from '@/lib/site-jsonld'
 import { OPERATOR_GUIDES, GUIDE_UPDATED, GUIDE_PUBLISHED } from '@/lib/operator-guides'
 import { PremiumSiteHeader } from '@/components/premium-site-header'
 import { PremiumSiteFooter } from '@/components/premium-site-footer'
+import { SponsorBriefLink } from '@/components/brief-cta'
+import { BRIEF_CTA_KEYS, briefSignupHref } from '@/lib/brief-cta'
 import { GuideScenarioCalculator } from '@/components/guide-scenario-calculator'
 import type { GuideScenario } from '@/lib/guide-calculations'
 import { ResourceLink } from '@/components/resource-link'
@@ -61,7 +63,7 @@ export default async function GuidePage({ params }: Props) {
         </article>
         <aside className="space-y-6 lg:sticky lg:top-44">
           <nav aria-label="On this page" className="rounded-2xl border border-border bg-card p-6 editorial-elevated"><p className="editorial-eyebrow">On this page</p><ul className="mt-4 space-y-3 text-sm"><li><a href="#scenario-calculator" className="font-semibold text-primary">Try the calculator</a></li>{guide.sections.map(s => <li key={s.id}><a href={`#${s.id}`} className="hover:text-primary hover:underline">{s.title}</a></li>)}<li><a href="#common-questions" className="hover:text-primary">Common questions</a></li><li><a href="#sources" className="hover:text-primary">Sources and assumptions</a></li></ul></nav>
-          <div className="rounded-2xl bg-slate-950 p-6 text-white editorial-elevated"><h2 className="text-xl font-bold">Put it into practice</h2><ResourceLink event="resource_download_click" resource={slug} href={guide.download.href} download className="mt-5 block rounded-lg bg-blue-600 px-4 py-3 text-sm font-bold text-white">{guide.download.label} ↓</ResourceLink><p className="mt-3 text-xs text-slate-300">Free printable HTML · no signup</p><ResourceLink event="guide_tool_click" resource={slug} href="/tools#profit" className="mt-5 block text-sm font-bold text-blue-200">Open the profit calculator →</ResourceLink><ResourceLink event="guide_newsletter_click" resource={slug} href="/newsletter" className="mt-4 block text-sm font-bold text-blue-200">Explore the daily brief →</ResourceLink></div>
+          <div className="rounded-2xl bg-slate-950 p-6 text-white editorial-elevated"><h2 className="text-xl font-bold">Put it into practice</h2><ResourceLink event="resource_download_click" resource={slug} href={guide.download.href} download className="mt-5 block rounded-lg bg-blue-600 px-4 py-3 text-sm font-bold text-white">{guide.download.label} ↓</ResourceLink><p className="mt-3 text-xs text-slate-300">Free printable HTML · no signup</p><ResourceLink event="guide_tool_click" resource={slug} href="/tools#profit" className="mt-5 block text-sm font-bold text-blue-200">Open the profit calculator →</ResourceLink><ResourceLink event="guide_newsletter_click" resource={slug} href={briefSignupHref(BRIEF_CTA_KEYS.guide(slug))} className="mt-4 block text-sm font-bold text-blue-200">Explore the daily brief →</ResourceLink><SponsorBriefLink tone="dark" className="mt-4" /></div>
         </aside>
       </div>
       <SponsoredToolListing listing={sponsoredListingFor('guides')} placement={`guide-${slug}`} className="mt-12" />
