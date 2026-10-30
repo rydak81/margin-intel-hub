@@ -7,6 +7,7 @@ import { PremiumSiteFooter } from '@/components/premium-site-footer'
 import { SponsorBriefLink } from '@/components/brief-cta'
 import { JsonLd } from '@/components/json-ld'
 import { AnalysisInline } from '@/components/analysis-inline'
+import { AnalysisFeeLinks } from '@/components/related-links'
 import { ANALYSIS_ARTICLES, getAnalysis } from '@/lib/analysis'
 import { FORECASTS } from '@/lib/forecasts'
 import { ORGANIZATION_REF } from '@/lib/site-jsonld'
@@ -79,6 +80,7 @@ export default async function AnalysisPage({ params }: Props) {
           </section>)}
           {forecasts.length > 0 && <section id="forecasts" className="mt-10 scroll-mt-48 border-t border-border pt-8"><h2 className="text-2xl font-bold">Forecasts this piece tracks</h2><p className="mt-3 text-sm text-muted-foreground">Dated calls from our public ledger, graded hit or miss when they resolve.</p><ul className="mt-5 space-y-4">{forecasts.map(f => <li key={f.id} className="rounded-xl border border-border p-4"><p className="font-semibold">{f.id} · {f.statement}</p><p className="mt-2 text-sm text-muted-foreground">Resolve by <time dateTime={f.resolveBy}>{fmtDate(f.resolveBy)}</time> · Status: {f.status}</p></li>)}</ul><Link href="/intelligence/forecasts" className="mt-4 inline-block text-sm font-bold text-primary">See the full scorecard →</Link></section>}
           <section id="sources" className="mt-10 border-t border-border pt-8"><h2 className="text-2xl font-bold">Sources</h2><p className="mt-3 text-sm text-muted-foreground">Consulted {fmtDate(a.updatedOn)}. Carrier and platform terms change; check the current official documents and your own contract before acting.</p><ul className="mt-5 space-y-5">{a.sources.map(s => <li key={s.href}>{s.href.startsWith('/') ? <Link href={s.href} className="font-semibold text-primary underline">{s.label}</Link> : <a href={s.href} target="_blank" rel="noopener noreferrer" className="font-semibold text-primary underline">{s.label} ↗</a>}<p className="mt-2 text-sm text-muted-foreground">{s.context}</p></li>)}</ul></section>
+          <AnalysisFeeLinks article={a} />
         </article>
         <aside className="space-y-6 lg:sticky lg:top-44">
           <nav aria-label="On this page" className="rounded-2xl border border-border bg-card p-6 editorial-elevated"><p className="editorial-eyebrow">On this page</p><ul className="mt-4 space-y-3 text-sm">{a.sections.map(s => <li key={s.id}><a href={`#${s.id}`} className="hover:text-primary hover:underline">{s.title}</a></li>)}{forecasts.length > 0 && <li><a href="#forecasts" className="hover:text-primary">Forecasts tracked</a></li>}<li><a href="#sources" className="hover:text-primary">Sources</a></li></ul></nav>

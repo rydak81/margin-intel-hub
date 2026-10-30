@@ -12,6 +12,7 @@ import { JsonLd } from "@/components/json-ld"
 import { TIKTOK_FEE_CHANGE_PATH } from "@/lib/tiktok-fee-change-2026"
 import { feeFaq, feeShortAnswer } from "@/lib/fee-short-answer"
 import { ORGANIZATION_REF } from "@/lib/site-jsonld"
+import { FeeRelatedLinks } from "@/components/related-links"
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://marketplacebeta.com"
 
@@ -247,6 +248,8 @@ export default async function MarketplaceFeesPage({ params }: PageProps) {
             ))}
           </div>
         </section>
+
+        <FeeRelatedLinks marketplace={marketplace} />
 
         <BriefCta source={BRIEF_CTA_KEYS.feeMarketplace(marketplace.slug)} heading={`Know when ${marketplace.shortName} fees move`} />
       </main>
