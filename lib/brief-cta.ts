@@ -2,6 +2,7 @@
 // Every newsletter link built here carries a per-page-type attribution key that
 // passes lib/newsletter-source.ts (campaign_<slug>, max 64 chars).
 import { SPONSOR_OFFER_DEFS } from '@/lib/sponsor-offers'
+import { newsletterSource } from '@/lib/newsletter-source'
 
 export type CampaignSourceKey = `campaign_${string}`
 
@@ -53,3 +54,54 @@ export const BRIEF_CTA_KEYS = {
   guidesHub: briefCtaSource('guides'),
   guide: (slug: string) => briefCtaSource('guide', slug),
 } as const
+
+/** Sitewide chrome keys: header "Get the daily brief" button and footer link. */
+export const HEADER_BRIEF_SOURCE = briefCtaSource('header')
+export const FOOTER_BRIEF_SOURCE = briefCtaSource('footer')
+export const HEADER_BRIEF_HREF = briefSignupHref(HEADER_BRIEF_SOURCE)
+export const FOOTER_BRIEF_HREF = briefSignupHref(FOOTER_BRIEF_SOURCE)
+
+// ---------------------------------------------------------------------------
+// Source pass-through. A visitor who lands with ?source=<key> (e.g. a video
+// caption link ?source=tiktok) keeps that key on the page's Brief signup CTAs,
+// as long as it passes the lib/newsletter-source.ts allowlist. Server render
+// always uses the page default; the swap happens on the client after mount,
+// so crawlers and canonical URLs never see the query.
+// ---------------------------------------------------------------------------
+
+/** sessionStorage key that remembers the visit's incoming source. */
+export const BRIEF_SOURCE_STORAGE_KEY = 'mb_brief_source'
+
+const ATTRIBUTION_PREFIX = 'newsletter_'
+
+/** Allowlisted key from a URL search string (`source`, else `utm_source`), or null. */
+export function incomingBriefSource(search: string): string | null {
+  const attribution = newsletterSource(search)
+  if (attribution === 'newsletter_page') return null
+  return attribution.slice(ATTRIBUTION_PREFIX.length)
+}
+
+/** True when a stored or passed key is on the allowlist. */
+export function isAllowedBriefSource(key: string | null | undefined): key is string {
+  if (!key) return false
+  return incomingBriefSource(`?source=${encodeURIComponent(key)}`) === key
+}
+
+/**
+ * Pick the key for a page's Brief CTA: a valid incoming ?source on this URL,
+ * else a valid key remembered earlier in the visit, else the page default.
+ */
+export function resolveBriefSource(pageDefault: string, search: string, stored?: string | null): string {
+  return incomingBriefSource(search) ?? (isAllowedBriefSource(stored) ? stored : pageDefault)
+}
+
+/**
+ * Rewrite the `source` of a /newsletter link to `source`, keeping its hash.
+ * Non-newsletter links are returned unchanged.
+ */
+export function withBriefSource(href: string, source: string): string {
+  const [pathAndQuery, hash = 'subscribe'] = href.split('#')
+  const [path] = pathAndQuery.split('?')
+  if (path !== '/newsletter') return href
+  return `/newsletter?source=${source}#${hash}`
+}

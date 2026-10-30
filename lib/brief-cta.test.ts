@@ -130,7 +130,7 @@ describe('every fee and article template shows exactly one keyed Brief CTA and o
   it('/articles archive and news briefings use keyed links plus the sponsor link', () => {
     for (const [file, key] of [['app/articles/articles-browser.tsx', 'articles'], ['app/news/[id]/page.tsx', 'news']]) {
       const src = readFileSync(join(process.cwd(), file), 'utf8')
-      expect(src).toContain(`briefSignupHref(BRIEF_CTA_KEYS.${key})`)
+      expect(src).toContain(`<BriefSignupLink source={BRIEF_CTA_KEYS.${key}}>`)
       expect(src).toContain('<SponsorBriefLink')
       expect(src).not.toMatch(/href="\/newsletter"/)
     }

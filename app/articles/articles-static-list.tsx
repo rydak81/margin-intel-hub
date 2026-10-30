@@ -1,10 +1,14 @@
 import Link from "next/link"
 import type { InitialArticlesData } from "@/lib/articles-initial"
+import { BriefCta } from "@/components/brief-cta"
+import { BRIEF_CTA_KEYS } from "@/lib/brief-cta"
 
 /**
  * Plain server-rendered list. It is the Suspense fallback of the interactive
  * browser below, so it is what lands in the HTML sent to crawlers (and to
- * visitors before the interactive archive hydrates).
+ * visitors before the interactive archive hydrates). React swaps the whole
+ * fallback out when the browser resolves, so its Brief CTA never shows next to
+ * the interactive archive's own CTA.
  */
 export function ArticlesStaticList({ initial }: { initial: InitialArticlesData | null }) {
   return (
@@ -30,6 +34,7 @@ export function ArticlesStaticList({ initial }: { initial: InitialArticlesData |
       ) : (
         <p className="mt-8 text-muted-foreground" role="status">Loading research archive…</p>
       )}
+      <BriefCta source={BRIEF_CTA_KEYS.articles} heading="Get the day's marketplace changes in one email" />
     </main>
   )
 }
