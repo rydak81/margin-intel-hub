@@ -28,7 +28,7 @@ const AUDIENCE = [
 
 const PLACEMENTS = [
   { name: 'Newsletter sponsor slot', detail: 'A single clearly labelled sponsor block in the Daily Marketplace Brief, sent each weekday. One sponsor per issue, written to read like a useful recommendation. Sold as a single slot or as five slots in the Founding Sponsor package.' },
-  { name: 'Sponsored tool listing', detail: 'A labelled listing alongside our recommended tools on fee pages, fee comparisons, operator guides and the tools hub, targeted by marketplace or topic. Included for 30 days with the Founding Sponsor package.' },
+  { name: 'Sponsored tool listing', detail: 'A labelled listing alongside our recommended tools on fee pages, fee comparisons, operator guides and the repricer tool page, targeted by marketplace or topic. Included for 30 days with the Founding Sponsor package.' },
   { name: 'Dossier sponsor', detail: 'Presenting sponsorship of the MarketplaceBeta Intelligence Dossier, our downloadable research report delivered to readers who request it.' },
 ]
 
