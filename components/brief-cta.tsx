@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { SPONSOR_CTA_HREF, SPONSOR_CTA_LABEL, briefSignupHref } from '@/lib/brief-cta'
+import { SPONSOR_CTA_HREF, SPONSOR_CTA_LABEL } from '@/lib/brief-cta'
+import { BriefSignupLink } from '@/components/brief-signup-link'
 
 type Tone = 'light' | 'dark'
 
@@ -32,7 +33,7 @@ export function BriefCta({
       <h2 className="text-xl font-bold">{heading}</h2>
       <p className={`mt-2 ${text}`}>{body}</p>
       <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3">
-        <Link href={briefSignupHref(source)} data-cta="brief_signup" className="inline-block rounded-xl bg-sky-600 px-5 py-2.5 font-semibold text-white hover:bg-sky-700">{buttonLabel}</Link>
+        <BriefSignupLink source={source} className="inline-block rounded-xl bg-sky-600 px-5 py-2.5 font-semibold text-white hover:bg-sky-700">{buttonLabel}</BriefSignupLink>
         <SponsorBriefLink tone={tone} />
       </div>
     </section>

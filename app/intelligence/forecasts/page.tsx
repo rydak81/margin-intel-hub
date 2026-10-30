@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { PremiumSiteHeader } from '@/components/premium-site-header'
 import { PremiumSiteFooter } from '@/components/premium-site-footer'
+import { SponsorBriefLink } from '@/components/brief-cta'
 import { JsonLd } from '@/components/json-ld'
 import { UpgradeCta } from '@/components/upgrade-cta'
 import { FORECAST_EDITION, loadForecasts, scoreForecasts, type ForecastStatus } from '@/lib/forecasts'
@@ -140,6 +141,7 @@ export default async function ForecastScorecardPage() {
             <h2 className="text-xl font-bold">Get each forecast as it resolves</h2>
             <p className="mt-3 text-muted-foreground">The free Daily Marketplace Brief carries scorecard updates, new forecasts and the evidence behind them.</p>
             <Link href={CTA} className="mt-5 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700">Get the free brief<ArrowRight className="h-4 w-4" /></Link>
+            <SponsorBriefLink className="mt-4" />
           </aside>
         </section>
       </main>
