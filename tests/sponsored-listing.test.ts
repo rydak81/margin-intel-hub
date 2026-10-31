@@ -51,7 +51,7 @@ test('reads fields with defaults', () => {
   assert.deepEqual(l.marketplaces, ['amazon', 'walmart'])
   assert.deepEqual(l.pages, ['fees', 'guides'])
   assert.equal(getSponsoredListing({ ...base, SPONSORED_LISTING_CTA: 'Try it free' })!.ctaText, 'Try it free')
-  assert.deepEqual(getSponsoredListing(base)!.pages, ['fees', 'compare', 'guides', 'repricer'])
+  assert.deepEqual(getSponsoredListing(base)!.pages, ['fees', 'compare', 'guides'])
   assert.equal(getSponsoredListing(base)!.marketplaces, null)
 })
 
@@ -61,7 +61,6 @@ test('targets pages and marketplaces', () => {
   assert.ok(sponsoredListingFor('fees', ['walmart'], { env }))
   assert.ok(sponsoredListingFor('compare', ['amazon', 'walmart'], { env }))
   assert.ok(sponsoredListingFor('guides', [], { env }), 'pages without a marketplace ignore the marketplace filter')
-  assert.equal(sponsoredListingFor('repricer', [], { env }), null)
   const view = sponsoredListingFor('fees', ['walmart'], { env })!
   assert.equal(view.url, 'https://acme.test/start?utm_source=marketplacebeta&utm_medium=listing&utm_content=fees')
 })
@@ -78,7 +77,6 @@ test('every placement page wires the listing next to the recommended tools', () 
     ['app/fees/[marketplace]/[category]/page.tsx', 'fees'],
     ['app/fees/compare/[pair]/page.tsx', 'compare'],
     ['app/guides/[slug]/page.tsx', 'guides'],
-    ['app/tools/repricer/page.tsx', 'repricer'],
   ]) {
     const src = readFileSync(new URL(`../${file}`, import.meta.url), 'utf8')
     assert.match(src, new RegExp(`sponsoredListingFor\\(["']${page}["']`), file)
@@ -100,7 +98,7 @@ test('a targeting list that is set but has no valid entries hides the listing in
   assert.equal(getSponsoredListing({ ...base, SPONSORED_LISTING_PAGES: 'fess' }), null)
   assert.equal(getSponsoredListing({ ...base, SPONSORED_LISTING_MARKETPLACES: 'amazn, wallmart' }), null)
   assert.deepEqual(getSponsoredListing({ ...base, SPONSORED_LISTING_PAGES: 'fees, fess' })!.pages, ['fees'], 'valid entries are kept')
-  assert.deepEqual(getSponsoredListing({ ...base, SPONSORED_LISTING_PAGES: ' , ' })!.pages, ['fees', 'compare', 'guides', 'repricer'], 'blank means unset')
+  assert.deepEqual(getSponsoredListing({ ...base, SPONSORED_LISTING_PAGES: ' , ' })!.pages, ['fees', 'compare', 'guides'], 'blank means unset')
   assert.equal(getSponsoredListing({ ...base, SPONSORED_LISTING_MARKETPLACES: '' })!.marketplaces, null)
 })
 

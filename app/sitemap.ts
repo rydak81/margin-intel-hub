@@ -48,12 +48,6 @@ const staticRoutes: MetadataRoute.Sitemap = [
     changeFrequency: 'weekly',
     priority: 0.8,
   },
-  ...['tools/repricer', 'tools/repricer/history', 'tools/repricer/sourcing'].map(path => ({
-    url: `${siteUrl}/${path}`,
-    lastModified: new Date(SITE_SECTIONS_UPDATED),
-    changeFrequency: 'weekly' as const,
-    priority: 0.7,
-  })),
   {
     url: `${siteUrl}/pricing`,
     lastModified: new Date(PRICING_UPDATED),

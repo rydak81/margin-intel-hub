@@ -28,6 +28,7 @@ const nextConfig = {
   async redirects() {
     return [
       { source: '/solutions/:path*', destination: '/tools', permanent: true },
+      { source: '/tools/repricer/:path*', destination: '/tools', permanent: true },
       { source: '/partners/:path*', destination: '/articles', permanent: true },
       { source: '/community/:path*', destination: '/articles', permanent: true },
     ]

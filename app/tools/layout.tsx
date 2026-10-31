@@ -10,7 +10,6 @@ const toolsJsonLd = {
     ['Sales Forecaster', 'https://marketplacebeta.com/tools#forecast', 'Project marketplace sales from historical trends.'],
     ['Listing Optimizer', 'https://marketplacebeta.com/tools#listing', 'Score and improve marketplace product listings.'],
     ['Keyword Trends', 'https://marketplacebeta.com/tools#keywords', 'Explore ecommerce keyword trends.'],
-    ['ProfitTygr Repricer', 'https://marketplacebeta.com/tools/repricer', 'Margin-floor repricing and pricing analysis across marketplaces.'],
   ].map(([name, url, description], i) => ({
     '@type': 'ListItem',
     position: i + 1,

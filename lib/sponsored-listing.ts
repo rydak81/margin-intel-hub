@@ -1,5 +1,5 @@
 // Sponsored tool listing: one paid, clearly labelled tool card shown next to our
-// recommended tools on fee, fee-comparison, guide and repricer pages. Driven by
+// recommended tools on fee, fee-comparison and guide pages. Driven by
 // env so a booking can be switched on without a code change; renders nothing
 // unless SPONSORED_LISTING_NAME and an http(s) SPONSORED_LISTING_URL are set.
 //
@@ -9,7 +9,7 @@
 //   SPONSORED_LISTING_CATEGORY      optional  small label above the name, e.g. "Repricing"
 //   SPONSORED_LISTING_CTA           optional  link text (default "Visit {name}")
 //   SPONSORED_LISTING_MARKETPLACES  optional  comma list (amazon, walmart, ebay, etsy, tiktok-shop, shopify); default all
-//   SPONSORED_LISTING_PAGES         optional  comma list (fees, compare, guides, repricer); default all
+//   SPONSORED_LISTING_PAGES         optional  comma list (fees, compare, guides); default all
 // A list that is set but has no recognised entries hides the listing (fails closed)
 // rather than widening a targeted booking to every page or marketplace.
 //   SPONSORED_LISTING_START         optional  YYYY-MM-DD, first day shown (America/New_York, inclusive)
@@ -17,7 +17,7 @@
 import { parseHttpUrl, withUtm } from '@/lib/utm'
 import { isWithinSponsorWindow, readSponsorWindow, type SponsorWindow } from '@/lib/sponsor-window'
 
-export const LISTING_PAGES = ['fees', 'compare', 'guides', 'repricer'] as const
+export const LISTING_PAGES = ['fees', 'compare', 'guides'] as const
 export type ListingPage = (typeof LISTING_PAGES)[number]
 
 export interface SponsoredListing {
@@ -70,8 +70,8 @@ export function getSponsoredListing(env: Record<string, string | undefined> = pr
 
 /**
  * The listing to render on one page, or null. `marketplaces` is the page's
- * marketplace context (one for a fee page, two for a comparison, none for guides
- * and the repricer hub). Pages without a marketplace ignore the marketplace filter.
+ * marketplace context (one for a fee page, two for a comparison, none for guides).
+ * Pages without a marketplace ignore the marketplace filter.
  * A listing whose end date has already passed is dropped here; the start date and
  * any end date still ahead are enforced again in the browser, because these pages
  * are statically generated.

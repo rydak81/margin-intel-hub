@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { EditorialIntro } from "@/components/editorial-intro"
 import { PremiumSiteFooter } from "@/components/premium-site-footer"
 import { PremiumSiteHeader } from "@/components/premium-site-header"
@@ -22,7 +21,6 @@ import {
   FileText,
   Search,
   TrendingUp,
-  BarChart3,
   Wrench,
   Mail,
   Sparkles,
@@ -95,28 +93,6 @@ export default function ToolsPage() {
 
       {/* Main Content */}
       <main className="site-width mx-auto px-4 py-8">
-        {/* Margin-Aware Repricer promo */}
-        <Link
-          href="/tools/repricer"
-          className="mb-8 flex flex-col gap-3 rounded-[24px] border border-white/10 bg-[linear-gradient(135deg,rgba(15,23,42,0.98),rgba(30,41,59,0.94),rgba(55,48,163,0.86))] p-5 text-white shadow-[0_22px_60px_-34px_rgba(15,23,42,0.65)] transition hover:-translate-y-0.5 md:flex-row md:items-center md:justify-between"
-        >
-          <div className="flex items-center gap-3">
-            <div className="rounded-xl bg-white/12 p-2">
-              <BarChart3 className="h-5 w-5" />
-            </div>
-            <div>
-              <span className="font-semibold">New: ProfitTygr — Margin-Aware Repricer</span>
-              <p className="text-sm text-white/72">
-                Compute floor, target, and ceiling prices per SKU from landed cost and platform
-                fees — and see exactly when the market drops below your profitable floor.
-              </p>
-            </div>
-          </div>
-          <Badge variant="outline" className="w-fit shrink-0 border-white/30 text-white">
-            Open dashboard →
-          </Badge>
-        </Link>
-
         {/* Feature Cards - Desktop Only */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
           {tabs.map((tab) => (

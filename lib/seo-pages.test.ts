@@ -64,7 +64,8 @@ describe('sitemap after dedupe', () => {
     // 157 URLs on main before this change; the sitemap has no news rows without database credentials.
     const urls = (await sitemap()).map(e => e.url)
     // Each new analysis article adds one URL; 157 was counted with 5 articles. +1: /fees/compare-by-item-price.
-    expect(urls).toHaveLength(157 - 19 - 25 + 1 + (ANALYSIS_ARTICLES.length - 5))
+    // -3: the retired /tools/repricer pages (now redirected to /tools).
+    expect(urls).toHaveLength(157 - 19 - 25 + 1 - 3 + (ANALYSIS_ARTICLES.length - 5))
     expect(new Set(urls).size).toBe(urls.length)
   })
 })
