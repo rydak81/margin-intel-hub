@@ -6,7 +6,7 @@ import { generateMetadata as saleMetadata } from '@/app/fees/[marketplace]/sale/
 import { metadata as forecastsMetadata } from '@/app/intelligence/forecasts/page'
 import { MARKETPLACES, getAllFeeRoutes } from '@/lib/marketplace-fees'
 import { SALE_PRICES, getAllSaleRoutes } from '@/lib/sale-fee-pages'
-import { feeCategoryCanonicalPath, isSelfCanonicalFeeCategory } from '@/lib/seo-indexing'
+import { INDEXABLE_SALE_PAGES, feeCategoryCanonicalPath, isIndexableSalePage, isSelfCanonicalFeeCategory } from '@/lib/seo-indexing'
 import { ANALYSIS_ARTICLES } from '@/lib/analysis'
 import { parseInitialArticles } from '@/lib/articles-initial'
 
@@ -37,34 +37,45 @@ describe('fee category canonicals', () => {
 })
 
 describe('"$N sale" pages', () => {
-  it('are noindex,follow and keep a self canonical', async () => {
+  it('are noindex,follow and keep a self canonical, except the allowlist', async () => {
     const routes = getAllSaleRoutes()
     expect(routes).toHaveLength(MARKETPLACES.length * SALE_PRICES.length)
     expect(routes).toHaveLength(25)
     for (const r of routes) {
       const meta = await saleMetadata(params(r))
-      expect(meta.robots).toEqual({ index: false, follow: true })
-      expect(String(meta.alternates?.canonical)).toContain(`/fees/${r.marketplace}/on-a-${r.price}-sale`)
+      if (isIndexableSalePage(r.marketplace, Number(r.price))) expect(meta.robots).toBeUndefined()
+      else expect(meta.robots).toEqual({ index: false, follow: true })
+      expect(meta.alternates?.canonical).toBe(`${SITE}/fees/${r.marketplace}/on-a-${r.price}-sale`)
     }
+  })
+  it('the allowlist is exactly /fees/tiktok-shop/on-a-20-sale, and every entry is a real sale route', async () => {
+    expect(INDEXABLE_SALE_PAGES).toEqual([{ marketplace: 'tiktok-shop', price: 20 }])
+    const routes = getAllSaleRoutes()
+    for (const p of INDEXABLE_SALE_PAGES) expect(routes).toContainEqual({ marketplace: p.marketplace, price: String(p.price) })
+    const meta = await saleMetadata(params({ marketplace: 'tiktok-shop', price: '20' }))
+    expect(meta.robots).toBeUndefined()
+    expect(meta.alternates?.canonical).toBe(`${SITE}/fees/tiktok-shop/on-a-20-sale`)
+    expect((await saleMetadata(params({ marketplace: 'tiktok-shop', price: '30' }))).robots).toEqual({ index: false, follow: true })
+    expect((await saleMetadata(params({ marketplace: 'etsy', price: '20' }))).robots).toEqual({ index: false, follow: true })
   })
 })
 
 describe('sitemap after dedupe', () => {
   it('drops canonicalised category pages and sale pages, keeps the rest', async () => {
     const urls = (await sitemap()).map(e => e.url)
-    expect(urls.filter(u => /\/fees\/(tiktok-shop|etsy)\/[^/]+$/.test(u) && !u.endsWith('fee-change-2026'))).toEqual([])
-    expect(urls.filter(u => /\/on-a-\d+-sale$/.test(u))).toEqual([])
+    expect(urls.filter(u => /\/fees\/(tiktok-shop|etsy)\/[^/]+$/.test(u) && !u.endsWith('fee-change-2026') && !/\/on-a-\d+-sale$/.test(u))).toEqual([])
+    expect(urls.filter(u => /\/on-a-\d+-sale$/.test(u))).toEqual([`${SITE}/fees/tiktok-shop/on-a-20-sale`])
     for (const m of MARKETPLACES) expect(urls).toContain(`${SITE}/fees/${m.slug}`)
     expect(urls).toContain(`${SITE}/fees/tiktok-shop/fee-change-2026`)
     expect(urls).toContain(`${SITE}/fees/amazon/holiday-peak-2026`)
     const expectedCategories = getAllFeeRoutes().filter(r => isSelfCanonicalFeeCategory(r.marketplace)).length
     expect(urls.filter(u => /\/fees\/(amazon|walmart|ebay)\/[^/]+$/.test(u) && !/holiday-peak/.test(u))).toHaveLength(expectedCategories)
   })
-  it('lists 44 fewer URLs than before (19 category + 25 sale pages)', async () => {
+  it('lists 43 fewer URLs than before (19 category + 25 sale pages, 1 sale page allowlisted back)', async () => {
     // 157 URLs on main before this change; the sitemap has no news rows without database credentials.
     const urls = (await sitemap()).map(e => e.url)
     // Each new analysis article adds one URL; 157 was counted with 5 articles. +1: /fees/compare-by-item-price.
-    expect(urls).toHaveLength(157 - 19 - 25 + 1 + (ANALYSIS_ARTICLES.length - 5))
+    expect(urls).toHaveLength(157 - 19 - 25 + 1 + INDEXABLE_SALE_PAGES.length + (ANALYSIS_ARTICLES.length - 5))
     expect(new Set(urls).size).toBe(urls.length)
   })
 })
