@@ -512,11 +512,11 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
   {
     slug: "la-long-beach-rail-backlog-strike-holiday-inventory",
     seoTitle: "LA–Long Beach Backlog and Strike Risk: Q4 Stock Plan",
-    metaDescription: "35,688 containers waited for rail at LA–Long Beach on Oct 26, and a Nov 1 strike could hit key terminals. What sellers should do this week.",
+    metaDescription: "35,688 containers waited for rail at LA–Long Beach on Oct 26, and the watchmen's strike deadline is now Nov 4. What sellers should do this week.",
     headline: "Your Cyber Week stock may be stuck at LA–Long Beach. Plan as if it misses.",
-    dek: "A rail backlog is already holding thousands of import containers for nine days or more, and a watchmen's strike could hit terminals that handle 85% of Long Beach cargo from Sunday. Here is how to triage inventory, promotions and ad spend before Black Friday.",
+    dek: "A rail backlog is already holding thousands of import containers for nine days or more, and a watchmen's strike could hit terminals that handle 85% of Long Beach cargo if talks fail by Wednesday, November 4. Here is how to triage inventory, promotions and ad spend before Black Friday.",
     publishedOn: "2026-10-29",
-    updatedOn: "2026-10-29",
+    updatedOn: "2026-11-02",
     author: "MarketplaceBeta Intelligence",
     readTime: "6 min",
     tags: ["logistics", "ports", "inventory", "peak season", "Q4 2026"],
@@ -524,6 +524,15 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
     forecastIds: ["F2", "F1"],
     newsletterSource: "campaign_port_backlog_q4",
     sections: [
+      {
+        id: "update-2026-11-02",
+        title: "Update, November 2, 2026: the strike deadline moved to Wednesday, November 4",
+        paragraphs: [
+          "No strike started on November 1. On October 30 the Pacific Maritime Association said it and ILWU Local 26 had agreed to extend the watchmen's contract through 5 p.m. Pacific on Wednesday, November 4 (8 p.m. Eastern), with talks continuing with the help of the Federal Mediation and Conciliation Service, per PMA's statement and reports in the Journal of Commerce and Bloomberg Law. This is a postponement, not a deal. Everything below about the strike now applies to Wednesday afternoon instead of Sunday, and we will update this piece again after the new deadline.",
+          "The rail queue has not cleared. The Port of Los Angeles' own on-dock rail report shows 21,683 import containers waiting for on-dock trains at its terminals as of October 30, and 8,937 of them, about 41% by our arithmetic, had waited nine days or more. That is Los Angeles only. We have not found a combined Los Angeles and Long Beach count published after the October 26 figures in the table below, so the 35,688 complex total is still the latest we can cite.",
+          "The checklist in this piece still holds, with Wednesday as the new cutoff. If a Cyber Week load can leave an affected terminal before 5 p.m. Pacific on November 4, that is the one to push your forwarder on today.",
+        ],
+      },
       {
         id: "what-changed",
         title: "What changed",
@@ -557,7 +566,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
         id: "what-to-do-this-week",
         title: "What to do this week",
         paragraphs: [
-          "Do these before Sunday's deadline, not after the first missed delivery date.",
+          "Do these before the strike deadline, now 5 p.m. Pacific on Wednesday, November 4, not after the first missed delivery date.",
         ],
         bullets: [
           "List every open purchase order with goods on the water or at a terminal. For each one, ask your forwarder three things: which port and terminal, whether it leaves by rail or truck, and the current estimate to your warehouse or fulfillment center. The Local 26 strike notice named eight locations, per the World Ports Organization: APM Terminals, Long Beach Container Terminal, Total Terminals International, SSA C-60, SSA A-90, SSA LB 206, Pacific Container Terminal and OH 55.",
@@ -575,7 +584,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
           "We will update this piece if a strike starts or a deal is announced. The signals we are tracking:",
         ],
         bullets: [
-          "The November 1, 5 p.m. Pacific deadline, and whether other ILWU members honor Local 26 picket lines.",
+          "The November 4, 5 p.m. Pacific deadline (moved from November 1), and whether other ILWU members honor Local 26 picket lines if it passes without a deal.",
           "The ports' daily rail reports, specifically whether the count of containers waiting nine days or more starts to fall.",
           "Weekly diesel prices from the US Energy Information Administration, which our dossier lists as a leading signal for forecast F2.",
           "Cyber Week sales tracking against forecast F1. See the full context on the [intelligence hub](/intelligence).",
@@ -585,7 +594,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
         id: "note",
         title: "How this was made",
         paragraphs: [
-          "AI-assisted, human-reviewed. Figures come from the linked sources below, dated as shown. The share of containers waiting nine days or more across the whole complex is our arithmetic from FreightWaves' figures. Statements labeled as hypotheses have not been measured.",
+          "AI-assisted, human-reviewed. Figures come from the linked sources below, dated as shown. The share of containers waiting nine days or more across the whole complex is our arithmetic from FreightWaves' figures. Statements labeled as hypotheses have not been measured. Updated November 2, 2026 with the deadline extension and the Port of Los Angeles' October 30 rail count.",
         ],
       },
     ],
@@ -596,6 +605,10 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
       {"label": "World Ports Organization: 250 watchmen authorise strike at busiest US container port complex", "href": "https://www.worldports.org/250-watchmen-authorise-strike-at-busiest-us-container-port-complex/", "context": "Eight locations named in Local 26's Oct 23 notice; September volumes of 1,042,652 TEU (Los Angeles) and 997,177 TEU (Long Beach); loaded imports of 1,055,086 TEU, up 24.4% year on year."},
       {"label": "FreightWaves: Diesel prices may stay elevated into spring 2027, fuel executives warn (Oct 28, 2026)", "href": "https://www.freightwaves.com/news/diesel-prices-may-stay-elevated-into-spring-2027-fuel-executives-warn", "context": "WEX OTR Summit panel; diesel elevated into spring 2027; US refineries above 95% of capacity per Dow Jones Energy."},
       {"label": "Amazon Seller Forums: Holiday 2026 fees and deadlines", "href": "https://sellercentral.amazon.com/seller-forums/discussions/t/3e31fbb7-04e0-4ed4-873e-f74b1052e2ff", "context": "Oct 28 inbound arrival date for Prime badge eligibility with Amazon-optimized splits; deal fees of $100 upfront plus 1.5% of promotional sales, capped at $5,000."},
+      {"label": "PMA: Statement on Contract Extension With ILWU Local 26 (Oct 30, 2026, distributed via Public)", "href": "https://www.pubt.io/view/B1D61AAD2416C64FD19D59DB80483258C4503FFE", "context": "PMA's Oct 30 statement announcing the contract extension with Local 26."},
+      {"label": "Journal of Commerce: Strike deadline at LA-LB ports delayed until Nov. 4: PMA (Oct 30, 2026)", "href": "https://www.joc.com/article/strike-deadline-at-la-lb-ports-delayed-until-nov-4-pma-6315329", "context": "Nov 1 deadline reset to Nov 4; talks continue with the Federal Mediation and Conciliation Service."},
+      {"label": "Bloomberg Law: Port Workers, Employers Push Long Beach Strike Threat to Nov. 4 (Oct 30, 2026)", "href": "https://news.bloomberglaw.com/daily-labor-report/port-workers-employers-push-long-beach-strike-threat-to-nov-4", "context": "Extension signed through 5 p.m. on Nov 4, per PMA's Friday statement; previous agreement expired July 2025."},
+      {"label": "Port of Los Angeles: Import On-Dock Rail Awaiting Loading (as of Oct 30, 2026)", "href": "https://kentico.portoflosangeles.org/getmedia/e738dff4-39ec-4290-a54c-f3ca57be77f4/import-on-dock-rail-report", "context": "21,683 import containers awaiting on-dock rail at Los Angeles terminals, 8,937 for nine days or more."},
       {"label": "MarketplaceBeta Intelligence Dossier, Edition 1 (Oct 14, 2026)", "href": "/intelligence/dossier", "context": "Record diesel of $6.53 a gallon in late September and FedEx's 32.25% domestic fuel surcharge, with the dossier's own cited sources; EIA diesel as a leading indicator for forecast F2."},
     ],
   },
