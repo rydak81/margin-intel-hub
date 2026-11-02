@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 // "Seller questions" on /fees/[marketplace]: computed from the fee tables, mirrored
 // exactly in a single FAQPage JSON-LD block, 3-5 items, no banned terms.
 import type { ReactElement } from 'react'
@@ -14,7 +15,6 @@ const TOOL_NAMES = [['kee', 'pa'], ['ever', 'bee'], ['supa', 'base']].map(p => p
 const BANNED = new RegExp(`${TOOL_NAMES.join('|')}|\\bcpi\\b|probabilit|\\bodds\\b|likelihood|\\bchance\\b`, 'i')
 const params = (p: object) => ({ params: Promise.resolve(p) }) as never
 
-const decode = (s: string) => s.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&#x27;|&#39;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
 
 async function renderPage(slug: string) {
   const { default: Page } = await import('@/app/fees/[marketplace]/page')
@@ -24,7 +24,12 @@ async function renderPage(slug: string) {
     return Array.isArray(data) ? data : [data]
   })
   const section = /<section id="faq"[\s\S]*?<\/section>/.exec(markup)?.[0] ?? ''
-  const visible = [...section.matchAll(/<dt[^>]*>([\s\S]*?)<\/dt>\s*<dd[^>]*>([\s\S]*?)<\/dd>/g)].map(m => ({ question: decode(m[1]), answer: decode(m[2]) }))
+  // Read the visible text through a real DOM parser (textContent), as a browser would.
+  const doc = new DOMParser().parseFromString(section, 'text/html')
+  const visible = [...doc.querySelectorAll('dl > div')].map(div => ({
+    question: div.querySelector('dt')?.textContent ?? '',
+    answer: div.querySelector('dd')?.textContent ?? '',
+  }))
   return { markup, ld, section, visible }
 }
 
