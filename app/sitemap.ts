@@ -9,7 +9,8 @@ import { FEE_CHANGELOG } from '@/lib/fee-changelog'
 import { FEE_BY_PRICE_PATH, verifiedRange as feeByPriceVerified } from '@/lib/fee-by-price'
 import { CHECKED_ON as TIKTOK_FEE_CHANGE_CHECKED, TIKTOK_FEE_CHANGE_PATH } from '@/lib/tiktok-fee-change-2026'
 import { ANALYSIS_ARTICLES } from '@/lib/analysis'
-import { INDEXABLE_NEWS_SOURCE_TYPES, dedupeByTitle, isSelfCanonicalFeeCategory } from '@/lib/seo-indexing'
+import { INDEXABLE_NEWS_SOURCE_TYPES, INDEXABLE_SALE_PAGES, dedupeByTitle, isSelfCanonicalFeeCategory } from '@/lib/seo-indexing'
+import { salePath } from '@/lib/sale-fee-pages'
 
 export const revalidate = 300
 
@@ -190,14 +191,24 @@ function getFeeRoutes(): MetadataRoute.Sitemap {
     priority: 0.7,
   }))
 
-  // The "$N sale" pages are noindex (lib/seo-indexing.ts), so they are not listed.
+  // The "$N sale" pages are noindex (lib/seo-indexing.ts), so they are not
+  // listed, except the allowlisted indexable ones.
+  const salePages: MetadataRoute.Sitemap = INDEXABLE_SALE_PAGES
+    .map(p => ({ page: p, marketplace: MARKETPLACES.find(m => m.slug === p.marketplace) }))
+    .filter(x => x.marketplace)
+    .map(({ page, marketplace }) => ({
+      url: `${siteUrl}${salePath(page.marketplace, page.price)}`,
+      lastModified: new Date(marketplace!.lastVerified),
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    }))
 
   const explainers: MetadataRoute.Sitemap = [
     { url: `${siteUrl}${TIKTOK_FEE_CHANGE_PATH}`, lastModified: new Date(TIKTOK_FEE_CHANGE_CHECKED), changeFrequency: 'weekly', priority: 0.8 },
     { url: `${siteUrl}${FEE_BY_PRICE_PATH}`, lastModified: new Date(feeByPriceVerified().newest), changeFrequency: 'weekly', priority: 0.8 },
   ]
 
-  return [...hub, ...explainers, ...comparisons, ...categories]
+  return [...hub, ...explainers, ...comparisons, ...salePages, ...categories]
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

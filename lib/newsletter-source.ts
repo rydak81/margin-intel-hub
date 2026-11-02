@@ -64,3 +64,14 @@ export function newsletterSource(search: string): NewsletterAttribution {
 }
 
 export const NEWSLETTER_FIXED_SOURCES: readonly string[] = FIXED_SOURCES
+
+/**
+ * Attribution label stored with a subscriber by /api/subscribe. Forms send
+ * newsletter_<key>, homepage_widget[:<key>] or fee-gate:<tool>; the API never
+ * rejects a signup over its label, it only trims and caps it (max 100 chars,
+ * 'website' when missing or not a string).
+ */
+export function sanitizeSubscriberSource(raw: unknown): string {
+  if (typeof raw !== 'string') return 'website'
+  return raw.trim().slice(0, 100) || 'website'
+}

@@ -105,3 +105,25 @@ export function isSelfCanonicalFeeCategory(marketplaceSlug: string): boolean {
  * the index and the sitemap.
  */
 export const SALE_PAGE_ROBOTS = { index: false, follow: true } as const
+
+/**
+ * Explicit exceptions to the sale-page noindex: pages with real search
+ * evidence that they rank, kept indexable, self-canonical and in the sitemap.
+ * Add a page here only with evidence (a Search Console / Bing Webmaster
+ * impression or a recorded ranking), and note the evidence next to it.
+ *
+ * - tiktok-shop $20: ranked #3 in Google for "how much does tiktok shop take
+ *   from a $20 sale" in the 2026-10-20 SERP check (Growth keyword list, #2).
+ */
+export const INDEXABLE_SALE_PAGES: readonly { marketplace: string; price: number }[] = [
+  { marketplace: 'tiktok-shop', price: 20 },
+]
+
+export function isIndexableSalePage(marketplaceSlug: string, price: number): boolean {
+  return INDEXABLE_SALE_PAGES.some(p => p.marketplace === marketplaceSlug && p.price === price)
+}
+
+/** Robots directive for a "$N sale" page: undefined (indexable) for allowlisted pages, else noindex,follow. */
+export function salePageRobots(marketplaceSlug: string, price: number): { index: false; follow: true } | undefined {
+  return isIndexableSalePage(marketplaceSlug, price) ? undefined : { ...SALE_PAGE_ROBOTS }
+}
