@@ -10,7 +10,7 @@ import { ExternalLink } from "lucide-react"
 import { AMAZON_PEAK_PATH } from "@/lib/amazon-holiday-peak-2026"
 import { JsonLd } from "@/components/json-ld"
 import { TIKTOK_FEE_CHANGE_PATH } from "@/lib/tiktok-fee-change-2026"
-import { feeFaq, feeShortAnswer } from "@/lib/fee-short-answer"
+import { feeFaq, feeFaqJsonLd, feeShortAnswer, type FaqItem } from "@/lib/fee-short-answer"
 import { ORGANIZATION_REF } from "@/lib/site-jsonld"
 import { FeeRelatedLinks } from "@/components/related-links"
 
@@ -47,6 +47,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
+/** Answer text with an optional link on a phrase inside it; the visible text equals f.answer exactly. */
+function FaqAnswer({ item }: { item: FaqItem }) {
+  const at = item.link ? item.answer.indexOf(item.link.text) : -1
+  if (!item.link || at < 0) return <>{item.answer}</>
+  return (
+    <>
+      {item.answer.slice(0, at)}
+      <Link href={item.link.href} className="font-medium text-sky-600 underline underline-offset-4 hover:text-sky-700 dark:text-sky-400">{item.link.text}</Link>
+      {item.answer.slice(at + item.link.text.length)}
+    </>
+  )
+}
+
 export default async function MarketplaceFeesPage({ params }: PageProps) {
   const { marketplace: slug } = await params
   const marketplace = getMarketplace(slug)
@@ -67,15 +80,8 @@ export default async function MarketplaceFeesPage({ params }: PageProps) {
         { "@type": "ListItem", position: 3, name: `${marketplace.name} fees`, item: pageUrl },
       ],
     },
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      mainEntity: faq.map((f) => ({
-        "@type": "Question",
-        name: f.question,
-        acceptedAnswer: { "@type": "Answer", text: f.answer },
-      })),
-    },
+    // One FAQPage per page, built from the same items as the visible "Seller questions".
+    feeFaqJsonLd(faq),
     {
       "@context": "https://schema.org",
       "@type": "Dataset",
@@ -215,13 +221,13 @@ export default async function MarketplaceFeesPage({ params }: PageProps) {
 
         <section id="faq" className="mt-12">
           <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-            {marketplace.name} fees: frequently asked questions
+            Seller questions
           </h2>
           <dl className="mt-4 space-y-5">
             {faq.map((f) => (
               <div key={f.question}>
                 <dt className="font-semibold text-slate-900 dark:text-white">{f.question}</dt>
-                <dd className="mt-1 leading-relaxed text-slate-600 dark:text-slate-300">{f.answer}</dd>
+                <dd className="mt-1 leading-relaxed text-slate-600 dark:text-slate-300"><FaqAnswer item={f} /></dd>
               </div>
             ))}
           </dl>
