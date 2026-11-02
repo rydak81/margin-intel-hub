@@ -1,6 +1,6 @@
 "use client"
 
-import { newsletterSource } from "@/lib/newsletter-source"
+import { newsletterSignupSource, readStoredBriefSource } from "@/lib/newsletter-signup"
 import { trackResourceEvent } from "@/lib/resource-analytics"
 import { useState } from "react"
 import Image from "next/image"
@@ -103,7 +103,7 @@ export default function NewsletterPage() {
     }
 
     setIsSubmitting(true)
-    const source = newsletterSource(window.location.search)
+    const source = newsletterSignupSource(window.location.search, readStoredBriefSource())
 
     try {
       const response = await fetch("/api/subscribe", {
