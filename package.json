@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "indexnow": "node scripts/indexnow-submit.mjs",
     "lint": "eslint .",
     "test": "vitest run && node --import ./tests/register-ts.mjs --test tests/*.test.ts",
     "test:backfill": "vitest run lib/news-backfill.test.ts lib/news-pipeline-helpers.test.ts lib/news-backfill-route.test.ts lib/news-classification-backfill.test.ts && node --import ./tests/register-ts.mjs --test tests/backfill-*.test.ts"
