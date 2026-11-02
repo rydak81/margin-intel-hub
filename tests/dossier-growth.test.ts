@@ -35,7 +35,7 @@ test('report navigation has working section anchors and next steps', () => {
 })
 
 test('signup reuses allowlisted source and existing success-only event', () => {
-  assert.match(newsletter, /const source = newsletterSource\(window.location.search\)/)
+  assert.match(newsletter, /const source = newsletterSignupSource\(window.location.search, readStoredBriefSource\(\)\)/)
   assert.match(newsletter, /trackResourceEvent\("newsletter_signup", source\)/)
   assert.ok(newsletter.indexOf('if (!response.ok)') < newsletter.indexOf('trackResourceEvent("newsletter_signup", source)'))
   assert.doesNotMatch(dossier, /<script/)
