@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef, Fragment, useMemo } from "rea
 import { IntelligenceSpotlight } from "@/components/intelligence-spotlight"
 import { GuideCards } from "@/components/guide-cards"
 import { trackResourceEvent } from "@/lib/resource-analytics"
+import { HOMEPAGE_WIDGET_SOURCE, homepageWidgetSource, readStoredBriefSource } from "@/lib/newsletter-signup"
 import Image from "next/image"
 import Link from "next/link"
 import { useTheme } from "next-themes"
@@ -259,6 +260,7 @@ export default function HomePageClient({
   const [email, setEmail] = useState("")
   const [isSubscribing, setIsSubscribing] = useState(false)
   const [subscribed, setSubscribed] = useState(false)
+  const [subscribeError, setSubscribeError] = useState<string | null>(null)
 
   // Fetch news from AI-powered articles API
   const fetchNews = useCallback(async () => {
@@ -357,16 +359,20 @@ export default function HomePageClient({
   })()
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault()
+    setSubscribeError(null)
     if (!email) return
-    
+
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email)) {
+    if (!emailRegex.test(email.trim())) {
+      setSubscribeError("Enter a valid email address.")
       return
     }
-    
+
     setIsSubscribing(true)
-    
+    // homepage_widget, or homepage_widget:<key> when the visit arrived with a valid ?source.
+    const source = homepageWidgetSource(window.location.search, readStoredBriefSource())
+
     try {
       const response = await fetch("/api/subscribe", {
         method: "POST",
@@ -375,19 +381,22 @@ export default function HomePageClient({
         },
         body: JSON.stringify({
           email: email.trim().toLowerCase(),
-          source: "homepage_widget",
+          source,
         }),
       })
-      
-      const data = await response.json()
-      
+
+      const data = await response.json().catch(() => null)
+
       // Consider "already subscribed" as success for the widget
-      if (response.ok || data.error === "already_subscribed") {
-        if (response.ok) trackResourceEvent("newsletter_signup", "homepage")
+      if (response.ok || data?.error === "already_subscribed") {
+        if (response.ok) trackResourceEvent("newsletter_signup", source === HOMEPAGE_WIDGET_SOURCE ? "homepage" : source.replace(HOMEPAGE_WIDGET_SOURCE, "homepage"))
         setSubscribed(true)
+      } else {
+        setSubscribeError(data?.error || "Couldn't subscribe right now. Try again, or use the signup page.")
       }
     } catch (error) {
       console.error("Subscribe error:", error)
+      setSubscribeError("Network error. Try again.")
     } finally {
       setIsSubscribing(false)
     }
@@ -731,6 +740,7 @@ export default function HomePageClient({
                       </p>
                     </div>
                   </div>
+                  <div>
                   <form onSubmit={handleSubscribe} className="flex gap-2">
                   <Input
                     type="email"
@@ -744,6 +754,8 @@ export default function HomePageClient({
                     {subscribed ? "Done" : isSubscribing ? <Loader2 className="h-3 w-3 animate-spin" /> : "Subscribe"}
                   </Button>
                   </form>
+                  {subscribeError ? <p role="alert" className="mt-2 text-sm text-red-600 dark:text-red-300">{subscribeError}</p> : null}
+                  </div>
                 </div>
               </div>
             )}
@@ -922,6 +934,7 @@ export default function HomePageClient({
                                   <p className="mt-1 text-sm text-white/90">Getting value from these insights? Get the sharpest stories delivered every morning.</p>
                                 </div>
                               </div>
+                              <div className="w-full sm:w-auto">
                               <form onSubmit={handleSubscribe} className="flex gap-2 w-full sm:w-auto">
                                 <Input
                                   type="email"
@@ -935,6 +948,8 @@ export default function HomePageClient({
                                   {subscribed ? "Subscribed!" : isSubscribing ? <Loader2 className="h-4 w-4 animate-spin" /> : "Subscribe"}
                                 </Button>
                               </form>
+                              {subscribeError ? <p role="alert" className="mt-2 text-sm text-red-200">{subscribeError}</p> : null}
+                              </div>
                             </div>
                           </CardContent>
                         </Card>
@@ -1046,6 +1061,7 @@ export default function HomePageClient({
                 <p className="mb-4 text-sm text-white/76">
                   The most important news in 5 minutes or less. Free.
                 </p>
+                <div>
                 <form onSubmit={handleSubscribe} className="space-y-2">
                   <Input
                     type="email"
@@ -1059,6 +1075,8 @@ export default function HomePageClient({
                     {subscribed ? "You're In!" : isSubscribing ? <Loader2 className="h-4 w-4 animate-spin" /> : "Subscribe Free"}
                   </Button>
                 </form>
+                {subscribeError ? <p role="alert" className="mt-2 text-sm text-red-200">{subscribeError}</p> : null}
+                </div>
               </CardContent>
             </Card>
             )}

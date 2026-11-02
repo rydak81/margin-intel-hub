@@ -96,3 +96,13 @@ describe('rendered blocks', () => {
     }
   })
 })
+
+describe('TikTok Shop coverage', () => {
+  it('the TikTok Shop fee page links the 6% vs 8% analysis piece', () => {
+    const slug = 'tiktok-shop-referral-fee-6-or-8-percent'
+    expect(relatedAnalysisForMarketplace('tiktok-shop').map(a => a.slug)).toContain(slug)
+    const html = renderToStaticMarkup(createElement(FeeRelatedLinks, { marketplace: mp('tiktok-shop') }))
+    expect(html).toContain(`href="/intelligence/analysis/${slug}"`)
+    expect(slugs(ANALYSIS_ARTICLES.find(a => a.slug === slug)!)).toEqual(['tiktok-shop'])
+  })
+})
