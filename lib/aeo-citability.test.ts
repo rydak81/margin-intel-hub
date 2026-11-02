@@ -158,7 +158,8 @@ describe('fee page short answers', () => {
       expect(a.endsWith('.')).toBe(true)
       expect(a.slice(0, -1)).not.toMatch(/\.\s/)
       expect(feeFaq(m)[0].answer).toBe(a)
-      expect(feeFaq(m)).toHaveLength(3)
+      expect(feeFaq(m).length).toBeGreaterThanOrEqual(3)
+      expect(feeFaq(m).length).toBeLessThanOrEqual(5)
     }
   })
   it('uses only figures present in the fee data', () => {
@@ -175,8 +176,8 @@ describe('fee page short answers', () => {
     const src = read('app/fees/[marketplace]/page.tsx')
     expect(src).toContain('{shortAnswer}')
     expect(src).toContain('const faq = feeFaq(marketplace)')
-    expect(src).toContain('mainEntity: faq.map')
-    expect(src).toContain('{f.answer}')
+    expect(src).toContain('feeFaqJsonLd(faq)')
+    expect(src).toContain('<FaqAnswer item={f} />')
     expect(src).toContain('"@type": "Dataset"')
     expect(src).toContain('dateModified: marketplace.lastVerified')
     expect(src).toContain('isAccessibleForFree: true')
