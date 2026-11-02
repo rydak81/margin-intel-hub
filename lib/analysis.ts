@@ -68,7 +68,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
     "forecastIds": [
       "F2"
     ],
-    "newsletterSource": "campaign_holiday_cutoffs_2026",
+    "newsletterSource": "campaign_kw_holiday_cutoffs_2026",
     "sections": [
       {
         "id": "answer",
