@@ -1,8 +1,10 @@
 'use client'
 import { Analytics } from '@vercel/analytics/next'
+import { scrubAnalyticsUrl } from '@/lib/analytics-url'
 export function SiteAnalytics() {
   return <Analytics beforeSend={event => {
-    // Preserve page attribution without recording archive searches or auth query values.
-    try { const url = new URL(event.url); url.search = ''; url.hash = ''; return { ...event, url: url.toString() } } catch { return null }
+    // Keep page and campaign attribution (utm_*, allowlisted ?source) without recording archive searches or auth query values.
+    const url = scrubAnalyticsUrl(event.url)
+    return url ? { ...event, url } : null
   }} />
 }

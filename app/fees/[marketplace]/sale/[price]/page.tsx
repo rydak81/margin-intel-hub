@@ -12,7 +12,7 @@ import { formatVerifiedDate } from '@/lib/marketplace-fees'
 import { SALE_PRICES, feeRangeLabel, getAllSaleRoutes, money, ogImageUrl, parseSalePrice, saleFeeSummary, salePath } from '@/lib/sale-fee-pages'
 import { getPairsFor } from '@/lib/fee-compare'
 import { TIKTOK_FEE_CHANGE_PATH } from '@/lib/tiktok-fee-change-2026'
-import { SALE_PAGE_ROBOTS } from '@/lib/seo-indexing'
+import { salePageRobots } from '@/lib/seo-indexing'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://marketplacebeta.com'
 
@@ -39,10 +39,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const description = `On a $${s.price} sale, ${m.name} fees total ${range} depending on category (${s.min.takeRatePct}%–${s.max.takeRatePct}% of the sale), before product cost and fulfillment. Category-by-category breakdown, verified ${formatVerifiedDate(m.lastVerified)}.`
   const canonical = `${SITE_URL}${salePath(m.slug, s.price)}`
   const image = ogImageUrl(`${m.shortName} fees on a $${s.price} sale`, range)
+  // Price-only template pages: usable and crawlable, but not indexed, except
+  // the allowlisted pages with real search evidence (lib/seo-indexing.ts).
+  const robots = salePageRobots(m.slug, s.price)
   return {
     title, description, alternates: { canonical },
-    // Price-only template pages: usable and crawlable, but not indexed.
-    robots: { ...SALE_PAGE_ROBOTS },
+    ...(robots ? { robots } : {}),
     openGraph: { title, description, url: canonical, type: 'article', images: [{ url: image, width: 1200, height: 630 }] },
     twitter: { card: 'summary_large_image', title, description, images: [image] },
   }

@@ -1,7 +1,8 @@
-import { createAdminClient } from "@/lib/supabase/admin"
+import { createAdminClient, hasAdminConfig } from "@/lib/supabase/admin"
 import { sendEmail } from "@/lib/email"
 import { generateWelcomeEmail } from "@/lib/email-templates"
 import { NextResponse } from "next/server"
+import { sanitizeSubscriberSource } from "@/lib/newsletter-source"
 import { createHmac, timingSafeEqual } from "crypto"
 
 /**
@@ -55,7 +56,8 @@ function sanitizeContext(raw: unknown): Record<string, string | number> | null {
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { email, firstName, company, role, source = 'website', update = false } = body
+    const { email, firstName, company, role, update = false } = body
+    const source = sanitizeSubscriberSource(body.source)
     const context = sanitizeContext(body.context)
 
     console.log('[Subscribe] API called with:', { email, firstName, company, role, source })
@@ -82,6 +84,16 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { success: false, error: 'Invalid role selected' },
         { status: 400 }
+      )
+    }
+
+    // Without database credentials the admin client is an inert placeholder and
+    // every insert would fail with a generic 500. Say so plainly instead.
+    if (!hasAdminConfig()) {
+      console.error('[Subscribe] Subscriber database is not configured; signup not saved.')
+      return NextResponse.json(
+        { success: false, error: 'Signups are temporarily unavailable. Please try again later.' },
+        { status: 503 }
       )
     }
 
