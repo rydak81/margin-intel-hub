@@ -10,6 +10,7 @@ const field = 'mt-1 w-full rounded-md border border-slate-600 bg-slate-900 px-3 
 
 /** Sponsor inquiry form. Posts to /api/sponsor-inquiry. Designed for a dark panel. */
 export function SponsorInquiryForm({ sourcePage, defaultOffer = '' }: { sourcePage: SponsorSourcePage; defaultOffer?: string }) {
+  const isAiInquiry = sourcePage === 'ai'
   const [status, setStatus] = useState<Status>('idle')
   const [error, setError] = useState('')
   const formRef = useRef<HTMLFormElement>(null)
@@ -32,7 +33,7 @@ export function SponsorInquiryForm({ sourcePage, defaultOffer = '' }: { sourcePa
     e.preventDefault()
     if (status === 'sending') return
     const form = e.currentTarget
-    const data = { ...Object.fromEntries(new FormData(form).entries()), sourcePage }
+    const data = { ...Object.fromEntries(new FormData(form).entries()), ...(isAiInquiry ? { offer: 'other' } : {}), sourcePage }
     const payload = JSON.stringify(data)
     setStatus('sending')
     setError('')
@@ -69,13 +70,13 @@ export function SponsorInquiryForm({ sourcePage, defaultOffer = '' }: { sourcePa
     return (
       <div role="status" className="mt-6 rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-5 text-emerald-100">
         <p className="font-semibold">Thanks, your inquiry has been saved.</p>
-        <p className="mt-1 text-sm">We&apos;ll reply to the email address you gave us with available dates. Payment is by invoice or payment link after your inquiry (PayPal is also possible).</p>
+        <p className="mt-1 text-sm">{isAiInquiry ? 'Your request is saved so our team can follow up at the email address you provided about your workflow and next steps.' : <>We&apos;ll reply to the email address you gave us with available dates. Payment is by invoice or payment link after your inquiry (PayPal is also possible).</>}</p>
       </div>
     )
   }
 
   return (
-    <form ref={formRef} onSubmit={onSubmit} className="mt-6 grid gap-4 text-left sm:grid-cols-2" aria-label="Sponsor inquiry form" aria-busy={status === 'sending'}>
+    <form ref={formRef} onSubmit={onSubmit} className="mt-6 grid gap-4 text-left sm:grid-cols-2" aria-label={isAiInquiry ? 'AI workflow inquiry' : 'Sponsor inquiry form'} aria-busy={status === 'sending'}>
       <fieldset disabled={status === 'sending'} className="contents">
       <label className="block text-sm font-medium text-slate-200">Name
         <input name="name" required maxLength={SPONSOR_LIMITS.name} autoComplete="name" className={field} />
@@ -86,14 +87,14 @@ export function SponsorInquiryForm({ sourcePage, defaultOffer = '' }: { sourcePa
       <label className="block text-sm font-medium text-slate-200">Company
         <input name="company" required maxLength={SPONSOR_LIMITS.company} autoComplete="organization" className={field} />
       </label>
-      <label className="block text-sm font-medium text-slate-200">What are you interested in?
+      <>{isAiInquiry ? <input type="hidden" name="offer" value="other" /> : <label className="block text-sm font-medium text-slate-200">What are you interested in?
         <select name="offer" required defaultValue={defaultOffer} className={field}>
           <option value="" disabled>Choose one</option>
           {SPONSOR_OFFERS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
-      </label>
-      <label className="block text-sm font-medium text-slate-200 sm:col-span-2">Message
-        <textarea name="message" required minLength={SPONSOR_LIMITS.messageMin} maxLength={SPONSOR_LIMITS.message} rows={5} placeholder="Your product, the audience you want to reach and your timing." className={field} />
+      </label>}</>
+      <label className="block text-sm font-medium text-slate-200 sm:col-span-2">{isAiInquiry ? 'Tell us about your workflow' : 'Message'}
+        <textarea name="message" required minLength={SPONSOR_LIMITS.messageMin} maxLength={SPONSOR_LIMITS.message} rows={5} placeholder={isAiInquiry ? 'What does your business do, which tools do you use, where is the bottleneck, and what outcome would you like to improve?' : 'Your product, the audience you want to reach and your timing.'} className={field} />
       </label>
       {/* Honeypot: hidden from people and assistive tech; bots fill it in. */}
       <div aria-hidden="true" style={{ position: 'absolute', left: '-10000px', width: 1, height: 1, overflow: 'hidden' }}>
@@ -101,9 +102,9 @@ export function SponsorInquiryForm({ sourcePage, defaultOffer = '' }: { sourcePa
       </div>
       <div className="sm:col-span-2">
         <button type="submit" disabled={status === 'sending'} className="inline-flex rounded-lg bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-500 disabled:opacity-60">
-          {status === 'sending' ? 'Sending…' : 'Send inquiry →'}
+          {status === 'sending' ? 'Sending…' : isAiInquiry ? 'Discuss my workflow →' : 'Send inquiry →'}
         </button>
-        <p className="mt-3 text-sm text-slate-400">{SPONSOR_PAYMENT_NOTE}</p>
+        <p className="mt-3 text-sm text-slate-400">{isAiInquiry ? 'Share a high-level description only. Please leave out customer records, passwords, API keys and confidential business data. Submitting a request does not book or purchase a service.' : SPONSOR_PAYMENT_NOTE}</p>
         {status === 'error' ? <p role="alert" className="mt-3 text-sm text-red-300">{error}</p> : null}
       </div>
       </fieldset>

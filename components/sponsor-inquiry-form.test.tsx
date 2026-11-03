@@ -100,3 +100,37 @@ describe('sponsor inquiry recovery', () => {
     expect(container.querySelector('fieldset')?.disabled).toBe(false)
   })
 })
+
+
+describe('AI workflow inquiry', () => {
+  async function mountAi() {
+    await act(async () => { root.render(<SponsorInquiryForm sourcePage="ai" />) })
+  }
+  it('uses a workflow form without sponsorship offers or payment copy', async () => {
+    await mountAi()
+    expect(container.querySelector('form')?.getAttribute('aria-label')).toBe('AI workflow inquiry')
+    expect(container.querySelector('select')).toBeNull()
+    expect(field('offer').value).toBe('other')
+    expect(container.textContent).not.toMatch(/payment|PayPal|sponsor/i)
+    expect(container.textContent).toContain('leave out customer records')
+    expect(field('message').getAttribute('placeholder')).toContain('bottleneck')
+    fetchMock.mockResolvedValue(response(200, { success: true, stored: true }))
+    fill(); await submit()
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toMatchObject({ sourcePage: 'ai', offer: 'other' })
+    expect(container.textContent).toContain('team can follow up')
+    expect(container.textContent).not.toMatch(/payment|PayPal|available dates/i)
+  })
+  it('retains an AI request and retry reference when notification cannot be confirmed', async () => {
+    await mountAi()
+    fill(); field('offer').value = 'other'
+    fetchMock.mockResolvedValueOnce(response(503, { success: false, stored: true, error: 'Saved; notification failed. Please retry.' }))
+    await submit()
+    const first = JSON.parse(fetchMock.mock.calls[0][1].body)
+    expect(field('message').value).toBe(values.message)
+    expect(JSON.parse(sessionStorage.getItem('sponsor-inquiry-draft:ai')!).data.sourcePage).toBe('ai')
+    fetchMock.mockResolvedValueOnce(response(200, { success: true, stored: true }))
+    await submit()
+    expect(JSON.parse(fetchMock.mock.calls[1][1].body).inquiryId).toBe(first.inquiryId)
+    expect(sessionStorage.getItem('sponsor-inquiry-draft:ai')).toBeNull()
+  })
+})

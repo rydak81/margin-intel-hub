@@ -1,3 +1,4 @@
+import { AI_PLAYBOOKS } from '@/lib/ai-playbooks'
 import { GUIDE_UPDATED, OPERATOR_GUIDES } from '@/lib/operator-guides'
 import { isOperatorRelevant } from '@/lib/operator-editorial-policy'
 import type { MetadataRoute } from 'next'
@@ -215,7 +216,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const articleRoutes = await getArticleRoutes()
 
   return [...staticRoutes,
-    { url: `${siteUrl}/desktop-manufacturing`, changeFrequency: 'daily', priority: 0.8 },
+    { url: `${siteUrl}/ai`, lastModified: new Date('2026-11-03'), changeFrequency: 'weekly', priority: 0.8 },
+    ...AI_PLAYBOOKS.map(p => ({ url: `${siteUrl}/ai/${p.slug}`, lastModified: new Date(p.updatedOn), changeFrequency: 'monthly' as const, priority: 0.8 })),
     { url: `${siteUrl}/intelligence`, changeFrequency: 'daily', priority: 0.9 },
     { url: `${siteUrl}/intelligence/dossier`, changeFrequency: 'monthly', priority: 0.8 },
     ...['guides', ...OPERATOR_GUIDES.map(guide => `guides/${guide.slug}`)].map(path => ({ url: `${siteUrl}/${path}`, lastModified: new Date(GUIDE_UPDATED), changeFrequency: 'monthly' as const, priority: path.startsWith('guides') ? 0.8 : 0.5 })),

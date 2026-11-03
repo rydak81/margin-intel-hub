@@ -10,7 +10,7 @@ export const SPONSOR_OFFERS = [
 
 export type SponsorOffer = string
 export const SPONSOR_OFFER_VALUES: readonly string[] = SPONSOR_OFFERS.map(o => o.value)
-export const SPONSOR_SOURCE_PAGES = ['sponsor', 'pricing', 'other'] as const
+export const SPONSOR_SOURCE_PAGES = ['sponsor', 'pricing', 'ai', 'other'] as const
 export type SponsorSourcePage = (typeof SPONSOR_SOURCE_PAGES)[number]
 
 export const SPONSOR_LIMITS = { name: 100, email: 254, company: 120, messageMin: 10, message: 2000 } as const
@@ -114,15 +114,17 @@ export const offerLabel = (offer: string) => SPONSOR_OFFERS.find(o => o.value ==
 
 export function sponsorInquiryEmail(i: SponsorInquiry): { subject: string; html: string; text: string } {
   const oneLine = (s: string) => s.replace(/[\r\n]+/g, ' ')
-  const subject = `Sponsor inquiry: ${oneLine(i.company)} (${offerLabel(i.offer)})`
+  const kind = i.sourcePage === 'ai' ? 'AI workflow inquiry' : 'Sponsor inquiry'
+  const interest = i.sourcePage === 'ai' ? 'AI workflow discussion' : offerLabel(i.offer)
+  const subject = `${kind}: ${oneLine(i.company)} (${interest})`
   const rows: [string, string][] = [
-    ['Name', i.name], ['Email', i.email], ['Company', i.company], ['Interested in', offerLabel(i.offer)], ['Submitted from', `/${i.sourcePage}`],
+    ['Name', i.name], ['Email', i.email], ['Company', i.company], ['Interested in', interest], ['Submitted from', `/${i.sourcePage}`],
   ]
   const html = `<div style="font-family:system-ui,sans-serif;font-size:15px;line-height:1.5">
-<p><strong>New sponsor inquiry</strong>. Reply to this email to answer ${escapeHtml(i.name)} directly.</p>
+<p><strong>New ${kind.toLowerCase()}</strong>. Reply to this email to answer ${escapeHtml(i.name)} directly.</p>
 <table cellpadding="4">${rows.map(([k, v]) => `<tr><td><strong>${k}</strong></td><td>${escapeHtml(v)}</td></tr>`).join('')}</table>
 <p><strong>Message</strong></p><p style="white-space:pre-wrap">${escapeHtml(i.message)}</p></div>`
-  const text = `New sponsor inquiry\n\n${rows.map(([k, v]) => `${k}: ${v}`).join('\n')}\n\nMessage:\n${i.message}\n`
+  const text = `New ${kind.toLowerCase()}\n\n${rows.map(([k, v]) => `${k}: ${v}`).join('\n')}\n\nMessage:\n${i.message}\n`
   return { subject, html, text }
 }
 
