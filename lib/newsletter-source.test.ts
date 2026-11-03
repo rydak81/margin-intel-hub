@@ -94,3 +94,23 @@ describe('holiday shipping cutoffs analysis CTA key (PR #136)', () => {
     expect(sanitizeSubscriberSource(`newsletter_${KEY}`)).toBe(`newsletter_${KEY}`)
   })
 })
+
+describe('holiday returns analysis CTA key', () => {
+  const KEY = 'campaign_kw_holiday_returns_2026'
+
+  it('is the key the analysis page uses', () => {
+    expect(getAnalysis('holiday-returns-2026-amazon-walmart-etsy-ebay')?.newsletterSource).toBe(KEY)
+  })
+
+  it('is accepted unchanged from the URL, not relabeled to a fallback', () => {
+    expect(newsletterSource(`?source=${KEY}`)).toBe(`newsletter_${KEY}`)
+    expect(newsletterSource(`?utm_source=${KEY}`)).toBe(`newsletter_${KEY}`)
+    expect(newsletterSignupSource(`?source=${KEY}`)).toBe(`newsletter_${KEY}`)
+    expect(homepageWidgetSource(`?source=${KEY}`)).toBe(`homepage_widget:${KEY}`)
+  })
+
+  it('survives as a remembered visit key and is stored verbatim by /api/subscribe', () => {
+    expect(newsletterSignupSource('', KEY)).toBe(`newsletter_${KEY}`)
+    expect(sanitizeSubscriberSource(`newsletter_${KEY}`)).toBe(`newsletter_${KEY}`)
+  })
+})
