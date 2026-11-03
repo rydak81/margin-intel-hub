@@ -8,7 +8,7 @@ import { parseOptions, runBackfill } from '../scripts/backfill-classification.mj
 function harness(t: any, overrides = {}) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'backfill-test-'))
   t.after(() => fs.rmSync(dir, { recursive: true, force: true }))
-  const options = { ...parseOptions(['--state-file', path.join(dir, 'state.json'), '--sleep-ms', '0'], { CRON_SECRET: 'test-only', BASE_URL: 'http://example.invalid' }), ...overrides }
+  const options = { ...parseOptions(['--state-file', path.join(dir, 'state.json'), '--sleep-ms', '0'], { NODE_ENV: 'test', CRON_SECRET: 'test-only', BASE_URL: 'http://example.invalid' }), ...overrides }
   const logs: string[] = [], requests: any[] = []
   const deps: NonNullable<Parameters<typeof runBackfill>[1]> & { fetchImpl: typeof fetch } = {
     sleep: async () => {}, log: (m: string) => logs.push(m), error: (m: string) => logs.push(m),
@@ -92,7 +92,7 @@ test('dry-run does not create or alter progress state', async t => {
 })
 test('invalid numeric options are rejected before a request', () => {
   for (const args of [['--max-passes', '0'], ['--max-calls', 'NaN'], ['--limit', '1.5'], ['--concurrency', '13'], ['--run-id']]) {
-    assert.throws(() => parseOptions(args, { CRON_SECRET: 'test-only' }))
+    assert.throws(() => parseOptions(args, { NODE_ENV: 'test', CRON_SECRET: 'test-only' }))
   }
 })
 test('checkpoint replacement failure stops without advancing the previous saved cursor', async t => {
