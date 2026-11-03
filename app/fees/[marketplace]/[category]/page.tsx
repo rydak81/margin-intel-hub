@@ -26,6 +26,7 @@ import { ShareButtons } from "@/components/share-buttons"
 import { SALE_PRICES, ogImageUrl, salePath } from "@/lib/sale-fee-pages"
 import { TIKTOK_FEE_CHANGE_PATH } from "@/lib/tiktok-fee-change-2026"
 import { feeCategoryCanonicalPath } from "@/lib/seo-indexing"
+import { FeeRelatedLinks } from "@/components/related-links"
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://marketplacebeta.com"
 
@@ -346,6 +347,9 @@ export default async function FeeCategoryPage({ params }: PageProps) {
             <ArrowUpRight className="h-4 w-4" />
           </Link>
         </section>
+
+        {/* Same Related block as /fees/[marketplace]: the comparison page plus the newest analysis covering this marketplace. */}
+        <FeeRelatedLinks marketplace={marketplace} />
 
         <BriefCta source={BRIEF_CTA_KEYS.feeCategory(marketplace.slug)} heading={`Know when ${marketplace.shortName} fees move`} />
       </main>

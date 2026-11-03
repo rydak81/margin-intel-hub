@@ -5,7 +5,7 @@ import { RELATED_FEE_COMPARE, analysisMarketplaces, relatedAnalysisForMarketplac
 
 const fmtDate = (iso: string) => new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' })
 
-/** Server-rendered "Related" links for /fees/[marketplace]. */
+/** Server-rendered "Related" links for /fees/[marketplace] and every /fees/[marketplace]/[category] page. */
 export function FeeRelatedLinks({ marketplace }: { marketplace: Marketplace }) {
   const articles = relatedAnalysisForMarketplace(marketplace.slug)
   return (

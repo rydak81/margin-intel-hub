@@ -106,3 +106,41 @@ describe('TikTok Shop coverage', () => {
     expect(slugs(ANALYSIS_ARTICLES.find(a => a.slug === slug)!)).toEqual(['tiktok-shop'])
   })
 })
+
+describe('fee category pages show the same Related block', () => {
+  it('every category route renders the marketplace Related block (comparison + matching analysis)', async () => {
+    const { getAllFeeRoutes } = await import('@/lib/marketplace-fees')
+    const { default: Page } = await import('@/app/fees/[marketplace]/[category]/page')
+    const routes = getAllFeeRoutes()
+    expect(new Set(routes.map(r => r.marketplace))).toEqual(new Set(MARKETPLACES.map(m => m.slug)))
+    for (const r of routes) {
+      const html = renderToStaticMarkup(await Page({ params: Promise.resolve(r) } as never))
+      const block = /<section id="related"[\s\S]*?<\/section>/.exec(html)?.[0] ?? ''
+      expect(block, `${r.marketplace}/${r.category}`).toBe(renderToStaticMarkup(createElement(FeeRelatedLinks, { marketplace: mp(r.marketplace) })))
+      expect(html.match(/id="related"/g), `${r.marketplace}/${r.category}`).toHaveLength(1)
+    }
+  })
+
+  it('a new article covering a marketplace appears on that marketplace\'s category pages only (fixture)', () => {
+    const fixture = article({ slug: 'fixture-walmart', headline: 'Walmart fixture piece', publishedOn: '2099-01-01', updatedOn: '2099-01-01' })
+    const articles = [fixture, ...latestAnalysis()]
+    expect(relatedAnalysisForMarketplace('walmart', RELATED_ANALYSIS_LIMIT, articles)[0].slug).toBe('fixture-walmart')
+    for (const m of MARKETPLACES.filter(x => x.slug !== 'walmart')) {
+      expect(relatedAnalysisForMarketplace(m.slug, RELATED_ANALYSIS_LIMIT, articles).map(a => a.slug)).not.toContain('fixture-walmart')
+    }
+  })
+
+  it('Walmart category pages link the New Seller Savings analysis', async () => {
+    const slug = 'walmart-new-seller-savings-2026-worth-it'
+    expect(ANALYSIS_ARTICLES.some(a => a.slug === slug)).toBe(true)
+    const { getAllFeeRoutes } = await import('@/lib/marketplace-fees')
+    const { default: Page } = await import('@/app/fees/[marketplace]/[category]/page')
+    const walmart = getAllFeeRoutes().filter(r => r.marketplace === 'walmart')
+    expect(walmart.length).toBeGreaterThan(0)
+    for (const r of walmart) {
+      const html = renderToStaticMarkup(await Page({ params: Promise.resolve(r) } as never))
+      expect(html, r.category).toContain(`href="/intelligence/analysis/${slug}"`)
+      expect(html).not.toMatch(FORBIDDEN)
+    }
+  })
+})
