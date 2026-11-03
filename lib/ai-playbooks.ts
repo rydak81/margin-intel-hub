@@ -182,6 +182,61 @@ export const AI_PLAYBOOKS: AiPlaybook[] = [
       { label: "Google Search: generative content guidance", href: "https://developers.google.com/search/docs/fundamentals/using-gen-ai-content", note: "Recommends accuracy, fact-checking and useful context; warns against generating pages at scale without value." },
     ],
   },
+  {
+    slug: "build-internal-ecommerce-tool-with-ai",
+    title: "Build a small ecommerce tool with AI, from brief to tested prototype",
+    summary: "Turn one repetitive operating task into a useful internal tool by defining the inputs, expected outputs and failure cases before asking AI to write code.",
+    category: "Building tools",
+    readTime: "5 min",
+    updatedOn: "2026-11-03",
+    outcome: "A testable prototype for a bounded job, such as checking a supplier price file against your catalog. This is a recommended development process, not a promise that generated software is production-ready.",
+    inputs: [
+      "A plain-language problem statement: who uses the tool, what triggers the task, the current steps and the desired output.",
+      "Synthetic or approved sample files with field definitions, plus examples of correct results and errors the tool should catch.",
+      "An owner, an existing project or isolated prototype folder, and clear limits on data access, integrations and deployment.",
+    ],
+    steps: [
+      { title: "Write the acceptance examples", body: "For a price-file checker, specify how SKUs match, how currency is handled and what counts as a change. Include duplicate SKUs, missing prices and unknown products. Manually calculate a few expected outputs so the prototype has a target independent of the generated code." },
+      { title: "Ask for the smallest useful design", body: "Describe the required import, comparison, review and export screens. Ask which parts can use ordinary rules rather than an AI call. A fixed price difference should be calculated deterministically; AI can help build the interface or explain flagged records." },
+      { title: "Build and inspect one complete path", body: "Have the coding assistant implement the sample-file workflow first. Review the code changes, run the provided checks and inspect the interface. Claude Code's official documentation covers code exploration, small changes and testing; the same acceptance-driven approach can guide other coding tools." },
+      { title: "Test failure cases before real operations", body: "Verify malformed files, duplicates, empty input, rounding and export accuracy. Have an operator use the prototype with an approved sample. Before wider access, assign someone to review authentication, data handling, dependencies and recovery. Document setup and maintenance so the tool does not depend on one chat." },
+    ],
+    prompt: "Build a local prototype for the supplied operating task. First restate the inputs, output schema and acceptance examples. Use sample data only and deterministic calculations for numbers. Implement one complete import-review-export path with clear error messages. Test the supplied normal and failure cases, report actual results and unresolved limits, and do not connect production accounts or deploy.",
+    review: ["An operator checks the output against independently calculated examples.", "A technical reviewer examines data access and errors before production use.", "The owner can run, maintain and recover the tool from written instructions."],
+    metrics: ["Correct outputs across normal, boundary and malformed inputs.", "Time to complete the real task, including review and corrections.", "Maintenance effort and recurring errors after a controlled pilot."],
+    pitfalls: ["A working demo can still mishandle real files and permissions.", "Tests that merely repeat the generated logic can share its mistakes.", "Adding a model to arithmetic creates complexity without necessarily adding value."],
+    sources: [
+      { label: "Claude Code: common workflows", href: "https://code.claude.com/docs/en/common-workflows", note: "Current official guidance for exploring code, making small changes, testing behavior and reviewing proposed changes. The ecommerce prototype is an illustrative recommended application." },
+    ],
+  },
+  {
+    slug: "design-agentic-ecommerce-workflow",
+    title: "Design an AI workflow around an ecommerce bottleneck",
+    summary: "Choose the right level of automation for a real operating problem, then connect research, drafting, review and action with visible evidence and ownership.",
+    category: "Agentic workflows",
+    readTime: "5 min",
+    updatedOn: "2026-11-03",
+    outcome: "A pilot specification defining what the system can read, propose and execute. Expand autonomy only after reviewing results.",
+    inputs: [
+      "A recurring bottleneck, frequency, handling time and examples of straightforward cases and exceptions.",
+      "The approved source systems, required output, permitted actions and a named person responsible for decisions.",
+      "A small evaluation set, acceptable-error definitions, a budget limit and the expected behavior when a source or tool fails.",
+    ],
+    steps: [
+      { title: "Choose a job before choosing a tool", body: "For example, a weekly listing-change review may need research and a draft recommendation, but no autonomous publishing. Check whether an existing platform feature, spreadsheet rule or simple automation already handles the task. Compare options on data access, review controls, cost and maintainability." },
+      { title: "Separate predictable steps from judgment", body: "Map research, draft, review and action as distinct stages. Use rules for known checks and AI where language or ambiguous evidence needs interpretation. Anthropic distinguishes predefined workflows from agents that choose their own process; flexible agent behavior is not required for every useful automation." },
+      { title: "Make approval concrete", body: "Show the reviewer the proposed tool, exact record, before-and-after values and supporting evidence. Configure enforcement in the workflow, not just a prompt asking the model to behave. n8n documents pausing selected AI tool calls for approval or denial. Define what happens when approval is denied or never arrives." },
+      { title: "Pilot, measure and contain failures", body: "Run historical examples and then a small live draft-only trial. Record source IDs, tool results, corrections, time and cost. Test missing data, duplicate events and tool failures; cap retries and prevent repeated actions. Expand permissions only after the owner reviews results and can pause the workflow." },
+    ],
+    prompt: "Design a pilot for this ecommerce bottleneck. Compare an existing feature, a deterministic workflow and an agent. Map research, draft, review and action; specify inputs, outputs and source IDs at each stage. List read permissions separately from write permissions. Require approval for publishing, sending or changing records. Define evaluation cases, retry limits, duplicate prevention, cost tracking and human fallback. Do not execute actions.",
+    review: ["The chosen approach addresses the bottleneck without unnecessary tools or access.", "Approval displays the exact action and is enforced before execution.", "The owner verifies failure handling and can stop the pilot."],
+    metrics: ["Task success and human correction rates on representative cases.", "End-to-end time and cost per accepted result, including review.", "Failed, duplicated or unapproved actions, with reasons and recovery outcomes."],
+    pitfalls: ["A long chain can amplify an early retrieval or classification mistake.", "A model's confidence is not a substitute for a successful tool result.", "Human review is ineffective when the reviewer cannot see what will change."],
+    sources: [
+      { label: "Anthropic: building effective agents", href: "https://www.anthropic.com/research/building-effective-agents", note: "Published in 2024: foundational workflow and agent design principles, not current product setup instructions." },
+      { label: "n8n: human review for tools", href: "https://docs.n8n.io/build/integrate-ai/ai-examples/human-in-the-loop-for-tools.md", note: "Current official documentation for pausing selected AI tool calls, showing parameters and approving or denying execution." },
+    ],
+  },
 ]
 
 export function getAiPlaybook(slug: string): AiPlaybook | undefined {
