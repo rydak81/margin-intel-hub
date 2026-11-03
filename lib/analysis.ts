@@ -53,7 +53,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
     "slug": "walmart-new-seller-savings-2026-worth-it",
     "seoTitle": "Walmart New-Seller Savings 2026: Is It Worth It?",
     "metaDescription": "Walmart's 20-40% referral fee discount ends Jan 31, 2027. What it is worth at $5K, $20K and $50K a month, and why the launch date matters more.",
-    "headline": "Walmart's New-Seller Savings ends January 31. For most small sellers it is worth hundreds, not $72,000",
+    "headline": "Walmart's New-Seller Savings ends January 31. At $5,000 a month, the referral-fee discount is about $400",
     "dek": "Walmart cuts a new seller's referral fees by 20% to 40% depending on sales, with a $72,000 cap. The program has a fixed end date, so a store that goes live in mid-November gets about 80 days of it. We worked out what that is worth at three sales levels, and why your operations should decide the launch date, not the discount.",
     "publishedOn": "2026-11-03",
     "updatedOn": "2026-11-03",
@@ -127,7 +127,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
         },
         "bullets": [
           "The right-hand column is there to show scale. No seller who launches now gets 12 months of this program, because it ends on January 31.",
-          "Maker-sized stores (our core readers) sit in the 20% band for the whole window. For them the program is a 3-point fee cut in a 15% category for about 11 weeks.",
+          "A store below about $19,000 in monthly Walmart sales over this 80-day window stays in the 20% band. For that store, the program is a 3-point fee cut in a 15% category for about 11 weeks.",
           "The WFS reimbursement only starts once a first item is received at a Walmart fulfillment center, so a seller-fulfilled store gets none of the $2,000."
         ]
       },
@@ -138,7 +138,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
           "Our view: New-Seller Savings is Walmart paying to recruit sellers, and it is one part of a larger push. The [October Intelligence Dossier](/intelligence/dossier) logged referral fee cuts in about 14 categories in June and Walmart marketplace growth of 50% or more in Q2 of fiscal 2027, and argued that the fee gap is a harvest window, not a permanent structure. If you were going to add Walmart anyway, the subsidy is a reason to start sooner. If you weren't, a few hundred dollars shouldn't change your mind.",
           "The fee gap is real at the margin. Amazon's Home & Garden referral fee is also 15% in our fee tables, so during the 20% band a Walmart Home & Garden sale pays about 12% against Amazon's 15%. See the [Amazon vs Walmart comparison](/fees/compare/amazon-vs-walmart) for your category, and the [fee change log](/fees/changelog) for what moved this year.",
           "The cost is risk at the worst time of year. The offer details say you must keep good performance metrics through January 31, 2027, that Walmart can reverse discounts and demand reimbursement for violations, and that Walmart \"may alter or end this offer at any time without notification.\" Walmart's Seller Performance Standards (updated July 28, 2026) require an On-Time Delivery rate of 90% or above, Valid Tracking of 99% or above, Cancellation and Item Not Received rates of 2% or below, and Late Shipment of 5% or below. Carrier delays count against you. Missing these can lead to suppression, suspension or termination. A brand-new store whose first weeks fall in the December carrier peak is the store most likely to miss them.",
-          "Hypothesis, not confirmed by Walmart: there may be a 2027 edition. Walmart has run a New-Seller Savings offer before; its January 26, 2023 announcement offered new US sellers up to a 25% commission reduction for 90 days. If a 2027 edition repeats this year's rule of going live after February 1, a store that goes live in November 2026 might not qualify for it. Walmart has announced nothing. For a seller doing $5,000 a month the gap is about $400 now against roughly $1,950 over a hypothetical full year. That is still usually smaller than the margin you would earn selling on Walmart from November to January. Do that comparison with your own margin, not ours."
+          "Hypothesis, not confirmed by Walmart: there may be a 2027 edition. Walmart has run a New-Seller Savings offer before; its January 26, 2023 announcement offered new US sellers up to a 25% commission reduction for 90 days. If a 2027 edition repeats this year's rule of going live after February 1, a store that goes live in November 2026 might not qualify for it. Walmart has announced nothing. For a seller doing $5,000 a month the gap is about $400 now against roughly $1,950 over a hypothetical full year. Compare that difference with the contribution you expect from selling on Walmart between November and January, using your own sales and margin assumptions."
         ]
       },
       {
@@ -150,7 +150,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
         "bullets": [
           "Went live on Walmart after February 1, 2026: open Seller Center and confirm you accepted the New-Seller Savings \"Click to enroll\" terms. Walmart's promotion page points to the payments page in one place and the pricing page in another, and elsewhere calls the discount automatic, so check for the form rather than assume. If you joined after April 27 and never accepted them, your discount is at Walmart's discretion. Then check that the discounts appear on your payment report.",
           "Planning to add Walmart in the next six months and able to fulfill reliably now: start onboarding this week. Walmart's minimum qualifications include a business tax ID (an SSN is not accepted) or business license number, documents verifying your business name and address, GS1-prefix GTIN/UPC codes, and fulfillment through WFS or a US B2C warehouse that handles returns.",
-          "Planning to add Walmart but not confident of 90% on-time delivery in December: wait until January. A suspended account loses more than this discount is worth, and the offer requires good metrics anyway.",
+          "Planning to add Walmart but not confident of 90% on-time delivery in December: wait until January. The terms can reverse discounts after a policy violation, and a suspension affects the channel beyond this limited promotion window.",
           "Already selling on Walmart under another account: don't open a second one for the offer. The terms limit the benefits to one seller account, and existing sellers who open new accounts to claim them risk having all associated accounts deactivated.",
           "Run the per-order math for your three best SKUs on our [Walmart fee page](/fees/walmart) or [what Walmart takes on a $30 sale](/fees/walmart/on-a-30-sale). Multiply the base referral fee by 0.8 for the first $50,000 of sales and compare that with your other channels."
         ]
