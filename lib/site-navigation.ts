@@ -9,7 +9,7 @@ export const SITE_NAVIGATION = [
   { key: "tools", href: "/tools", label: "Tools" },
   { key: "fees", href: "/fees", label: "Fees" },
   { key: "guides", href: "/guides", label: "Guides" },
-  { key: "manufacturing", href: "/desktop-manufacturing", label: "Manufacturing" },
+  { key: "ai", href: "/ai", label: "AI for Operators" },
   { key: "events", href: "/events", label: "Events" },
   { key: "pricing", href: "/pricing", label: "Pricing" },
 ] as const

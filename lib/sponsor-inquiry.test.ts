@@ -12,6 +12,16 @@ describe('validateSponsorInquiry', () => {
     const r = validateSponsorInquiry(valid)
     expect(r).toMatchObject({ ok: true, honeypot: false, value: { email: 'ada@example.com', offer: 'single_slot', sourcePage: 'sponsor' } })
   })
+  it('accepts AI workflow inquiries using the existing other offer', () => {
+    const result = validateSponsorInquiry({ ...valid, sourcePage: 'ai', offer: 'other' })
+    expect(result).toMatchObject({ ok: true, value: { sourcePage: 'ai', offer: 'other' } })
+    if (!result.ok || result.honeypot) throw new Error('expected valid inquiry')
+    const mail = sponsorInquiryEmail(result.value)
+    expect(mail.subject).toBe('AI workflow inquiry: Acme (AI workflow discussion)')
+    expect(mail.text).toContain('New ai workflow inquiry')
+    expect(mail.html).toContain('/ai')
+    expect(mail.html).not.toMatch(/sponsor inquiry|payment|PayPal/i)
+  })
   it('rejects bad email addresses', () => {
     for (const email of ['', 'nope', 'a@b', 'a b@c.com', `${'a'.repeat(250)}@x.com`]) {
       expect(validateSponsorInquiry({ ...valid, email })).toMatchObject({ ok: false })
@@ -165,6 +175,12 @@ describe('POST /api/sponsor-inquiry', () => {
     expect(mocks.send).toHaveBeenCalledWith(expect.objectContaining({ to: 'owner@example.com', replyTo: 'ada@example.com',
       idempotencyKey: `sponsor-inquiry/${inquiryId}`, signal: expect.any(AbortSignal) }))
     expect(mocks.update).toHaveBeenCalledWith({ notification_email_id: 'e1', notification_accepted_at: expect.any(String) })
+  })
+  it('stores AI inquiries without a new offer or database schema', async () => {
+    const res = await post({ ...valid, inquiryId, sourcePage: 'ai', offer: 'other' })
+    expect(res.status).toBe(200)
+    expect(mocks.insert).toHaveBeenCalledWith(expect.objectContaining({ offer: 'other', source_page: 'ai' }))
+    expect(mocks.send).toHaveBeenCalledWith(expect.objectContaining({ subject: 'AI workflow inquiry: Acme (AI workflow discussion)' }))
   })
   it('keeps legacy callers working without an inquiry ID', async () => {
     const res = await post(valid)

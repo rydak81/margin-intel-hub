@@ -9,7 +9,7 @@ import { SiteBrand } from "@/components/site-brand"
 import { useBriefHref } from "@/components/brief-signup-link"
 import { HEADER_BRIEF_HREF } from "@/lib/brief-cta"
 
-type NavKey = "forecasts" | "pressure" | "analysis" | "manufacturing" | "guides" | "intelligence" | "home" | "articles" | "news" | "partners" | "tools" | "fees" | "community" | "events" | "solutions" | "newsletter" | "pricing"
+type NavKey = "forecasts" | "pressure" | "analysis" | "ai" | "guides" | "intelligence" | "home" | "articles" | "news" | "partners" | "tools" | "fees" | "community" | "events" | "solutions" | "newsletter" | "pricing"
 
 interface PremiumSiteHeaderProps {
   active?: NavKey
