@@ -58,6 +58,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
     "publishedOn": "2026-11-03",
     "updatedOn": "2026-11-03",
     "author": "MarketplaceBeta Intelligence",
+    "reviewMode": "automated",
     "readTime": "6 min",
     "tags": [
       "Walmart",
