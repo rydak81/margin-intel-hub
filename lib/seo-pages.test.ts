@@ -82,8 +82,9 @@ describe('sitemap after dedupe', () => {
 
 describe('permanent redirects', () => {
   it('uses permanent redirects for the retired section paths', async () => {
-    const redirects = await nextConfig.redirects()
-    const bySource = Object.fromEntries(redirects.map((r: { source: string; permanent: boolean }) => [r.source, r.permanent]))
+    expect(nextConfig.redirects).toBeTypeOf('function')
+    const redirects = await nextConfig.redirects!()
+    const bySource = Object.fromEntries(redirects.map(r => [r.source, r.permanent === true]))
     for (const s of ['/solutions/:path*', '/partners/:path*', '/community/:path*']) expect(bySource[s]).toBe(true)
   })
 })

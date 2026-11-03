@@ -11,6 +11,8 @@
  * - Inline links use [text](href); internal hrefs start with "/".
  */
 
+import { RESEARCH_ARTICLES } from '@/lib/research-articles'
+
 export interface AnalysisSection {
   id: string
   title: string
@@ -32,6 +34,8 @@ export interface AnalysisArticle {
   publishedOn: string
   updatedOn: string
   author: string
+  /** Explicitly distinguish automated publication from an individual human review. */
+  reviewMode?: 'automated'
   readTime: string
   tags: string[]
   /** The one decision this piece is about, shown in a callout above the body. */
@@ -45,6 +49,7 @@ export interface AnalysisArticle {
 }
 
 export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
+  ...RESEARCH_ARTICLES,
   {
     "slug": "holiday-shipping-cutoffs-2026-small-sellers",
     "seoTitle": "2026 Holiday Shipping Cutoffs for Small Sellers",

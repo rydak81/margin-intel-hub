@@ -1,0 +1,888 @@
+{
+  "method": "marketplacebeta-headline-coverage-v1",
+  "asOf": "2026-11-03T00:00:00.000Z",
+  "baseline": {
+    "from": "2026-10-06T00:00:00.000Z",
+    "toExclusive": "2026-10-20T00:00:00.000Z"
+  },
+  "current": {
+    "from": "2026-10-20T00:00:00.000Z",
+    "toExclusive": "2026-11-03T00:00:00.000Z"
+  },
+  "complete": true,
+  "inputCount": 717,
+  "eligibleCount": 520,
+  "matchedSourceCount": 9,
+  "matchedArticleCount": 489,
+  "retainedShare": 0.9403846153846154,
+  "latestEligiblePublication": "2026-11-02T15:00:00.000Z",
+  "omitted": {
+    "outsideWindow": 0,
+    "notEligible": 192,
+    "invalid": 0,
+    "duplicates": 5
+  },
+  "issues": [],
+  "metrics": [
+    {
+      "id": "ai-agents",
+      "label": "AI agents and agentic commerce",
+      "currentHits": 4,
+      "currentN": 280,
+      "baselineHits": 5,
+      "baselineN": 209,
+      "currentShare": 0.014285714285714285,
+      "baselineShare": 0.023923444976076555,
+      "pooledChangePP": -0.963773069036227,
+      "balancedChangePP": -1.322341683159258,
+      "bySource": [
+        {
+          "source": "aboutamazon.com",
+          "currentN": 17,
+          "baselineN": 7,
+          "currentHits": 0,
+          "baselineHits": 0
+        },
+        {
+          "source": "changelog.shopify.com",
+          "currentN": 24,
+          "baselineN": 10,
+          "currentHits": 0,
+          "baselineHits": 1
+        },
+        {
+          "source": "channelx.world",
+          "currentN": 32,
+          "baselineN": 31,
+          "currentHits": 1,
+          "baselineHits": 1
+        },
+        {
+          "source": "digitalcommerce360.com",
+          "currentN": 8,
+          "baselineN": 15,
+          "currentHits": 1,
+          "baselineHits": 1
+        },
+        {
+          "source": "freightwaves.com",
+          "currentN": 116,
+          "baselineN": 84,
+          "currentHits": 1,
+          "baselineHits": 0
+        },
+        {
+          "source": "modernretail.co",
+          "currentN": 24,
+          "baselineN": 24,
+          "currentHits": 0,
+          "baselineHits": 1
+        },
+        {
+          "source": "news.google.com",
+          "currentN": 21,
+          "baselineN": 21,
+          "currentHits": 1,
+          "baselineHits": 0
+        },
+        {
+          "source": "sellerapp.com",
+          "currentN": 5,
+          "baselineN": 6,
+          "currentHits": 0,
+          "baselineHits": 0
+        },
+        {
+          "source": "supplychaindive.com",
+          "currentN": 33,
+          "baselineN": 11,
+          "currentHits": 0,
+          "baselineHits": 1
+        }
+      ],
+      "review": [
+        "Fewer than five matching headlines in a period; do not promote a directional trend."
+      ],
+      "status": "hold",
+      "evidence": [
+        {
+          "id": "art_jr9sek",
+          "url": "https://channelx.world/2026/10/adgentic-podcast-newsletter-launches-advertising-in-the-age-of-ai-agents",
+          "source": "channelx.world",
+          "publishedAt": "2026-10-21T14:40:21+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_5izmn8",
+          "url": "https://digitalcommerce360.com/2026/10/23/walmart-unveils-ai-agent-shopping-controls-spending-limits",
+          "source": "digitalcommerce360.com",
+          "publishedAt": "2026-10-23T19:12:33+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_46bcvq",
+          "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxORDdFbDlNeEhvdnVQTkRsU0NHYUx3ODczT3Q3Y1BaS3Nlb3Jsc0thX0FTNmI5cTJxdHZON2JPTEpDb3VzUEtXRE9iREYweEd2WnVMU3FwR2lXY2pwSVE0Zk5IdkF2WFQ3Nzg5d0EwVjczUXhjLUh2N25KTE55dExud2FjemJfNDVlZnlPaTFnWmVMWjVpbnk5ZFJhRzdJSzhhZVpITDJR?oc=5",
+          "source": "news.google.com",
+          "publishedAt": "2026-10-26T20:33:34+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_7fx4j",
+          "url": "https://freightwaves.com/news/double-nickel-launches-ai-agent-to-automate-driver-employment-checks",
+          "source": "freightwaves.com",
+          "publishedAt": "2026-10-27T14:41:03+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_8gb86f",
+          "url": "https://modernretail.co/sponsored/how-agentic-commerce-helps-brands-like-willy-chavarria-optimize-for-bfcm",
+          "source": "modernretail.co",
+          "publishedAt": "2026-10-07T19:51:17+00:00",
+          "period": "baseline"
+        },
+        {
+          "id": "art_yyr7su",
+          "url": "https://channelx.world/2026/10/vision-summit-2026-playbook-on-agentic-commerce",
+          "source": "channelx.world",
+          "publishedAt": "2026-10-08T12:42:57+00:00",
+          "period": "baseline"
+        },
+        {
+          "id": "art_t3sg2n",
+          "url": "https://changelog.shopify.com/posts/compare-at-prices-now-displayed-to-agentic-channels",
+          "source": "changelog.shopify.com",
+          "publishedAt": "2026-10-09T17:05:00+00:00",
+          "period": "baseline"
+        },
+        {
+          "id": "art_5v7z3r",
+          "url": "https://digitalcommerce360.com/2026/10/16/american-express-ai-framework",
+          "source": "digitalcommerce360.com",
+          "publishedAt": "2026-10-16T22:13:58+00:00",
+          "period": "baseline"
+        },
+        {
+          "id": "art_a1wici",
+          "url": "https://supplychaindive.com/spons/the-biggest-risk-in-agentic-commerce-isnt-easy-to-see-its-invisibility/832344",
+          "source": "supplychaindive.com",
+          "publishedAt": "2026-10-19T09:00:00+00:00",
+          "period": "baseline"
+        }
+      ]
+    },
+    {
+      "id": "fees-margins",
+      "label": "Fees and margins",
+      "currentHits": 5,
+      "currentN": 280,
+      "baselineHits": 4,
+      "baselineN": 209,
+      "currentShare": 0.017857142857142856,
+      "baselineShare": 0.019138755980861243,
+      "pooledChangePP": -0.1281613123718387,
+      "balancedChangePP": -0.4651499367850869,
+      "bySource": [
+        {
+          "source": "aboutamazon.com",
+          "currentN": 17,
+          "baselineN": 7,
+          "currentHits": 0,
+          "baselineHits": 0
+        },
+        {
+          "source": "changelog.shopify.com",
+          "currentN": 24,
+          "baselineN": 10,
+          "currentHits": 0,
+          "baselineHits": 0
+        },
+        {
+          "source": "channelx.world",
+          "currentN": 32,
+          "baselineN": 31,
+          "currentHits": 0,
+          "baselineHits": 2
+        },
+        {
+          "source": "digitalcommerce360.com",
+          "currentN": 8,
+          "baselineN": 15,
+          "currentHits": 0,
+          "baselineHits": 0
+        },
+        {
+          "source": "freightwaves.com",
+          "currentN": 116,
+          "baselineN": 84,
+          "currentHits": 2,
+          "baselineHits": 1
+        },
+        {
+          "source": "modernretail.co",
+          "currentN": 24,
+          "baselineN": 24,
+          "currentHits": 0,
+          "baselineHits": 0
+        },
+        {
+          "source": "news.google.com",
+          "currentN": 21,
+          "baselineN": 21,
+          "currentHits": 1,
+          "baselineHits": 0
+        },
+        {
+          "source": "sellerapp.com",
+          "currentN": 5,
+          "baselineN": 6,
+          "currentHits": 0,
+          "baselineHits": 0
+        },
+        {
+          "source": "supplychaindive.com",
+          "currentN": 33,
+          "baselineN": 11,
+          "currentHits": 2,
+          "baselineHits": 1
+        }
+      ],
+      "review": [
+        "Fewer than five matching headlines in a period; do not promote a directional trend."
+      ],
+      "status": "hold",
+      "evidence": [
+        {
+          "id": "art_ysxksg",
+          "url": "https://supplychaindive.com/news/usps-to-debut-weekly-fuel-fee-in-2027-matching-fedex-ups-practices/872778",
+          "source": "supplychaindive.com",
+          "publishedAt": "2026-10-26T19:12:00+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_nxx5tb",
+          "url": "https://supplychaindive.com/news/ustr-weighs-extending-pause-on-china-linked-vessel-fees-to-january/872763",
+          "source": "supplychaindive.com",
+          "publishedAt": "2026-10-26T20:48:18+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_2ve55b",
+          "url": "https://news.google.com/rss/articles/CBMilwFBVV95cUxOM3hRMG81dENDWW8yM0dRR2RLemJNLXg2TXZhZTY1RlBZRGNnQXFxaExydkZXR3hGV0swUVR0RnBLNG1ONWROcTI4aVgxTmx2a3BVU0x5S0RvU1FjOVdwaUVfZjhELUE2ZG4xS1AwVV8tcWd6NDNtWlQxM1ZyYWR2V0FjUWVPV1hCRjFYY0lxeFVfTFRfNC1r?oc=5",
+          "source": "news.google.com",
+          "publishedAt": "2026-10-28T01:58:47+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_mrd25j",
+          "url": "https://freightwaves.com/news/fedex-cashes-in-on-premium-logistics-services-fuel-surcharges",
+          "source": "freightwaves.com",
+          "publishedAt": "2026-10-29T19:49:41+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_2plasn",
+          "url": "https://freightwaves.com/news/fedex-freight-sees-volumes-stabilize-eyes-q4-margin-improvement",
+          "source": "freightwaves.com",
+          "publishedAt": "2026-10-30T00:44:55+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_s7a4vx",
+          "url": "https://freightwaves.com/news/185m-breakup-fee-inside-the-ch-robinson-rxo-merger",
+          "source": "freightwaves.com",
+          "publishedAt": "2026-10-09T18:24:40+00:00",
+          "period": "baseline"
+        },
+        {
+          "id": "art_gxwyn8",
+          "url": "https://channelx.world/2026/10/aliexpress-elite-no-fee-loyalty-scheme-launched",
+          "source": "channelx.world",
+          "publishedAt": "2026-10-15T11:38:28+00:00",
+          "period": "baseline"
+        },
+        {
+          "id": "art_ifh1l1",
+          "url": "https://supplychaindive.com/news/fmc-proposes-fees-on-spanish-flagged-vessels-import-restrictions/833122",
+          "source": "supplychaindive.com",
+          "publishedAt": "2026-10-16T14:13:39+00:00",
+          "period": "baseline"
+        },
+        {
+          "id": "art_5aa4df",
+          "url": "https://channelx.world/2026/10/9-holiday-margin-plays-worth-stealing",
+          "source": "channelx.world",
+          "publishedAt": "2026-10-19T09:00:00+00:00",
+          "period": "baseline"
+        }
+      ]
+    },
+    {
+      "id": "fulfillment-returns",
+      "label": "Fulfillment and returns",
+      "currentHits": 23,
+      "currentN": 280,
+      "baselineHits": 24,
+      "baselineN": 209,
+      "currentShare": 0.08214285714285714,
+      "baselineShare": 0.11483253588516747,
+      "pooledChangePP": -3.2689678742310324,
+      "balancedChangePP": -3.1945796205921835,
+      "bySource": [
+        {
+          "source": "aboutamazon.com",
+          "currentN": 17,
+          "baselineN": 7,
+          "currentHits": 1,
+          "baselineHits": 0
+        },
+        {
+          "source": "changelog.shopify.com",
+          "currentN": 24,
+          "baselineN": 10,
+          "currentHits": 3,
+          "baselineHits": 1
+        },
+        {
+          "source": "channelx.world",
+          "currentN": 32,
+          "baselineN": 31,
+          "currentHits": 2,
+          "baselineHits": 3
+        },
+        {
+          "source": "digitalcommerce360.com",
+          "currentN": 8,
+          "baselineN": 15,
+          "currentHits": 1,
+          "baselineHits": 1
+        },
+        {
+          "source": "freightwaves.com",
+          "currentN": 116,
+          "baselineN": 84,
+          "currentHits": 10,
+          "baselineHits": 10
+        },
+        {
+          "source": "modernretail.co",
+          "currentN": 24,
+          "baselineN": 24,
+          "currentHits": 2,
+          "baselineHits": 0
+        },
+        {
+          "source": "news.google.com",
+          "currentN": 21,
+          "baselineN": 21,
+          "currentHits": 2,
+          "baselineHits": 5
+        },
+        {
+          "source": "sellerapp.com",
+          "currentN": 5,
+          "baselineN": 6,
+          "currentHits": 0,
+          "baselineHits": 0
+        },
+        {
+          "source": "supplychaindive.com",
+          "currentN": 33,
+          "baselineN": 11,
+          "currentHits": 2,
+          "baselineHits": 4
+        }
+      ],
+      "review": [],
+      "status": "candidate",
+      "evidence": [
+        {
+          "id": "art_furnkd",
+          "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTE02Tld4eGFSYURwY2VOcVdnN21xZWJVdHpud2lscG1BRzM2dU45cWdyU094ZjYyRmZxb21IUmFlUUYzbWcwWTlvOUV1eWlEa0NmTnN3LXVPQ0JDbG10TGtvTnBVSWlWcTJrc0E?oc=5",
+          "source": "news.google.com",
+          "publishedAt": "2026-10-21T07:00:00+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_ew6lzo",
+          "url": "https://freightwaves.com/news/stord-acquires-e-commerce-competitor-ams-fulfillment-in-large-deal",
+          "source": "freightwaves.com",
+          "publishedAt": "2026-10-21T12:59:08+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_bu1sc9",
+          "url": "https://supplychaindive.com/news/stord-expands-network-with-ams-fulfillment-purchase/833617",
+          "source": "supplychaindive.com",
+          "publishedAt": "2026-10-22T14:00:28+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_vx0qjj",
+          "url": "https://freightwaves.com/news/ups-automates-4-additional-facilities-ahead-of-peak-shipping-season",
+          "source": "freightwaves.com",
+          "publishedAt": "2026-10-22T15:38:17+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_njlsc0",
+          "url": "https://modernretail.co/sponsored/why-holiday-returns-demand-fresh-thinking-from-retailers",
+          "source": "modernretail.co",
+          "publishedAt": "2026-10-23T14:45:18+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_hnvc87",
+          "url": "https://changelog.shopify.com/posts/more-accurate-uk-vat-based-on-fulfillment-location",
+          "source": "changelog.shopify.com",
+          "publishedAt": "2026-10-23T16:00:00+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_ywh2v0",
+          "url": "https://news.google.com/rss/articles/CBMi5gFBVV95cUxNSDZRTGRZMWd3dng1ZFlPR0hnUUNHV1hkaVA3UmJKS1dMaXRwZHE3clF6YWlOS2JyZFR3aFhRblhvRk5MYWpyVzZ1dUVvWWppeGtKbE5xNG1MMmgtcTlrTjg2c2JmYmxJbzk4amJoTGpQU3dobkFXcEVidDhaNmtRMHM2S2xFajRmZnJrN1ZMLWgweGZEejg0cmJuak9UR0otUjlBbUNSYXE5R2xNVTY1QVVXdHRNS0RMcWpINWN5RFIwNi1QbENtcE9YZ0dsZUFTLXZDYzI1d0Z4ODZzMWtnYndIcGdhdw?oc=5",
+          "source": "news.google.com",
+          "publishedAt": "2026-10-24T09:00:07+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_1fr1iw",
+          "url": "https://changelog.shopify.com/posts/guaranteed-flat-rate-shipping-now-in-managed-markets",
+          "source": "changelog.shopify.com",
+          "publishedAt": "2026-10-24T16:00:00+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_evagji",
+          "url": "https://changelog.shopify.com/posts/new-eu-product-identifiers-supported-on-shopify-shipping-managed-markets-labels",
+          "source": "changelog.shopify.com",
+          "publishedAt": "2026-10-24T16:00:00+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_o7yghr",
+          "url": "https://supplychaindive.com/spons/how-shoppers-define-delivery-success-and-what-theyll-do-if-you-fall-shor/833675",
+          "source": "supplychaindive.com",
+          "publishedAt": "2026-10-26T09:00:00+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_4ugxmm",
+          "url": "https://modernretail.co/operations/why-returns-are-becoming-a-bigger-focus-for-tiktok-shop-and-doordash",
+          "source": "modernretail.co",
+          "publishedAt": "2026-10-26T14:00:00+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_1vudvn",
+          "url": "https://freightwaves.com/news/miami-airport-to-deploy-shared-logistics-platform-for-cargo-community",
+          "source": "freightwaves.com",
+          "publishedAt": "2026-10-27T14:51:49+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_ehxq12",
+          "url": "https://freightwaves.com/news/why-logistics-ai-still-needs-experts-in-the-loop",
+          "source": "freightwaves.com",
+          "publishedAt": "2026-10-27T16:13:29+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_d9c1g4",
+          "url": "https://freightwaves.com/news/scan-global-logistics-to-acquire-oregon-based-oia-global",
+          "source": "freightwaves.com",
+          "publishedAt": "2026-10-29T00:07:26+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_3cwh3c",
+          "url": "https://freightwaves.com/news/ai-in-logistics-the-end-of-bad-truckload-routes",
+          "source": "freightwaves.com",
+          "publishedAt": "2026-10-29T03:45:36+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_q6n1hy",
+          "url": "https://channelx.world/2026/10/landmark-global-shopify-app-makes-international-shipping-easier",
+          "source": "channelx.world",
+          "publishedAt": "2026-10-29T07:23:00+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_408wjc",
+          "url": "https://digitalcommerce360.com/2026/10/29/doordash-instacart-acquisition",
+          "source": "digitalcommerce360.com",
+          "publishedAt": "2026-10-29T18:21:34+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_mrd25j",
+          "url": "https://freightwaves.com/news/fedex-cashes-in-on-premium-logistics-services-fuel-surcharges",
+          "source": "freightwaves.com",
+          "publishedAt": "2026-10-29T19:49:41+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_m2j4hv",
+          "url": "https://freightwaves.com/news/first-look-covenant-logistics-q3-freight-revenue-surges-68",
+          "source": "freightwaves.com",
+          "publishedAt": "2026-10-29T21:15:36+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_ds8ivu",
+          "url": "https://freightwaves.com/news/amazon-battles-freight-inflation-as-shipping-costs-jump-11-in-q3",
+          "source": "freightwaves.com",
+          "publishedAt": "2026-10-29T23:26:52+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_1g2n30",
+          "url": "https://aboutamazon.com/news/company-news/amazon-stores-growth-q3-2026-earnings",
+          "source": "aboutamazon.com",
+          "publishedAt": "2026-10-30T16:31:01+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_j3ni4k",
+          "url": "https://freightwaves.com/news/covenant-logistics-ceo-expects-double-digit-truckload-rate-hikes-in-2027",
+          "source": "freightwaves.com",
+          "publishedAt": "2026-10-30T17:32:06+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_ofitii",
+          "url": "https://channelx.world/2026/11/three-new-evri-support-channels-and-delivery-diversion-options-ahead-of-christmas",
+          "source": "channelx.world",
+          "publishedAt": "2026-11-02T10:23:19+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_i56icz",
+          "url": "https://news.google.com/rss/articles/CBMiogFBVV95cUxPMjNJS0dBMExPSGRzNnpqc1dwcEhXdXBaQVRsNU9xanlnQmpUdkszcjhEMkhxOGhRcGNJMEVGb1hvWG1LVkttMlBGZlNVaVNUaTRWZzZZaDhsM3JIWktpdW5wemdDaFViYUF2dlNoQVlha2FpTjFBRVJGS201Zk9hdnlCbVJXbEVIQXRUOGVrR2lSa3BtVDJQODNJX05jblpDNXc?oc=5",
+          "source": "news.google.com",
+          "publishedAt": "2026-10-06T14:18:15+00:00",
+          "period": "baseline"
+        },
+        {
+          "id": "art_91k0u",
+          "url": "https://news.google.com/rss/articles/CBMiigFBVV95cUxPZV9YM3J4RjJTRjZNMU1PWmdkNnZpckJyai1BdzBYNF9qcHRhYzgxV0xCdmVyblZxRnJJWU0yVmlybG1teUdoSUVsU1MzVmE4WkJfYUxaZlZJMGdUT2R4dUQ0OXRxUmJndHZYNlJsa2dtbi1xRVFKcTRhRVBlZVllaVZjRTJhLTY1dmc?oc=5",
+          "source": "news.google.com",
+          "publishedAt": "2026-10-06T14:37:55+00:00",
+          "period": "baseline"
+        },
+        {
+          "id": "art_f28w4r",
+          "url": "https://news.google.com/rss/articles/CBMihwFBVV95cUxPVGdyWmpBZDd5OEQxSlBybV9rRVBTYVFnV0ttYWtTaE0xYmpsOGRLdGMwNDNNXzB6TG5weUxHa2UxV3B4enRSQmFad0QzZmw2Sk1VV2RSdllwQjlYX0dnLWZmX1EyQlRDUGFBX1h6UXRhOExYZkQ5dWc2Q2tKSC16eVU1Q1o3dzg?oc=5",
+          "source": "news.google.com",
+          "publishedAt": "2026-10-07T10:45:43+00:00",
+          "period": "baseline"
+        },
+        {
+          "id": "art_f0cbvr",
+          "url": "https://freightwaves.com/news/logistics-firms-to-pay-2m-to-settle-hiring-discrimination-cases",
+          "source": "freightwaves.com",
+          "publishedAt": "2026-10-07T14:42:28+00:00",
+          "period": "baseline"
+        },
+        {
+          "id": "art_d56gxy",
+          "url": "https://freightwaves.com/news/radiant-logistics-latest-deal-expands-its-bi-modal-broker-platform",
+          "source": "freightwaves.com",
+          "publishedAt": "2026-10-07T20:24:51+00:00",
+          "period": "baseline"
+        },
+        {
+          "id": "art_49upsj",
+          "url": "https://channelx.world/2026/10/shopify-shipping-capabilities-expanded-for-european-merchants",
+          "source": "channelx.world",
+          "publishedAt": "2026-10-08T07:04:00+00:00",
+          "period": "baseline"
+        },
+        {
+          "id": "art_r9ohxx",
+          "url": "https://freightwaves.com/news/ai-gold-rush-transforms-trans-pacific-trade-and-logistics",
+          "source": "freightwaves.com",
+          "publishedAt": "2026-10-08T14:52:07+00:00",
+          "period": "baseline"
+        },
+        {
+          "id": "art_fd5034",
+          "url": "https://freightwaves.com/news/walmart-activates-automated-e-commerce-logistics-center-in-california",
+          "source": "freightwaves.com",
+          "publishedAt": "2026-10-09T13:41:49+00:00",
+          "period": "baseline"
+        },
+        {
+          "id": "art_ne8rnn",
+          "url": "https://freightwaves.com/news/retailers-say-extended-peak-shipping-season-winding-down",
+          "source": "freightwaves.com",
+          "publishedAt": "2026-10-09T15:20:12+00:00",
+          "period": "baseline"
+        },
+        {
+          "id": "art_4h0bpz",
+          "url": "https://freightwaves.com/news/kodiak-charger-autonomous-trucks-dallas-laredo",
+          "source": "freightwaves.com",
+          "publishedAt": "2026-10-09T15:57:20+00:00",
+          "period": "baseline"
+        },
+        {
+          "id": "art_po7ktj",
+          "url": "https://freightwaves.com/news/logistics-ai-getting-a-return-on-your-investment",
+          "source": "freightwaves.com",
+          "publishedAt": "2026-10-09T18:25:50+00:00",
+          "period": "baseline"
+        },
+        {
+          "id": "art_kqahp0",
+          "url": "https://digitalcommerce360.com/2026/10/09/walmart-fulfillment-center-stockton-california",
+          "source": "digitalcommerce360.com",
+          "publishedAt": "2026-10-09T22:42:17+00:00",
+          "period": "baseline"
+        },
+        {
+          "id": "art_760s0l",
+          "url": "https://channelx.world/2026/10/inflated-ai-product-expectations-risk-45-of-uk-shoppers-making-returns",
+          "source": "channelx.world",
+          "publishedAt": "2026-10-12T08:41:49+00:00",
+          "period": "baseline"
+        },
+        {
+          "id": "art_s8z3oy",
+          "url": "https://channelx.world/2026/10/mystery-shopping-study-reveals-the-reality-of-uk-cross-border-returns",
+          "source": "channelx.world",
+          "publishedAt": "2026-10-12T09:40:42+00:00",
+          "period": "baseline"
+        },
+        {
+          "id": "art_y336rz",
+          "url": "https://freightwaves.com/news/parcel-shipping-costs-approach-record-high-as-extra-charges-stack-up",
+          "source": "freightwaves.com",
+          "publishedAt": "2026-10-14T12:33:00+00:00",
+          "period": "baseline"
+        },
+        {
+          "id": "art_qb4xyw",
+          "url": "https://supplychaindive.com/news/ups-happy-returns-comes-to-tiktok-shop/832990",
+          "source": "supplychaindive.com",
+          "publishedAt": "2026-10-14T15:40:17+00:00",
+          "period": "baseline"
+        },
+        {
+          "id": "art_ph6eu2",
+          "url": "https://freightwaves.com/news/waabi-warrior-logistics-autonomous-freight-dallas-houston",
+          "source": "freightwaves.com",
+          "publishedAt": "2026-10-14T19:25:48+00:00",
+          "period": "baseline"
+        },
+        {
+          "id": "art_eizsii",
+          "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTFBuZFdXTHhpMGRWU0ZxaW9tM2E4czk2SjV3eDFjWGtUREtqc1lpNEJ6M08zQmJBTkJyZXZNSUhVemNuVjlvVlNsMU5rOGtJOEd2SWNpNWtiVmdpYlVPeDFpZTJhQ253WFhBNzFF?oc=5",
+          "source": "news.google.com",
+          "publishedAt": "2026-10-15T07:00:00+00:00",
+          "period": "baseline"
+        },
+        {
+          "id": "art_jdhzpt",
+          "url": "https://freightwaves.com/news/opinion-how-politics-and-policy-are-rewriting-the-rules-of-parcel-delivery",
+          "source": "freightwaves.com",
+          "publishedAt": "2026-10-15T13:59:56+00:00",
+          "period": "baseline"
+        },
+        {
+          "id": "art_y67s5b",
+          "url": "https://changelog.shopify.com/posts/buy-shipping-labels-automatically-with-shopify-flow",
+          "source": "changelog.shopify.com",
+          "publishedAt": "2026-10-15T16:00:00+00:00",
+          "period": "baseline"
+        },
+        {
+          "id": "art_56xdgk",
+          "url": "https://supplychaindive.com/news/fedex-ups-delivery-prices-set-for-record-high-q4-td-cowenafs/832992",
+          "source": "supplychaindive.com",
+          "publishedAt": "2026-10-16T13:31:02+00:00",
+          "period": "baseline"
+        },
+        {
+          "id": "art_du1uo6",
+          "url": "https://supplychaindive.com/news/fedex-ups-delivery-prices-set-for-record-high-q4/832992",
+          "source": "supplychaindive.com",
+          "publishedAt": "2026-10-16T13:31:02+00:00",
+          "period": "baseline"
+        },
+        {
+          "id": "art_uzblmi",
+          "url": "https://news.google.com/rss/articles/CBMixAFBVV95cUxPMWxGcUcxVjk3cnlzRDR2azU5UXBjYURMTnU5S2w5N3Z2cmRBc2NzR1VBd2FVV3NGUUhTUk9tRE16T1UyWldsMmZhMmg1RXZhTDFzQU81MWxOZnV2aUkxRjhJaURBN1NnenA2dHdXWXhzX3RNTjhaSXE0R1otYTlXY3Z3ZUl3NjN0bkFXdW84MnQ4WTdIMVdBbk5XU3BDcUgtdVpheWJ0WmdiYUJISnpnN19rSFdOZWlBN1BPeG1pVjl2TFRD?oc=5",
+          "source": "news.google.com",
+          "publishedAt": "2026-10-16T17:03:52+00:00",
+          "period": "baseline"
+        },
+        {
+          "id": "art_u5c4k7",
+          "url": "https://supplychaindive.com/news/walmart-approves-8-more-parcel-carriers-for-seller-fulfilled-shipping/833259",
+          "source": "supplychaindive.com",
+          "publishedAt": "2026-10-19T14:01:24+00:00",
+          "period": "baseline"
+        }
+      ]
+    },
+    {
+      "id": "advertising",
+      "label": "Advertising and acquisition",
+      "currentHits": 5,
+      "currentN": 280,
+      "baselineHits": 5,
+      "baselineN": 209,
+      "currentShare": 0.017857142857142856,
+      "baselineShare": 0.023923444976076555,
+      "pooledChangePP": -0.6066302118933699,
+      "balancedChangePP": -0.2314814814814816,
+      "bySource": [
+        {
+          "source": "aboutamazon.com",
+          "currentN": 17,
+          "baselineN": 7,
+          "currentHits": 0,
+          "baselineHits": 0
+        },
+        {
+          "source": "changelog.shopify.com",
+          "currentN": 24,
+          "baselineN": 10,
+          "currentHits": 0,
+          "baselineHits": 0
+        },
+        {
+          "source": "channelx.world",
+          "currentN": 32,
+          "baselineN": 31,
+          "currentHits": 2,
+          "baselineHits": 0
+        },
+        {
+          "source": "digitalcommerce360.com",
+          "currentN": 8,
+          "baselineN": 15,
+          "currentHits": 0,
+          "baselineHits": 0
+        },
+        {
+          "source": "freightwaves.com",
+          "currentN": 116,
+          "baselineN": 84,
+          "currentHits": 0,
+          "baselineHits": 0
+        },
+        {
+          "source": "modernretail.co",
+          "currentN": 24,
+          "baselineN": 24,
+          "currentHits": 1,
+          "baselineHits": 3
+        },
+        {
+          "source": "news.google.com",
+          "currentN": 21,
+          "baselineN": 21,
+          "currentHits": 2,
+          "baselineHits": 2
+        },
+        {
+          "source": "sellerapp.com",
+          "currentN": 5,
+          "baselineN": 6,
+          "currentHits": 0,
+          "baselineHits": 0
+        },
+        {
+          "source": "supplychaindive.com",
+          "currentN": 33,
+          "baselineN": 11,
+          "currentHits": 0,
+          "baselineHits": 0
+        }
+      ],
+      "review": [],
+      "status": "candidate",
+      "evidence": [
+        {
+          "id": "art_jr9sek",
+          "url": "https://channelx.world/2026/10/adgentic-podcast-newsletter-launches-advertising-in-the-age-of-ai-agents",
+          "source": "channelx.world",
+          "publishedAt": "2026-10-21T14:40:21+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_xs7861",
+          "url": "https://news.google.com/rss/articles/CBMivwFBVV95cUxQMXMxLTVTTF9fWDJQekhrRXJiMTRLQWFscF9kNUNuaGNkUV9BR1JoR3p1YXpMZUxPTUdYc2JTUVJlWThXREVLRV9TMGUyQ1BlMWxtaEc1cXRSVk91M2xVOUh2Vm9qLWFsZGJLcWNEaGE4Z1A5Rk1CUGMzVlpKOUdyWHpQbGcxbHMzcExDWndRWFVMZ19PUkU0VHlGbm9XRWMzZDBRTFhYRUVYTGFrZml3TlgwTzFod1pIQm1ORjk1dw?oc=5",
+          "source": "news.google.com",
+          "publishedAt": "2026-10-22T04:01:42+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_12sbks",
+          "url": "https://modernretail.co/marketing/walmart-connect-pitches-brands-directly-as-it-pushes-lift-studies-ahead-of-holiday-ad-deals",
+          "source": "modernretail.co",
+          "publishedAt": "2026-10-23T04:00:00+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_rc9iw1",
+          "url": "https://channelx.world/2026/10/the-cat-in-the-hat-amazon-ads-brand-takeover",
+          "source": "channelx.world",
+          "publishedAt": "2026-10-27T11:48:24+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_2ve55b",
+          "url": "https://news.google.com/rss/articles/CBMilwFBVV95cUxOM3hRMG81dENDWW8yM0dRR2RLemJNLXg2TXZhZTY1RlBZRGNnQXFxaExydkZXR3hGV0swUVR0RnBLNG1ONWROcTI4aVgxTmx2a3BVU0x5S0RvU1FjOVdwaUVfZjhELUE2ZG4xS1AwVV8tcWd6NDNtWlQxM1ZyYWR2V0FjUWVPV1hCRjFYY0lxeFVfTFRfNC1r?oc=5",
+          "source": "news.google.com",
+          "publishedAt": "2026-10-28T01:58:47+00:00",
+          "period": "current"
+        },
+        {
+          "id": "art_px8rrg",
+          "url": "https://news.google.com/rss/articles/CBMidkFVX3lxTFBVc3FhbTRLYlZTN0ZYaFJmTUFjbm8taWpVRGNoVmNlNFp3V2UxYTR3djRlSk5xaHVMQU96REVRZXYwODBPWkpYUnhTYVNtcXZzQ2I4Sk9QcGtqRTdMMVNSRkpMdTEwTzMxaHpqcmt2bWllcnE1bWc?oc=5",
+          "source": "news.google.com",
+          "publishedAt": "2026-10-08T07:00:00+00:00",
+          "period": "baseline"
+        },
+        {
+          "id": "art_ocqj1k",
+          "url": "https://modernretail.co/marketing/big-box-briefing-why-executive-turnover-has-been-a-consistent-theme-in-retail-media",
+          "source": "modernretail.co",
+          "publishedAt": "2026-10-08T17:30:00+00:00",
+          "period": "baseline"
+        },
+        {
+          "id": "art_sf5mlg",
+          "url": "https://modernretail.co/marketing/why-chatgpt-ads-wont-likely-impact-holiday-sales-in-a-major-way-this-year",
+          "source": "modernretail.co",
+          "publishedAt": "2026-10-09T04:00:00+00:00",
+          "period": "baseline"
+        },
+        {
+          "id": "art_cavsm5",
+          "url": "https://news.google.com/rss/articles/CBMisgFBVV95cUxPT0t2NDRPc29fd1A0SjdOSTgyMENqYy12NXRqd3ZUSnZ6cUt0NHE3UUtmazYyQVZqXzN2UC0tUDN4aG5rR0cwNlBLZkhMYlY3YXBBTlNlR1V4ZXlhcFViZTVJN2NrVURQbTZ1a2FMaUVtR3p0MDhadUx6SEZyc09ySDJwRnlseWFxakRxRDZzQUxreFRWcEJ0VVU5RV9STDlpVzFqZm1pd2lnS1pULVRXelRB?oc=5",
+          "source": "news.google.com",
+          "publishedAt": "2026-10-13T23:36:40+00:00",
+          "period": "baseline"
+        },
+        {
+          "id": "art_pjhdib",
+          "url": "https://modernretail.co/marketing/ruggables-new-ad-spend-strategy-shifts-focus-to-shopmy-creators",
+          "source": "modernretail.co",
+          "publishedAt": "2026-10-16T04:00:00+00:00",
+          "period": "baseline"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Measures keyword mentions in eligible news headlines, not AI adoption, transactions, demand, market share or business performance.",
+    "Purposive source sample; no statistical significance or population inference. Topics can overlap.",
+    "Exact normalized headlines and canonical URLs are deduplicated; paraphrased syndicated stories can remain.",
+    "Matched domains reduce source entry/exit effects; editorial output and retrospective relevance labels can still change.",
+    "Candidate means ready for source review, never permission to publish. Review primary sources and novelty before writing."
+  ]
+}
