@@ -2,7 +2,10 @@ import { describe, expect, it } from 'vitest'
 import {
   NEWSLETTER_FIXED_SOURCES,
   newsletterSource,
+  sanitizeSubscriberSource,
 } from './newsletter-source'
+import { homepageWidgetSource, newsletterSignupSource } from './newsletter-signup'
+import { getAnalysis } from './analysis'
 
 describe('newsletterSource', () => {
   it('keeps the existing dossier campaign attribution', () => {
@@ -69,5 +72,25 @@ describe('newsletterSource', () => {
     ]) {
       expect(newsletterSource(search), search).toBe('newsletter_page')
     }
+  })
+})
+
+describe('holiday shipping cutoffs analysis CTA key (PR #136)', () => {
+  const KEY = 'campaign_kw_holiday_cutoffs_2026'
+
+  it('is the key the analysis page uses', () => {
+    expect(getAnalysis('holiday-shipping-cutoffs-2026-small-sellers')?.newsletterSource).toBe(KEY)
+  })
+
+  it('is accepted unchanged from the URL, not relabeled to a fallback', () => {
+    expect(newsletterSource(`?source=${KEY}`)).toBe(`newsletter_${KEY}`)
+    expect(newsletterSource(`?utm_source=${KEY}`)).toBe(`newsletter_${KEY}`)
+    expect(newsletterSignupSource(`?source=${KEY}`)).toBe(`newsletter_${KEY}`)
+    expect(homepageWidgetSource(`?source=${KEY}`)).toBe(`homepage_widget:${KEY}`)
+  })
+
+  it('survives as a remembered visit key and is stored verbatim by /api/subscribe', () => {
+    expect(newsletterSignupSource('', KEY)).toBe(`newsletter_${KEY}`)
+    expect(sanitizeSubscriberSource(`newsletter_${KEY}`)).toBe(`newsletter_${KEY}`)
   })
 })
