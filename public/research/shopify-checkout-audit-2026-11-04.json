@@ -1,0 +1,56 @@
+{
+  "title": "The Shopify AI-channel decision is a checkout audit, not just a fee comparison",
+  "version": "shopify-checkout-audit-v1",
+  "retrievedOn": "2026-11-04",
+  "evidenceBasis": "Four primary documentation pages; not merchant observations",
+  "scope": {
+    "channels": 4,
+    "transactions": null,
+    "merchantSample": null,
+    "exclusions": "No performance, demand or adoption estimates; no testing of a live store"
+  },
+  "sources": [
+    {
+      "url": "https://help.shopify.com/en/manual/online-sales-channels/agentic-storefronts/chatgpt",
+      "readOn": "2026-11-04",
+      "purchasePath": "Merchant online-store checkout",
+      "boundary": "Referral path; no direct-checkout setting"
+    },
+    {
+      "url": "https://help.shopify.com/en/manual/online-sales-channels/agentic-storefronts/google",
+      "readOn": "2026-11-04",
+      "purchasePath": "Direct checkout where available; store redirect otherwise",
+      "boundary": "Gradual rollout; requires eligible Merchant Center products"
+    },
+    {
+      "url": "https://help.shopify.com/en/manual/online-sales-channels/agentic-storefronts/microsoft",
+      "readOn": "2026-11-04",
+      "purchasePath": "Direct checkout or merchant-selected store redirect",
+      "boundary": "Direct checkout shown to US customers"
+    },
+    {
+      "url": "https://help.shopify.com/en/manual/online-sales-channels/agentic-storefronts/meta",
+      "readOn": "2026-11-04",
+      "purchasePath": "Direct checkout on supported Meta surfaces",
+      "boundary": "Availability varies; Muse is conditional"
+    }
+  ],
+  "worksheet": {
+    "channel": "",
+    "buyerCountry": "",
+    "productVariant": "",
+    "purchaseOption": "",
+    "requiredBehavior": "",
+    "documentationUrl": "",
+    "documentationReadAt": "",
+    "testPerformedAt": null,
+    "observedPurchasePath": "",
+    "result": "unknown",
+    "privateEvidenceReference": "",
+    "decision": "",
+    "owner": "",
+    "recheckTrigger": ""
+  },
+  "privacyReview": "Original paraphrases and empty worksheet only. No private rows, customer data, provider lineage or article bodies.",
+  "reuse": "Cite MarketplaceBeta Research, article URL, version and retrieval date. Recheck platform rules at the linked primary sources."
+}
