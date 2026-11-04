@@ -50,6 +50,261 @@ export interface AnalysisArticle {
 
 export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
   {
+    "slug": "shopify-ai-channel-fees-chatgpt-checkout-2026",
+    "seoTitle": "Selling in ChatGPT on Shopify: 2026 Fees and the 4% Myth",
+    "metaDescription": "The 4% ChatGPT checkout fee is gone. Shopify says AI channels cost only payment processing. The real cost is the checkout you no longer control.",
+    "headline": "Selling through ChatGPT and other AI chats costs a Shopify store no channel fee today. The price is the checkout you stop controlling",
+    "dek": "The 4% fee that made headlines in January no longer applies: ChatGPT now sends Shopify buyers to your own checkout. Google AI Mode and Gemini, Microsoft Copilot and Meta run a checkout inside the chat instead, switched on by default, with no fee beyond payment processing. That checkout drops your pixels, upsell blocks, bundles and subscriptions. Here is what each channel does, read from Shopify's and OpenAI's own pages on November 4, 2026, and the one setting to decide before Cyber Week.",
+    "publishedOn": "2026-11-04",
+    "updatedOn": "2026-11-04",
+    "author": "MarketplaceBeta Intelligence",
+    "reviewMode": "automated",
+    "readTime": "7 min",
+    "tags": [
+      "agentic commerce",
+      "ChatGPT",
+      "Shopify",
+      "Google AI Mode",
+      "Microsoft Copilot",
+      "Meta",
+      "checkout",
+      "selling fees",
+      "Q4 2026"
+    ],
+    "takeaway": "Before Cyber Week, open Sales channels > Agentic in your Shopify admin and make one decision per AI channel: keep the in-chat direct checkout on, or send buyers to your own store. Keep it on if your orders are simple one-off purchases and you can live with server-side conversion events. Turn it off for a channel if your margin depends on checkout upsells, bundles, subscriptions, customized products or consent capture, because Shopify says those don't run there. While you're in the admin, check the fee line for each channel: Shopify's terms let it set a per-channel fee there, even though its help pages say there is none today.",
+    "forecastIds": [
+      "F3",
+      "F7",
+      "F12"
+    ],
+    "newsletterSource": "campaign_kw_agentic_fee",
+    "sections": [
+      {
+        "id": "answer",
+        "title": "The short answer",
+        "paragraphs": [
+          "There is no 4% fee on ChatGPT sales for a Shopify store today. On March 24, 2026, OpenAI said the first version of Instant Checkout \"did not offer the level of flexibility that we aspire to provide\" and that it is \"allowing merchants to use their own checkout experiences while we focus our efforts on product discovery.\" Shopify's help page for the ChatGPT channel, read November 4, 2026, now calls ChatGPT \"a discovery-focused referrer platform\": the buyer finishes on your online store checkout in ChatGPT's in-app browser or a new tab, and \"there are no fees associated with selling in ChatGPT. You pay only your standard payment processing fees.\"",
+          "The other three AI channels Shopify lists work the other way round. Google AI Mode and Gemini, Microsoft Copilot and Meta each run a Shopify-powered direct checkout inside the chat. Shopify's help page for each says direct checkout is active by default for eligible stores and carries no fee beyond standard payment processing.",
+          "So the fee question is settled for now, and a different question replaces it: do you want the purchase to happen on a checkout you don't control? The table sets out what each channel does, from Shopify's own pages."
+        ],
+        "table": {
+          "caption": "Shopify AI channels, US stores · Sources: Shopify Help Center pages Selling on ChatGPT, Selling on Google AI Mode and Gemini, Selling on Microsoft Copilot, Selling on Meta, and Shopify agentic storefronts, all read Nov 4, 2026",
+          "headings": [
+            "AI channel",
+            "Where the buyer pays",
+            "On by default?",
+            "Channel fee per Shopify's help page",
+            "Buyers who see in-chat checkout"
+          ],
+          "rows": [
+            [
+              "ChatGPT",
+              "Your own online store checkout, in ChatGPT's in-app browser or a new tab",
+              "Product discovery is on by default; there is no direct-checkout setting",
+              "None; payment processing only",
+              "Not applicable"
+            ],
+            [
+              "Google AI Mode and Gemini",
+              "Shopify-powered direct checkout inside the chat",
+              "Yes, for eligible stores (needs Google Merchant Center)",
+              "None; payment processing only",
+              "Rolling out to US, Canada and Australia"
+            ],
+            [
+              "Microsoft Copilot",
+              "Shopify-powered direct checkout inside the chat",
+              "Yes, for eligible stores",
+              "None; payment processing only",
+              "US only"
+            ],
+            [
+              "Meta (including Muse)",
+              "Shopify-powered direct checkout on the Meta surface",
+              "Yes, for eligible stores",
+              "None; payment processing only",
+              "Customers in the countries Shopify lists, including the US"
+            ]
+          ]
+        }
+      },
+      {
+        "id": "what-changed",
+        "title": "What changed: the fee left with the checkout",
+        "paragraphs": [
+          "The 4% figure was real when it was reported. PYMNTS, citing The Information and a Shopify spokesperson, reported in January 2026 that Shopify merchants would pay OpenAI 4% on sales made through the ChatGPT checkout, on top of Shopify's own fees, and that checkouts in Google's AI Mode and Gemini and in Microsoft Copilot would carry no extra fee. Forrester wrote that OpenAI had confirmed the 4% to it. Our [Intelligence Dossier](/intelligence/dossier) logged the same sequence: Instant Checkout launched in September 2025 with a reported fee of about 4%, and was wound down in March 2026.",
+          "What replaced it is a referral. OpenAI's March 24 post says Shopify product data reaches ChatGPT through Shopify Catalog with \"no additional work\" from merchants, and it points merchants that want a deeper experience to building ChatGPT apps, naming Walmart's in-ChatGPT app as the example. Shopify's ChatGPT page says there is \"no option to activate or deactivate a ChatGPT direct checkout setting\" in the admin.",
+          "Many guides written before March still quote the 4%. If a vendor pitch or a margin model still carries it for ChatGPT, it's out of date."
+        ]
+      },
+      {
+        "id": "the-math",
+        "title": "What an AI-channel sale costs next to a marketplace sale",
+        "paragraphs": [
+          "The table is a hypothetical $50 order, fees only. Shopify's pricing page, read November 4, 2026, lists online standard card rates from 2.9% + 30¢ down to 2.25% + 30¢ depending on plan, so we use the highest rate. Amazon and Etsy figures come from our [Amazon fee tables](/fees/amazon) and [Etsy fee tables](/fees/etsy). It leaves out Shopify's subscription, Amazon's FBA fees, shipping, ads and returns, so it compares the selling fee, not total cost or what each channel brings in demand."
+        ],
+        "table": {
+          "caption": "Hypothetical $50 order, selling and payment fees only · Sources: Shopify pricing page (read Nov 4, 2026); PYMNTS, Jan 2026 (the earlier 4%); MarketplaceBeta fee tables for Amazon 15% referral and Etsy 6.5% transaction, 3% + $0.25 processing, $0.20 listing (verified Oct 16, 2026)",
+          "headings": [
+            "Channel",
+            "Fees on a $50 order",
+            "How it's built"
+          ],
+          "rows": [
+            [
+              "Shopify AI channel today (ChatGPT referral, or in-chat checkout on Google, Copilot or Meta)",
+              "$1.75",
+              "2.9% + $0.30 payment processing"
+            ],
+            [
+              "ChatGPT Instant Checkout as reported in January 2026 (no longer offered to Shopify stores)",
+              "$3.75",
+              "4% to OpenAI ($2.00) plus $1.75 processing"
+            ],
+            [
+              "Etsy",
+              "$5.20",
+              "6.5% transaction ($3.25) + 3% + $0.25 processing ($1.75) + $0.20 listing"
+            ],
+            [
+              "Amazon, 15% referral category",
+              "$7.50",
+              "15% referral fee, before any FBA fee"
+            ]
+          ]
+        },
+        "bullets": [
+          "The gap is the point of Shopify's offer: an AI-chat sale on your own store currently costs what any card payment costs.",
+          "It isn't a like-for-like trade. Amazon and Etsy fees buy you their buyers. AI-referred traffic is a small share of visits so far: our Dossier puts measured AI share of retail sessions at about 0.2% to low single digits."
+        ]
+      },
+      {
+        "id": "why-it-matters",
+        "title": "Why it matters: in-chat checkout drops the parts of checkout that make you money",
+        "paragraphs": [
+          "Shopify lists what its in-chat checkouts on Google, Copilot and Meta don't support, and the lists are close to identical. Products sold only as subscriptions, product bundles, customizable products and B2B-only products can't be bought there. Local delivery, store pickup and pickup points aren't offered. You can't require a customer to sign in. Google Analytics and custom pixels don't fire; only server-to-server checkout-started and checkout-completed events do.",
+          "Checkout blocks are the quieter loss. On Copilot, Shopify loads only the blocks essential to completing checkout, and says blocks that change what the customer buys (upsells, add-ons, surcharges), loyalty and rewards, consent capture for data use and marketing, chat, address autocomplete and trust badges may not appear. On Meta, Shopify says checkout blocks aren't supported at all.",
+          "Our view: for a store whose checkout is plain, in-chat checkout is a free extra place to sell and should stay on. For a store that earns its margin at checkout, through an upsell, a bundle or a subscription, or that builds its email list from a checkout consent box, it's a channel that converts with those removed. You keep the customer either way: Shopify says you stay the merchant of record and orders show in your admin with channel attribution.",
+          "The fee also isn't locked at zero. Shopify's Agentic Storefronts Supplemental Terms, last updated October 6, 2026, say that \"for certain Participating Channels, Shopify may, in its discretion, assess a fee on transactions,\" with the fees \"set out in your Shopify Admin,\" possibly after a promotional period. Refunded orders get the agentic fee back but not the Shopify Payments fee. The help pages say no fee today; the terms leave room for one later, shown per channel in your admin rather than on a public price list."
+        ]
+      },
+      {
+        "id": "this-week",
+        "title": "What to do this week",
+        "paragraphs": [
+          "Cyber Week starts in about three weeks. These are one-sitting jobs."
+        ],
+        "bullets": [
+          "Open Sales channels > Agentic in your Shopify admin. For each of Google AI Mode and Gemini, Microsoft Copilot and Meta, decide whether direct checkout stays on. Shopify's steps are to switch off \"Allow Shopify to manage for me,\" pick the channel and toggle Direct checkout.",
+          "Turn direct checkout off for a channel if subscriptions, bundles, customizable items, checkout upsells or a checkout consent box drive your margin or your list. Buyers can still find your products there; Shopify says they're sent to your store to pay.",
+          "If you keep it on, make sure your reporting reads the server-side events and the channel attribution in Shopify, not only browser pixels. Otherwise AI-chat orders show up as revenue with no source in your ad and analytics tools.",
+          "Check the fee line for each channel in the admin. Today it should read nothing beyond payment processing. Screenshot it with the date so you know if it changes.",
+          "Fix eligibility gaps. Every channel requires completed Terms of service, Privacy policy and Return and refund policy pages in Settings > Policies, and Shopify asks that legal disclosures sit in the first 6,000 characters of a product description. Google also needs a working Merchant Center feed.",
+          "Do the Dossier's minimum agent-readiness pass: complete product data, live availability and a visible return policy. That's what gets you surfaced in the first place, whichever checkout the buyer uses."
+        ]
+      },
+      {
+        "id": "watching",
+        "title": "What we're watching next",
+        "paragraphs": [
+          "Cyber Week traffic data. Our forecast F3 says AI-referred retail traffic at least doubles year over year during Cyber Week and keeps a conversion premium of at least 25%. Our Dossier cites Adobe's holiday forecast of +130% year over year for AI-referred retail traffic. Adobe's Cyber Week releases will score it on the [forecast scorecard](/intelligence/forecasts).",
+          "Who wires in next. F7 says at least one more top-10 US marketplace, Amazon excluded, signs a formal agent-access integration, and F12 says agentic commerce passes 2% of US e-commerce sessions by October 2027. Both are dated calls we'll grade hit or miss, not predictions we'll quietly drop.",
+          "The fee line. Hypothesis, not a finding: once in-chat checkout volume is large enough to matter, the per-channel fee Shopify's terms allow is the obvious lever, for Shopify or for the AI platforms. If any channel's fee line in the admin moves off zero, we'll log it in the [fee changelog](/fees/changelog).",
+          "OpenAI's checkout. OpenAI says it's focused on discovery and on apps for merchants that want more. If checkout comes back inside ChatGPT for Shopify stores, the trade-offs above apply to ChatGPT too. More context is in the [Intelligence hub](/intelligence)."
+        ]
+      },
+      {
+        "id": "faq",
+        "title": "Questions sellers ask",
+        "paragraphs": [
+          "Answers as of November 4, 2026."
+        ],
+        "bullets": [
+          "Does ChatGPT charge Shopify merchants a 4% fee? Not today. The 4% applied to ChatGPT Instant Checkout as reported in January 2026. OpenAI moved away from that checkout in March 2026, and Shopify's help page says there are no fees for selling in ChatGPT beyond standard payment processing.",
+          "Can customers buy my Shopify products inside ChatGPT? They can find them there, but they pay on your own store's checkout, opened in ChatGPT's in-app browser or a new tab. Shopify says there's no ChatGPT direct-checkout setting in the admin.",
+          "Is there a fee for Google AI Mode, Gemini, Copilot or Meta checkout on Shopify? Shopify's help page for each says no fee beyond standard payment processing. Shopify's supplemental terms allow it to set a per-channel fee in your admin, so check there.",
+          "Is in-chat checkout on by default? Yes, for eligible stores on Google AI Mode and Gemini, Microsoft Copilot and Meta. You can switch it off per channel in Sales channels > Agentic, and buyers are then sent to your store to pay. Shopify says stores on its Agentic plan start with direct checkout off.",
+          "What doesn't work in in-chat checkout? Per Shopify: subscription-only products, bundles, customizable and B2B-only products, local delivery and pickup, required sign-in, Google Analytics and custom pixels, and many checkout blocks, including upsells, loyalty, consent capture and trust badges.",
+          "Who owns the customer on an AI-channel order? You do. Shopify says you remain the merchant of record, handle fulfillment, returns and service, and see the order in your admin with channel attribution."
+        ]
+      },
+      {
+        "id": "method",
+        "title": "How this was made",
+        "paragraphs": [
+          "We read each Shopify Help Center page for the four AI channels, Shopify's agentic storefronts overview, its Agentic Storefronts Supplemental Terms and its pricing page on November 4, 2026, and OpenAI's March 24, 2026 post. The January 4% figure is from PYMNTS and Forrester as cited. The $50 table is hypothetical and covers fees only. Context on AI traffic share and the 2025 to 2026 timeline is from our October [Intelligence Dossier](/intelligence/dossier). This piece was published by an automated process."
+        ]
+      }
+    ],
+    "sources": [
+      {
+        "label": "Shopify Help Center: Selling on ChatGPT (read Nov 4, 2026)",
+        "href": "https://help.shopify.com/en/manual/online-sales-channels/agentic-storefronts/chatgpt",
+        "context": "Discovery-focused referrer; purchase on the merchant's own checkout in an in-app browser or new tab; no direct-checkout setting; no fees beyond standard payment processing; US customers; policies and 6,000-character disclosure guidance."
+      },
+      {
+        "label": "Shopify Help Center: Shopify agentic storefronts (read Nov 4, 2026)",
+        "href": "https://help.shopify.com/en/manual/online-sales-channels/agentic-storefronts",
+        "context": "Channel list; ChatGPT referral vs direct checkout on Google AI Mode and Gemini, Copilot and Meta; Agentic plan has direct checkout off by default; merchant keeps the customer relationship; orders carry channel attribution."
+      },
+      {
+        "label": "Shopify Help Center: Selling on Google AI Mode and Gemini (read Nov 4, 2026)",
+        "href": "https://help.shopify.com/en/manual/online-sales-channels/agentic-storefronts/google",
+        "context": "Direct checkout on by default, rolling out to US, Canada and Australia; Merchant Center required; no fees beyond payment processing; unsupported features."
+      },
+      {
+        "label": "Shopify Help Center: Selling on Microsoft Copilot (read Nov 4, 2026)",
+        "href": "https://help.shopify.com/en/manual/online-sales-channels/agentic-storefronts/microsoft",
+        "context": "Direct checkout on by default, US only; no fees beyond payment processing; unsupported products, pixels, delivery methods, sign-in; checkout blocks that may not load."
+      },
+      {
+        "label": "Shopify Help Center: Selling on Meta (read Nov 4, 2026)",
+        "href": "https://help.shopify.com/en/manual/online-sales-channels/agentic-storefronts/meta",
+        "context": "Direct checkout on by default for eligible stores; no fees beyond payment processing; checkout blocks not supported; merchant of record; third-party pixels don't fire."
+      },
+      {
+        "label": "Shopify: Agentic Storefronts Supplemental Terms of Service (last updated Oct 6, 2026)",
+        "href": "https://www.shopify.com/legal/terms-agentic-storefronts",
+        "context": "Section 6.1: Shopify may, in its discretion, assess a per-channel fee set out in the Shopify Admin; possible promotional period; agentic fee refunded on refunds, Shopify Payments fee not."
+      },
+      {
+        "label": "Shopify: Pricing (read Nov 4, 2026)",
+        "href": "https://www.shopify.com/pricing",
+        "context": "Shopify Payments online standard card rates from 2.9% + 30¢ to 2.25% + 30¢ by plan; 2.9% + 30¢ used in the hypothetical table."
+      },
+      {
+        "label": "OpenAI: Powering Product Discovery in ChatGPT (Mar 24, 2026)",
+        "href": "https://openai.com/index/powering-product-discovery-in-chatgpt/",
+        "context": "Instant Checkout's first version lacked flexibility; merchants use their own checkout; Shopify data via Shopify Catalog with no extra work; ChatGPT apps for deeper integrations; Walmart app."
+      },
+      {
+        "label": "PYMNTS: Shopify Merchants to Pay 4% Fee on ChatGPT Checkout Sales (Jan 2026; secondary, citing The Information)",
+        "href": "https://www.pymnts.com/commerce/ecommerce/2026/shopify-merchants-to-pay-4percent-fee-on-sales-made-through-chatgpt-checkout/",
+        "context": "Reported 4% OpenAI fee on ChatGPT checkout sales, on top of Shopify fees; no extra fee then reported for Google AI Mode, Gemini or Copilot checkouts."
+      },
+      {
+        "label": "Forrester: Manage the emerging costs of agentic commerce (secondary)",
+        "href": "https://www.forrester.com/blogs/manage-the-emerging-costs-of-agentic-commerce-by-taking-a-cue-from-drop-shipping-strategy/",
+        "context": "Says OpenAI confirmed the 4% fee to Shopify merchants on in-chat checkout, at the time."
+      },
+      {
+        "label": "MarketplaceBeta fee tables (verified Oct 16, 2026)",
+        "href": "/fees",
+        "context": "Amazon 15% referral category; Etsy 6.5% transaction, 3% + $0.25 processing, $0.20 listing. Used in the hypothetical $50 table."
+      },
+      {
+        "label": "MarketplaceBeta Intelligence Dossier, Edition 1 (Oct 14, 2026)",
+        "href": "/intelligence/dossier",
+        "context": "Agentic commerce timeline (Instant Checkout launch and wind-down, reported ~4% fee); AI share of retail sessions about 0.2% to low single digits; Adobe's +130% holiday AI-traffic forecast; agent-readiness pass; forecasts F3, F7, F12."
+      },
+      {
+        "label": "MarketplaceBeta forecast scorecard",
+        "href": "/intelligence/forecasts",
+        "context": "F3, F7 and F12 as dated calls scored hit or miss."
+      }
+    ]
+  },
+  {
     "slug": "holiday-returns-2026-amazon-walmart-etsy-ebay",
     "seoTitle": "2026 Holiday Returns: Amazon, Walmart, eBay, Etsy Fees",
     "metaDescription": "Amazon and Walmart take holiday returns to Jan 31, 2027; eBay and Etsy leave it to you. Who pays return shipping and which fees come back.",
