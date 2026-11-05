@@ -1,0 +1,21 @@
+{
+  "date": "2026-11-05",
+  "decision": "hold-primary-rate-verification",
+  "candidatePR": 146,
+  "roles": {
+    "research": "Read complete November 4 UTC archive metadata: 38 of 38 rows. Read current guidance and research model; reviewed open article and primary Amazon announcements.",
+    "editor": "Confirmed peak window and 3.5% surcharge, but exact size/weight rate card was not retrieved. Do not describe worked rate tables as re-read today. Existing draft also includes internal editorial instructions (Growth keyword, Do not rebuild them here) that should be removed before release."
+  },
+  "verifiedSources": [
+    "https://sellercentral.amazon.com/seller-forums/discussions/t/3e31fbb7-04e0-4ed4-873e-f74b1052e2ff",
+    "https://sellercentral.amazon.com/seller-forums/discussions/t/7cbc0233-ee5b-4359-978a-dee7cad5c6f4"
+  ],
+  "unverifiedSource": "https://sellercentral.amazon.com/help/hub/reference/external/GABBX6GZPA8MSZGW?locale=en-US",
+  "limitation": "The rate-card fetch returned a JavaScript shell. Site fee transcriptions alone are not a fresh primary-source verification. No claim that encoded rates are incorrect.",
+  "releaseRequirements": [
+    "Verify original detailed rates or revise to an explicitly hypothetical method without claiming current rate verification.",
+    "Remove internal instructions, add citation/reuse note, preserve automated disclosure and use lib/research-articles.ts.",
+    "Run required exact-diff tests, typecheck, build and CI before merging."
+  ],
+  "published": false
+}
