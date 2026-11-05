@@ -52,9 +52,9 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
   {
     "slug": "amazon-holiday-peak-fees-2026-fba-surcharge",
     "seoTitle": "Amazon Peak FBA Fees 2026 + 3.5% Surcharge",
-    "metaDescription": "Amazon peak FBA fees (Oct 15–Jan 14) plus the 3.5% surcharge: $20 kitchen math, four worked examples, and what to change before Cyber Week.",
-    "headline": "Amazon's holiday peak FBA fees are live now. Stack peak plus the 3.5% surcharge, or your Cyber Week margin is wrong",
-    "dek": "Peak fulfillment fees run October 15, 2026 to January 14, 2027, and the 3.5% fuel and logistics surcharge sits on top of them. On a hypothetical $20 small-standard kitchen item, referral plus fulfillment is $6.66 in non-peak and $6.87 in peak. We re-checked Amazon's public FBA fee and peak pages on November 5, 2026. Here is the operator math and what to change this week.",
+    "metaDescription": "Audit FBA ASINs for Amazon peak fees (Oct 15–Jan 14) plus the 3.5% surcharge: ship-date charging, deal math and Oct–Dec storage.",
+    "headline": "Amazon's holiday peak FBA fees are live now. Audit every ASIN that ships through January 14 at peak plus 3.5%",
+    "dek": "Peak fulfillment fees run October 15, 2026 to January 14, 2027, and the 3.5% fuel and logistics surcharge sits on the fulfillment fee, not the sale price. Amazon charges when the unit ships. This is a four-step operator audit you can run on your own ASINs before Cyber Week deal and ad math. We re-checked Amazon's public FBA fee and peak pages on November 5, 2026.",
     "publishedOn": "2026-11-05",
     "updatedOn": "2026-11-05",
     "author": "MarketplaceBeta Intelligence",
@@ -69,7 +69,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
       "Q4 2026",
       "Cyber Week"
     ],
-    "takeaway": "Price every FBA unit that will ship between now and January 14, 2027 at the peak rate card with the 3.5% surcharge already on the fulfillment fee. Amazon charges when the unit ships, not when the order is placed. On a hypothetical $20 kitchen item (Small standard, 6–8 oz), that stack is $6.87 in referral plus fulfillment versus $6.66 outside peak. Storage is also in its Oct–Dec band at $2.40 per cubic foot for standard-size. Rebuild Cyber Week deal math from those numbers, not from September.",
+    "takeaway": "Run every FBA ASIN that will ship between now and January 14, 2027 through a peak-plus-3.5% audit before you lock Cyber Week deals or ACOS floors. Confirm Amazon charges on ship date, stack the peak fulfillment card with the 3.5% surcharge on that fee, rebuild promotion math from that stack instead of September rates, and price October–December storage at $2.40 per cubic foot for standard-size. On a hypothetical $20 kitchen item (Small standard, 6–8 oz), referral plus fulfillment is $6.87 in peak versus $6.66 outside peak.",
     "forecastIds": [
       "F5",
       "F2"
@@ -80,94 +80,39 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
         "id": "answer",
         "title": "The short answer",
         "paragraphs": [
-          "Peak is live. Amazon's holiday peak fulfillment fees apply from October 15, 2026 through January 14, 2027 for FBA, Remote Fulfillment with FBA, Multi-Channel Fulfillment and Buy with Prime. Non-peak rates resume January 15, 2027. Amazon says the peak increase averages $0.32 per unit over non-peak, the same as last year. We re-read Amazon's Seller Central holiday 2026 announcement and its fuel-and-logistics surcharge post on November 5, 2026; the dates, average and surcharge wording match what we already model on our [Amazon holiday peak fee page](/fees/amazon/holiday-peak-2026).",
+          "Peak is live. Amazon's holiday peak fulfillment fees apply from October 15, 2026 through January 14, 2027 for FBA, Remote Fulfillment with FBA, Multi-Channel Fulfillment and Buy with Prime. Non-peak rates resume January 15, 2027. Amazon says the peak increase averages $0.32 per unit over non-peak, the same as last year. We re-read Amazon's Seller Central holiday 2026 announcement and its fuel-and-logistics surcharge post on November 5, 2026; the dates, average and surcharge wording match the tables on our [Amazon holiday peak fee page](/fees/amazon/holiday-peak-2026).",
           "The stack is peak plus 3.5%. The 3.5% fuel and logistics-related surcharge applies on top of peak fulfillment fees. It is calculated on the fulfillment fee, not the sale price. It has been on FBA in the US and Canada since April 17, 2026, and on Buy with Prime and MCF since May 2, 2026. Amazon has announced no end date. Amazon puts the average surcharge at about $0.17 per US FBA unit.",
-          "On a hypothetical $20 Kitchen item in Small standard, 6+ to 8 oz: referral is $3.00 (15%). Non-peak FBA is $3.54 before surcharge and $3.66 with it. Peak FBA is $3.74 before surcharge and $3.87 with it. Referral plus fulfillment totals $6.66 non-peak versus $6.87 peak, a $0.21 delta. Those figures are from our fee page's exampleMath, which uses Amazon's published rate card and our verified [Amazon fee table](/fees/amazon)."
+          "This piece is not another reprint of the peak rate tables. Those tables already live on the [peak fee page](/fees/amazon/holiday-peak-2026). What follows is a four-step audit you can apply to your own ASINs so Cyber Week deal and ad floors use the stack Amazon will actually deduct."
         ]
       },
       {
-        "id": "calendar",
-        "title": "What changed: the calendar and the ship-date rule",
+        "id": "audit",
+        "title": "Four-step peak fee audit for your ASINs",
         "paragraphs": [
-          "Nothing new landed on November 5. Peak started on October 15. What matters now is that we are inside the window for Black Friday Week, Cyber Monday and the rest of December, and every FBA unit that leaves a US fulfillment center through January 14 pays the peak card.",
-          "Amazon charges the FBA fulfillment fee when the buyer's order ships, not when it is placed. An order placed on October 14 that ships on October 15 pays peak. An order placed on January 13 that ships on January 15 pays non-peak. Model your October and January cutovers on shipped units, not order dates. That rule is on Amazon's FBA fulfillment fee help page and is restated in our [peak fee page](/fees/amazon/holiday-peak-2026).",
-          "Amazon's published peak tables are shown before the surcharge. The amount deducted per unit is the published peak fee times 1.035 (we round to the cent; Amazon does not publish its rounding rule). The incremental holiday cost versus already-surcharged non-peak is (peak − non-peak) × 1.035, not Amazon's $0.32 average added on top of 3.5 percentage points."
+          "Run the same four checks on every ASIN you expect to ship FBA, Remote Fulfillment with FBA, MCF or Buy with Prime through January 14, 2027. Record the ship-date assumption, the peak-plus-surcharge fulfillment dollars, the rebuilt deal or ACOS floor, and the October–December storage line in one place so promotions and ads share the same inputs."
+        ],
+        "bullets": [
+          "Step 1 — Confirm ship-date charging. Amazon charges the FBA fulfillment fee when the buyer's order ships, not when it is placed. An order placed on October 14 that ships on October 15 pays peak. An order placed on January 13 that ships on January 15 pays non-peak. Model October and January cutovers on shipped units. That rule is on Amazon's FBA fulfillment fee help page and is restated on our [peak fee page](/fees/amazon/holiday-peak-2026).",
+          "Step 2 — Stack peak plus 3.5% on the fulfillment fee. Amazon's published peak tables are shown before the surcharge. The amount deducted per unit is the published peak fee times 1.035 (we round to the cent; Amazon does not publish its rounding rule). The incremental holiday cost versus already-surcharged non-peak is (peak − non-peak) × 1.035, not Amazon's $0.32 average added on top of 3.5 percentage points. Pull the size-tier and weight row for each ASIN from the [peak fee page](/fees/amazon/holiday-peak-2026) rather than from a September export.",
+          "Step 3 — Rebuild Cyber Week deal and ACOS math from that stack. Replace September or non-peak fulfillment lines in every deal sheet and advertising floor with peak + 3.5%. Keep referral from the verified [Amazon fee table](/fees/amazon). If Revenue Calculator or Fee and Economics Preview in Seller Central still shows pre-peak rates for an ASIN that will ship inside the window, treat that export as stale and re-check before you submit a promotion.",
+          "Step 4 — Price the October–December storage band. Amazon's base monthly storage for non-dangerous-goods standard-size inventory is $2.40 per cubic foot from October to December, against $0.78 from January to September. Oversize is $1.40 versus $0.56. A storage utilization surcharge can sit on top for some sellers. Holding deep inventory through December to protect against stockouts costs more per cubic foot than it did in September, on top of the peak fulfillment fees you pay when those units ship."
+        ]
+      },
+      {
+        "id": "calibration",
+        "title": "One calibration check against the fee page",
+        "paragraphs": [
+          "Use one published hypothetical only to confirm your own sheet matches the site's fee math, then apply the audit to your real ASINs. Full size-tier tables, including under-$10 and over-$50 price bands, stay on the [peak fee page](/fees/amazon/holiday-peak-2026).",
+          "On a hypothetical $20 Kitchen item in Small standard, 6+ to 8 oz: referral is $3.00 (15%). Non-peak FBA is $3.54 before surcharge and $3.66 with it. Peak FBA is $3.74 before surcharge and $3.87 with it. Referral plus fulfillment totals $6.66 non-peak versus $6.87 peak, a $0.21 delta. Those figures match the fee page's worked example, which uses Amazon's published rate card and our verified [Amazon fee table](/fees/amazon). They are not measured seller outcomes.",
+          "Heavier and bulkier units move more under the same method. On the fee page's hypothetical $59 home-and-garden small-bulky unit, referral plus fulfillment goes from $20.20 outside peak to $21.28 in peak, a $1.08 delta. If your deal spreadsheet still uses September FBA rates, the promotion fee and the ad spend sit on a margin that is already short."
         ]
       },
       {
         "id": "why-it-matters",
-        "title": "Why it matters at Cyber Week prices",
+        "title": "Why the audit matters at Cyber Week prices",
         "paragraphs": [
-          "Cyber Week deal prices compress the dollars left after referral and fulfillment. On the $20 kitchen example, $0.21 more per unit looks small until you multiply by the units you ship between now and mid-January. Bulky and heavier large-standard items move more: our hypothetical $59 home-and-garden small-bulky unit goes from $20.20 to $21.28 in referral plus fulfillment, a $1.08 delta. If your deal spreadsheet still uses September FBA rates, the promotion fee and the ad spend sit on a margin that is already short.",
-          "Storage is in its expensive season at the same time. Amazon's base monthly storage for non-dangerous-goods standard-size inventory is $2.40 per cubic foot from October to December, against $0.78 from January to September. Oversize is $1.40 versus $0.56. A storage utilization surcharge can sit on top for some sellers. Holding deep inventory through December to protect against stockouts therefore costs more per cubic foot than it did in September, on top of the peak fulfillment fees you pay when those units ship.",
+          "Cyber Week deal prices compress the dollars left after referral and fulfillment. A few dimes per unit look small until you multiply by the units you ship between now and mid-January. The audit's job is to force that stack into the same sheet as the deal fee and the ACOS floor before you submit.",
           "Returns and cutoffs tighten the same window. Amazon's 2026 holiday return window runs through January 31, 2027 for most items bought November 1 to December 31, covered in our [holiday returns piece](/intelligence/analysis/holiday-returns-2026-amazon-walmart-etsy-ebay). Carrier ship-by dates for Christmas are in our [holiday shipping cutoffs piece](/intelligence/analysis/holiday-shipping-cutoffs-2026-small-sellers). Peak FBA fees, high storage, long return windows and carrier peak surcharges all hit the same Q4 units. That is the operator link to forecast F2 on our [forecast scorecard](/intelligence/forecasts): effective Q4 fulfillment and parcel cost pressure, not just the carrier GRI headlines."
-        ]
-      },
-      {
-        "id": "worked-examples",
-        "title": "Four worked examples (hypothetical)",
-        "paragraphs": [
-          "These four SKUs are the same hypotheticals on our [Amazon holiday peak fee page](/fees/amazon/holiday-peak-2026). Referral rates come from our verified Amazon category table. Fulfillment fees come from Amazon's 2026 non-apparel rate card, with the 3.5% surcharge applied and rounded to the cent. They are not measured seller outcomes."
-        ],
-        "table": {
-          "caption": "Hypothetical: referral + FBA fulfillment, non-peak vs peak with 3.5% surcharge · Sources: Amazon Seller Central 2026 US FBA fulfillment fee changes and fuel/logistics surcharge posts (re-read Nov 5, 2026); MarketplaceBeta /fees/amazon and /fees/amazon/holiday-peak-2026 exampleMath",
-          "headings": [
-            "Example",
-            "Size / weight",
-            "Referral",
-            "Non-peak FBA + 3.5%",
-            "Peak FBA + 3.5%",
-            "Total non-peak",
-            "Total peak",
-            "Extra per unit"
-          ],
-          "rows": [
-            [
-              "Phone accessory, $8.99",
-              "Small standard, 2+ to 4 oz",
-              "$1.35",
-              "$2.58",
-              "$2.77",
-              "$3.93",
-              "$4.12",
-              "$0.19"
-            ],
-            [
-              "Kitchen gadget, $20",
-              "Small standard, 6+ to 8 oz",
-              "$3.00",
-              "$3.66",
-              "$3.87",
-              "$6.66",
-              "$6.87",
-              "$0.21"
-            ],
-            [
-              "Toy, $34",
-              "Large standard, 1+ to 1.25 lb",
-              "$5.10",
-              "$5.22",
-              "$5.53",
-              "$10.32",
-              "$10.63",
-              "$0.31"
-            ],
-            [
-              "Home & garden, $59",
-              "Small bulky, 10 lb",
-              "$8.85",
-              "$11.35",
-              "$12.43",
-              "$20.20",
-              "$21.28",
-              "$1.08"
-            ]
-          ]
-        },
-        "bullets": [
-          "The kitchen row is the Growth keyword's $20 FBA case: $6.66 non-peak vs $6.87 peak.",
-          "Published peak fees before surcharge for those rows are $2.68, $3.74, $5.34 and $12.01. Multiplying by 1.035 and rounding to the cent produces the Peak FBA + 3.5% column.",
-          "Full size-tier tables, including under-$10 and over-$50 price bands, live on the [peak fee page](/fees/amazon/holiday-peak-2026). Do not rebuild them here."
         ]
       },
       {
@@ -177,9 +122,9 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
           "Each of these is a change you can make before the next Cyber Week deal submission or ad budget increase."
         ],
         "bullets": [
-          "Rebuild the deal and ACOS floor for every ASIN that will ship FBA through January 14 using peak + 3.5%, not the non-peak card. Start with the $10–$50 band on our [peak fee page](/fees/amazon/holiday-peak-2026).",
+          "Complete the four-step audit for every ASIN that will ship FBA through January 14. Start size-tier lookups in the $10–$50 band on our [peak fee page](/fees/amazon/holiday-peak-2026).",
           "Check Revenue Calculator / Fee and Economics Preview in Seller Central against those same ASINs. Amazon says peak rates are already in those tools; if your export still shows September rates, you are planning on the wrong card.",
-          "Price storage into December. At $2.40 per cubic foot for standard-size, deep safety stock costs more than it did in September. Prefer inbound that turns before the return wave, not inventory that sits through January 31.",
+          "Prefer inbound that turns before the return wave, not inventory that sits through January 31 at $2.40 per cubic foot for standard-size.",
           "Align promotions with stock you already have inside the network. Amazon's inbound deadlines for Black Friday Week and Cyber Monday Prime-badge eligibility have already passed (AWD by October 14; FBA optimized splits by October 28, per Amazon's holiday 2026 post). Do not buy a $100 + 1.5% deal for a SKU that cannot ship.",
           "Cross-check carrier peak surcharges if you also run FBM or MCF off Amazon's network. Our [UPS/FedEx 2027 rates piece](/intelligence/analysis/ups-fedex-2027-rate-increase-small-sellers) and the Q4 parcel calendar cover the residential peak steps that hit the same weeks.",
           "Log any Amazon fee notice you see against the [fee change log](/fees/changelog) and against forecast F5 on the [scorecard](/intelligence/forecasts)."
@@ -207,14 +152,17 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
           "How much higher are peak fees before the surcharge? Amazon says the increase averages $0.32 per unit over non-peak, the same as last year. Exact deltas depend on size tier, weight and price band.",
           "What does peak plus surcharge do to a $20 FBA kitchen item? Hypothetical Small standard, 6–8 oz: referral $3.00; peak FBA with surcharge $3.87; total $6.87 versus $6.66 outside peak.",
           "Does the surcharge apply to referral or storage fees? Amazon describes it as a surcharge on fulfillment fees. Storage has its own Oct–Dec increase: $2.40 per cubic foot for standard-size versus $0.78 January–September.",
-          "Where are the full rate tables? On our [Amazon holiday peak fee page](/fees/amazon/holiday-peak-2026), transcribed from Amazon's 2026 US FBA fulfillment fee changes page."
+          "Where are the full rate tables? On our [Amazon holiday peak fee page](/fees/amazon/holiday-peak-2026), transcribed from Amazon's 2026 US FBA fulfillment fee changes page.",
+          "How should another seller reuse this audit? Run the four steps on each ASIN, cite the peak fee page for the rate row, and keep ship-date, peak-plus-3.5% fulfillment, deal floor and Oct–Dec storage as separate lines in the sheet."
         ]
       },
       {
-        "id": "method",
-        "title": "How this was made",
+        "id": "methods",
+        "title": "Methods, limitations and reuse",
         "paragraphs": [
-          "We re-fetched Amazon's Seller Central holiday 2026 announcement and its fuel-and-logistics surcharge announcement on November 5, 2026, and compared them to the rates already encoded in lib/amazon-holiday-peak-2026.ts (fee-page CHECKED_ON 2026-10-21). The peak window, $0.32 average, 3.5% surcharge, April 17 / May 2 start dates and $0.17 average surcharge match. Worked dollars come from that module's exampleMath against our verified Amazon referral table. No internal data pipelines are named here. Operator framing only; the fee page keeps the tables."
+          "We re-fetched Amazon's Seller Central holiday 2026 announcement and its fuel-and-logistics surcharge announcement on November 5, 2026, and compared them to the rates already transcribed on our [Amazon holiday peak fee page](/fees/amazon/holiday-peak-2026) (fee-page check date October 21, 2026). The peak window, $0.32 average, 3.5% surcharge, April 17 / May 2 start dates and $0.17 average surcharge match. The $20 kitchen calibration dollars come from that page's worked example against our verified Amazon referral table. Direct opens of Amazon's rate-card help URL can return a JavaScript shell; primary-domain search results still show the indexed rate tables that corroborate the selected kitchen row. November 5 is a retrieval date for those public pages, not a claim that Amazon published a new fee change that day.",
+          "This is an original operator workflow, not a measured merchant cohort. Missing information includes your actual size-tier mix, inbound timing, storage utilization surcharge exposure and the deal fees you already committed. Full peak and non-peak tables stay on the fee page so this article does not duplicate them.",
+          "Prepared through an automated research and editorial process with evidence checks. No individual human review of this revision is claimed. Suggested citation: MarketplaceBeta Intelligence, \"Amazon's holiday peak FBA fees are live now. Audit every ASIN that ships through January 14 at peak plus 3.5%,\" November 5, 2026, with the canonical article URL and a link to /fees/amazon/holiday-peak-2026 for the rate rows. Attribute fee rules to Amazon and re-check Seller Central before you lock a promotion."
         ]
       }
     ],
@@ -250,14 +198,14 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
         "context": "Reports Amazon representative said the 3.5% surcharge stays in effect until further notice; ship-date charging for peak."
       },
       {
-        "label": "MarketplaceBeta: Amazon 2026 holiday peak fees (fee tables and exampleMath)",
+        "label": "MarketplaceBeta: Amazon 2026 holiday peak fees (fee tables and worked examples)",
         "href": "/fees/amazon/holiday-peak-2026",
-        "context": "Full rate tables, surcharge math and the four worked examples used in this piece. Fee-page CHECKED_ON 2026-10-21; Amazon public wording re-checked Nov 5, 2026 for this analysis."
+        "context": "Full rate tables, surcharge math and worked examples. Fee-page check date October 21, 2026; Amazon public wording re-checked November 5, 2026 for this analysis."
       },
       {
         "label": "MarketplaceBeta: Amazon referral fees by category",
         "href": "/fees/amazon",
-        "context": "Category referral rates used in the hypothetical totals (Kitchen 15%, electronics accessories, toys, home & garden)."
+        "context": "Category referral rates used in the hypothetical kitchen calibration (Kitchen 15%)."
       },
       {
         "label": "MarketplaceBeta: Fee change log",
@@ -286,6 +234,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
       }
     ]
   },
+
   {
     "slug": "holiday-returns-2026-amazon-walmart-etsy-ebay",
     "seoTitle": "2026 Holiday Returns: Amazon, Walmart, eBay, Etsy Fees",
