@@ -12,6 +12,7 @@ import { CHECKED_ON as TIKTOK_FEE_CHANGE_CHECKED, TIKTOK_FEE_CHANGE_PATH } from 
 import { ANALYSIS_ARTICLES } from '@/lib/analysis'
 import { INDEXABLE_NEWS_SOURCE_TYPES, INDEXABLE_SALE_PAGES, dedupeByTitle, isSelfCanonicalFeeCategory } from '@/lib/seo-indexing'
 import { salePath } from '@/lib/sale-fee-pages'
+import { HOLIDAY_HUB_PATH, holidayHubUpdatedOn } from '@/lib/holiday-hub'
 
 export const revalidate = 300
 
@@ -218,6 +219,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [...staticRoutes,
     { url: `${siteUrl}/ai`, lastModified: new Date('2026-11-03'), changeFrequency: 'weekly', priority: 0.8 },
     ...AI_PLAYBOOKS.map(p => ({ url: `${siteUrl}/ai/${p.slug}`, lastModified: new Date(p.updatedOn), changeFrequency: 'monthly' as const, priority: 0.8 })),
+    { url: `${siteUrl}${HOLIDAY_HUB_PATH}`, lastModified: new Date(holidayHubUpdatedOn()), changeFrequency: 'weekly', priority: 0.8 },
     { url: `${siteUrl}/intelligence`, changeFrequency: 'daily', priority: 0.9 },
     { url: `${siteUrl}/intelligence/dossier`, changeFrequency: 'monthly', priority: 0.8 },
     ...['guides', ...OPERATOR_GUIDES.map(guide => `guides/${guide.slug}`)].map(path => ({ url: `${siteUrl}/${path}`, lastModified: new Date(GUIDE_UPDATED), changeFrequency: 'monthly' as const, priority: path.startsWith('guides') ? 0.8 : 0.5 })),

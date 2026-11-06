@@ -7,8 +7,11 @@ import { BriefCta } from "@/components/brief-cta"
 import { ORGANIZATION_REF } from "@/lib/site-jsonld"
 import { JsonLd } from "@/components/json-ld"
 import { ShareButtons } from "@/components/share-buttons"
+import { HolidayHubBackLink } from "@/components/holiday-hub-link"
 import {
   AMAZON_PEAK_CTA,
+  AMAZON_PEAK_DESCRIPTION,
+  AMAZON_PEAK_TITLE,
   AMAZON_PEAK_SOURCE_KEY,
   AMAZON_PEAK_PATH,
   AVG_PEAK_INCREASE,
@@ -40,8 +43,8 @@ import {
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://marketplacebeta.com"
 const canonical = `${SITE_URL}${AMAZON_PEAK_PATH}`
 
-const title = "Amazon Holiday Peak Fulfillment Fees 2026 + 3.5% Surcharge, by Size Tier"
-const description = `Amazon's FBA peak fees run Oct 15, 2026 to Jan 14, 2027, averaging $${AVG_PEAK_INCREASE.toFixed(2)} more per unit, with the ${SURCHARGE_PCT}% fuel and logistics surcharge on top. Full rate table and worked examples with referral fees.`
+const title = AMAZON_PEAK_TITLE
+const description = AMAZON_PEAK_DESCRIPTION
 
 export const metadata: Metadata = {
   title,
@@ -350,6 +353,8 @@ export default function AmazonHolidayPeak2026Page() {
             ))}
           </ul>
         </section>
+
+        <HolidayHubBackLink />
 
         <BriefCta
           source={AMAZON_PEAK_SOURCE_KEY}
