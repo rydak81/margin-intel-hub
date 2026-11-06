@@ -351,6 +351,31 @@ export default function AmazonHolidayPeak2026Page() {
           </ul>
         </section>
 
+        <section id="related" aria-labelledby="related-heading" className="mt-12">
+          <h2 id="related-heading" className="text-2xl font-bold text-slate-900 dark:text-white">Related</h2>
+          <ul className="mt-4 space-y-3">
+            <li>
+              <Link
+                href="/intelligence/analysis/amazon-holiday-peak-fees-2026-fba-surcharge"
+                className="font-medium text-sky-600 underline underline-offset-4 hover:text-sky-700 dark:text-sky-400"
+              >
+                Amazon holiday fees run on different clocks. Your audit should too.
+              </Link>
+              <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">
+                Audit worksheet for separate cost clocks: peak fulfillment, fuel surcharge, and monthly storage.
+              </p>
+            </li>
+            <li>
+              <Link href="/fees/amazon" className="font-medium text-sky-600 underline underline-offset-4 hover:text-sky-700 dark:text-sky-400">
+                Amazon referral fees by category
+              </Link>
+              <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">
+                Category take rates that stack with the peak FBA table above.
+              </p>
+            </li>
+          </ul>
+        </section>
+
         <BriefCta
           source={AMAZON_PEAK_SOURCE_KEY}
           heading="Know when the surcharge ends, or the fees move again"
