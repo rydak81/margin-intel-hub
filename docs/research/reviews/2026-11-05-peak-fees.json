@@ -1,28 +1,86 @@
 {
-  "date": "2026-11-05",
-  "decision": "revised-operator-audit-ready-for-human-merge",
+  "date": "2026-11-06",
   "candidatePR": 146,
+  "decision": "approved-by-automated-editorial-process-pending-release-checks",
+  "individualHumanReview": false,
+  "standingAuthorization": "Ryan November 2, 2026 vetted content publication and scoped content PR merge",
+  "history": [
+    {
+      "date": "2026-11-05",
+      "decision": "Held repetitive draft and internal editorial notes; later rewrite introduced operator audit."
+    },
+    {
+      "date": "2026-11-06",
+      "correction": "Removed January storage-rate misstatement, universal program-rate assumptions, forecast references and unnecessary hypothetical fee examples; moved article to research-articles.ts."
+    }
+  ],
   "roles": {
-    "research": "Re-checked Amazon Seller Central holiday 2026 and fuel/logistics surcharge posts on November 5, 2026 against the existing /fees/amazon/holiday-peak-2026 transcription (fee-page check date October 21, 2026). Peak window, $0.32 average, 3.5% surcharge, April 17 / May 2 starts and $0.17 average surcharge match. Kitchen calibration $6.66 non-peak vs $6.87 peak still matches the fee page worked example.",
-    "editor": "Rewrote the piece as a four-step operator ASIN audit (ship-date charging, peak-plus-3.5% stack, Cyber Week deal/ACOS rebuild, Oct–Dec storage band). Removed the four-SKU table as the centerpiece; kept one kitchen calibration figure and linked the fee page for full tables. Stripped internal writing instructions from public copy. Added methods, limitations and reuse section with suggested citation. reviewMode remains automated."
+    "research": "Re-read primary Amazon announcements and estimate guide. Corroborated seasonal storage with Amazon supply-chain page; Seller Central indexed text used with explicit direct-open limitations.",
+    "editor": "Original separate-calendar and surcharge-inclusion audit with blank worksheet; reviewed units, dates, sources, no outcome claims and automated disclosure."
   },
-  "verifiedSources": [
-    "https://sellercentral.amazon.com/seller-forums/discussions/t/3e31fbb7-04e0-4ed4-873e-f74b1052e2ff",
-    "https://sellercentral.amazon.com/seller-forums/discussions/t/7cbc0233-ee5b-4359-978a-dee7cad5c6f4"
-  ],
-  "unverifiedSource": "https://sellercentral.amazon.com/help/hub/reference/external/GABBX6GZPA8MSZGW?locale=en-US",
-  "limitation": "Direct rate-card opens can return a JavaScript shell. Indexed primary-domain search results corroborate the selected kitchen and other example rates. November 5 is a retrieval date, not a new Amazon fee-change date. No claim that the encoded rates are incorrect.",
-  "releaseRequirements": [
-    "Distinct practical contribution: four-step ASIN audit beyond the existing fee-page tables.",
-    "Public prose free of internal editorial instructions; methods and reuse/citation note present.",
-    "reviewMode automated; required tests and build green before merge. Do not merge without Ryan."
-  ],
-  "published": false,
-  "revision": {
-    "revisedOn": "2026-11-05",
-    "summary": "Operator-audit rewrite clearing the repetitive-draft and editorial-instruction hold. Same PR #146 branch; plain push; unmerged."
+  "readAccounting": {
+    "archiveWindow": {
+      "from": "2026-11-05T00:00:00Z",
+      "toExclusive": "2026-11-06T00:00:00Z"
+    },
+    "expectedRows": 40,
+    "readRows": 40,
+    "complete": true,
+    "directionalComparison": false,
+    "openPRsReviewed": [
+      146,
+      147,
+      148,
+      149
+    ],
+    "unrelatedPRsUntouched": true
   },
-  "followupSources": [
-    "https://sellercentral.amazon.com/help/hub/reference/external/GABBX6GZPA8MSZGW?locale=en_us"
-  ]
+  "sources": [
+    {
+      "label": "Amazon holiday announcement — read Nov 6, 2026",
+      "href": "https://sellercentral.amazon.com/seller-forums/discussions/t/3e31fbb7-04e0-4ed4-873e-f74b1052e2ff",
+      "context": "Primary announcement: holiday period and surcharge layering."
+    },
+    {
+      "label": "Amazon surcharge announcement — read Nov 6, 2026",
+      "href": "https://sellercentral.amazon.com/seller-forums/discussions/t/7cbc0233-ee5b-4359-978a-dee7cad5c6f4",
+      "context": "Primary announcement: calculation base and updated tools."
+    },
+    {
+      "label": "Amazon monthly storage — checked Nov 6, 2026",
+      "href": "https://sellercentral.amazon.com/gp/help/external/G3EDYEF6KUCFQTNM",
+      "context": "Indexed primary table; direct open returned a JavaScript shell."
+    },
+    {
+      "label": "Amazon supply-chain storage comparison — read Nov 6, 2026",
+      "href": "https://sell.amazon.com/supply-chain?mons_sel_locale=en_US",
+      "context": "Primary corroboration of standard-size seasonal storage bands."
+    },
+    {
+      "label": "Amazon FBA fulfillment fee — checked Nov 6, 2026",
+      "href": "https://sellercentral.amazon.com/help/hub/reference/external/GPDC3KPYAGDTVDJP?ld=SCFBAStriplogin",
+      "context": "Indexed primary text; charging event and program boundaries. Direct open returned a JavaScript shell."
+    },
+    {
+      "label": "Amazon estimate guide — read Nov 6, 2026",
+      "href": "https://sell.amazon.com/pricing/estimate",
+      "context": "Primary guide to product estimates, Fee Preview and comparison inputs."
+    },
+    {
+      "label": "Dated blank worksheet and source map",
+      "href": "/research/amazon-fee-audit-2026-11-06.json",
+      "context": "Original workflow, no measured merchant results."
+    }
+  ],
+  "checks": {
+    "npmTest": "466 Vitest + 102 Node tests passed",
+    "typecheck": "npx tsc --noEmit passed",
+    "build": "npm run build passed after replacing external dependency symlink with local dependency copy",
+    "diffCheck": "passed",
+    "lint": "not configured; not run",
+    "render": "Built article has table, canonical, JSON-LD, evidence link and no-individual-human-review disclosure",
+    "ci": "must pass exact remote head before merge"
+  },
+  "publicEvidencePrivacyReview": "Only original blank worksheet and brief primary-source descriptions; no private rows, bodies, provider lineage or customer data.",
+  "publicationState": "Staged for scoped release; this record does not claim a production deployment."
 }
