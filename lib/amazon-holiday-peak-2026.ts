@@ -24,6 +24,10 @@ export const SURCHARGE_BWP_MCF_START = '2026-05-02'
 export const AVG_PEAK_INCREASE = 0.32
 export const AVG_SURCHARGE_PER_UNIT = 0.17
 
+/** <title> and meta description for AMAZON_PEAK_PATH (also quoted by the /holiday-2026 hub). */
+export const AMAZON_PEAK_TITLE = "Amazon Holiday Peak Fulfillment Fees 2026 + 3.5% Surcharge, by Size Tier"
+export const AMAZON_PEAK_DESCRIPTION = `Amazon's FBA peak fees run Oct 15, 2026 to Jan 14, 2027, averaging $${AVG_PEAK_INCREASE.toFixed(2)} more per unit, with the ${SURCHARGE_PCT}% fuel and logistics surcharge on top. Full rate table and worked examples with referral fees.`
+
 export interface Source { id: string; publisher: string; title: string; url: string; says: string; official: boolean }
 
 export const SOURCES: Source[] = [
