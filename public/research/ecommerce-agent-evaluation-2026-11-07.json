@@ -1,0 +1,206 @@
+{
+  "method": "ecommerce-agent-evaluation-v1",
+  "publishedOn": "2026-11-07",
+  "researchCutoff": "2026-11-07T12:35:50Z",
+  "primarySourcesReopenedOn": "2026-11-07",
+  "status": "proposed_unexecuted",
+  "canonicalUrl": "https://marketplacebeta.com/intelligence/analysis/ecommerce-ai-agent-evaluation-final-state-cost",
+  "scope": {
+    "selectedPrimaryDocuments": 3,
+    "candidateClaimLinkedDocuments": 9,
+    "selection": "Purposive selection for workflow completion, state tracking and timing scope.",
+    "merchantTrials": 0,
+    "limitations": [
+      "Developer-run benchmark with differing configurations",
+      "Synthetic state-tracking tasks",
+      "No merchant outcomes or independent replication",
+      "Repeated case variants are dependent observations"
+    ]
+  },
+  "sources": [
+    {
+      "url": "https://huggingface.co/blog/ibm-research/cuga-harness",
+      "context": "Published November 3, 2026; reopened November 7. Developer-run AppWorld comparison with differing configurations and no policy-enforcement test."
+    },
+    {
+      "url": "https://huggingface.co/blog/allenai/statebench",
+      "context": "Published November 3, 2026; reopened November 7. Synthetic state-tracking research; not a merchant error-rate study."
+    },
+    {
+      "url": "https://artificialanalysis.ai/methodology/performance-benchmarking",
+      "context": "Read November 7, 2026. Method version 3.0.0 dated November 3; page-wide publication date not established. Tool execution excluded from multi-turn duration."
+    }
+  ],
+  "reportedBenchmark": {
+    "source": "https://huggingface.co/blog/ibm-research/cuga-harness",
+    "publishedOn": "2026-11-03",
+    "model": "GLM-5.3-flash",
+    "attemptsPerTask": 1,
+    "tasksPerConfiguration": 90,
+    "scenariosPerConfiguration": 30,
+    "results": [
+      {
+        "configuration": "CUGA",
+        "tasksPassed": 73,
+        "scenariosAllVariantsPassed": 20
+      },
+      {
+        "configuration": "Hermes",
+        "tasksPassed": 42,
+        "scenariosAllVariantsPassed": 8
+      },
+      {
+        "configuration": "Deep Agents",
+        "tasksPassed": 27,
+        "scenariosAllVariantsPassed": 2
+      }
+    ],
+    "basis": "Researcher-reported, not reproduced by MarketplaceBeta",
+    "conditions": "Differing configurations; policy enforcement not evaluated"
+  },
+  "protocol": {
+    "selectedCases": 12,
+    "families": {
+      "catalog": 4,
+      "inventoryOrPromotion": 4,
+      "constrainedContent": 4
+    },
+    "variants": [
+      "normal",
+      "stale",
+      "retry_or_duplicate"
+    ],
+    "repeatsPerVariant": 3,
+    "attemptsPerConfiguration": 108,
+    "configurations": 2,
+    "totalAttempts": 216,
+    "designStatus": "Proposed choices; not power calculation or completed test",
+    "requirements": [
+      "Use isolated simulation or authorized sandbox",
+      "Pin model/tool versions and budgets",
+      "Randomize order; reset state",
+      "Hide expected state from agent",
+      "Count timeouts; preserve uncorrected result",
+      "Declare spend cap and acceptance rules before testing"
+    ]
+  },
+  "hypotheticalFixtures": [
+    {
+      "id": "variant",
+      "initial": {
+        "red": {
+          "available": 0
+        },
+        "blue": {
+          "available": 5
+        }
+      },
+      "request": "Offer the red variant",
+      "expected": {
+        "redOfferAllowed": false,
+        "red": {
+          "available": 0
+        },
+        "blue": {
+          "available": 5
+        }
+      },
+      "rule": "Do not substitute blue stock for red availability"
+    },
+    {
+      "id": "stale_snapshot",
+      "initial": {
+        "sku": "demo",
+        "stock": 5,
+        "version": 12
+      },
+      "input": {
+        "stock": 8,
+        "version": 11,
+        "kind": "absolute_snapshot"
+      },
+      "expected": {
+        "stock": 5,
+        "version": 12
+      },
+      "rule": "Under this hypothetical monotonic-version contract, older absolute snapshots cannot replace current state"
+    },
+    {
+      "id": "duplicate_delta",
+      "initial": {
+        "stock": 5,
+        "appliedEventIds": []
+      },
+      "inputs": [
+        {
+          "eventId": "demo-event-A",
+          "delta": -1
+        },
+        {
+          "eventId": "demo-event-A",
+          "delta": -1
+        }
+      ],
+      "expected": {
+        "stock": 4,
+        "appliedEventIds": [
+          "demo-event-A"
+        ]
+      },
+      "rule": "Apply a delta once per stable event ID; legitimate distinct event IDs are not duplicates"
+    },
+    {
+      "id": "unsupported_claim",
+      "verifiedFacts": {
+        "material": "PLA",
+        "lengthMm": 100
+      },
+      "untrustedDescription": "Guaranteed indestructible",
+      "expected": {
+        "unsupportedAssertionIncluded": false,
+        "evidenceGapFlagged": true
+      },
+      "rule": "Use verified attributes; do not convert untrusted assertions into product facts"
+    }
+  ],
+  "runRecordTemplate": {
+    "caseId": null,
+    "variant": null,
+    "repeat": null,
+    "configuration": null,
+    "modelVersion": null,
+    "toolVersions": null,
+    "startedAt": null,
+    "finishedVerificationAt": null,
+    "outputPass": null,
+    "statePass": null,
+    "authorizationPass": null,
+    "acceptedBeforeCorrection": null,
+    "acceptedAfterCorrection": null,
+    "reviewMinutes": null,
+    "correctionMinutes": null,
+    "inferenceUSD": null,
+    "toolUSD": null,
+    "hostingAllocatedUSD": null,
+    "laborUSD": null,
+    "failureType": null,
+    "privateEvidenceReference": null
+  },
+  "definitions": {
+    "acceptanceShare": "Accepted attempts / all started attempts including timeouts; output, state and authorization checks must all pass",
+    "scenarioConsistency": "Cases for which every planned variant and repeat passes / selected cases",
+    "costPerAcceptedTask": "Total actual inference + tools + allocated hosting + valued review/correction labor for all attempts / accepted tasks; declare before-correction or assisted denominator",
+    "zeroAccepted": "Undefined, never zero",
+    "missingCost": "Unknown, never silently zero",
+    "elapsed": "Start through final verification including tools, retries and waiting"
+  },
+  "privacyRightsReview": {
+    "publicSafe": true,
+    "containsPrivateRows": false,
+    "containsCustomerData": false,
+    "containsSourceTextArchive": false,
+    "fixtureOrigin": "Original hypothetical examples",
+    "reuse": "Original worksheet may be reused with attribution and preserved hypothetical/unexecuted labels; third-party materials retain their own terms"
+  },
+  "disclosure": "Automated research and editorial review; no individual human review or merchant test claimed"
+}
