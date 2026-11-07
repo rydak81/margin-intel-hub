@@ -1,0 +1,1049 @@
+{
+  "method_version": "signal-evidence-v1",
+  "runs": [
+    {
+      "id": "signal-bootstrap-2026-11-07",
+      "started_at": "2026-11-07T03:41:20.331547+00:00",
+      "cutoff": "2026-11-07T03:41:20.331547+00:00",
+      "finished_at": "2026-11-07T03:41:20.331547+00:00",
+      "status": "complete",
+      "method_version": "signal-evidence-v1",
+      "counts": {
+        "registry_sources": 36,
+        "documents": 9,
+        "claims": 9,
+        "observations": 7,
+        "reports": 1,
+        "social_drafts": 1
+      },
+      "notes": "Curated bootstrap using primary pages reviewed in this session; not a complete industry census or historical trend baseline."
+    }
+  ],
+  "sources": [
+    {
+      "id": "openai",
+      "name": "OpenAI",
+      "url": "https://openai.com/news/",
+      "domain": "openai.com",
+      "kind": "primary",
+      "access_method": "web",
+      "priority": 1,
+      "cadence_days": 1,
+      "status": "active",
+      "notes": "Primary linked document(s) read during bootstrap. Continue checking source health."
+    },
+    {
+      "id": "anthropic",
+      "name": "Anthropic",
+      "url": "https://www.anthropic.com/news",
+      "domain": "www.anthropic.com",
+      "kind": "primary",
+      "access_method": "web",
+      "priority": 1,
+      "cadence_days": 1,
+      "status": "active",
+      "notes": "Primary linked document(s) read during bootstrap. Continue checking source health."
+    },
+    {
+      "id": "google",
+      "name": "Google AI",
+      "url": "https://blog.google/innovation-and-ai/",
+      "domain": "blog.google",
+      "kind": "primary",
+      "access_method": "web",
+      "priority": 1,
+      "cadence_days": 1,
+      "status": "active",
+      "notes": "Primary linked document(s) read during bootstrap. Continue checking source health."
+    },
+    {
+      "id": "deepmind",
+      "name": "Google DeepMind",
+      "url": "https://deepmind.google/discover/blog/",
+      "domain": "deepmind.google",
+      "kind": "primary",
+      "access_method": "web",
+      "priority": 1,
+      "cadence_days": 2,
+      "status": "candidate",
+      "notes": "Registered discovery target; access and current terms must be verified before ingestion. Forum material is anecdotal."
+    },
+    {
+      "id": "meta",
+      "name": "Meta AI",
+      "url": "https://ai.meta.com/blog/",
+      "domain": "ai.meta.com",
+      "kind": "primary",
+      "access_method": "web",
+      "priority": 1,
+      "cadence_days": 2,
+      "status": "candidate",
+      "notes": "Registered discovery target; access and current terms must be verified before ingestion. Forum material is anecdotal."
+    },
+    {
+      "id": "mistral",
+      "name": "Mistral",
+      "url": "https://mistral.ai/news",
+      "domain": "mistral.ai",
+      "kind": "primary",
+      "access_method": "web",
+      "priority": 1,
+      "cadence_days": 2,
+      "status": "candidate",
+      "notes": "Registered discovery target; access and current terms must be verified before ingestion. Forum material is anecdotal."
+    },
+    {
+      "id": "xai",
+      "name": "xAI",
+      "url": "https://x.ai/news",
+      "domain": "x.ai",
+      "kind": "primary",
+      "access_method": "web",
+      "priority": 1,
+      "cadence_days": 2,
+      "status": "candidate",
+      "notes": "Registered discovery target; access and current terms must be verified before ingestion. Forum material is anecdotal."
+    },
+    {
+      "id": "deepseek",
+      "name": "DeepSeek pricing and documentation",
+      "url": "https://api-docs.deepseek.com/quick_start/pricing/",
+      "domain": "api-docs.deepseek.com",
+      "kind": "primary",
+      "access_method": "web",
+      "priority": 1,
+      "cadence_days": 1,
+      "status": "active",
+      "notes": "Primary linked document(s) read during bootstrap. Continue checking source health."
+    },
+    {
+      "id": "qwen",
+      "name": "Qwen model releases",
+      "url": "https://huggingface.co/Qwen",
+      "domain": "huggingface.co",
+      "kind": "code",
+      "access_method": "web",
+      "priority": 1,
+      "cadence_days": 2,
+      "status": "candidate",
+      "notes": "Registered discovery target; access and current terms must be verified before ingestion. Forum material is anecdotal."
+    },
+    {
+      "id": "moonshot",
+      "name": "Moonshot model releases",
+      "url": "https://huggingface.co/moonshotai",
+      "domain": "huggingface.co",
+      "kind": "code",
+      "access_method": "web",
+      "priority": 1,
+      "cadence_days": 2,
+      "status": "candidate",
+      "notes": "Registered discovery target; access and current terms must be verified before ingestion. Forum material is anecdotal."
+    },
+    {
+      "id": "zai",
+      "name": "Z.ai model releases",
+      "url": "https://huggingface.co/zai-org",
+      "domain": "huggingface.co",
+      "kind": "code",
+      "access_method": "web",
+      "priority": 1,
+      "cadence_days": 2,
+      "status": "candidate",
+      "notes": "Registered discovery target; access and current terms must be verified before ingestion. Forum material is anecdotal."
+    },
+    {
+      "id": "amazon",
+      "name": "Amazon announcements",
+      "url": "https://www.aboutamazon.com/news/",
+      "domain": "www.aboutamazon.com",
+      "kind": "primary",
+      "access_method": "web",
+      "priority": 1,
+      "cadence_days": 1,
+      "status": "active",
+      "notes": "Primary linked document(s) read during bootstrap. Continue checking source health."
+    },
+    {
+      "id": "walmart",
+      "name": "Walmart corporate news",
+      "url": "https://corporate.walmart.com/news",
+      "domain": "corporate.walmart.com",
+      "kind": "primary",
+      "access_method": "web",
+      "priority": 1,
+      "cadence_days": 2,
+      "status": "candidate",
+      "notes": "Registered discovery target; access and current terms must be verified before ingestion. Forum material is anecdotal."
+    },
+    {
+      "id": "tiktok",
+      "name": "TikTok Shop Academy",
+      "url": "https://seller-us.tiktok.com/university/home",
+      "domain": "seller-us.tiktok.com",
+      "kind": "primary",
+      "access_method": "web",
+      "priority": 1,
+      "cadence_days": 2,
+      "status": "active",
+      "notes": "Primary linked document(s) read during bootstrap. Continue checking source health."
+    },
+    {
+      "id": "shopify",
+      "name": "Shopify engineering and product news",
+      "url": "https://www.shopify.com/news",
+      "domain": "www.shopify.com",
+      "kind": "primary",
+      "access_method": "web",
+      "priority": 1,
+      "cadence_days": 2,
+      "status": "candidate",
+      "notes": "Registered discovery target; access and current terms must be verified before ingestion. Forum material is anecdotal."
+    },
+    {
+      "id": "nvidia",
+      "name": "NVIDIA developer news",
+      "url": "https://developer.nvidia.com/blog/",
+      "domain": "developer.nvidia.com",
+      "kind": "primary",
+      "access_method": "web",
+      "priority": 2,
+      "cadence_days": 3,
+      "status": "candidate",
+      "notes": "Registered discovery target; access and current terms must be verified before ingestion. Forum material is anecdotal."
+    },
+    {
+      "id": "arxiv",
+      "name": "arXiv AI papers",
+      "url": "https://arxiv.org/list/cs.AI/recent",
+      "domain": "arxiv.org",
+      "kind": "paper",
+      "access_method": "web",
+      "priority": 1,
+      "cadence_days": 1,
+      "status": "candidate",
+      "notes": "Registered discovery target; access and current terms must be verified before ingestion. Forum material is anecdotal."
+    },
+    {
+      "id": "openreview",
+      "name": "OpenReview",
+      "url": "https://openreview.net/",
+      "domain": "openreview.net",
+      "kind": "paper",
+      "access_method": "web",
+      "priority": 2,
+      "cadence_days": 7,
+      "status": "candidate",
+      "notes": "Registered discovery target; access and current terms must be verified before ingestion. Forum material is anecdotal."
+    },
+    {
+      "id": "hf-papers",
+      "name": "Hugging Face papers",
+      "url": "https://huggingface.co/papers",
+      "domain": "huggingface.co",
+      "kind": "paper",
+      "access_method": "web",
+      "priority": 2,
+      "cadence_days": 2,
+      "status": "candidate",
+      "notes": "Registered discovery target; access and current terms must be verified before ingestion. Forum material is anecdotal."
+    },
+    {
+      "id": "artificial-analysis",
+      "name": "Artificial Analysis",
+      "url": "https://artificialanalysis.ai/",
+      "domain": "artificialanalysis.ai",
+      "kind": "benchmark",
+      "access_method": "web",
+      "priority": 1,
+      "cadence_days": 2,
+      "status": "candidate",
+      "notes": "Registered discovery target; access and current terms must be verified before ingestion. Forum material is anecdotal."
+    },
+    {
+      "id": "arena",
+      "name": "Arena evaluations",
+      "url": "https://arena.ai/",
+      "domain": "arena.ai",
+      "kind": "benchmark",
+      "access_method": "web",
+      "priority": 2,
+      "cadence_days": 3,
+      "status": "candidate",
+      "notes": "Registered discovery target; access and current terms must be verified before ingestion. Forum material is anecdotal."
+    },
+    {
+      "id": "metr",
+      "name": "METR evaluations",
+      "url": "https://metr.org/blog/",
+      "domain": "metr.org",
+      "kind": "benchmark",
+      "access_method": "web",
+      "priority": 1,
+      "cadence_days": 3,
+      "status": "candidate",
+      "notes": "Registered discovery target; access and current terms must be verified before ingestion. Forum material is anecdotal."
+    },
+    {
+      "id": "stanford",
+      "name": "Stanford AI Index",
+      "url": "https://hai.stanford.edu/ai-index",
+      "domain": "hai.stanford.edu",
+      "kind": "dataset",
+      "access_method": "web",
+      "priority": 2,
+      "cadence_days": 14,
+      "status": "candidate",
+      "notes": "Registered discovery target; access and current terms must be verified before ingestion. Forum material is anecdotal."
+    },
+    {
+      "id": "epoch",
+      "name": "Epoch AI",
+      "url": "https://epoch.ai/",
+      "domain": "epoch.ai",
+      "kind": "dataset",
+      "access_method": "web",
+      "priority": 2,
+      "cadence_days": 7,
+      "status": "candidate",
+      "notes": "Registered discovery target; access and current terms must be verified before ingestion. Forum material is anecdotal."
+    },
+    {
+      "id": "hf-models",
+      "name": "Hugging Face models",
+      "url": "https://huggingface.co/models",
+      "domain": "huggingface.co",
+      "kind": "code",
+      "access_method": "web",
+      "priority": 2,
+      "cadence_days": 3,
+      "status": "candidate",
+      "notes": "Registered discovery target; access and current terms must be verified before ingestion. Forum material is anecdotal."
+    },
+    {
+      "id": "github",
+      "name": "GitHub AI repositories",
+      "url": "https://github.com/topics/artificial-intelligence",
+      "domain": "github.com",
+      "kind": "code",
+      "access_method": "web",
+      "priority": 2,
+      "cadence_days": 3,
+      "status": "candidate",
+      "notes": "Registered discovery target; access and current terms must be verified before ingestion. Forum material is anecdotal."
+    },
+    {
+      "id": "hn",
+      "name": "Hacker News",
+      "url": "https://news.ycombinator.com/",
+      "domain": "news.ycombinator.com",
+      "kind": "forum",
+      "access_method": "web",
+      "priority": 2,
+      "cadence_days": 2,
+      "status": "candidate",
+      "notes": "Registered discovery target; access and current terms must be verified before ingestion. Forum material is anecdotal."
+    },
+    {
+      "id": "reddit-local",
+      "name": "Reddit LocalLLaMA",
+      "url": "https://www.reddit.com/r/LocalLLaMA/",
+      "domain": "www.reddit.com",
+      "kind": "forum",
+      "access_method": "web",
+      "priority": 2,
+      "cadence_days": 3,
+      "status": "candidate",
+      "notes": "Registered discovery target; access and current terms must be verified before ingestion. Forum material is anecdotal."
+    },
+    {
+      "id": "reddit-ml",
+      "name": "Reddit MachineLearning",
+      "url": "https://www.reddit.com/r/MachineLearning/",
+      "domain": "www.reddit.com",
+      "kind": "forum",
+      "access_method": "web",
+      "priority": 2,
+      "cadence_days": 3,
+      "status": "candidate",
+      "notes": "Registered discovery target; access and current terms must be verified before ingestion. Forum material is anecdotal."
+    },
+    {
+      "id": "simon",
+      "name": "Simon Willison",
+      "url": "https://simonwillison.net/",
+      "domain": "simonwillison.net",
+      "kind": "expert",
+      "access_method": "web",
+      "priority": 2,
+      "cadence_days": 2,
+      "status": "candidate",
+      "notes": "Registered discovery target; access and current terms must be verified before ingestion. Forum material is anecdotal."
+    },
+    {
+      "id": "mollick",
+      "name": "One Useful Thing",
+      "url": "https://www.oneusefulthing.org/",
+      "domain": "www.oneusefulthing.org",
+      "kind": "expert",
+      "access_method": "web",
+      "priority": 2,
+      "cadence_days": 3,
+      "status": "candidate",
+      "notes": "Registered discovery target; access and current terms must be verified before ingestion. Forum material is anecdotal."
+    },
+    {
+      "id": "latent",
+      "name": "Latent Space",
+      "url": "https://www.latent.space/",
+      "domain": "www.latent.space",
+      "kind": "expert",
+      "access_method": "web",
+      "priority": 2,
+      "cadence_days": 3,
+      "status": "candidate",
+      "notes": "Registered discovery target; access and current terms must be verified before ingestion. Forum material is anecdotal."
+    },
+    {
+      "id": "rundown",
+      "name": "The Rundown AI",
+      "url": "https://www.therundown.ai/",
+      "domain": "www.therundown.ai",
+      "kind": "news",
+      "access_method": "web",
+      "priority": 3,
+      "cadence_days": 3,
+      "status": "candidate",
+      "notes": "Registered discovery target; access and current terms must be verified before ingestion. Forum material is anecdotal."
+    },
+    {
+      "id": "reuters",
+      "name": "Reuters technology",
+      "url": "https://www.reuters.com/technology/",
+      "domain": "www.reuters.com",
+      "kind": "news",
+      "access_method": "web",
+      "priority": 2,
+      "cadence_days": 2,
+      "status": "candidate",
+      "notes": "Registered discovery target; access and current terms must be verified before ingestion. Forum material is anecdotal."
+    },
+    {
+      "id": "linkedin",
+      "name": "LinkedIn product and feed guidance",
+      "url": "https://news.linkedin.com/",
+      "domain": "news.linkedin.com",
+      "kind": "platform",
+      "access_method": "web",
+      "priority": 2,
+      "cadence_days": 14,
+      "status": "active",
+      "notes": "Primary linked document(s) read during bootstrap. Continue checking source health."
+    },
+    {
+      "id": "youtube",
+      "name": "YouTube creator guidance",
+      "url": "https://support.google.com/youtube/",
+      "domain": "support.google.com",
+      "kind": "platform",
+      "access_method": "web",
+      "priority": 2,
+      "cadence_days": 14,
+      "status": "candidate",
+      "notes": "Registered discovery target; access and current terms must be verified before ingestion. Forum material is anecdotal."
+    }
+  ],
+  "documents": [
+    {
+      "id": "doc_87b45e66b4c616942ef17484",
+      "source_id": "amazon",
+      "canonical_url": "https://www.aboutamazon.com/news/retail/alexa-for-shopping-text-to-shop",
+      "title": "Alexa for Shopping text rollout",
+      "published_at": "2026-11-06T00:00:00+00:00",
+      "date_precision": "day",
+      "first_seen_at": "2026-11-07T03:41:20.331547+00:00",
+      "last_seen_at": "2026-11-07T03:41:20.331547+00:00",
+      "topics": [
+        "agentic_commerce"
+      ],
+      "origin_group": "doc_87b45e66b4c616942ef17484"
+    },
+    {
+      "id": "doc_5c9e8380891976bf81cb54cf",
+      "source_id": "amazon",
+      "canonical_url": "https://www.aboutamazon.com/news/retail/amazon-shop-direct-merchant-workspace",
+      "title": "Shop Direct Merchant Workspace",
+      "published_at": "2026-11-04T00:00:00+00:00",
+      "date_precision": "day",
+      "first_seen_at": "2026-11-07T03:41:20.331547+00:00",
+      "last_seen_at": "2026-11-07T03:41:20.331547+00:00",
+      "topics": [
+        "agentic_commerce"
+      ],
+      "origin_group": "doc_5c9e8380891976bf81cb54cf"
+    },
+    {
+      "id": "doc_0d262a8184eb08429667fdde",
+      "source_id": "google",
+      "canonical_url": "https://cloud.google.com/blog/products/ai-machine-learning/gemini-omni-1-2-flash-generally-available",
+      "title": "Gemini Omni 1.2 Flash GA",
+      "published_at": "2026-11-05T00:00:00+00:00",
+      "date_precision": "day",
+      "first_seen_at": "2026-11-07T03:41:20.331547+00:00",
+      "last_seen_at": "2026-11-07T03:41:20.331547+00:00",
+      "topics": [
+        "creative_models"
+      ],
+      "origin_group": "doc_0d262a8184eb08429667fdde"
+    },
+    {
+      "id": "doc_c5395290644325a76caa39b1",
+      "source_id": "google",
+      "canonical_url": "https://blog.google/products-and-platforms/products/workspace/omni-1-2-flash-google-vids/",
+      "title": "Google Vids free video allowance",
+      "published_at": "2026-11-05T00:00:00+00:00",
+      "date_precision": "day",
+      "first_seen_at": "2026-11-07T03:41:20.331547+00:00",
+      "last_seen_at": "2026-11-07T03:41:20.331547+00:00",
+      "topics": [
+        "creative_models"
+      ],
+      "origin_group": "doc_c5395290644325a76caa39b1"
+    },
+    {
+      "id": "doc_9e49ad7916ca6612b9dfa6e7",
+      "source_id": "openai",
+      "canonical_url": "https://openai.com/index/introducing-images-2-6/",
+      "title": "Images 2.6",
+      "published_at": "2026-11-04T00:00:00+00:00",
+      "date_precision": "day",
+      "first_seen_at": "2026-11-07T03:41:20.331547+00:00",
+      "last_seen_at": "2026-11-07T03:41:20.331547+00:00",
+      "topics": [
+        "creative_models"
+      ],
+      "origin_group": "doc_9e49ad7916ca6612b9dfa6e7"
+    },
+    {
+      "id": "doc_52d7e03d391c0dc8571a191d",
+      "source_id": "tiktok",
+      "canonical_url": "https://seller-us.tiktok.com/university/essay?knowledge_id=2829401964726023",
+      "title": "Getting BFCM-Ready with Seller AI",
+      "published_at": "2026-11-04T00:00:00+00:00",
+      "date_precision": "day",
+      "first_seen_at": "2026-11-07T03:41:20.331547+00:00",
+      "last_seen_at": "2026-11-07T03:41:20.331547+00:00",
+      "topics": [
+        "business_agents"
+      ],
+      "origin_group": "doc_52d7e03d391c0dc8571a191d"
+    },
+    {
+      "id": "doc_280758cc57a6ef53ae8b5606",
+      "source_id": "deepseek",
+      "canonical_url": "https://api-docs.deepseek.com/quick_start/pricing/",
+      "title": "DeepSeek API pricing",
+      "published_at": null,
+      "date_precision": "unknown",
+      "first_seen_at": "2026-11-07T03:41:20.331547+00:00",
+      "last_seen_at": "2026-11-07T03:41:20.331547+00:00",
+      "topics": [
+        "model_economics"
+      ],
+      "origin_group": "doc_280758cc57a6ef53ae8b5606"
+    },
+    {
+      "id": "doc_f3655eaf140791e46db4d83e",
+      "source_id": "anthropic",
+      "canonical_url": "https://platform.claude.com/docs/en/models/overview",
+      "title": "Claude model overview",
+      "published_at": null,
+      "date_precision": "unknown",
+      "first_seen_at": "2026-11-07T03:41:20.331547+00:00",
+      "last_seen_at": "2026-11-07T03:41:20.331547+00:00",
+      "topics": [
+        "model_economics"
+      ],
+      "origin_group": "doc_f3655eaf140791e46db4d83e"
+    },
+    {
+      "id": "doc_72bb65511fd7d8e6bc1a753e",
+      "source_id": "linkedin",
+      "canonical_url": "https://news.linkedin.com/2026/ImprovingTheFeed",
+      "title": "LinkedIn feed changes",
+      "published_at": "2026-03-12T00:00:00+00:00",
+      "date_precision": "day",
+      "first_seen_at": "2026-11-07T03:41:20.331547+00:00",
+      "last_seen_at": "2026-11-07T03:41:20.331547+00:00",
+      "topics": [
+        "publishing"
+      ],
+      "origin_group": "doc_72bb65511fd7d8e6bc1a753e"
+    }
+  ],
+  "document_versions": [
+    {
+      "id": "ver_3158759bacbcaddf76e744eb",
+      "document_id": "doc_87b45e66b4c616942ef17484",
+      "run_id": "signal-bootstrap-2026-11-07",
+      "retrieved_at": "2026-11-07T03:41:20.331547+00:00",
+      "summary": "Amazon is initially offering shopping by text to an invited subset of US customers and plans wider access in coming weeks.",
+      "content_sha256": "cba7db4e43fb1253761fad758de6389b56acbaf77e90d17d36f8251457f00723",
+      "access_status": "read"
+    },
+    {
+      "id": "ver_bb7ffe279c4473c4f0b7125d",
+      "document_id": "doc_5c9e8380891976bf81cb54cf",
+      "run_id": "signal-bootstrap-2026-11-07",
+      "retrieved_at": "2026-11-07T03:41:20.331547+00:00",
+      "summary": "Eligible merchants can use a free self-service workspace to connect their own stores to Shop Direct. Existing Amazon sellers may qualify for selection they do not sell on Amazon.",
+      "content_sha256": "99e7c2d5d6390599ad195af4721297d95d8477aadee0bb6c5878268837fba3b0",
+      "access_status": "read"
+    },
+    {
+      "id": "ver_b2304c6f4e7912a8f6515902",
+      "document_id": "doc_0d262a8184eb08429667fdde",
+      "run_id": "signal-bootstrap-2026-11-07",
+      "retrieved_at": "2026-11-07T03:41:20.331547+00:00",
+      "summary": "Google documents general availability, clips up to 15 seconds and 720p generation at USD 0.07 per second. Audio references require allowlisting.",
+      "content_sha256": "c41efce26e2512965be2b3b74d4af4834d6ce54a8c37435034f83d2aa73fbc4c",
+      "access_status": "read"
+    },
+    {
+      "id": "ver_2a1397e1ae245c1ac1033334",
+      "document_id": "doc_c5395290644325a76caa39b1",
+      "run_id": "signal-bootstrap-2026-11-07",
+      "retrieved_at": "2026-11-07T03:41:20.331547+00:00",
+      "summary": "Google says Google-account users can generate up to three 15-second videos per month in Vids without payment.",
+      "content_sha256": "f7267232f0874a2d6189fb6f44d43b0a0f3d899ae50d15ebd2ba604d0aea9482",
+      "access_status": "read"
+    },
+    {
+      "id": "ver_ee6e3a535c4422c58f4cde70",
+      "document_id": "doc_9e49ad7916ca6612b9dfa6e7",
+      "run_id": "signal-bootstrap-2026-11-07",
+      "retrieved_at": "2026-11-07T03:41:20.331547+00:00",
+      "summary": "OpenAI announces Images 2.6, GIF creation and improved editing consistency; the company reports 50 percent faster image generation. This is a vendor claim.",
+      "content_sha256": "91b5f16713ebc8555f4e51d03b98dea2c828eafade1c7f153d66b6f58322d06b",
+      "access_status": "read"
+    },
+    {
+      "id": "ver_e13222aea9a931aab62738cc",
+      "document_id": "doc_52d7e03d391c0dc8571a191d",
+      "run_id": "signal-bootstrap-2026-11-07",
+      "retrieved_at": "2026-11-07T03:41:20.331547+00:00",
+      "summary": "TikTok Shop describes shop-specific product recommendations, content assistance and LIVE diagnostics for BFCM preparation. Available agents vary by shop.",
+      "content_sha256": "e1efbe0b6d05c8a51aa549a1c2acc91e2466414e73cb8ceadc125032e443f4b1",
+      "access_status": "read"
+    },
+    {
+      "id": "ver_fc12e400a04d97490e6729ac",
+      "document_id": "doc_280758cc57a6ef53ae8b5606",
+      "run_id": "signal-bootstrap-2026-11-07",
+      "retrieved_at": "2026-11-07T03:41:20.331547+00:00",
+      "summary": "DeepSeek lists Flash input/output pricing that varies by peak and off-peak time. Flash supports image input; the listed V4 Pro API does not.",
+      "content_sha256": "0c12ecfb067c010f63e947d4cb4ac272a216f5f2257e896f6a95f4bd1b6e806a",
+      "access_status": "read"
+    },
+    {
+      "id": "ver_5e1693a64eb67782cd66e64c",
+      "document_id": "doc_f3655eaf140791e46db4d83e",
+      "run_id": "signal-bootstrap-2026-11-07",
+      "retrieved_at": "2026-11-07T03:41:20.331547+00:00",
+      "summary": "Anthropic lists Sonnet 5.5 at USD 2 per million input tokens and USD 10 per million output tokens, and positions it as a balanced speed/intelligence model.",
+      "content_sha256": "0854e39e9d82a9a1c723e75935059f51078ac2b583fac2aef810be79fe438958",
+      "access_status": "read"
+    },
+    {
+      "id": "ver_8c7fb426b9ec36bffdf943ce",
+      "document_id": "doc_72bb65511fd7d8e6bc1a753e",
+      "run_id": "signal-bootstrap-2026-11-07",
+      "retrieved_at": "2026-11-07T03:41:20.331547+00:00",
+      "summary": "LinkedIn says it is reducing repetitive low-substance content, engagement bait and inauthentic engagement while improving professional relevance.",
+      "content_sha256": "6f16d3658763687b6f13f0c9045897c92d579d8eba8c8cd30ffdb82b6e71d24a",
+      "access_status": "read"
+    }
+  ],
+  "claims": [
+    {
+      "id": "claim_4cf0ca460a2c60021d656b68",
+      "statement": "Amazon is initially offering shopping by text to an invited subset of US customers and plans wider access in coming weeks.",
+      "topic": "agentic_commerce",
+      "entity": "Amazon",
+      "epistemic_status": "vendor_claim",
+      "availability": "invitation",
+      "created_at": "2026-11-07T03:41:20.331547+00:00",
+      "rationale": "Verified as the provider\u2019s published statement; independent performance or adoption is not established."
+    },
+    {
+      "id": "claim_b6db5aa3cd4fe7420d17ed9b",
+      "statement": "Eligible merchants can use a free self-service workspace to connect their own stores to Shop Direct. Existing Amazon sellers may qualify for selection they do not sell on Amazon.",
+      "topic": "agentic_commerce",
+      "entity": "Amazon",
+      "epistemic_status": "vendor_claim",
+      "availability": "general",
+      "created_at": "2026-11-07T03:41:20.331547+00:00",
+      "rationale": "Verified as the provider\u2019s published statement; independent performance or adoption is not established."
+    },
+    {
+      "id": "claim_9ea3c252ac20e6cd86051ba8",
+      "statement": "Google documents general availability, clips up to 15 seconds and 720p generation at USD 0.07 per second. Audio references require allowlisting.",
+      "topic": "creative_models",
+      "entity": "Gemini Omni 1.2 Flash",
+      "epistemic_status": "vendor_claim",
+      "availability": "general",
+      "created_at": "2026-11-07T03:41:20.331547+00:00",
+      "rationale": "Verified as the provider\u2019s published statement; independent performance or adoption is not established."
+    },
+    {
+      "id": "claim_e4a18a689de495b7faf3b0a7",
+      "statement": "Google says Google-account users can generate up to three 15-second videos per month in Vids without payment.",
+      "topic": "creative_models",
+      "entity": "Google Vids",
+      "epistemic_status": "vendor_claim",
+      "availability": "general",
+      "created_at": "2026-11-07T03:41:20.331547+00:00",
+      "rationale": "Verified as the provider\u2019s published statement; independent performance or adoption is not established."
+    },
+    {
+      "id": "claim_b06fd24d3bb2676948dc3760",
+      "statement": "OpenAI announces Images 2.6, GIF creation and improved editing consistency; the company reports 50 percent faster image generation. This is a vendor claim.",
+      "topic": "creative_models",
+      "entity": "Images 2.6",
+      "epistemic_status": "vendor_claim",
+      "availability": "general",
+      "created_at": "2026-11-07T03:41:20.331547+00:00",
+      "rationale": "Verified as the provider\u2019s published statement; independent performance or adoption is not established."
+    },
+    {
+      "id": "claim_a3c114fc642601cc49b46cbb",
+      "statement": "TikTok Shop describes shop-specific product recommendations, content assistance and LIVE diagnostics for BFCM preparation. Available agents vary by shop.",
+      "topic": "business_agents",
+      "entity": "TikTok Shop Seller AI",
+      "epistemic_status": "vendor_claim",
+      "availability": "unknown",
+      "created_at": "2026-11-07T03:41:20.331547+00:00",
+      "rationale": "Verified as the provider\u2019s published statement; independent performance or adoption is not established."
+    },
+    {
+      "id": "claim_4d57ad56aa0125c861752572",
+      "statement": "DeepSeek lists Flash input/output pricing that varies by peak and off-peak time. Flash supports image input; the listed V4 Pro API does not.",
+      "topic": "model_economics",
+      "entity": "DeepSeek V4.1 Flash 1017",
+      "epistemic_status": "vendor_claim",
+      "availability": "general",
+      "created_at": "2026-11-07T03:41:20.331547+00:00",
+      "rationale": "Verified as the provider\u2019s published statement; independent performance or adoption is not established."
+    },
+    {
+      "id": "claim_7d3467fb810cc73263a66e1e",
+      "statement": "Anthropic lists Sonnet 5.5 at USD 2 per million input tokens and USD 10 per million output tokens, and positions it as a balanced speed/intelligence model.",
+      "topic": "model_economics",
+      "entity": "Claude Sonnet 5.5",
+      "epistemic_status": "vendor_claim",
+      "availability": "general",
+      "created_at": "2026-11-07T03:41:20.331547+00:00",
+      "rationale": "Verified as the provider\u2019s published statement; independent performance or adoption is not established."
+    },
+    {
+      "id": "claim_e68ac90f7851debd65ea0fce",
+      "statement": "LinkedIn says it is reducing repetitive low-substance content, engagement bait and inauthentic engagement while improving professional relevance.",
+      "topic": "publishing",
+      "entity": "LinkedIn",
+      "epistemic_status": "vendor_claim",
+      "availability": "not_applicable",
+      "created_at": "2026-11-07T03:41:20.331547+00:00",
+      "rationale": "Verified as the provider\u2019s published statement; independent performance or adoption is not established."
+    }
+  ],
+  "claim_evidence": [
+    {
+      "claim_id": "claim_4cf0ca460a2c60021d656b68",
+      "version_id": "ver_3158759bacbcaddf76e744eb",
+      "relation": "supports",
+      "locator": "Alexa for Shopping text rollout \u2014 announcement body / specifications"
+    },
+    {
+      "claim_id": "claim_b6db5aa3cd4fe7420d17ed9b",
+      "version_id": "ver_bb7ffe279c4473c4f0b7125d",
+      "relation": "supports",
+      "locator": "Shop Direct Merchant Workspace \u2014 announcement body / specifications"
+    },
+    {
+      "claim_id": "claim_9ea3c252ac20e6cd86051ba8",
+      "version_id": "ver_b2304c6f4e7912a8f6515902",
+      "relation": "supports",
+      "locator": "Gemini Omni 1.2 Flash GA \u2014 announcement body / specifications"
+    },
+    {
+      "claim_id": "claim_e4a18a689de495b7faf3b0a7",
+      "version_id": "ver_2a1397e1ae245c1ac1033334",
+      "relation": "supports",
+      "locator": "Google Vids free video allowance \u2014 announcement body / specifications"
+    },
+    {
+      "claim_id": "claim_b06fd24d3bb2676948dc3760",
+      "version_id": "ver_ee6e3a535c4422c58f4cde70",
+      "relation": "supports",
+      "locator": "Images 2.6 \u2014 announcement body / specifications"
+    },
+    {
+      "claim_id": "claim_a3c114fc642601cc49b46cbb",
+      "version_id": "ver_e13222aea9a931aab62738cc",
+      "relation": "supports",
+      "locator": "Getting BFCM-Ready with Seller AI \u2014 announcement body / specifications"
+    },
+    {
+      "claim_id": "claim_4d57ad56aa0125c861752572",
+      "version_id": "ver_fc12e400a04d97490e6729ac",
+      "relation": "supports",
+      "locator": "DeepSeek API pricing \u2014 announcement body / specifications"
+    },
+    {
+      "claim_id": "claim_7d3467fb810cc73263a66e1e",
+      "version_id": "ver_5e1693a64eb67782cd66e64c",
+      "relation": "supports",
+      "locator": "Claude model overview \u2014 announcement body / specifications"
+    },
+    {
+      "claim_id": "claim_e68ac90f7851debd65ea0fce",
+      "version_id": "ver_8c7fb426b9ec36bffdf943ce",
+      "relation": "supports",
+      "locator": "LinkedIn feed changes \u2014 announcement body / specifications"
+    }
+  ],
+  "observations": [
+    {
+      "id": "obs_1f84a39d04360d15c2c32636",
+      "version_id": "ver_b2304c6f4e7912a8f6515902",
+      "entity": "Gemini Omni 1.2 Flash",
+      "metric": "video_price",
+      "value": 0.07,
+      "unit": "USD/second",
+      "observed_at": "2026-11-07T03:41:20.331547+00:00",
+      "basis": "published_price",
+      "comparison_key": "720p_standard",
+      "conditions": {
+        "resolution": "720p",
+        "revisions_included": false,
+        "audio_reference_access": "allowlist"
+      },
+      "method_version": "signal-evidence-v1"
+    },
+    {
+      "id": "obs_21c88b122265100cfb425580",
+      "version_id": "ver_b2304c6f4e7912a8f6515902",
+      "entity": "Gemini Omni 1.2 Flash",
+      "metric": "maximum_clip_duration",
+      "value": 15,
+      "unit": "seconds",
+      "observed_at": "2026-11-07T03:41:20.331547+00:00",
+      "basis": "vendor_reported",
+      "comparison_key": "native_generation",
+      "conditions": {
+        "provider_documented": true
+      },
+      "method_version": "signal-evidence-v1"
+    },
+    {
+      "id": "obs_6630707edf0b5eeddc4de63f",
+      "version_id": "ver_2a1397e1ae245c1ac1033334",
+      "entity": "Google Vids",
+      "metric": "free_monthly_video_allowance",
+      "value": 3,
+      "unit": "videos/month",
+      "observed_at": "2026-11-07T03:41:20.331547+00:00",
+      "basis": "vendor_reported",
+      "comparison_key": "google_account_free",
+      "conditions": {
+        "maximum_seconds_per_video": 15
+      },
+      "method_version": "signal-evidence-v1"
+    },
+    {
+      "id": "obs_1ebd3ef2d7dc60427650a222",
+      "version_id": "ver_fc12e400a04d97490e6729ac",
+      "entity": "DeepSeek V4.1 Flash 1017",
+      "metric": "input_token_price",
+      "value": 0.3,
+      "unit": "USD/million_tokens",
+      "observed_at": "2026-11-07T03:41:20.331547+00:00",
+      "basis": "published_price",
+      "comparison_key": "standard_peak_cache_miss",
+      "conditions": {
+        "time_tier": "peak",
+        "cache": "miss"
+      },
+      "method_version": "signal-evidence-v1"
+    },
+    {
+      "id": "obs_7ec94ded9b2e4327a8c929f1",
+      "version_id": "ver_fc12e400a04d97490e6729ac",
+      "entity": "DeepSeek V4.1 Flash 1017",
+      "metric": "output_token_price",
+      "value": 1.2,
+      "unit": "USD/million_tokens",
+      "observed_at": "2026-11-07T03:41:20.331547+00:00",
+      "basis": "published_price",
+      "comparison_key": "standard_peak",
+      "conditions": {
+        "time_tier": "peak"
+      },
+      "method_version": "signal-evidence-v1"
+    },
+    {
+      "id": "obs_d279e3fb3f55f2b9bacce89f",
+      "version_id": "ver_5e1693a64eb67782cd66e64c",
+      "entity": "Claude Sonnet 5.5",
+      "metric": "input_token_price",
+      "value": 2,
+      "unit": "USD/million_tokens",
+      "observed_at": "2026-11-07T03:41:20.331547+00:00",
+      "basis": "published_price",
+      "comparison_key": "standard",
+      "conditions": {
+        "batch": false,
+        "cache_discount": false
+      },
+      "method_version": "signal-evidence-v1"
+    },
+    {
+      "id": "obs_7fa60472b2c23d8efd83b6c2",
+      "version_id": "ver_5e1693a64eb67782cd66e64c",
+      "entity": "Claude Sonnet 5.5",
+      "metric": "output_token_price",
+      "value": 10,
+      "unit": "USD/million_tokens",
+      "observed_at": "2026-11-07T03:41:20.331547+00:00",
+      "basis": "published_price",
+      "comparison_key": "standard",
+      "conditions": {
+        "batch": false,
+        "cache_discount": false
+      },
+      "method_version": "signal-evidence-v1"
+    }
+  ],
+  "source_checks": [
+    {
+      "run_id": "signal-bootstrap-2026-11-07",
+      "source_id": "openai",
+      "checked_at": "2026-11-07T03:41:20.331547+00:00",
+      "outcome": "ok",
+      "documents_found": 1,
+      "detail": "Curated primary-document review; not an exhaustive feed scan."
+    },
+    {
+      "run_id": "signal-bootstrap-2026-11-07",
+      "source_id": "anthropic",
+      "checked_at": "2026-11-07T03:41:20.331547+00:00",
+      "outcome": "ok",
+      "documents_found": 1,
+      "detail": "Curated primary-document review; not an exhaustive feed scan."
+    },
+    {
+      "run_id": "signal-bootstrap-2026-11-07",
+      "source_id": "google",
+      "checked_at": "2026-11-07T03:41:20.331547+00:00",
+      "outcome": "ok",
+      "documents_found": 2,
+      "detail": "Curated primary-document review; not an exhaustive feed scan."
+    },
+    {
+      "run_id": "signal-bootstrap-2026-11-07",
+      "source_id": "deepseek",
+      "checked_at": "2026-11-07T03:41:20.331547+00:00",
+      "outcome": "ok",
+      "documents_found": 1,
+      "detail": "Curated primary-document review; not an exhaustive feed scan."
+    },
+    {
+      "run_id": "signal-bootstrap-2026-11-07",
+      "source_id": "amazon",
+      "checked_at": "2026-11-07T03:41:20.331547+00:00",
+      "outcome": "ok",
+      "documents_found": 2,
+      "detail": "Curated primary-document review; not an exhaustive feed scan."
+    },
+    {
+      "run_id": "signal-bootstrap-2026-11-07",
+      "source_id": "tiktok",
+      "checked_at": "2026-11-07T03:41:20.331547+00:00",
+      "outcome": "ok",
+      "documents_found": 1,
+      "detail": "Curated primary-document review; not an exhaustive feed scan."
+    },
+    {
+      "run_id": "signal-bootstrap-2026-11-07",
+      "source_id": "linkedin",
+      "checked_at": "2026-11-07T03:41:20.331547+00:00",
+      "outcome": "ok",
+      "documents_found": 1,
+      "detail": "Curated primary-document review; not an exhaustive feed scan."
+    }
+  ],
+  "reports": [
+    {
+      "id": "signal-brief-2026-11-07",
+      "run_id": "signal-bootstrap-2026-11-07",
+      "title": "The AI commerce shift: distribution and creative economics",
+      "body_md": "# The AI commerce shift: distribution and creative economics\n\nThe first evidence set points to two practical questions: where will AI-mediated shopping send customers, and how cheaply can a seller test accurate creative?\n\nAmazon\u2019s text-shopping invitation rollout and Shop Direct workspace address discovery and purchase. Google\u2019s Omni release and Vids allowance address creative production. These announcements describe access and capabilities; they do not establish seller revenue lift.\n\nFor a merchant, the immediate experiment is a small, profitable assortment with accurate product attributes, followed by a controlled creative test. Track contribution per visitor and cost per approved asset. Keep shipping, returns and commissions in the calculation.\n\nAt Google\u2019s stated USD 0.07 per second, one 15-second 720p generation has a USD 1.05 generation charge. That excludes revisions, other services and human review. It is not a complete production-cost estimate.\n\nThe database starts with nine documents and seven numeric observations. There is no longitudinal baseline yet. Do not infer growth rates, forecast adoption, or compare benchmarks from this bootstrap. Price changes will become measurable after comparable subsequent observations.\n\nNext research questions: which channels are generally available rather than invitation-only; how API prices change under identical billing conditions; whether independent tests reproduce vendor claims; which seller workflows produce measured operating value.\n",
+      "method_version": "signal-evidence-v1",
+      "cutoff": "2026-11-07T03:41:20.331547+00:00",
+      "status": "draft",
+      "disclosure": "AI-assisted research by Signal, created for Ryan Dacus. No individual human-review attestation.",
+      "limitations": "Purposive nine-document bootstrap; provider statements; no measured adoption, seller outcomes or longitudinal trend."
+    }
+  ],
+  "report_claims": [
+    {
+      "report_id": "signal-brief-2026-11-07",
+      "claim_id": "claim_4cf0ca460a2c60021d656b68"
+    },
+    {
+      "report_id": "signal-brief-2026-11-07",
+      "claim_id": "claim_b6db5aa3cd4fe7420d17ed9b"
+    },
+    {
+      "report_id": "signal-brief-2026-11-07",
+      "claim_id": "claim_9ea3c252ac20e6cd86051ba8"
+    },
+    {
+      "report_id": "signal-brief-2026-11-07",
+      "claim_id": "claim_e4a18a689de495b7faf3b0a7"
+    },
+    {
+      "report_id": "signal-brief-2026-11-07",
+      "claim_id": "claim_b06fd24d3bb2676948dc3760"
+    },
+    {
+      "report_id": "signal-brief-2026-11-07",
+      "claim_id": "claim_a3c114fc642601cc49b46cbb"
+    },
+    {
+      "report_id": "signal-brief-2026-11-07",
+      "claim_id": "claim_4d57ad56aa0125c861752572"
+    },
+    {
+      "report_id": "signal-brief-2026-11-07",
+      "claim_id": "claim_7d3467fb810cc73263a66e1e"
+    },
+    {
+      "report_id": "signal-brief-2026-11-07",
+      "claim_id": "claim_e68ac90f7851debd65ea0fce"
+    }
+  ],
+  "social_drafts": [
+    {
+      "id": "signal-brief-2026-11-07-linkedin",
+      "report_id": "signal-brief-2026-11-07",
+      "platform": "linkedin",
+      "persona": "Ryan Dacus \u2014 The AI Operator",
+      "format": "evidence_brief",
+      "hook": "An AI demo can be impressive. The business question is what changes after the demo.",
+      "body": "Amazon is testing shopping by text and expanding a route for eligible merchants\u2019 own catalogs. Google has introduced 15-second video generation with a limited free allowance in Vids.\n\nMy research desk is tracking three things: what is available, what it costs, and what independent evidence supports it.\n\nFor sellers, the practical test is narrow: one proven product, three creative angles, and contribution per visitor as the outcome.\n\nI\u2019m building a dated evidence library so we can compare these changes over time. This first snapshot establishes a baseline; it does not establish adoption or revenue lift.\n\nAI-assisted research: Signal. Sources accompany the briefing.",
+      "hypothesis": "A concrete business decision with transparent evidence will attract qualified operator engagement.",
+      "status": "draft"
+    }
+  ]
+}

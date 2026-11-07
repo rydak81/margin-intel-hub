@@ -75,8 +75,8 @@ describe('sitemap after dedupe', () => {
   it('lists 43 fewer URLs than before (19 category + 25 sale pages, 1 sale page allowlisted back)', async () => {
     // 157 URLs on main before this change; the sitemap has no news rows without database credentials.
     const urls = (await sitemap()).map(e => e.url)
-    // Each new analysis article adds one URL; 157 was counted with 5 articles. +1: /fees/compare-by-item-price.
-    expect(urls).toHaveLength(157 - 19 - 25 + 1 + INDEXABLE_SALE_PAGES.length + (ANALYSIS_ARTICLES.length - 5) + AI_PLAYBOOKS.length)
+    // Each new analysis article adds one URL; 157 was counted with 5 articles. +1: /fees/compare-by-item-price. Final +1: /holiday-2026.
+    expect(urls).toHaveLength(157 - 19 - 25 + 1 + INDEXABLE_SALE_PAGES.length + (ANALYSIS_ARTICLES.length - 5) + AI_PLAYBOOKS.length + 1)
     expect(new Set(urls).size).toBe(urls.length)
   })
 })

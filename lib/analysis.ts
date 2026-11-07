@@ -50,6 +50,205 @@ export interface AnalysisArticle {
 
 export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
   {
+    "slug": "ebay-per-order-fee-2026-under-10",
+    "seoTitle": "eBay Per-Order Fee 2026: $0.30 Under $10",
+    "metaDescription": "eBay's 2026 per-order fee is $0.30 through $10 and $0.40 above. Worked Most Categories examples at $10, $10.01 and $50.",
+    "headline": "eBay's per-order fee in 2026: $0.30 through $10, $0.40 above — and the $10.01 cliff costs a dime",
+    "dek": "eBay still adds a fixed per-order fee on top of the category final value percentage. Orders totaling $10.00 or less pay $0.30; orders over $10.00 pay $0.40. We re-read eBay's selling fees page on November 6, 2026, worked Most Categories examples at $10, $10.01 and $50, and mapped when that fixed fee comes back on a refund.",
+    "publishedOn": "2026-11-06",
+    "updatedOn": "2026-11-06",
+    "author": "MarketplaceBeta Intelligence",
+    "reviewMode": "automated",
+    "readTime": "6 min",
+    "tags": [
+      "eBay",
+      "per-order fee",
+      "final value fee",
+      "seller fees",
+      "low-price items",
+      "Q4 2026"
+    ],
+    "takeaway": "Price every low-ticket eBay SKU with the fixed per-order fee in the sheet, not just the 13.6% Most Categories rate. At $10 the fee is $0.30; at $10.01 it jumps to $0.40. On a hypothetical one-item Most Categories sale with no shipping or tax, that is $1.66 total fees at $10 versus $1.76 at $10.01 — ten cents more for a one-cent price move. Bundle multi-item carts into one checkout when you can: eBay charges the per-order fee once per order, not once per line. And on returns, check the reason code before you assume the $0.30 or $0.40 comes back.",
+    "forecastIds": [],
+    "newsletterSource": "campaign_kw_ebay_per_order",
+    "sections": [
+      {
+        "id": "answer",
+        "title": "The short answer",
+        "paragraphs": [
+          "eBay's final value fee is a category percentage plus a fixed per-order fee. eBay's selling fees page (re-read November 6, 2026) says: for orders $10.00 or less the per-order fee is $0.30; for orders over $10.00 it is $0.40. That matches our [eBay fee table](/fees/ebay) and the October 16 correction on our [fee change log](/fees/changelog).",
+          "The percentage depends on category. Most Categories is 13.6% on the first $7,500 of the total amount of the sale per item, then 2.35% on the excess, per the same eBay page and our [Most Categories calculator](/fees/ebay/most-categories). The total amount of the sale includes item price, handling, shipping collected from the buyer (with listed exceptions), sales tax and other applicable fees. An order is any number of items one buyer checks out with the same shipping method.",
+          "The fixed fee matters most under about $25. On a hypothetical $10 Most Categories sale with no buyer shipping and no tax, eBay takes $1.36 (13.6%) plus $0.30, or $1.66 total — 16.6% of the sale. Cross $10.01 and the same math is $1.36 plus $0.40, or $1.76. That one-cent price move costs a full dime in the fixed fee. Our [$10 sale page](/fees/ebay/on-a-10-sale) shows the same $1.66 Most Categories total."
+        ],
+        "table": {
+          "caption": "Hypothetical: Most Categories, one item per order, $0 buyer shipping, $0 collected tax · Sources: eBay selling fees page (re-read Nov 6, 2026); MarketplaceBeta /fees/ebay (verified Oct 16, 2026)",
+          "headings": [
+            "Sale price",
+            "Final value % (Most Categories)",
+            "Per-order fee",
+            "Total eBay fees",
+            "Effective take rate"
+          ],
+          "rows": [
+            [
+              "$10.00",
+              "$1.36 (13.6%)",
+              "$0.30",
+              "$1.66",
+              "16.6%"
+            ],
+            [
+              "$10.01",
+              "$1.36 (13.6%)",
+              "$0.40",
+              "$1.76",
+              "17.6%"
+            ],
+            [
+              "$50.00",
+              "$6.80 (13.6%)",
+              "$0.40",
+              "$7.20",
+              "14.4%"
+            ]
+          ]
+        }
+      },
+      {
+        "id": "what-changed",
+        "title": "What changed: our tables, not eBay's rule",
+        "paragraphs": [
+          "eBay's $0.30 / $0.40 split is not a November 2026 change. eBay's Winter 2024 seller update said that from March 15, 2024 the per-order fee on orders over $10 rose from $0.30 to $0.40, while orders $10 and under stayed at $0.30. The rule on today's selling fees page is the same wording we re-read November 6, 2026.",
+          "What changed for operators reading MarketplaceBeta is our correction. On October 16, 2026 our [fee change log](/fees/changelog) replaced a flat \"$0.40 per order\" model with \"$0.30 per order through $10; $0.40 above,\" and aligned Most Categories and other standard-rate categories to the first-$7,500 / 2.35% structure. If a sheet, script or listing tool still assumes a flat $0.40 on every order, it overstates fees on every sale at $10 or less by a dime and mis-models the low-price band.",
+          "Insertion fees, Promoted Listings, international fees, Store subscription rates and Below Standard surcharges are separate. This piece is only about the per-order fixed amount that sits on top of the category percentage for basic non-Store domestic sales."
+        ]
+      },
+      {
+        "id": "why-it-matters",
+        "title": "Why it matters on low-price and multi-item orders",
+        "paragraphs": [
+          "A fixed fee is a bigger share of a small ticket. At $10, the $0.30 alone is 3.0% of the sale; stacked on 13.6% it pushes the effective take to 16.6% before product cost, postage, ads or returns. At $50 the same $0.40 is 0.8% of the sale and the effective take falls to 14.4%. That is why a \"13.6%\" mental model understates what eBay keeps on dollar-store and accessory SKUs.",
+          "The $10.01 cliff is a pricing trap. Raising a $9.99 listing to $10.01 to clear a round number or to cover a shipping bump moves the order into the $0.40 band. On the hypothetical Most Categories row above, fees rise from $1.66 at $10.00 to $1.76 at $10.01 while the percentage line barely moves. If you need the extra cent of price, fine — just put the extra dime of fee in the margin sheet first.",
+          "Multi-item checkout cuts the fixed fee. eBay defines an order as items one buyer purchases at checkout with the same shipping method, and charges one per-order fee for that order. Two separate $8 checkouts pay $0.30 twice ($0.60). One combined $16 checkout pays $0.40 once. Combined shipping and volume offers are not just buyer convenience; they change the fixed-fee line.",
+          "Refunds do not always return the fixed fee. eBay's fee credits page credits the per-order amount on some cancellations and buyer-preference full refunds, and keeps it on others — including out-of-stock cancellations and many not-as-described, damaged, defective or item-not-received refunds. That is the same reason our [holiday returns piece](/intelligence/analysis/holiday-returns-2026-amazon-walmart-etsy-ebay) flags late delivery on eBay: a not-as-described return can leave you paying return shipping and still owing the per-order fee. Read the reason code before you forecast a full fee credit.",
+          "Channel context sits on the [Intelligence hub](/intelligence), the [forecast scorecard](/intelligence/forecasts) and the [Intelligence Dossier](/intelligence/dossier). No open forecast on that scorecard is an eBay per-order-fee call; we are not stretching F5 or F2 to cover this rule."
+        ]
+      },
+      {
+        "id": "what-to-do-this-week",
+        "title": "What to do this week",
+        "paragraphs": [
+          "Each of these is a change you can make on this week's listings and margin sheets."
+        ],
+        "bullets": [
+          "Open every active eBay SKU priced at $15 or under and replace any flat \"$0.40 always\" assumption with $0.30 through $10 and $0.40 above. Confirm the result against our [eBay fee table](/fees/ebay) and the [$10 sale page](/fees/ebay/on-a-10-sale).",
+          "For each of those SKUs, write the total fee at the list price and at list price plus typical buyer shipping and tax, because eBay assesses the percentage — and which per-order band you land in — on the total amount of the sale, not item price alone.",
+          "If you sell accessories or multi-packs, turn on combined shipping or a volume offer so one buyer checkout pays one per-order fee. Model two solo checkouts versus one combined checkout before you decide the offer is \"just UX.\"",
+          "On your returns SOP, add a one-line check: does this reason credit the per-order fee? Use eBay's fee credits table, not last month's settlement average.",
+          "Re-price any SKU sitting at $10.01–$10.50 solely to look \"over $10.\" Either drop to $10.00 and keep the $0.30 band, or raise enough that the extra $0.10 of fee is covered by contribution margin.",
+          "Log any eBay fee notice you see against the [fee change log](/fees/changelog). Compare your category row on [Most Categories](/fees/ebay/most-categories) before you trust a third-party calculator that still shows a flat $0.40."
+        ]
+      },
+      {
+        "id": "what-we-are-watching",
+        "title": "What we are watching next",
+        "paragraphs": [
+          "Any eBay seller update that moves the $10 threshold or the $0.30 / $0.40 amounts. The current split has held since the March 15, 2024 change; a winter or spring update that lifts the under-$10 band would hit the same low-price catalogs this piece is written for. We will re-check eBay's selling fees page when eBay posts a fees update and append the [fee change log](/fees/changelog) if the numbers move.",
+          "Store vs non-Store schedules and Below Standard surcharges, which sit outside this basic-fee model. Operators on a Store subscription should use eBay's Store fee tables, not the basic Most Categories row alone.",
+          "Amazon's expected December–January 2027 US fee notice (forecast F5 on our [forecast scorecard](/intelligence/forecasts)) as the other side of any Amazon-vs-eBay fee comparison — not as a prediction about eBay. Broader fee and channel moves stay on the [Intelligence hub](/intelligence) and in the [Intelligence Dossier](/intelligence/dossier)."
+        ]
+      },
+      {
+        "id": "faq",
+        "title": "Questions sellers ask",
+        "paragraphs": [
+          "Answers as of November 6, 2026, from eBay's public selling fees and fee credits pages and our [eBay fee table](/fees/ebay)."
+        ],
+        "bullets": [
+          "What is eBay's per-order fee in 2026? $0.30 on orders totaling $10.00 or less, and $0.40 on orders over $10.00, on top of the category final value percentage.",
+          "Is the fee charged per item or per order? Per order. eBay defines an order as any number of items purchased by the same buyer at checkout with the same shipping method.",
+          "What does eBay take on a $10 Most Categories sale? On a hypothetical one-item sale with no buyer shipping and no tax: $1.36 final value fee plus $0.30 per-order fee = $1.66 (16.6%). That matches our [/fees/ebay/on-a-10-sale](/fees/ebay/on-a-10-sale) Most Categories row.",
+          "What about $10.01? Same assumptions: about $1.36 plus $0.40 = $1.76. Crossing $10.00 costs an extra $0.10 in the fixed fee.",
+          "What about $50? Same assumptions: $6.80 plus $0.40 = $7.20 (14.4%).",
+          "Does shipping or tax change the band? Yes. eBay calculates the percentage — and which per-order band applies — on the total amount of the sale, which includes shipping collected from the buyer (with listed exceptions) and sales tax. A $9.50 item with $1.00 collected shipping is a $10.50 order and pays $0.40.",
+          "Do I get the per-order fee back on a refund? Sometimes. eBay's fee credits page credits it on some buyer-request cancellations and some buyer-preference full refunds, and does not credit it on out-of-stock cancellations or on many damaged, defective, wrong-item, not-as-described or item-not-received refunds. Credits for the per-order amount can take up to 10 days to show.",
+          "When did the $0.40-over-$10 rule start? March 15, 2024, per eBay's Winter 2024 fees update. Orders $10 and under stayed at $0.30.",
+          "Where are the category percentage tables? On our [eBay fees hub](/fees/ebay), the [Most Categories page](/fees/ebay/most-categories) and eBay's own selling fees page linked in Sources."
+        ]
+      },
+      {
+        "id": "methods",
+        "title": "How this was made",
+        "paragraphs": [
+          "We re-fetched eBay's US selling fees help page and its fee credits help page on November 6, 2026, and compared them to our [eBay fee table](/fees/ebay) (verified October 16, 2026) and the October 16 entries on our [fee change log](/fees/changelog). The $0.30 / $0.40 wording, the Most Categories 13.6% / 2.35% structure, the definition of an order and the fee-credit situations match. Worked dollars at $10, $10.01 and $50 are our arithmetic from those rates (one item, $0 buyer shipping, $0 tax, rounded to the cent). They are hypothetical illustrations, not measured seller settlements. The March 15, 2024 start of the $0.40-over-$10 band comes from eBay's Winter 2024 fees and financials seller update.",
+          "Prepared through an automated research and editorial process with evidence checks. No individual human review of this revision is claimed. Suggested citation: MarketplaceBeta Intelligence, \"eBay's per-order fee in 2026: $0.30 through $10, $0.40 above — and the $10.01 cliff costs a dime,\" November 6, 2026, with the canonical article URL and a link to /fees/ebay. Attribute fee rules to eBay and re-check your own Seller Hub invoice before you reprice a catalog."
+        ]
+      }
+    ],
+    "sources": [
+      {
+        "label": "eBay Help: Selling fees (re-read Nov 6, 2026)",
+        "href": "https://www.ebay.com/help/selling/fees-credits-invoices/selling-fees?id=4822",
+        "context": "Final value fee = category percentage of the total amount of the sale plus a per-order fee; $0.30 for orders $10.00 or less; $0.40 for orders over $10.00; total amount includes item price, handling, shipping collected (with exceptions), sales tax; order = items purchased by the same buyer at checkout with the same shipping method; Most Categories 13.6% to $7,500 then 2.35%."
+      },
+      {
+        "label": "eBay Help: Fee credits (re-read Nov 6, 2026)",
+        "href": "https://www.ebay.com/help/selling/fees-credits-invoices/fee-credits?id=4128",
+        "context": "When the per-order fixed amount is credited (buyer-request / address-issue cancellations; some buyer-preference full refunds and Send refund flow) and when it is not (out-of-stock or damaged cancellations; damaged, defective, wrong item, not as described, item not received refunds; partial refunds). Per-order credits can take up to 10 days."
+      },
+      {
+        "label": "eBay Seller Center: Fees & financials, Winter 2024 update",
+        "href": "https://www.ebay.com/sellercenter/resources/seller-updates/2024-winter/financials",
+        "context": "From March 15, 2024, per-order fee on orders over $10 increased from $0.30 to $0.40; orders $10 and under stayed at $0.30."
+      },
+      {
+        "label": "eBay Seller Center: Seller fees overview",
+        "href": "https://www.ebay.com/sellercenter/selling/start-selling-on-ebay/seller-fees",
+        "context": "Restates the $0.30 / $0.40 per-order split and category percentage ranges for basic fees."
+      },
+      {
+        "label": "MarketplaceBeta: eBay fees by category (verified Oct 16, 2026)",
+        "href": "/fees/ebay",
+        "context": "Per-order fee modeled as $0.30 through $10 and $0.40 above; Most Categories 13.6%; source linked to eBay selling fees page."
+      },
+      {
+        "label": "MarketplaceBeta: eBay Most Categories fee calculator",
+        "href": "/fees/ebay/most-categories",
+        "context": "13.6% on the first $7,500 per item, then 2.35%, plus the per-order fee."
+      },
+      {
+        "label": "MarketplaceBeta: What eBay takes on a $10 sale",
+        "href": "/fees/ebay/on-a-10-sale",
+        "context": "Most Categories total $1.66 on a $10 sale under the same no-shipping, no-tax assumptions used in this piece."
+      },
+      {
+        "label": "MarketplaceBeta: Fee change log (Oct 16, 2026 correction)",
+        "href": "/fees/changelog",
+        "context": "Corrected eBay per-order fee from a flat $0.40 model to $0.30 through $10 / $0.40 above, and aligned standard-rate categories to the $7,500 / 2.35% structure."
+      },
+      {
+        "label": "MarketplaceBeta: Holiday returns 2026 (Nov 3, 2026)",
+        "href": "/intelligence/analysis/holiday-returns-2026-amazon-walmart-etsy-ebay",
+        "context": "eBay return windows and the not-as-described / late-arrival path that can leave the seller paying return shipping without a per-order fee credit."
+      },
+      {
+        "label": "MarketplaceBeta forecast scorecard",
+        "href": "/intelligence/forecasts",
+        "context": "No open forecast is an eBay per-order-fee call; F5 referenced only as Amazon's expected 2027 fee notice for cross-channel context."
+      },
+      {
+        "label": "MarketplaceBeta Intelligence hub",
+        "href": "/intelligence",
+        "context": "Operator analysis index and related Q4 coverage."
+      },
+      {
+        "label": "MarketplaceBeta Intelligence Dossier",
+        "href": "/intelligence/dossier",
+        "context": "Broader marketplace fee and channel context."
+      }
+    ]
+  },
+  {
     "slug": "holiday-returns-2026-amazon-walmart-etsy-ebay",
     "seoTitle": "2026 Holiday Returns: Amazon, Walmart, eBay, Etsy Fees",
     "metaDescription": "Amazon and Walmart take holiday returns to Jan 31, 2027; eBay and Etsy leave it to you. Who pays return shipping and which fees come back.",
@@ -1333,18 +1532,38 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
   {
     slug: "la-long-beach-rail-backlog-strike-holiday-inventory",
     seoTitle: "LA–Long Beach Backlog and Strike Risk: Q4 Stock Plan",
-    metaDescription: "35,688 containers waited for rail at LA–Long Beach on Oct 26, and the watchmen's strike deadline is now Nov 4. What sellers should do this week.",
+    metaDescription: "Watchmen contract extended to Nov 20; no deal, no strike. LA–Long Beach rail backlog stays elevated. Seller checklist for Cyber Week stock.",
     headline: "Your Cyber Week stock may be stuck at LA–Long Beach. Plan as if it misses.",
-    dek: "A rail backlog is already holding thousands of import containers for nine days or more, and a watchmen's strike could hit terminals that handle 85% of Long Beach cargo if talks fail by Wednesday, November 4. Here is how to triage inventory, promotions and ad spend before Black Friday.",
+    dek: "A rail backlog is still holding thousands of import containers for nine days or more at Los Angeles and Long Beach, and PMA and ILWU Local 26 have extended the watchmen's contract a third time, now through November 20, with no deal and no strike. Here is how to triage inventory, promotions and ad spend before Black Friday.",
     publishedOn: "2026-10-29",
-    updatedOn: "2026-11-02",
+    updatedOn: "2026-11-07",
     author: "MarketplaceBeta Intelligence",
+    reviewMode: "automated",
     readTime: "6 min",
     tags: ["logistics", "ports", "inventory", "peak season", "Q4 2026"],
     takeaway: "If any Cyber Week inventory is still at Los Angeles or Long Beach, or on a ship headed there, treat its arrival date as unknown. This week, find those purchase orders, move promotions and ad budget onto stock that is already in a fulfillment center, and decide which SKUs you would rather run out of than pay to expedite.",
     forecastIds: ["F2", "F1"],
     newsletterSource: "campaign_port_backlog_q4",
     sections: [
+      {
+        id: "update-2026-11-07",
+        title: "Update, November 7, 2026: no deal, no strike, and a two-week extension to November 20",
+        paragraphs: [
+          "The Friday midnight deadline passed without a strike. On November 6 the Pacific Maritime Association said it and ILWU Local 26 had agreed to extend the watchmen's contract through November 20, with additional talks scheduled during that period. PMA's statement gives the date but not a time of day, so we are not assuming one. The Journal of Commerce reported the same November 20 extension on the morning of November 7. This is the third postponement since the original November 1 deadline, and it is still not a deal. No terms have been announced, and the exposure PMA has described, terminals handling about 85% of Long Beach's cargo and 33% of Los Angeles', has not changed.",
+          "The rail queue moved in opposite directions at the two ports. The Port of Los Angeles' own on-dock rail report, as of November 6, shows 23,716 import containers waiting for on-dock trains at Los Angeles terminals, 8,172 of them for nine days or more (34.5%, per The Dwell). Those are Los Angeles-only figures, and both are up from the November 4 counts in the previous update (22,885 and 7,947). At Long Beach, The Dwell's compilation of the port's rail report dated November 5 shows 21,736 waiting, 4,063 of them for nine days or more (18.7%). Those are Long Beach-only figures, and both are down from November 4 (23,383 and 4,245). Because the two ports' latest reports carry different dates, we are not adding them into a single complex total this time. Most of the long-waiting boxes at both ports are BNSF-bound: 6,384 of the 8,172 at Los Angeles and 2,973 of the 4,063 at Long Beach, per The Dwell.",
+          "November 20 is one week before Black Friday on November 27. Hypothesis, not yet measured: a strike that started on or after November 20 would mostly hit inventory that is already too late for Cyber Week receiving, so the bigger strike risk for sellers has shifted toward December replenishment. The rail backlog is the problem that is here today, and at Los Angeles it grew this week.",
+          "The checklist in this piece still holds, with November 20 as the new strike cutoff. Use the extra two weeks to get firm answers from your forwarder on every rail-bound Cyber Week container, especially at Los Angeles, rather than waiting for the next deadline.",
+        ],
+      },
+      {
+        id: "update-2026-11-05",
+        title: "Update, November 5, 2026: the strike deadline moved again, to Friday, November 6",
+        paragraphs: [
+          "No strike started on Wednesday, November 4. Later that day the Pacific Maritime Association said it and ILWU Local 26 had agreed to extend the watchmen's contract through midnight Pacific Time on Friday night, November 6 (3 a.m. Eastern on Saturday, November 7), with negotiations continuing Friday with the Federal Mediation and Conciliation Service. Local 26 covers about 250 watchmen, roughly 2% of the ILWU workforce at the two ports, at terminals that handle more than half the complex's cargo, including about 85% of Long Beach and 33% of Los Angeles, per PMA. Transport Topics, citing Bloomberg, confirmed the new Friday midnight deadline on November 5. This is another postponement, not a deal. Everything below about the strike now applies to Friday midnight instead of Wednesday afternoon, and we will update this piece again after the new deadline.",
+          "The rail queue is still elevated, and Long Beach is separately countable again. The Dwell's compilation of the ports' daily on-dock rail reports — page revised November 5, last observation November 4 — shows 22,885 import containers awaiting on-dock rail at Los Angeles, with 7,947 of them waiting nine days or more (34.7%), and 23,383 awaiting at Long Beach, with 4,245 at nine days or more (18.2%). Those are daily inventory counts, not average dwell. Against the Los Angeles-only October 30 figures in the November 2 update (21,683 awaiting, 8,937 at nine days or more), total Los Angeles waiting rose while the nine-day-plus count fell. Our arithmetic on the November 4 split: 46,268 containers awaiting across both ports and 12,192 at nine days or more.",
+          "The checklist in this piece still holds, with Friday midnight Pacific as the new cutoff. If a Cyber Week load can leave an affected terminal before midnight Pacific on November 6, that is the one to push your forwarder on today.",
+        ],
+      },
       {
         id: "update-2026-11-02",
         title: "Update, November 2, 2026: the strike deadline moved to Wednesday, November 4",
@@ -1387,14 +1606,14 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
         id: "what-to-do-this-week",
         title: "What to do this week",
         paragraphs: [
-          "Do these before the strike deadline, now 5 p.m. Pacific on Wednesday, November 4, not after the first missed delivery date.",
+          "Do these before the strike deadline, now November 20 under PMA's November 6 extension, not after the first missed delivery date.",
         ],
         bullets: [
           "List every open purchase order with goods on the water or at a terminal. For each one, ask your forwarder three things: which port and terminal, whether it leaves by rail or truck, and the current estimate to your warehouse or fulfillment center. The Local 26 strike notice named eight locations, per the World Ports Organization: APM Terminals, Long Beach Container Terminal, Total Terminals International, SSA C-60, SSA A-90, SSA LB 206, Pacific Container Terminal and OH 55.",
           "For rail-bound containers that matter for Cyber Week, ask for a price to transload to truck out of Southern California. Truck-bound containers are the lane that is still moving, per C.H. Robinson. Compare the extra cost per unit with the margin on those units at your planned deal price, not at full price.",
           "Move promotions and ad budget onto stock you already have. Do not commit a Cyber Week deal or a budget increase to a SKU whose replenishment is in the rail queue. On Amazon, a Black Friday Week or Cyber Monday deal carries a $100 upfront fee plus 1.5% of promotional sales, capped at $5,000, as covered in our [holiday forecasts piece](/intelligence/analysis/q4-2026-holiday-forecasts-marketplace-sellers), and you pay to run a deal you may not be able to fill.",
           "If a SKU sells on more than one channel and stock will be short, allocate units to the channel that keeps the most margin at peak fees. Start with our [Amazon holiday peak fee page](/fees/amazon/holiday-peak-2026), the [Amazon vs Walmart comparison](/fees/compare/amazon-vs-walmart) and the [fee change log](/fees/changelog).",
-          "Decide now which SKUs justify air freight or a domestic reorder, and which you will let run out. Make that list while you have options, before November 1, rather than after a strike starts.",
+          "Decide now which SKUs justify air freight or a domestic reorder, and which you will let run out. Make that list while you have options, before the November 20 deadline, rather than after a strike starts.",
           "On channels where you set your own handling time, lengthen it on SKUs that depend on stuck replenishment instead of cancelling orders later.",
         ],
       },
@@ -1402,10 +1621,10 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
         id: "what-were-watching",
         title: "What we're watching next",
         paragraphs: [
-          "We will update this piece if a strike starts or a deal is announced. The signals we are tracking:",
+          "We will update this piece again after the November 20 deadline, and sooner if a strike starts or a deal is announced. The signals we are tracking:",
         ],
         bullets: [
-          "The November 4, 5 p.m. Pacific deadline (moved from November 1), and whether other ILWU members honor Local 26 picket lines if it passes without a deal.",
+          "The November 20 deadline (moved from November 6), and whether other ILWU members honor Local 26 picket lines if it passes without a deal.",
           "The ports' daily rail reports, specifically whether the count of containers waiting nine days or more starts to fall.",
           "Weekly diesel prices from the US Energy Information Administration, which our dossier lists as a leading signal for forecast F2.",
           "Cyber Week sales tracking against forecast F1. See the full context on the [intelligence hub](/intelligence).",
@@ -1415,7 +1634,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
         id: "note",
         title: "How this was made",
         paragraphs: [
-          "AI-assisted, human-reviewed. Figures come from the linked sources below, dated as shown. The share of containers waiting nine days or more across the whole complex is our arithmetic from FreightWaves' figures. Statements labeled as hypotheses have not been measured. Updated November 2, 2026 with the deadline extension and the Port of Los Angeles' October 30 rail count.",
+          "AI-assisted, human-reviewed. Figures come from the linked sources below, dated as shown. The share of containers waiting nine days or more across the whole complex is our arithmetic from FreightWaves' figures and, for the November 4 counts, from The Dwell. Statements labeled as hypotheses have not been measured. Updated November 2, 2026 with the deadline extension and the Port of Los Angeles' October 30 rail count. Updated November 5, 2026 with PMA's further extension through midnight Pacific on November 6 and The Dwell's November 4 Los Angeles and Long Beach rail counts. Updated November 7, 2026 with PMA's extension through November 20, the Port of Los Angeles' November 6 rail count and Long Beach's November 5 rail count via The Dwell.",
         ],
       },
     ],
@@ -1429,8 +1648,13 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
       {"label": "PMA: Statement on Contract Extension With ILWU Local 26 (Oct 30, 2026, distributed via Public)", "href": "https://www.pubt.io/view/B1D61AAD2416C64FD19D59DB80483258C4503FFE", "context": "PMA's Oct 30 statement announcing the contract extension with Local 26."},
       {"label": "Journal of Commerce: Strike deadline at LA-LB ports delayed until Nov. 4: PMA (Oct 30, 2026)", "href": "https://www.joc.com/article/strike-deadline-at-la-lb-ports-delayed-until-nov-4-pma-6315329", "context": "Nov 1 deadline reset to Nov 4; talks continue with the Federal Mediation and Conciliation Service."},
       {"label": "Bloomberg Law: Port Workers, Employers Push Long Beach Strike Threat to Nov. 4 (Oct 30, 2026)", "href": "https://news.bloomberglaw.com/daily-labor-report/port-workers-employers-push-long-beach-strike-threat-to-nov-4", "context": "Extension signed through 5 p.m. on Nov 4, per PMA's Friday statement; previous agreement expired July 2025."},
-      {"label": "Port of Los Angeles: Import On-Dock Rail Awaiting Loading (as of Oct 30, 2026)", "href": "https://kentico.portoflosangeles.org/getmedia/e738dff4-39ec-4290-a54c-f3ca57be77f4/import-on-dock-rail-report", "context": "21,683 import containers awaiting on-dock rail at Los Angeles terminals, 8,937 for nine days or more."},
+      {"label": "Port of Los Angeles: Import On-Dock Rail Awaiting Loading (as of Oct 30 and Nov 6, 2026)", "href": "https://kentico.portoflosangeles.org/getmedia/e738dff4-39ec-4290-a54c-f3ca57be77f4/import-on-dock-rail-report", "context": "Oct 30: 21,683 import containers awaiting on-dock rail at Los Angeles terminals, 8,937 for nine days or more. Nov 6: 23,716 awaiting, 8,172 for nine days or more (BNSF 16,090 with 6,384 at 9+ days; Union Pacific 7,626 with 1,788). Los Angeles only."},
       {"label": "MarketplaceBeta Intelligence Dossier, Edition 1 (Oct 14, 2026)", "href": "/intelligence/dossier", "context": "Record diesel of $6.53 a gallon in late September and FedEx's 32.25% domestic fuel surcharge, with the dossier's own cited sources; EIA diesel as a leading indicator for forecast F2."},
+      {"label": "PMA: Updated Statement on Negotiations With ILWU Local 26 (Nov 4, 2026)", "href": "https://www.pmanet.org/press_releases/updated-statement-on-negotiations-with-ilwu-local-26/", "context": "Contract extended through midnight Pacific Time Friday night, November 6; negotiations continue Friday with FMCS; Local 26 about 250 watchmen (~2% of ILWU workforce) at terminals handling more than half the ports' cargo, including about 85% of Long Beach and 33% of Los Angeles."},
+      {"label": "Transport Topics: Strike Deadline at Port of LA Extended to Friday (Nov 5, 2026)", "href": "https://www.ttnews.com/articles/strike-deadline-port-la", "context": "Confirms the Friday midnight Pacific extension after the Nov 4 deadline passed without a deal or a strike; Bloomberg-sourced trade press."},
+      {"label": "The Dwell: Rail dwell, Los Angeles vs Long Beach (checked Nov 5 and Nov 7, 2026)", "href": "https://the-dwell.com/boxdwell/rail-dwell-la-long-beach", "context": "Nov 4 observation: Los Angeles 22,885 awaiting on-dock rail, 7,947 at 9+ days (34.7%); Long Beach 23,383 awaiting, 4,245 at 9+ days (18.2%). Page revised Nov 7: Los Angeles 23,716 (8,172 at 9+ days, 34.5%, report of Nov 6); Long Beach 21,736 (4,063 at 9+ days, 18.7%, report of Nov 5). Daily inventory counts compiled from the ports' on-dock rail reports, not average dwell."},
+      {"label": "PMA: Statement on Negotiations with ILWU Local 26 at the Ports of LA and Long Beach (Nov 6, 2026)", "href": "https://www.pmanet.org/press_releases/statement-from-the-pacific-maritime-association-on-negotiations-with-ilwu-local-26-at-the-ports-of-la-and-long-beach/", "context": "Contract extended through Nov. 20, with additional talks scheduled during that period; no time of day stated."},
+      {"label": "Journal of Commerce: PMA, ILWU Local 26 extend contract to Nov. 20 as talks continue (Nov 7, 2026)", "href": "https://www.joc.com/article/pma-ilwu-local-26-extend-contract-to-nov-20-as-talks-continue-6319573", "context": "Confirms the Nov 20 extension; additional talks to be scheduled over the next two weeks."},
     ],
   },
   {
