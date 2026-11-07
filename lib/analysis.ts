@@ -1532,9 +1532,9 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
   {
     slug: "la-long-beach-rail-backlog-strike-holiday-inventory",
     seoTitle: "LA–Long Beach Backlog and Strike Risk: Q4 Stock Plan",
-    metaDescription: "Watchmen contract extended to Nov 20; no deal, no strike. LA–Long Beach rail backlog stays elevated. Seller checklist for Cyber Week stock.",
+    metaDescription: "Contract extended to Nov 20; PMA's Nov. 6 statement does not announce a settlement. LA–Long Beach rail backlog elevated. Cyber Week checklist.",
     headline: "Your Cyber Week stock may be stuck at LA–Long Beach. Plan as if it misses.",
-    dek: "A rail backlog is still holding thousands of import containers for nine days or more at Los Angeles and Long Beach, and PMA and ILWU Local 26 have extended the watchmen's contract a third time, now through November 20, with no deal and no strike. Here is how to triage inventory, promotions and ad spend before Black Friday.",
+    dek: "A rail backlog is still holding thousands of import containers for nine days or more at Los Angeles and Long Beach, and PMA and ILWU Local 26 have extended the watchmen's contract a third time, now through November 20, and PMA's November 6 statement does not announce a settlement. Here is how to triage inventory, promotions and ad spend before Black Friday.",
     publishedOn: "2026-10-29",
     updatedOn: "2026-11-07",
     author: "MarketplaceBeta Intelligence",
@@ -1547,12 +1547,12 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
     sections: [
       {
         id: "update-2026-11-07",
-        title: "Update, November 7, 2026: no deal, no strike, and a two-week extension to November 20",
+        title: "Update, November 7, 2026: a two-week extension to November 20, and PMA's statement does not announce a settlement",
         paragraphs: [
-          "The Friday midnight deadline passed without a strike. On November 6 the Pacific Maritime Association said it and ILWU Local 26 had agreed to extend the watchmen's contract through November 20, with additional talks scheduled during that period. PMA's statement gives the date but not a time of day, so we are not assuming one. The Journal of Commerce reported the same November 20 extension on the morning of November 7. This is the third postponement since the original November 1 deadline, and it is still not a deal. No terms have been announced, and the exposure PMA has described, terminals handling about 85% of Long Beach's cargo and 33% of Los Angeles', has not changed.",
+          "On November 6 the Pacific Maritime Association said it and ILWU Local 26 had agreed to extend the watchmen's contract through November 20, with additional talks scheduled during that period. PMA's statement gives the date but not a time of day, so we are not assuming one. The Journal of Commerce reported the same November 20 extension on November 7. This is the third postponement since the original November 1 deadline. PMA's November 6 statement does not announce a settlement; it says PMA remains committed to reaching a fair agreement. PMA's November 4 statement described terminals handling about 85% of Long Beach cargo and 33% of Los Angeles cargo.",
           "The rail queue moved in opposite directions at the two ports. The Port of Los Angeles' own on-dock rail report, as of November 6, shows 23,716 import containers waiting for on-dock trains at Los Angeles terminals, 8,172 of them for nine days or more (34.5%, per The Dwell). Those are Los Angeles-only figures, and both are up from the November 4 counts in the previous update (22,885 and 7,947). At Long Beach, The Dwell's compilation of the port's rail report dated November 5 shows 21,736 waiting, 4,063 of them for nine days or more (18.7%). Those are Long Beach-only figures, and both are down from November 4 (23,383 and 4,245). Because the two ports' latest reports carry different dates, we are not adding them into a single complex total this time. Most of the long-waiting boxes at both ports are BNSF-bound: 6,384 of the 8,172 at Los Angeles and 2,973 of the 4,063 at Long Beach, per The Dwell.",
           "November 20 is one week before Black Friday on November 27. Hypothesis, not yet measured: a strike that started on or after November 20 would mostly hit inventory that is already too late for Cyber Week receiving, so the bigger strike risk for sellers has shifted toward December replenishment. The rail backlog is the problem that is here today, and at Los Angeles it grew this week.",
-          "The checklist in this piece still holds, with November 20 as the new strike cutoff. Use the extra two weeks to get firm answers from your forwarder on every rail-bound Cyber Week container, especially at Los Angeles, rather than waiting for the next deadline.",
+          "The checklist in this piece still holds. PMA's November 6 statement extends the contract through November 20 and does not state a time of day. Use the period before that date to get firm answers from your forwarder on every rail-bound Cyber Week container, especially at Los Angeles.",
         ],
       },
       {
@@ -1606,14 +1606,14 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
         id: "what-to-do-this-week",
         title: "What to do this week",
         paragraphs: [
-          "Do these before the strike deadline, now November 20 under PMA's November 6 extension, not after the first missed delivery date.",
+          "Do these before November 20, the contract date in PMA's November 6 statement, which gives no time of day, not after the first missed delivery date.",
         ],
         bullets: [
           "List every open purchase order with goods on the water or at a terminal. For each one, ask your forwarder three things: which port and terminal, whether it leaves by rail or truck, and the current estimate to your warehouse or fulfillment center. The Local 26 strike notice named eight locations, per the World Ports Organization: APM Terminals, Long Beach Container Terminal, Total Terminals International, SSA C-60, SSA A-90, SSA LB 206, Pacific Container Terminal and OH 55.",
           "For rail-bound containers that matter for Cyber Week, ask for a price to transload to truck out of Southern California. Truck-bound containers are the lane that is still moving, per C.H. Robinson. Compare the extra cost per unit with the margin on those units at your planned deal price, not at full price.",
           "Move promotions and ad budget onto stock you already have. Do not commit a Cyber Week deal or a budget increase to a SKU whose replenishment is in the rail queue. On Amazon, a Black Friday Week or Cyber Monday deal carries a $100 upfront fee plus 1.5% of promotional sales, capped at $5,000, as covered in our [holiday forecasts piece](/intelligence/analysis/q4-2026-holiday-forecasts-marketplace-sellers), and you pay to run a deal you may not be able to fill.",
           "If a SKU sells on more than one channel and stock will be short, allocate units to the channel that keeps the most margin at peak fees. Start with our [Amazon holiday peak fee page](/fees/amazon/holiday-peak-2026), the [Amazon vs Walmart comparison](/fees/compare/amazon-vs-walmart) and the [fee change log](/fees/changelog).",
-          "Decide now which SKUs justify air freight or a domestic reorder, and which you will let run out. Make that list while you have options, before the November 20 deadline, rather than after a strike starts.",
+          "Decide now which SKUs justify air freight or a domestic reorder, and which you will let run out. Make that list while you have options, before November 20, rather than after a strike starts.",
           "On channels where you set your own handling time, lengthen it on SKUs that depend on stuck replenishment instead of cancelling orders later.",
         ],
       },
@@ -1621,10 +1621,10 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
         id: "what-were-watching",
         title: "What we're watching next",
         paragraphs: [
-          "We will update this piece again after the November 20 deadline, and sooner if a strike starts or a deal is announced. The signals we are tracking:",
+          "We will update this piece again after November 20, and sooner if a strike starts or a cited source announces a settlement. The signals we are tracking:",
         ],
         bullets: [
-          "The November 20 deadline (moved from November 6), and whether other ILWU members honor Local 26 picket lines if it passes without a deal.",
+          "The November 20 date in PMA's November 6 contract extension (the prior extension ran through midnight Pacific on November 6), and whether other ILWU members honor Local 26 picket lines if that date passes without a settlement in the statements cited here.",
           "The ports' daily rail reports, specifically whether the count of containers waiting nine days or more starts to fall.",
           "Weekly diesel prices from the US Energy Information Administration, which our dossier lists as a leading signal for forecast F2.",
           "Cyber Week sales tracking against forecast F1. See the full context on the [intelligence hub](/intelligence).",
@@ -1634,7 +1634,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
         id: "note",
         title: "How this was made",
         paragraphs: [
-          "AI-assisted, human-reviewed. Figures come from the linked sources below, dated as shown. The share of containers waiting nine days or more across the whole complex is our arithmetic from FreightWaves' figures and, for the November 4 counts, from The Dwell. Statements labeled as hypotheses have not been measured. Updated November 2, 2026 with the deadline extension and the Port of Los Angeles' October 30 rail count. Updated November 5, 2026 with PMA's further extension through midnight Pacific on November 6 and The Dwell's November 4 Los Angeles and Long Beach rail counts. Updated November 7, 2026 with PMA's extension through November 20, the Port of Los Angeles' November 6 rail count and Long Beach's November 5 rail count via The Dwell.",
+          "Figures come from the linked sources below, dated as shown. The share of containers waiting nine days or more across the whole complex is our arithmetic from FreightWaves' figures and, for the November 4 counts, from The Dwell. Statements labeled as hypotheses have not been measured. Updated November 2, 2026 with the deadline extension and the Port of Los Angeles' October 30 rail count. Updated November 5, 2026 with PMA's further extension through midnight Pacific on November 6 and The Dwell's November 4 Los Angeles and Long Beach rail counts. Updated November 7, 2026 with PMA's extension through November 20, the Port of Los Angeles' November 6 rail count and Long Beach's November 5 rail count via The Dwell.",
         ],
       },
     ],
@@ -1654,7 +1654,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
       {"label": "Transport Topics: Strike Deadline at Port of LA Extended to Friday (Nov 5, 2026)", "href": "https://www.ttnews.com/articles/strike-deadline-port-la", "context": "Confirms the Friday midnight Pacific extension after the Nov 4 deadline passed without a deal or a strike; Bloomberg-sourced trade press."},
       {"label": "The Dwell: Rail dwell, Los Angeles vs Long Beach (checked Nov 5 and Nov 7, 2026)", "href": "https://the-dwell.com/boxdwell/rail-dwell-la-long-beach", "context": "Nov 4 observation: Los Angeles 22,885 awaiting on-dock rail, 7,947 at 9+ days (34.7%); Long Beach 23,383 awaiting, 4,245 at 9+ days (18.2%). Page revised Nov 7: Los Angeles 23,716 (8,172 at 9+ days, 34.5%, report of Nov 6); Long Beach 21,736 (4,063 at 9+ days, 18.7%, report of Nov 5). Daily inventory counts compiled from the ports' on-dock rail reports, not average dwell."},
       {"label": "PMA: Statement on Negotiations with ILWU Local 26 at the Ports of LA and Long Beach (Nov 6, 2026)", "href": "https://www.pmanet.org/press_releases/statement-from-the-pacific-maritime-association-on-negotiations-with-ilwu-local-26-at-the-ports-of-la-and-long-beach/", "context": "Contract extended through Nov. 20, with additional talks scheduled during that period; no time of day stated."},
-      {"label": "Journal of Commerce: PMA, ILWU Local 26 extend contract to Nov. 20 as talks continue (Nov 7, 2026)", "href": "https://www.joc.com/article/pma-ilwu-local-26-extend-contract-to-nov-20-as-talks-continue-6319573", "context": "Confirms the Nov 20 extension; additional talks to be scheduled over the next two weeks."},
+      {"label": "Journal of Commerce: PMA, ILWU Local 26 extend contract to Nov. 20 as talks continue (Nov 7, 2026)", "href": "https://www.joc.com/article/pma-ilwu-local-26-extend-contract-to-nov-20-as-talks-continue-6319573", "context": "Corroborates the November 20 extension and that talks continue."},
     ],
   },
   {
