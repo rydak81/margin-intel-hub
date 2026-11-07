@@ -48,3 +48,7 @@ The agent creates evidence-backed drafts. Ryan's current website publishing desk
 Source registration does not mean every feed is connected. An active source has had a linked primary document read; each scheduled run still logs successful, blocked and skipped checks. Community sources are discovery leads, not representative surveys. Forecast tables and scoring are ready, but the seed contains no fabricated historical probabilities, performance tests or audience metrics.
 
 The daily operation requires the connected services to remain authorized. If a run cannot reach them, it must report the exact failure and preserve the useful draft; it must not say that collection or publication succeeded. Pause the daily Signal automation to stop collection. Preserve evidence and corrections rather than deleting the schema as a routine rollback.
+
+## Scheduled operation
+
+Signal AI research is enabled daily around 7am America/New_York, beginning November 7, 2026. The setup run verified database writes; the first scheduled run has not yet been observed. Scheduling is external to Vercel. The existing commerce publication desk reads the evidence handoff documented in `docs/research/daily-research-desk.md`.
