@@ -1,0 +1,39 @@
+{
+  "method": "shopify-knowledge-base-audit-v1",
+  "retrievedOn": "2026-11-08",
+  "sourcePublicationDate": null,
+  "source": "https://help.shopify.com/en/manual/online-sales-channels/agentic-storefronts/knowledge-base",
+  "sourceScope": "Current documentation, not tested account behavior",
+  "researchCutoff": "2026-11-08T12:01:12Z",
+  "canonicalUrl": "https://marketplacebeta.com/intelligence/analysis/shopify-ai-knowledge-base-published-facts-audit",
+  "status": "proposed_workflow_unexecuted",
+  "documentedFacts": {
+    "scannedFacts": "Unpublished until merchant publishes",
+    "adminLinkedFacts": "Published when created",
+    "manualSourceChange": "Removes prior source references; preserves merchant-added references",
+    "scanUpdates": "Suggested; require approval; changes may be missed",
+    "requestedRescanMaxHours": 48
+  },
+  "record": {
+    "question": null,
+    "policyDate": null,
+    "authoritativeAnswer": null,
+    "exceptions": null,
+    "sourceType": null,
+    "publicationStatus": null,
+    "referenceURLs": [],
+    "retrievedAnswer": null,
+    "channel": null,
+    "checkedAt": null,
+    "result": null,
+    "owner": null,
+    "nextReviewTrigger": null
+  },
+  "scoring": {
+    "correctShare": "Correct answers / completed checks",
+    "missing": "Report planned checks not completed separately; unavailable is not a pass",
+    "outcomes": "No visibility, conversion or revenue inference"
+  },
+  "reuse": "Original worksheet may be reused with attribution. Third-party documentation retains its own terms.",
+  "privacy": "No private rows, customer records, credentials or source-text archive"
+}
