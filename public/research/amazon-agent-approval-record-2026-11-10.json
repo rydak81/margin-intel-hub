@@ -1,0 +1,45 @@
+{
+  "method": "amazon-agent-approval-record-v1",
+  "status": "proposed_workflow_unexecuted",
+  "retrievedOn": "2026-11-10",
+  "sourcePublicationDate": null,
+  "source": "https://developer.amazonservices.com/amazon-selling-partner-plugin",
+  "canonicalUrl": "https://marketplacebeta.com/intelligence/analysis/amazon-selling-partner-plugin-approval-record",
+  "researchCutoff": "2026-11-10T12:46:03Z",
+  "documentedBehavior": "Read-only questions run freely; account-changing requests prompt for approval.",
+  "proposedRecord": {
+    "marketplace": null,
+    "parentASIN": null,
+    "childASIN": null,
+    "sellerSKU": null,
+    "field": null,
+    "unit": null,
+    "beforeValue": null,
+    "beforeReadAt": null,
+    "proposedValue": null,
+    "evidenceURLs": [],
+    "proposalVersion": null,
+    "approvedVersion": null,
+    "operationID": null,
+    "submissionStatus": null,
+    "readBackValue": null,
+    "readBackAt": null,
+    "outcome": null,
+    "correctionRecord": null
+  },
+  "evaluation": {
+    "verifiedShare": "Verified correct cases / all started cases; unresolved cases remain in denominator",
+    "separateCounts": [
+      "unresolved cases",
+      "unintended changes",
+      "repeated actions"
+    ],
+    "reviewMinutes": null
+  },
+  "limitations": [
+    "No seller account or transaction tested",
+    "No claim of built-in version locking, retry deduplication or rollback",
+    "No savings, adoption or revenue estimate"
+  ],
+  "reuse": "Original blank worksheet reusable with attribution; third-party documentation retains its own terms."
+}
