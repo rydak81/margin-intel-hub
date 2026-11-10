@@ -3344,10 +3344,10 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
 ]
 
 /** Newest first by publish date (ties keep file order). */
-export function latestAnalysis(limit = ANALYSIS_ARTICLES.length): AnalysisArticle[] {
-  return ANALYSIS_ARTICLES.map((a, i) => ({ a, i }))
+export function latestAnalysis(limit = ANALYSIS_ARTICLES.length, articles: readonly AnalysisArticle[] = ANALYSIS_ARTICLES): AnalysisArticle[] {
+  return articles.map((a, i) => ({ a, i }))
     .sort((x, y) => y.a.publishedOn.localeCompare(x.a.publishedOn) || x.i - y.i)
-    .slice(0, limit)
+    .slice(0, Math.max(0, limit))
     .map(({ a }) => a)
 }
 

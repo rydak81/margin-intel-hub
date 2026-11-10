@@ -1,5 +1,6 @@
 import HomePageClient from "@/components/home-page-client"
 import { loadHomepageData } from "@/lib/homepage-data"
+import { homepageLatestAnalysis } from "@/lib/homepage-latest"
 import { JsonLd } from "@/components/json-ld"
 
 const SITE_URL = "https://marketplacebeta.com"
@@ -35,6 +36,7 @@ export default async function HomePage() {
       <HomePageClient
         initialArticles={initialArticles}
         initialBreakingNews={initialBreakingNews}
+        latestAnalysis={homepageLatestAnalysis()}
       />
     </>
   )
