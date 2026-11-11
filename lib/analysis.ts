@@ -52,7 +52,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
   {
     "slug": "etsy-ddp-us-orders-2026-duty-paid-pricing",
     "seoTitle": "Etsy DDP Rule for US Orders: Who Pays and How to Price",
-    "metaDescription": "Since July 9, Etsy sellers outside the US must ship US orders duty paid. Who it hits, what a duty costs after Etsy fees, and how to price it.",
+    "metaDescription": "Since July 9, 2026, Etsy sellers outside the US must ship US orders duty paid. Who it hits, what a duty costs after Etsy fees, and how to price it.",
     "headline": "Etsy's duty-paid rule for US orders: price the duty in, then price in Etsy's cut of the duty",
     "dek": "Since July 9, 2026, Etsy expects sellers outside the US to ship US orders Delivered Duty Paid, with duties and import fees built into the checkout price. A parcel that arrives with a bill for the buyer loses Etsy Purchase Protection, and Etsy can refund the buyer and deduct the charge from the seller. Here is who the rule hits, why adding the duty to your price leaves you short, and the US price that actually covers it.",
     "publishedOn": "2026-11-11",
@@ -80,7 +80,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
         "title": "The short answer",
         "paragraphs": [
           "Etsy changed its Seller House Rules for orders shipped to the US. Its announcement says that starting July 9, sellers are \"expected to account for all of your costs, including duties and import fees, to US buyers upfront in your pricing by using a Delivered Duty Paid (DDP) shipping option,\" so the buyer pays the full cost at checkout. Orders shipped without duties prepaid no longer qualify for Etsy Purchase Protection. If a carrier charges the buyer tariffs or collection fees, the buyer is eligible for a refund and \"the charges will be deducted from the seller,\" per the same [Etsy announcement](https://community.etsy.com/forum/announcements-290/topic/upcoming-policy-changes-for-orders-shipped-to-the-us-183836/).",
-          "Etsy's [Shipping Policy](https://www.etsy.com/legal/shipping/) makes DDP the rule for US-bound orders. It allows an exception only in rare cases where a DDP option is not actually available, at Etsy's sole discretion. In those cases the seller must get the buyer's clear acknowledgment in Messages that charges may be due on delivery, and tell them the exact amount. Etsy's help center says the same from the buyer's side: buyers in the US are \"not responsible for unexpected customs fees on orders shipped from other countries,\" per its [tax and customs help page](https://help.etsy.com/hc/en-us/articles/115015691007-Will-I-Have-to-Pay-for-Tax-Customs-or-Tariffs-on-My-Order).",
+          "Etsy's [Shipping Policy](https://www.etsy.com/legal/shipping/) makes DDP the rule for US-bound orders. It allows an exception only in rare cases where a DDP option is not actually available, at Etsy's sole discretion. In those cases the seller must get the buyer's clear acknowledgment in Messages that charges may be due on delivery, and provide an accurate estimate of those charges. Etsy's help center says the same from the buyer's side: buyers in the US are \"not responsible for unexpected customs fees on orders shipped from other countries,\" per its [tax and customs help page](https://help.etsy.com/hc/en-us/articles/115015691007-Will-I-Have-to-Pay-for-Tax-Customs-or-Tariffs-on-My-Order).",
           "The rule applies to sellers shipping into the US from another country. A US shop shipping inside the US is not affected. We re-read Etsy's announcement, help pages and fee table on November 11, 2026."
         ]
       },
@@ -158,7 +158,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
           "Write down the country of origin for each listing you sell into the US, then the duty for its tariff line. Use Etsy's US tariffs estimator in Shop Manager as a first pass and your carrier's DDP quote as the final number.",
           "Set a separate US listing price with Etsy's pricing tools. Gross the duty up by your transaction and processing percentages, and by the Offsite Ads rate if you take part.",
           "Say in your US listing descriptions that prices include duties and import fees, so buyers do not expect a second bill.",
-          "If a destination or carrier truly has no DDP option, do not ship and hope. Etsy's exception requires the buyer's acknowledgment in Messages and the exact amount they may owe."
+          "If a destination or carrier truly has no DDP option, do not ship and hope. Etsy's exception requires the buyer's acknowledgment in Messages and an accurate estimate of those charges."
         ]
       },
       {
@@ -202,7 +202,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
       {
         "label": "Etsy: Shipping Policy",
         "href": "https://www.etsy.com/legal/shipping/",
-        "context": "US-bound orders must ship DDP; rare exceptions at Etsy's sole discretion require the buyer's acknowledgment in Messages and the exact amount."
+        "context": "US-bound orders must ship DDP; rare exceptions at Etsy's sole discretion require the buyer's acknowledgment in Messages and an accurate estimate of those charges."
       },
       {
         "label": "Etsy Help: Will I have to pay for tax, customs, or tariffs on my order?",
