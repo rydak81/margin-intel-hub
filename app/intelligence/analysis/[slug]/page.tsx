@@ -47,9 +47,10 @@ export default async function AnalysisPage({ params }: Props) {
   const schema: Record<string, unknown>[] = [
     { '@context': 'https://schema.org', '@type': 'Article', headline: a.headline, description: a.metaDescription, datePublished: a.publishedOn, dateModified: a.updatedOn, keywords: a.tags.join(', '), mainEntityOfPage: url, author: { '@type': 'Organization', name: 'MarketplaceBeta', url: `${siteUrl}/about` }, publisher: ORGANIZATION_REF },
     { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Intelligence', item: `${siteUrl}/intelligence` },
-      { '@type': 'ListItem', position: 2, name: 'Analysis', item: `${siteUrl}/intelligence/analysis` },
-      { '@type': 'ListItem', position: 3, name: a.seoTitle, item: url },
+      { '@type': 'ListItem', position: 1, name: 'Home', item: siteUrl },
+      { '@type': 'ListItem', position: 2, name: 'Intelligence', item: `${siteUrl}/intelligence` },
+      { '@type': 'ListItem', position: 3, name: 'Analysis', item: `${siteUrl}/intelligence/analysis` },
+      { '@type': 'ListItem', position: 4, name: a.seoTitle, item: url },
     ] },
   ]
   const faqSchema = analysisFaqJsonLd(a)
@@ -58,7 +59,7 @@ export default async function AnalysisPage({ params }: Props) {
     <JsonLd data={schema} />
     <PremiumSiteHeader active="analysis" backHref="/intelligence/analysis" backLabel="Analysis" ctaHref={cta} />
     <main className="mx-auto site-width px-4 py-10 sm:px-6">
-      <nav aria-label="Breadcrumb" className="mb-6 text-sm text-muted-foreground"><Link href="/intelligence" className="font-semibold text-primary">Intelligence</Link><span aria-hidden="true"> / </span><Link href="/intelligence/analysis" className="font-semibold text-primary">Analysis</Link></nav>
+      <nav aria-label="Breadcrumb" className="mb-6 text-sm text-muted-foreground"><Link href="/" className="font-semibold text-primary">Home</Link><span aria-hidden="true"> / </span><Link href="/intelligence" className="font-semibold text-primary">Intelligence</Link><span aria-hidden="true"> / </span><Link href="/intelligence/analysis" className="font-semibold text-primary">Analysis</Link><span aria-hidden="true"> / </span><span className="text-foreground">{a.seoTitle}</span></nav>
       <header className="editorial-intro rounded-2xl border border-border p-6 sm:p-10">
         <p className="editorial-eyebrow">Analysis · {a.tags[0]}</p>
         <h1 className="mt-4 max-w-4xl text-4xl font-bold leading-tight sm:text-5xl">{a.headline}</h1>
