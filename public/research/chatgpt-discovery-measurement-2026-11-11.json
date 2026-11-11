@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "title": "ChatGPT discovery measurement worksheet",
+  "createdOn": "2026-11-11",
+  "article": "https://marketplacebeta.com/intelligence/analysis/chatgpt-discovery-metrics-order-ledger",
+  "evidenceBasis": "Primary-source documentation review plus an original proposed workflow; not merchant performance data.",
+  "sources": [
+    {
+      "url": "https://openai.com/index/introducing-businesses-chatgpt/",
+      "publishedOn": "2026-11-10",
+      "readOn": "2026-11-11",
+      "supports": [
+        "Beta business discovery insights",
+        "Aggregate mentions, website clicks and discovery topics",
+        "Availability thresholds and no sharing of user conversations or Business Agent chats"
+      ]
+    }
+  ],
+  "privacyAndRights": "Original blank fields and brief paraphrases with source links. No customer rows, private research identifiers, provider lineage or source text archive.",
+  "measurementRecord": {
+    "metric": null,
+    "definition": null,
+    "unit": null,
+    "value": null,
+    "availabilityStatus": "unknown",
+    "availabilityReason": null,
+    "observationWindow": {
+      "startInclusive": null,
+      "endExclusive": null,
+      "timeZone": null
+    },
+    "retrievedAt": null,
+    "scope": null,
+    "numeratorDefinition": null,
+    "denominatorDefinition": null,
+    "numerator": null,
+    "denominator": null,
+    "exclusions": [],
+    "attributionRule": null,
+    "orderFollowUpCutoff": null,
+    "sourceRecordReference": null,
+    "comparisonCompatible": null,
+    "incompatibilityReason": null
+  },
+  "orderCohortReconciliation": {
+    "cohortDefinition": null,
+    "currency": null,
+    "revenueAfterDiscountsAndRefundsExcludingCollectedSalesTax": null,
+    "customerShippingRevenueTreatment": null,
+    "productCosts": null,
+    "paymentCosts": null,
+    "fulfillmentCosts": null,
+    "returnCosts": null,
+    "otherVariableCosts": null,
+    "incompleteFields": [],
+    "contributionUnderDeclaredCostPolicy": null,
+    "channelSetupCosts": null,
+    "channelOperatingCosts": null,
+    "sharedCostAllocationRule": null,
+    "baselineWindow": null,
+    "promotionAndStockChanges": [],
+    "incrementalityConclusion": "Not established by attribution alone."
+  },
+  "rules": [
+    "A null value is not zero.",
+    "Use a specific missingness reason only with evidence.",
+    "Do not divide incompatible populations or periods.",
+    "A session conversion numerator counts sessions with a qualifying paid order, not raw orders.",
+    "Record cost definitions and avoid double counting.",
+    "No private merchant records should be added to a public copy."
+  ],
+  "reuse": "Original worksheet may be reused with attribution to MarketplaceBeta Research and this article. Third-party source content retains its own rights.",
+  "limitations": [
+    "No Business Hub account or export inspected.",
+    "No live merchant transaction tested.",
+    "No observed conversions, profit, adoption or causal effects."
+  ]
+}
