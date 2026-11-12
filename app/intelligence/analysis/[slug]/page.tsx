@@ -7,7 +7,7 @@ import { PremiumSiteFooter } from '@/components/premium-site-footer'
 import { SponsorBriefLink } from '@/components/brief-cta'
 import { JsonLd } from '@/components/json-ld'
 import { AnalysisInline } from '@/components/analysis-inline'
-import { AnalysisFeeLinks, AnalysisWorkflowLink } from '@/components/related-links'
+import { AnalysisEbayReading, AnalysisFeeLinks, AnalysisWorkflowLink } from '@/components/related-links'
 import { HolidayHubBackLink } from '@/components/holiday-hub-link'
 import { isHolidayAnalysis } from '@/lib/holiday-hub'
 import { ANALYSIS_ARTICLES, getAnalysis } from '@/lib/analysis'
@@ -69,6 +69,7 @@ export default async function AnalysisPage({ params }: Props) {
       <div className="mt-10 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_280px]">
         <article className="guide-copy rounded-2xl border border-border bg-card p-6 sm:p-10 editorial-elevated">
           <div className="mb-10 rounded-xl border-l-4 border-blue-600 bg-blue-50 p-5 dark:bg-blue-950/40"><p className="font-bold">The decision</p><p className="mt-2">{a.takeaway}</p></div>
+          <AnalysisEbayReading article={a} />
           {a.sections.map(section => <section key={section.id} id={section.id} className="mb-10 scroll-mt-48 last:mb-0">
             <h2 className="mb-5 text-2xl font-bold sm:text-3xl">{section.title}</h2>
             {section.paragraphs.map((p, i) => <p key={i} className="mb-5 leading-8 text-muted-foreground"><AnalysisInline text={p} /></p>)}

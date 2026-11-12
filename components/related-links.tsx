@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import type { AnalysisArticle } from '@/lib/analysis'
 import type { Marketplace } from '@/lib/marketplace-fees'
-import { RELATED_FEE_COMPARE, analysisMarketplaces, relatedAnalysisForMarketplace } from '@/lib/related-links'
+import { BriefCta } from '@/components/brief-cta'
+import { RELATED_FEE_COMPARE, analysisMarketplaces, ebayAnalysisBriefSource, ebayAnalysisRelated, relatedAnalysisForMarketplace } from '@/lib/related-links'
 import { workflowForAnalysis, type AiRelatedLink } from '@/lib/ai-related'
 
 const fmtDate = (iso: string) => new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' })
@@ -29,6 +30,36 @@ export function FeeRelatedLinks({ marketplace }: { marketplace: Marketplace }) {
         ))}
       </ul>
     </section>
+  )
+}
+
+/**
+ * Related reading and a Daily Brief signup for eBay analysis pages, placed at the
+ * decision (the answer the visitor came for). Other articles render nothing.
+ * The signup key is distinct from the sidebar's campaign_kw_* link.
+ */
+export function AnalysisEbayReading({ article }: { article: AnalysisArticle }) {
+  const links = ebayAnalysisRelated(article)
+  const source = ebayAnalysisBriefSource(article)
+  if (!links || !source) return null
+  return (
+    <>
+      <section id="related-reading" aria-labelledby="related-reading-heading" className="mb-8 scroll-mt-48">
+        <h2 id="related-reading-heading" className="text-2xl font-bold">Related reading</h2>
+        <ul className="mt-5 space-y-4">
+          {links.map(link => (
+            <li key={link.href}>
+              <Link href={link.href} className="font-semibold text-primary underline">{link.label}</Link>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {link.note}
+                {link.date ? <> · <time dateTime={link.date}>{fmtDate(link.date)}</time></> : null}
+              </p>
+            </li>
+          ))}
+        </ul>
+      </section>
+      <BriefCta source={source} className="mb-10" />
+    </>
   )
 }
 
