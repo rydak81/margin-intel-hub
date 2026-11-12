@@ -145,7 +145,7 @@ describe('page', () => {
     expect(faq.mainEntity[0].acceptedAnswer.text).toBe(feeByPriceShortAnswer(rows))
     const ds = blocks[2]
     expect(ds.creator).toEqual({ '@id': `${SITE}/#organization` })
-    expect(ds.dateModified).toBe('2026-10-21')
+    expect(ds.dateModified).toBe('2026-11-12')
     expect(ds.isAccessibleForFree).toBe(true)
     expect(JSON.stringify(blocks)).not.toMatch(/sameAs/)
     expect(read('app/fees/compare-by-item-price/page.tsx')).toContain('creator: ORGANIZATION_REF')
