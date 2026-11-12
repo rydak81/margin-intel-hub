@@ -54,7 +54,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
     "seoTitle": "eBay Guitar Fees 2026: 6.7% vs 13.6% for Other Gear",
     "metaDescription": "eBay charges 6.7% on guitars and basses, 13.6% on most other music gear. Worked at $300 to $10,000, with Store rates and Reverb's fees.",
     "headline": "eBay guitar fees in 2026: 6.7% on guitars and basses, 13.6% on the rest of your gear, and where a Store changes the math",
-    "dek": "Guitars & Basses is one of eBay's cheapest final value fee categories, at roughly half the Most Categories rate. Pedals, keyboards and other gear do not get it automatically. We re-read eBay's selling fees, Store fees and February 2025 fee update pages and Reverb's fee pages on November 12, 2026, then worked four sale prices.",
+    "dek": "Guitars & Basses is one of eBay's cheapest final value fee categories, at roughly half the Most Categories rate. Pedals, keyboards and other gear do not get it automatically. We re-read eBay's selling fees, Store fees and January 2025 Seller Center update and Reverb's fee pages on November 12, 2026, then worked four sale prices.",
     "publishedOn": "2026-11-12",
     "updatedOn": "2026-11-12",
     "author": "MarketplaceBeta Intelligence",
