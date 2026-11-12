@@ -79,7 +79,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
         "title": "The short answer",
         "paragraphs": [
           "Amazon's Sell on Amazon pricing page, re-read November 12, 2026, says that for every item sold you pay a percentage of the total price or a minimum amount, whichever is greater. The \"Referral fee minimum amount\" column shows $0.30 in almost every category, from Amazon Device Accessories to Toys and Games to Everything Else. A footnote on the same page defines the total price as the list price plus shipping and any gift-wrapping charges.",
-          "Because the minimum is a floor, it only matters when the percentage comes out below $0.30. Divide $0.30 by the category rate and you get the total sales price below which the floor takes over. The table below does that for the rates on Amazon's page. Our [Amazon fee table](/fees/amazon) carries the category rates."
+          "Because the minimum is a floor, it only matters when the percentage comes out below $0.30. Divide $0.30 by the category rate and you get the total sales price below which the floor takes over. The table below does that for the rates on Amazon's page. Our [Amazon fee table](/fees/amazon) carries the category rates. Pet Supplies charges 22% on veterinary diets, so there the floor only applies below about $1.36."
         ],
         "table": {
           "caption": "Where the $0.30 minimum takes over · Source: Amazon referral fee table on sell.amazon.com/pricing (re-read Nov 12, 2026); our arithmetic ($0.30 divided by the rate)",
@@ -193,7 +193,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
         "id": "our-read",
         "title": "Our read (a hypothesis, not a measured finding)",
         "paragraphs": [
-          "We think the minimum is a pricing signal more than a cost line. Amazon's table puts the floor right where a single low-price unit earns Amazon little, and leaves it off only a short list of rows such as Grocery and Gourmet and Media. Read that way, the floor nudges sellers toward multipacks and higher ticket sizes in every other category.",
+          "We think the minimum is a pricing signal more than a cost line. Amazon's table puts the floor right where a single low-price unit earns Amazon little, and leaves it off only a short list of rows such as Grocery and Gourmet, Gift Cards, Media and the video game rows. Read that way, the floor nudges sellers toward multipacks and higher ticket sizes in every other category.",
           "We have not measured how many sellers are affected, and the referral fee is rarely the biggest fixed cost on a low-price unit. Fulfillment fees are fixed per unit too, and they sit outside this piece. If a $1.99 single is already marginal after fulfillment, the $0.30 floor is one more reason to pack it, not the main one."
         ]
       },
@@ -206,7 +206,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
         "bullets": [
           "Sort your Amazon catalog by total sales price (item plus buyer shipping plus gift wrap) and flag every SKU under $6.00. Only those can hit the $0.30 floor.",
           "For each flagged SKU, confirm its fee category on Amazon, then compare 5%, 8%, 10%, 12% or 15% of the total price with $0.30. Use the larger number in your margin sheet.",
-          "Check your sheet's category list against Amazon's minimum column, not just the five categories our October 16 [fee change log](/fees/changelog) entry called out. Grocery and Gourmet, Media and the video game rows are the exceptions with no minimum.",
+          "Check your sheet's category list against Amazon's minimum column, not just the five categories our October 16 [fee change log](/fees/changelog) entry called out. Grocery and Gourmet, Gift Cards, Media and the video game rows are the exceptions with no minimum.",
           "For clothing singles under $6.00 and 8%-tier beauty, health and baby items under $3.75, model a two- or three-pack against the single before the holiday rush. Include your fulfillment cost per pack, which this piece does not model.",
           "If you sell merchant-fulfilled, model the order with your buyer shipping charge included. A shipping line can move a sub-$6 clothing item off the floor."
         ]
