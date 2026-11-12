@@ -3,9 +3,10 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { ANALYSIS_ARTICLES, latestAnalysis, type AnalysisArticle } from '@/lib/analysis'
 import { MARKETPLACES } from '@/lib/marketplace-fees'
-import { FeeRelatedLinks, AnalysisFeeLinks } from '@/components/related-links'
+import { FeeRelatedLinks, AnalysisEbayReading, AnalysisFeeLinks } from '@/components/related-links'
+import { newsletterSource } from '@/lib/newsletter-source'
 import {
-  RELATED_ANALYSIS_LIMIT, RELATED_FEE_COMPARE, analysisMarketplaces, countMentions, relatedAnalysisForMarketplace,
+  RELATED_ANALYSIS_LIMIT, RELATED_FEE_COMPARE, analysisMarketplaces, countMentions, ebayAnalysisBriefSource, ebayAnalysisRelated, isEbayAnalysis, relatedAnalysisForMarketplace,
 } from '@/lib/related-links'
 
 const mp = (slug: string) => MARKETPLACES.find(m => m.slug === slug)!
@@ -94,6 +95,87 @@ describe('rendered blocks', () => {
       for (const m of analysisMarketplaces(a)) expect(html).toContain(`href="/fees/${m.slug}"`)
       expect(html).not.toMatch(FORBIDDEN)
     }
+  })
+})
+
+describe('eBay analysis related reading', () => {
+  const perOrder = ANALYSIS_ARTICLES.find(a => a.slug === 'ebay-per-order-fee-2026-under-10')!
+  const watches = ANALYSIS_ARTICLES.find(a => a.slug === 'ebay-watch-fees-2026-15-percent-to-1000')!
+
+  it('treats ebay-* slugs and a leading eBay tag as eBay analysis', () => {
+    expect(isEbayAnalysis(perOrder)).toBe(true)
+    expect(isEbayAnalysis(watches)).toBe(true)
+    expect(isEbayAnalysis(article({ slug: 'future-ebay-note', tags: ['eBay', 'fees'] }))).toBe(true)
+    const returns = ANALYSIS_ARTICLES.find(a => a.slug === 'holiday-returns-2026-amazon-walmart-etsy-ebay')!
+    expect(isEbayAnalysis(returns)).toBe(false)
+    for (const a of ANALYSIS_ARTICLES.filter(x => !isEbayAnalysis(x))) expect(ebayAnalysisRelated(a)).toBeNull()
+  })
+
+  it('links the newer watch analysis and the eBay fee pages the per-order piece already cites', () => {
+    const links = ebayAnalysisRelated(perOrder)!
+    expect(links.map(l => l.href)).toEqual([
+      '/intelligence/analysis/ebay-watch-fees-2026-15-percent-to-1000',
+      '/fees/ebay',
+      '/fees/ebay/most-categories',
+      '/fees/ebay/on-a-10-sale',
+    ])
+    expect(links[1].label).toBe('eBay fee table')
+    expect(links[2].label).toBe('Most Categories calculator')
+    expect(links[3].label).toBe('$10 sale page')
+    expect(links.map(l => `${l.label} ${l.note}`).join('\n')).not.toMatch(FORBIDDEN)
+  })
+
+  it('on the watch piece, links the per-order analysis, the fee table and the watches calculator', () => {
+    const links = ebayAnalysisRelated(watches)!
+    expect(links.map(l => l.href)).toEqual([
+      '/intelligence/analysis/ebay-per-order-fee-2026-under-10',
+      '/fees/ebay',
+      '/fees/ebay/watches',
+    ])
+    expect(links[2].label).toBe('eBay watches calculator')
+    expect(links.map(l => l.href)).not.toContain('/fees/walmart')
+  })
+
+  it('attributes the inline Brief signup as campaign_ebay_per_order, distinct from the sidebar key', () => {
+    expect(perOrder.newsletterSource).toBe('campaign_kw_ebay_per_order')
+    expect(ebayAnalysisBriefSource(perOrder)).toBe('campaign_ebay_per_order')
+    expect(newsletterSource('?source=campaign_ebay_per_order')).toBe('newsletter_campaign_ebay_per_order')
+    expect(ebayAnalysisBriefSource(watches)).toBe('campaign_ebay_watches')
+    expect(ebayAnalysisBriefSource(watches)).not.toBe(watches.newsletterSource)
+    expect(ebayAnalysisBriefSource(ANALYSIS_ARTICLES.find(a => !isEbayAnalysis(a))!)).toBeNull()
+  })
+
+  it('renders the block with the signup only on eBay analysis', () => {
+    const html = renderToStaticMarkup(createElement(AnalysisEbayReading, { article: perOrder }))
+    expect(html).toContain('id="related-reading"')
+    expect(html).toContain('href="/intelligence/analysis/ebay-watch-fees-2026-15-percent-to-1000"')
+    expect(html).toContain('href="/fees/ebay/most-categories"')
+    expect(html).toContain('href="/newsletter?source=campaign_ebay_per_order#subscribe"')
+    expect(html).toContain('data-cta="brief_signup"')
+    expect(html).not.toMatch(FORBIDDEN)
+    const other = ANALYSIS_ARTICLES.find(a => !isEbayAnalysis(a))!
+    expect(renderToStaticMarkup(createElement(AnalysisEbayReading, { article: other }))).toBe('')
+  })
+
+  it('picks up a later eBay article without a hand-maintained list', () => {
+    const fixture = article({
+      slug: 'ebay-fixture-fees',
+      tags: ['eBay', 'fees'],
+      newsletterSource: 'campaign_kw_ebay_fixture',
+      publishedOn: '2099-01-01',
+      updatedOn: '2099-01-01',
+      seoTitle: 'Fixture eBay fees',
+      headline: 'Fixture eBay fees',
+      sections: [{ id: 's', title: 'Body', paragraphs: ['See the [guitars calculator](/fees/ebay/guitars-basses).'] }],
+    })
+    const hrefs = ebayAnalysisRelated(fixture, [fixture, ...latestAnalysis()])!.map(l => l.href)
+    expect(hrefs[0]).toBe('/intelligence/analysis/ebay-watch-fees-2026-15-percent-to-1000')
+    expect(hrefs).toContain('/intelligence/analysis/ebay-per-order-fee-2026-under-10')
+    expect(hrefs).toContain('/fees/ebay')
+    expect(hrefs).toContain('/fees/ebay/guitars-basses')
+    expect(ebayAnalysisBriefSource(fixture)).toBe('campaign_ebay_fixture')
+    const unkeyed = article({ slug: 'ebay-custom', tags: ['seller fees'], newsletterSource: 'campaign_custom_ebay' })
+    expect(ebayAnalysisBriefSource(unkeyed)).toBe('campaign_cta_ebay_ebay-custom')
   })
 })
 

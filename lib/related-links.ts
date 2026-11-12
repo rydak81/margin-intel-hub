@@ -15,9 +15,11 @@
  * embedded in a longer word does not. Link URLs are stripped before name
  * matching, so a URL like ebay.com/help in an inline link never counts on its own.
  */
-import { latestAnalysis, type AnalysisArticle } from '@/lib/analysis'
-import { MARKETPLACES, type Marketplace, type MarketplaceSlug } from '@/lib/marketplace-fees'
+import { latestAnalysis, parseInlineLinks, type AnalysisArticle } from '@/lib/analysis'
+import { briefCtaSource } from '@/lib/brief-cta'
 import { FEE_BY_PRICE_PATH, FEE_BY_PRICE_TITLE } from '@/lib/fee-by-price'
+import { getCategory, MARKETPLACES, type Marketplace, type MarketplaceSlug } from '@/lib/marketplace-fees'
+import { newsletterSource } from '@/lib/newsletter-source'
 
 export const RELATED_FEE_COMPARE = { href: FEE_BY_PRICE_PATH, label: FEE_BY_PRICE_TITLE }
 export const RELATED_ANALYSIS_LIMIT = 3
@@ -68,4 +70,103 @@ export function analysisMarketplaces(a: ArticleText, marketplaces: readonly Mark
 /** Up to `limit` most recent analysis articles covering a marketplace (newest first). */
 export function relatedAnalysisForMarketplace(slug: MarketplaceSlug, limit = RELATED_ANALYSIS_LIMIT, articles: AnalysisArticle[] = latestAnalysis()): AnalysisArticle[] {
   return articles.filter(a => analysisMarketplaces(a).some(m => m.slug === slug)).slice(0, limit)
+}
+
+/**
+ * An analysis page is an eBay piece when the slug is ebay-* or the first tag is
+ * eBay. A passing mention (holiday returns, parcel surcharges) does not qualify.
+ */
+export function isEbayAnalysis(article: Pick<AnalysisArticle, 'slug' | 'tags'>): boolean {
+  return article.slug.startsWith('ebay-') || article.tags[0] === 'eBay'
+}
+
+const EBAY_FEE_HREF = /^\/fees\/ebay(?:\/[a-z0-9-]+)?$/
+const EBAY_SALE_HREF = /^\/fees\/ebay\/on-a-(\d+)-sale$/
+
+function allowlistedCampaign(key: string): boolean {
+  return newsletterSource(`?source=${key}`) === `newsletter_${key}`
+}
+
+/**
+ * Brief signup key for the high-intent block on an eBay analysis page.
+ * Strips `kw_` from the article's keyword campaign so this signup is distinct
+ * from the sidebar (`campaign_kw_ebay_per_order` → `campaign_ebay_per_order`).
+ */
+export function ebayAnalysisBriefSource(
+  article: Pick<AnalysisArticle, 'slug' | 'tags' | 'newsletterSource'>,
+): `campaign_${string}` | null {
+  if (!isEbayAnalysis(article)) return null
+  const fromKeyword = article.newsletterSource.replace(/^campaign_kw_/, 'campaign_')
+  if (fromKeyword !== article.newsletterSource && allowlistedCampaign(fromKeyword)) {
+    return fromKeyword as `campaign_${string}`
+  }
+  const generated = briefCtaSource('ebay', article.slug)
+  if (generated !== article.newsletterSource && allowlistedCampaign(generated)) return generated
+  return briefCtaSource('ebay', article.slug, 'read')
+}
+
+export interface AnalysisReadingLink {
+  href: string
+  label: string
+  note: string
+  date?: string
+}
+
+/** First in-body anchor for `href` that is a label, not a raw path. */
+function citedFeeLabel(article: Pick<AnalysisArticle, 'sections'>, href: string): string | undefined {
+  const chunks = article.sections.flatMap(s => [...s.paragraphs, ...(s.bullets ?? [])])
+  for (const chunk of chunks) {
+    for (const part of parseInlineLinks(chunk)) {
+      if (part.href === href && part.text && !part.text.startsWith('/') && !part.text.startsWith('http')) return part.text
+    }
+  }
+  return undefined
+}
+
+function feeFallbackLabel(href: string): string {
+  if (href === '/fees/ebay') return 'eBay fees by category'
+  const sale = EBAY_SALE_HREF.exec(href)
+  if (sale) return `eBay fees on a $${sale[1]} sale`
+  const category = getCategory('ebay', href.slice('/fees/ebay/'.length))
+  return category ? `${category.label} calculator` : 'eBay fee page'
+}
+
+/** /fees/ebay first, then calculators and sale pages in the order the article cites them. */
+function ebayFeeHrefs(article: Pick<AnalysisArticle, 'sections' | 'sources'>): string[] {
+  const chunks = article.sections.flatMap(s => [...s.paragraphs, ...(s.bullets ?? [])])
+  const hrefs = [...chunks.flatMap(linkHrefs), ...article.sources.map(s => s.href)]
+  const seen = new Set<string>()
+  const calculators: string[] = []
+  for (const href of hrefs) {
+    if (!EBAY_FEE_HREF.test(href) || href === '/fees/ebay' || seen.has(href)) continue
+    seen.add(href)
+    calculators.push(href)
+  }
+  return ['/fees/ebay', ...calculators]
+}
+
+/**
+ * Sibling eBay analysis (newest first) plus the eBay fee table and any
+ * /fees/ebay calculators the piece already cites. Null for other articles.
+ */
+export function ebayAnalysisRelated(
+  article: AnalysisArticle,
+  articles: readonly AnalysisArticle[] = latestAnalysis(),
+): AnalysisReadingLink[] | null {
+  if (!isEbayAnalysis(article)) return null
+  const siblings = articles
+    .filter(a => a.slug !== article.slug && isEbayAnalysis(a))
+    .sort((a, b) => b.publishedOn.localeCompare(a.publishedOn))
+  const analysisLinks: AnalysisReadingLink[] = siblings.map(a => ({
+    href: `/intelligence/analysis/${a.slug}`,
+    label: a.headline,
+    note: 'Analysis',
+    date: a.publishedOn,
+  }))
+  const feeLinks: AnalysisReadingLink[] = ebayFeeHrefs(article).map(href => ({
+    href,
+    label: citedFeeLabel(article, href) ?? feeFallbackLabel(href),
+    note: href === '/fees/ebay' ? 'Fee table' : EBAY_SALE_HREF.test(href) ? 'Sale fee page' : 'Calculator',
+  }))
+  return [...analysisLinks, ...feeLinks]
 }

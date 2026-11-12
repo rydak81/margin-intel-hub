@@ -11,6 +11,7 @@ import { getAllPairs } from '@/lib/fee-compare'
 import { getAllSaleRoutes } from '@/lib/sale-fee-pages'
 import { OPERATOR_GUIDES } from '@/lib/operator-guides'
 import { ANALYSIS_ARTICLES } from '@/lib/analysis'
+import { ebayAnalysisBriefSource, isEbayAnalysis } from '@/lib/related-links'
 import { BriefCta } from '@/components/brief-cta'
 
 vi.mock('@/components/premium-site-header', () => ({ PremiumSiteHeader: () => null }))
@@ -117,7 +118,18 @@ describe('every fee and article template shows exactly one keyed Brief CTA and o
       const out = html(await Article(params({ slug: a.slug })))
       // The article keeps its existing per-article key on its existing sidebar CTA.
       expect(out).toContain(`href="/newsletter?source=${a.newsletterSource}#subscribe"`)
-      expect(sponsorLinks(out)).toBe(1)
+      const inline = ebayAnalysisBriefSource(a)
+      if (isEbayAnalysis(a)) {
+        expect(inline).toBeTruthy()
+        expect(inline).not.toBe(a.newsletterSource)
+        expect(out).toContain('id="related-reading"')
+        expect(out).toContain(`href="/newsletter?source=${inline}#subscribe"`)
+        expect(sponsorLinks(out)).toBe(2)
+      } else {
+        expect(inline).toBeNull()
+        expect(out).not.toContain('id="related-reading"')
+        expect(sponsorLinks(out)).toBe(1)
+      }
     }
   })
   it('/guides hub and guide pages', async () => {

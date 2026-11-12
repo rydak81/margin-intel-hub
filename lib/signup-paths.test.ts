@@ -13,6 +13,7 @@ import { MARKETPLACES } from '@/lib/marketplace-fees'
 import { getAllPairs } from '@/lib/fee-compare'
 import { OPERATOR_GUIDES } from '@/lib/operator-guides'
 import { ANALYSIS_ARTICLES } from '@/lib/analysis'
+import { ebayAnalysisBriefSource } from '@/lib/related-links'
 import { POST } from '@/app/api/subscribe/route'
 
 const db = vi.hoisted(() => ({ admin: vi.fn(), hasConfig: vi.fn(), insert: vi.fn(), existing: vi.fn(), sendEmail: vi.fn() }))
@@ -49,6 +50,10 @@ function generatedSignupKeys(): string[] {
     ...getAllPairs().map(p => BRIEF_CTA_KEYS.feeCompare(p.slug)),
     ...OPERATOR_GUIDES.map(g => BRIEF_CTA_KEYS.guide(g.slug)),
     ...ANALYSIS_ARTICLES.map(a => a.newsletterSource),
+    ...ANALYSIS_ARTICLES.flatMap(a => {
+      const key = ebayAnalysisBriefSource(a)
+      return key ? [key] : []
+    }),
   ]
 }
 
