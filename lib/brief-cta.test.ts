@@ -27,7 +27,7 @@ const valid = (key: string) => newsletterSource(`?source=${key}`) === `newslette
 describe('brief CTA keys', () => {
   it('every generated key passes the newsletter source allowlist', () => {
     const keys = [
-      BRIEF_CTA_KEYS.feeHub, BRIEF_CTA_KEYS.feeChangelog, BRIEF_CTA_KEYS.articles, BRIEF_CTA_KEYS.news, BRIEF_CTA_KEYS.guidesHub,
+      BRIEF_CTA_KEYS.feeHub, BRIEF_CTA_KEYS.feeChangelog, BRIEF_CTA_KEYS.articles, BRIEF_CTA_KEYS.news, BRIEF_CTA_KEYS.guidesHub, BRIEF_CTA_KEYS.homeLatest,
       ...MARKETPLACES.flatMap(m => [BRIEF_CTA_KEYS.feeMarketplace(m.slug), BRIEF_CTA_KEYS.feeCategory(m.slug), BRIEF_CTA_KEYS.feeSale(m.slug)]),
       ...getAllPairs().map(p => BRIEF_CTA_KEYS.feeCompare(p.slug)),
       ...OPERATOR_GUIDES.map(g => BRIEF_CTA_KEYS.guide(g.slug)),
