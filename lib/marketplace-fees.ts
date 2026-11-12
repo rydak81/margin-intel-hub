@@ -69,33 +69,34 @@ export interface Marketplace {
 // ── Amazon ────────────────────────────────────────────────────────────────────
 // Rates mirror the schedule already encoded in components/profit-calculator.tsx.
 
-// Verified 2026-10-16 against https://sell.amazon.com/pricing (official Amazon fee table)
+// Re-verified 2026-11-12 against https://sell.amazon.com/pricing (official Amazon fee table),
+// including category rates, tier breakpoints, minimum referral fees and the Professional plan fee.
 const AMAZON_CATEGORIES: FeeCategory[] = [
-  { slug: "amazon-device-accessories", label: "Amazon Device Accessories", referralPct: 45 },
+  { slug: "amazon-device-accessories", label: "Amazon Device Accessories", referralPct: 45, minFee: 0.30 },
   {
     slug: "appliances", label: "Compact Appliances", referralPct: 15,
     note: "Compact appliances: 15% on the first $300, then 8% above, with a $0.30 minimum. Full-size appliances use a separate 8% rate. Appliance distinction checked against sell.amazon.com/pricing on October 10, 2026.",
     tierMode: "marginal", tiers: [{ upTo: 300, pct: 15 }, { upTo: null, pct: 8 }], minFee: 0.30,
   },
-  { slug: "automotive", label: "Automotive & Powersports", referralPct: 12 },
+  { slug: "automotive", label: "Automotive & Powersports", referralPct: 12, minFee: 0.30 },
   {
     slug: "baby-products", minFee: 0.30, label: "Baby Products", referralPct: 8,
     note: "8% on items priced $10 or less; 15% on the whole price when over $10.",
     tierMode: "whole", tiers: [{ upTo: 10, pct: 8 }, { upTo: null, pct: 15 }],
   },
-  { slug: "backpacks-handbags", label: "Backpacks & Handbags", referralPct: 15 },
+  { slug: "backpacks-handbags", label: "Backpacks & Handbags", referralPct: 15, minFee: 0.30 },
   {
     slug: "beauty", minFee: 0.30, label: "Beauty", referralPct: 8,
     note: "8% on items priced $10 or less; 15% on the whole price when over $10.",
     tierMode: "whole", tiers: [{ upTo: 10, pct: 8 }, { upTo: null, pct: 15 }],
   },
-  { slug: "business-industrial", label: "Business & Industrial", referralPct: 12 },
+  { slug: "business-industrial", label: "Business & Industrial", referralPct: 12, minFee: 0.30 },
   {
-    slug: "clothing-accessories", label: "Clothing & Accessories", referralPct: 17,
+    slug: "clothing-accessories", label: "Clothing & Accessories", referralPct: 17, minFee: 0.30,
     note: "Tiered by total price: 5% at $15 or less, 10% from $15.01 to $20, 17% over $20.",
     tierMode: "whole", tiers: [{ upTo: 15, pct: 5 }, { upTo: 20, pct: 10 }, { upTo: null, pct: 17 }],
   },
-  { slug: "computers", label: "Computers", referralPct: 8 },
+  { slug: "computers", label: "Computers", referralPct: 8, minFee: 0.30 },
   { slug: "consumer-electronics", minFee: 0.30, label: "Consumer Electronics", referralPct: 8 },
   {
     slug: "electronics-accessories", label: "Electronics Accessories", referralPct: 15,
@@ -103,7 +104,7 @@ const AMAZON_CATEGORIES: FeeCategory[] = [
     tierMode: "marginal", tiers: [{ upTo: 100, pct: 15 }, { upTo: null, pct: 8 }], minFee: 0.30,
   },
   {
-    slug: "furniture", label: "Furniture", referralPct: 15,
+    slug: "furniture", label: "Furniture", referralPct: 15, minFee: 0.30,
     note: "15% on the first $200, then 10% on the portion above.",
     tierMode: "marginal", tiers: [{ upTo: 200, pct: 15 }, { upTo: null, pct: 10 }],
   },
@@ -117,30 +118,30 @@ const AMAZON_CATEGORIES: FeeCategory[] = [
     note: "8% on items priced $10 or less; 15% on the whole price when over $10.",
     tierMode: "whole", tiers: [{ upTo: 10, pct: 8 }, { upTo: null, pct: 15 }],
   },
-  { slug: "home-garden", label: "Home & Garden", referralPct: 15 },
+  { slug: "home-garden", label: "Home & Garden", referralPct: 15, minFee: 0.30 },
   {
-    slug: "jewelry", label: "Jewelry", referralPct: 20,
+    slug: "jewelry", label: "Jewelry", referralPct: 20, minFee: 0.30,
     note: "20% on the first $250, then 5% on the portion above.",
     tierMode: "marginal", tiers: [{ upTo: 250, pct: 20 }, { upTo: null, pct: 5 }],
   },
   { slug: "kitchen", minFee: 0.30, label: "Kitchen", referralPct: 15 },
-  { slug: "lawn-garden", label: "Lawn & Garden", referralPct: 15 },
-  { slug: "luggage", label: "Luggage & Travel Accessories", referralPct: 15 },
-  { slug: "musical-instruments", label: "Musical Instruments", referralPct: 15 },
-  { slug: "office-products", label: "Office Products", referralPct: 15 },
-  { slug: "outdoors", label: "Outdoors", referralPct: 15 },
-  { slug: "pet-supplies", label: "Pet Supplies", referralPct: 15 },
-  { slug: "shoes", label: "Shoes", referralPct: 15 },
-  { slug: "sports", label: "Sports & Outdoors", referralPct: 15 },
-  { slug: "tools-home-improvement", label: "Tools & Home Improvement", referralPct: 15 },
-  { slug: "toys-games", label: "Toys & Games", referralPct: 15 },
+  { slug: "lawn-garden", label: "Lawn & Garden", referralPct: 15, minFee: 0.30 },
+  { slug: "luggage", label: "Luggage & Travel Accessories", referralPct: 15, minFee: 0.30 },
+  { slug: "musical-instruments", label: "Musical Instruments", referralPct: 15, minFee: 0.30 },
+  { slug: "office-products", label: "Office Products", referralPct: 15, minFee: 0.30 },
+  { slug: "outdoors", label: "Outdoors", referralPct: 15, minFee: 0.30 },
+  { slug: "pet-supplies", label: "Pet Supplies", referralPct: 15, minFee: 0.30 },
+  { slug: "shoes", label: "Shoes", referralPct: 15, minFee: 0.30 },
+  { slug: "sports", label: "Sports & Outdoors", referralPct: 15, minFee: 0.30 },
+  { slug: "tools-home-improvement", label: "Tools & Home Improvement", referralPct: 15, minFee: 0.30 },
+  { slug: "toys-games", label: "Toys & Games", referralPct: 15, minFee: 0.30 },
   { slug: "video-games", label: "Video Games", referralPct: 15 },
   {
-    slug: "watches", label: "Watches", referralPct: 16,
+    slug: "watches", label: "Watches", referralPct: 16, minFee: 0.30,
     note: "16% on the first $1,500, then 3% on the portion above.",
     tierMode: "marginal", tiers: [{ upTo: 1500, pct: 16 }, { upTo: null, pct: 3 }],
   },
-  { slug: "everything-else", label: "Everything Else", referralPct: 15 },
+  { slug: "everything-else", label: "Everything Else", referralPct: 15, minFee: 0.30 },
 ]
 
 // ── Walmart ───────────────────────────────────────────────────────────────────
@@ -275,7 +276,7 @@ export const MARKETPLACES: Marketplace[] = [
     accountFee: { amount: 39.99, period: "month", note: "Professional selling plan" },
     // Source: https://sell.amazon.com/pricing
     sourceUrl: "https://sell.amazon.com/pricing",
-    lastVerified: "2026-10-16",
+    lastVerified: "2026-11-12",
     summary:
       "Amazon charges a referral fee on every sale, set by category and calculated on the total sale price including shipping. Sellers on the Professional plan also pay a monthly subscription, and FBA sellers pay separate fulfillment and storage fees on top of the referral fee.",
     categories: AMAZON_CATEGORIES,

@@ -89,3 +89,22 @@ test('search descriptions promise modeled sale totals only for mapped pairs', ()
     }
   }
 })
+
+test('Amazon referral minimums follow the public table, including the $4.99 clothing case', () => {
+  const cat = (slug: string) => amazon.categories.find(c => c.slug === slug)!
+  const clothing = cat('clothing-accessories')
+  assert.equal(clothing.minFee, 0.30)
+  // 5% of $4.99 rounds to $0.25; Amazon charges the $0.30 minimum instead.
+  assert.equal(referralFee(4.99, clothing).amount, 0.25)
+  assert.equal(computeFeeBreakdown({ marketplace: amazon, category: clothing, salePrice: 4.99, unitCost: 0 }).totalFees, 0.30)
+
+  const grocery = cat('grocery')
+  assert.equal(grocery.minFee, undefined)
+  assert.equal(computeFeeBreakdown({ marketplace: amazon, category: grocery, salePrice: 1, unitCost: 0 }).totalFees, 0.08)
+
+  const videoGames = cat('video-games')
+  assert.equal(videoGames.minFee, undefined)
+  assert.equal(computeFeeBreakdown({ marketplace: amazon, category: videoGames, salePrice: 1, unitCost: 0 }).totalFees, 0.15)
+
+  assert.equal(amazon.categories.find(c => c.slug === 'fine-art'), undefined)
+})
