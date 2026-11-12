@@ -54,7 +54,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
     "seoTitle": "eBay Guitar Fees 2026: 6.7% vs 13.6% for Other Gear",
     "metaDescription": "eBay charges 6.7% on guitars and basses, 13.6% on most other music gear. Worked at $300 to $10,000, with Store rates and Reverb's fees.",
     "headline": "eBay guitar fees in 2026: 6.7% on guitars and basses, 13.6% on the rest of your gear, and where a Store changes the math",
-    "dek": "Guitars & Basses is one of eBay's cheapest final value fee categories, at roughly half the Most Categories rate. Pedals, keyboards and other gear do not get it automatically. We re-read eBay's selling fees, Store fees and January 2025 Seller Center update and Reverb's fee pages on November 12, 2026, then worked four sale prices.",
+    "dek": "Guitars & Basses is one of eBay's cheapest final value fee categories, at roughly half the Most Categories rate. Other music gear can sit on the 13.6% row, so the category path decides the rate. We re-read eBay's selling fees, Store fees and January 2025 Seller Center update and Reverb's fee pages on November 12, 2026, then worked four sale prices.",
     "publishedOn": "2026-11-12",
     "updatedOn": "2026-11-12",
     "author": "MarketplaceBeta Intelligence",
@@ -131,7 +131,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
         "title": "What changed: nothing at eBay this year, and our own table",
         "paragraphs": [
           "eBay has not moved the guitar rate in 2026 as far as we can find. Its most recent change is in eBay's January 2025 Seller Center update, re-read November 12, 2026: for items sold on or after February 14, 2025, Guitars & Basses went from 6.35% to 6.7% for sellers without a Store or with a Starter Store, with the 2.35% rate over $7,500 unchanged. The same update moved the Basic-and-above Store guitar rate from 6.35% to 6.7%, with 2.35% over $2,500.",
-          "What moved this year was our model. Our [fee change log](/fees/changelog) has two October 16, 2026 entries for this row: the first moved our single Musical Instruments & Gear rate from 6.35% to 6.7%, and the second split Guitars & Basses out, leaving guitars and basses at 6.7% and putting the rest of the category at 13.6%. Before October 16, our table priced every instrument at the guitar rate. If you built a gear margin sheet from our older table or from any source that quotes a single \"musical instruments\" rate, your non-guitar items were priced at about half their real eBay fee. On a hypothetical $1,500 keyboard that is $103.50 of fees missing from the sheet (our arithmetic, one item, no shipping or tax)."
+          "What moved this year was our model. Our [fee change log](/fees/changelog) has two October 16, 2026 entries for this row: the first moved our single Musical Instruments & Gear rate from 6.35% to 6.7%, and the second split Guitars & Basses out, leaving guitars and basses at 6.7% and putting the rest of the category at 13.6%. Before October 16, our table priced every instrument at the guitar rate. If you built a gear margin sheet from our older table or from any source that quotes a single \"musical instruments\" rate, your non-guitar items were priced at about half their real eBay fee. On a hypothetical $1,500 item outside Guitars & Basses that is $103.50 of fees missing from the sheet (our arithmetic, one item, no shipping or tax)."
         ]
       },
       {
