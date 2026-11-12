@@ -3,8 +3,12 @@
 import { useState, useEffect, useCallback, useRef, Fragment, useMemo } from "react"
 import { IntelligenceSpotlight } from "@/components/intelligence-spotlight"
 import { GuideCards } from "@/components/guide-cards"
+import { BriefCta } from "@/components/brief-cta"
+import { HomepageLatestAnalysis } from "@/components/homepage-latest-analysis"
 import { trackResourceEvent } from "@/lib/resource-analytics"
+import { BRIEF_CTA_KEYS } from "@/lib/brief-cta"
 import { HOMEPAGE_WIDGET_SOURCE, homepageWidgetSource, readStoredBriefSource } from "@/lib/newsletter-signup"
+import type { HomepageAnalysisCard } from "@/lib/homepage-latest"
 import Image from "next/image"
 import Link from "next/link"
 import { useTheme } from "next-themes"
@@ -157,11 +161,13 @@ const CATEGORY_COLORS: Record<string, string> = {
 interface HomePageClientProps {
   initialArticles: NewsArticle[]
   initialBreakingNews: BreakingNews[]
+  latestAnalysis: HomepageAnalysisCard[]
 }
 
 export default function HomePageClient({
   initialArticles,
   initialBreakingNews,
+  latestAnalysis,
 }: HomePageClientProps) {
   const { resolvedTheme, setTheme } = useTheme()
   const { currentUser, loading: accountLoading, metadata } = useAuthAccount()
@@ -460,6 +466,7 @@ export default function HomePageClient({
             <h1 className="max-w-4xl text-[2.5rem] font-bold leading-[1.08] tracking-[-0.045em] text-slate-950 sm:text-5xl lg:text-[3.25rem] dark:text-white">
               Marketplace intelligence<br className="hidden sm:block" /> that keeps score.
             </h1>
+            <BriefCta source={BRIEF_CTA_KEYS.homeLatest} className="mt-6 max-w-xl" />
             <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600 md:text-xl dark:text-slate-300">
               Built by people with years inside ecommerce — and built differently. Underneath the
               news sits a decision-intelligence system: AI classifies every story into a growing
@@ -486,6 +493,8 @@ export default function HomePageClient({
           <IntelligenceSpotlight articles={articles} />
         </div>
       </section>
+
+      <HomepageLatestAnalysis articles={latestAnalysis} />
 
       <section className="border-b border-border bg-background" aria-labelledby="keeps-score-title">
         <div className="mx-auto site-width px-4 py-10 sm:px-6">

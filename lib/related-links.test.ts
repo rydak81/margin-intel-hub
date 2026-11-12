@@ -130,9 +130,10 @@ describe('fee category pages show the same Related block', () => {
     }
   })
 
-  it('Walmart category pages link the New Seller Savings analysis', async () => {
-    const slug = 'walmart-new-seller-savings-2026-worth-it'
+  it('Walmart category pages link the long-term storage analysis', async () => {
+    const slug = 'walmart-wfs-long-term-storage-fees-2026'
     expect(ANALYSIS_ARTICLES.some(a => a.slug === slug)).toBe(true)
+    expect(relatedAnalysisForMarketplace('walmart', Infinity).map(a => a.slug)).toContain('walmart-new-seller-savings-2026-worth-it')
     const { getAllFeeRoutes } = await import('@/lib/marketplace-fees')
     const { default: Page } = await import('@/app/fees/[marketplace]/[category]/page')
     const walmart = getAllFeeRoutes().filter(r => r.marketplace === 'walmart')

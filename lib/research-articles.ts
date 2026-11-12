@@ -687,5 +687,267 @@ export const RESEARCH_ARTICLES: AnalysisArticle[] = [{
       "context": "Original blank worksheet and source map. No merchant records or measured outcomes."
     }
   ]
+},
+{
+  "slug": "amazon-selling-partner-plugin-approval-record",
+  "seoTitle": "Amazon AI Plugin: Build a Useful Approval Record",
+  "metaDescription": "A practical approval record for Amazon seller AI workflows: exact SKU, before-and-after values, evidence age, execution status and read-back.",
+  "headline": "An approval button needs a change record behind it",
+  "dek": "Amazon’s plugin separates questions from account changes. Build the operator handoff around the exact change, not the agent’s summary.",
+  "publishedOn": "2026-11-10",
+  "updatedOn": "2026-11-10",
+  "author": "MarketplaceBeta Research",
+  "reviewMode": "automated",
+  "readTime": "4 min",
+  "tags": [
+    "Amazon",
+    "AI agents",
+    "seller operations"
+  ],
+  "takeaway": "Group the review by Parent ASIN, but approve and verify the exact child ASIN, seller SKU, marketplace and field. Keep proposed, approved, submitted and verified changes distinct.",
+  "forecastIds": [],
+  "newsletterSource": "campaign_amazon_approval_record",
+  "sections": [
+    {
+      "id": "finding",
+      "title": "The boundary is documented; the handoff is your design choice",
+      "paragraphs": [
+        "[Amazon’s current plugin FAQ](https://developer.amazonservices.com/amazon-selling-partner-plugin), read November 10, says read-only questions run freely and account-changing requests prompt for approval. It names listing edits, shipments and pricing updates as examples. The page also tells sellers to grant the data and action permissions they want the agent to access.",
+        "The operational implication: an exception list and a change queue deserve different handling. Use the first to investigate; require a specific proposed change before treating the second as ready for approval. Our recommendation is a concise change record that an operator can compare with the business system.",
+        "This is an original workflow proposal based on documentation, not a test of the plugin. Amazon’s stated approval requirement does not establish how every stale proposal, retry or partial failure behaves. Those details need account-specific verification."
+      ]
+    },
+    {
+      "id": "record",
+      "title": "What should travel with the approval request?",
+      "paragraphs": [
+        "Use the [blank change record](/research/amazon-agent-approval-record-2026-11-10.json) for a bounded pilot. Parent ASIN is a useful grouping for a review meeting; the proposed operation still needs an exact target. Do not let a family-level summary stand in for a child or seller SKU.",
+        "Record the current value and capture time before writing the desired value. Include the evidence that justifies the change and the expected result. If the needed field or identifier cannot be inspected, route the item for investigation rather than filling the gap with a guess."
+      ],
+      "table": {
+        "caption": "Proposed operator record · blank until tested · November 10, 2026",
+        "headings": [
+          "Record",
+          "What the reviewer checks",
+          "If missing"
+        ],
+        "rows": [
+          [
+            "Target",
+            "Marketplace, seller SKU, child ASIN and optional Parent ASIN grouping",
+            "Resolve identity before approval"
+          ],
+          [
+            "Before → after",
+            "Exact field, observed value, proposed value and units",
+            "Request the complete change"
+          ],
+          [
+            "Evidence age",
+            "When the current value was read and what supports the proposal",
+            "Refresh or investigate"
+          ],
+          [
+            "Approval scope",
+            "The proposal version the operator accepted",
+            "Do not reuse an ambiguous approval"
+          ],
+          [
+            "Result",
+            "Submission status plus an independent read-back",
+            "Keep the task unresolved"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "example",
+      "title": "Hypothetical case: a price changes while approval is pending",
+      "paragraphs": [
+        "An agent proposes a price correction. Before the operator approves it, another authorized process changes that SKU’s price. The old recommendation may still sound sensible, but it no longer describes the current starting point.",
+        "In the proposed workflow, the operator refreshes the relevant state, compares it with the recorded before-value and prepares a revised proposal if they differ. Approval attaches to that proposal version. This is a design criterion to test, not an assertion that Amazon’s plugin exposes version locking or performs this comparison.",
+        "The same discipline helps with listings: verify the exact editable field and the seller contribution you intend to change. An accepted submission and the buyer-visible page are separate observations; record which one you actually inspected."
+      ]
+    },
+    {
+      "id": "recovery",
+      "title": "Keep an uncertain result out of the retry queue",
+      "paragraphs": [
+        "After submission, classify the outcome as confirmed, rejected or unknown. A timeout alone cannot tell you whether a change reached its destination. Read the relevant state or available operation status before deciding whether a retry is appropriate.",
+        "Retain the operation identifier if one is provided. If the workflow cannot expose enough evidence to distinguish an unapplied action from an applied action with a lost response, hold the retry for investigation. Do not assume that identical text means an operation will be deduplicated.",
+        "A correction is another proposed change. Check the current state before trying to restore an older value; otherwise recovery could overwrite legitimate work completed in the meantime. Keep the original proposal, result and correction linked."
+      ]
+    },
+    {
+      "id": "pilot",
+      "title": "Start with a decision queue you can inspect",
+      "paragraphs": [
+        "For a first pilot, choose one task type and a small set of previously resolved, non-sensitive cases. Replay them in a sandbox or draft-only environment. Include a stale proposal, a rejected approval and an uncertain execution result. Write the expected handling before running the cases.",
+        "Report verified correct outcomes divided by all started cases, with unresolved cases separately counted and retained in the denominator. Record unintended changes, repeated actions and review minutes separately. These are proposed measures; no results or time savings are claimed.",
+        "Use the [existing agent acceptance worksheet](/intelligence/analysis/ecommerce-ai-agent-evaluation-final-state-cost) for the broader evaluation. The change record here is the narrower operator handoff. Use the [Intelligence dashboard](/intelligence) to trace the platform developments that make a workflow worth investigating."
+      ]
+    },
+    {
+      "id": "methods",
+      "title": "Source, scope and reuse",
+      "paragraphs": [
+        "Scope: one current Amazon plugin FAQ, reopened November 10, 2026; discovery came from the internal research brief with a November 10, 12:46:03 UTC cutoff. The FAQ’s publication date is unverified. Its retrieval date is not a release date. The [dated source map and worksheet](/research/amazon-agent-approval-record-2026-11-10.json) separate documented behavior from our proposed controls.",
+        "No seller account, API operation or live transaction was tested. Permission availability, visible fields and execution status need verification in the intended account. The worksheet contains no private seller data; keep populated records private.",
+        "Cite MarketplaceBeta Research, this title, November 10, 2026 and the canonical article URL. Reuse the original blank record with attribution and preserve its proposed-workflow label. Cite Amazon for platform behavior and recheck the current FAQ before implementation."
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "label": "Amazon Selling Partner plugin FAQ",
+      "href": "https://developer.amazonservices.com/amazon-selling-partner-plugin",
+      "context": "Undated current documentation, read November 10, 2026. Read/write approval boundary and permissions."
+    },
+    {
+      "label": "MarketplaceBeta change record and source map",
+      "href": "/research/amazon-agent-approval-record-2026-11-10.json",
+      "context": "Original blank worksheet; no merchant results."
+    }
+  ]
+}
+,
+{
+  "slug": "chatgpt-discovery-metrics-order-ledger",
+  "seoTitle": "ChatGPT Discovery Metrics: An Ecommerce Measurement Plan",
+  "metaDescription": "Keep ChatGPT mentions, referrals and paid orders distinct. A practical worksheet for compatible denominators, missing metrics and contribution costs.",
+  "headline": "ChatGPT discovery metrics need a separate order ledger",
+  "dek": "New business insights create a useful observation point. They do not, by themselves, connect an AI mention to a profitable order. Here is a measurement plan for that gap.",
+  "publishedOn": "2026-11-11",
+  "updatedOn": "2026-11-11",
+  "author": "MarketplaceBeta Research",
+  "reviewMode": "automated",
+  "readTime": "6 min",
+  "tags": [
+    "AI agents",
+    "ecommerce strategy",
+    "measurement",
+    "research methods"
+  ],
+  "takeaway": "Before judging an AI discovery channel, define which measurements can be compared and which cannot. Keep unavailable metrics distinct from zero, and reconcile attributed orders and costs separately.",
+  "forecastIds": [],
+  "newsletterSource": "campaign_ai_measurement",
+  "sections": [
+    {
+      "id": "finding",
+      "title": "The useful question: what can these numbers establish?",
+      "paragraphs": [
+        "OpenAI’s [November 10 launch announcement](https://openai.com/index/introducing-businesses-chatgpt/), read November 11, describes Businesses in ChatGPT as a beta. Business Hub offers aggregate mentions, website clicks and discovery topics. Insights depend on conversation or interaction thresholds; OpenAI says it does not share users’ conversations or Business Agent chats with businesses.",
+        "Our interpretation: treat discovery reporting as an observation layer, then establish a separate, documented connection to store outcomes. A dashboard can answer a narrower question well without answering whether a channel pays for itself. The missing step is not another summary of the dashboard. It is a measurement contract that says what each number counts.",
+        "This report proposes that contract. It is an operator workflow, not a merchant performance study or a tested Business Hub integration. No conversion, incremental revenue or profitability result is claimed."
+      ]
+    },
+    {
+      "id": "ledgers",
+      "title": "Keep discovery, store activity and economics separate",
+      "paragraphs": [
+        "Use the following table to assign each question to the evidence that could answer it. The store and cost rows are our proposed measurement requirements, not a claim about fields or exports available in Business Hub. Preserve the platform’s exact metric definition when it is available; otherwise record the definition as unresolved."
+      ],
+      "table": {
+        "caption": "Proposed ecommerce measurement plan · authored November 11, 2026 · no merchant observations",
+        "headings": [
+          "Question",
+          "Record to retain",
+          "Boundary"
+        ],
+        "rows": [
+          [
+            "Was the business visible?",
+            "Reported mentions, period and platform definition",
+            "A mention count is not a count of buyers"
+          ],
+          [
+            "Did activity reach the store?",
+            "Website clicks separately from store-recorded referral sessions",
+            "Do not assume a click and a session are the same event"
+          ],
+          [
+            "Did the defined store cohort buy?",
+            "Eligible sessions and those with a paid order, under one attribution rule",
+            "Only calculate a rate when the numerator belongs to the denominator"
+          ],
+          [
+            "What remained after variable costs?",
+            "Cohort order revenue, refunds and declared cost components",
+            "Attributed contribution does not prove incremental profit"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "denominators",
+      "title": "A ratio needs more than two available numbers",
+      "paragraphs": [
+        "A numerator must belong to the population described by its denominator. Do not label website clicks divided by mentions a click-through rate unless the metric definitions establish a compatible opportunity set. Matching date labels alone does not prove that relationship. Counts may be repeated events rather than unique people, and the announcement does not provide the definitions needed to resolve that question.",
+        "For your own store, one possible measure is the share of eligible, attributed sessions with at least one paid order. Count qualifying sessions in both numerator and denominator; keep order count as a separate measure. Decide how later orders, cancellations and attribution changes will be handled before calculating the result.",
+        "Write the session window, order follow-up cutoff, time zone, attribution rule and exclusions beside that rate. Unattributed sessions are a separate observed group, not evidence that those visitors never encountered AI. A change in attribution rules creates a new measurement series unless you can recompute the old one consistently."
+      ]
+    },
+    {
+      "id": "missingness",
+      "title": "Unavailable is a result category, not a zero",
+      "paragraphs": [
+        "Keep a value and an availability status in separate fields. Use statuses such as observed, threshold-withheld, not-enabled, not-collected and unknown. Assign a specific reason only when the interface or documentation supports it. A blank screen alone does not identify why a metric is absent.",
+        "Hypothetical example: a merchant has store-recorded referrals for a week but no displayed discovery count. Dividing orders by an invented zero is meaningless; treating the absent count as proof of no visibility is also unsupported. Record the store observations, preserve the missing platform value, and leave the cross-system conversion calculation unavailable.",
+        "For repeated reports, distinguish periods with comparable definitions and availability from periods that cannot be compared. Do not silently drop unavailable periods and describe the remaining ones as a complete trend. This workflow deliberately permits an unresolved result."
+      ]
+    },
+    {
+      "id": "costs",
+      "title": "Give attributed contribution its own reconciliation",
+      "paragraphs": [
+        "For the same declared order cohort, reconcile revenue after discounts and refunds, excluding collected sales tax, with recorded product, payment, fulfillment and return costs. State whether customer shipping revenue is included and prevent any cost from being deducted twice. Show incomplete cost fields instead of presenting an incomplete subtotal as profit.",
+        "Keep channel setup and ongoing operating costs visible alongside that subtotal. Choose an allocation rule before comparing channels, or report shared costs separately when allocation would be arbitrary. This is a proposed management worksheet, not a substitute for your accounting records.",
+        "Even a positive attributed contribution does not establish that the channel created additional orders. Existing customers, promotions, stock changes or other marketing could affect the same period. A before-and-after comparison is descriptive unless the evaluation design supports a stronger conclusion. No such causal evaluation was performed here."
+      ]
+    },
+    {
+      "id": "decisions",
+      "title": "Let the gap determine the next task",
+      "paragraphs": [
+        "Start with one eligible business account and one clearly defined store scope. Confirm access and metric definitions, retain a baseline, and use the [blank measurement worksheet](/research/chatgpt-discovery-measurement-2026-11-11.json) to document the boundaries. It is JSON for reuse, not an executable connector."
+      ],
+      "bullets": [
+        "If discovery is reported but store referrals are unclear, reconcile definitions, windows and the intended destination before declaring a checkout problem.",
+        "If the store cohort reaches product pages but has few paid orders, inspect the observed purchase path. Use the [Shopify checkout audit](/intelligence/analysis/shopify-ai-channel-fees-chatgpt-checkout-2026) to frame tests; do not assume the discovery metric explains the failure.",
+        "If orders are attributed but costs are incomplete, finish the cost reconciliation before recommending expansion.",
+        "If measurement definitions or availability change, mark the break and reassess comparability before describing growth.",
+        "Publish only safe aggregates. Keep customer-level records and populated order worksheets in your authorized private systems."
+      ]
+    },
+    {
+      "id": "methods",
+      "title": "Evidence, scope and limitations",
+      "paragraphs": [
+        "The topic was selected from MarketplaceBeta’s internal research brief with a November 11, 2026, 12:13:47 UTC cutoff. We inspected the complete claim-evidence linkage for that brief and reopened the relevant OpenAI primary announcement. The public evidence file contains a concise source map and an original blank worksheet; private research identifiers and source archives are excluded.",
+        "The external factual scope is one announcement, published November 10 and read November 11, 2026. The rest is our proposed measurement method. We did not inspect a Business Hub account, run a merchant transaction, test an analytics export or observe any store outcome. Availability, definitions and integrations must be checked in the intended account.",
+        "No headline-volume comparison, adoption estimate, representative market sample, significance claim or forecast is made. This method can organize a pilot, but it cannot supply evidence that the pilot has succeeded."
+      ]
+    },
+    {
+      "id": "reuse",
+      "title": "Reuse the method with its boundaries intact",
+      "paragraphs": [
+        "Cite MarketplaceBeta Research, this article title, November 11, 2026, the canonical article URL and the linked worksheet. Reuse the original blank fields with attribution; preserve the distinction between reported observations and proposed measurements. Cite OpenAI for the platform announcement and recheck current documentation before implementation.",
+        "Use the [Intelligence dashboard](/intelligence) for source-linked platform research. The practical deliverable for an ecommerce AI project is a documented decision: what was observed, what remains unknown, and what evidence would justify the next step."
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "label": "OpenAI: Introducing Businesses in ChatGPT",
+      "href": "https://openai.com/index/introducing-businesses-chatgpt/",
+      "context": "Published November 10, 2026; read November 11. Beta discovery insights and their aggregation/privacy boundary."
+    },
+    {
+      "label": "MarketplaceBeta measurement worksheet and source map",
+      "href": "/research/chatgpt-discovery-measurement-2026-11-11.json",
+      "context": "Original blank operator worksheet. No merchant records, measured conversion or financial outcomes."
+    }
+  ]
 }
 ]

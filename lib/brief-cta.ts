@@ -53,6 +53,8 @@ export const BRIEF_CTA_KEYS = {
   news: briefCtaSource('news'),
   guidesHub: briefCtaSource('guides'),
   guide: (slug: string) => briefCtaSource('guide', slug),
+  /** Homepage hero. Stable campaign id, not derived from a page slug. */
+  homeLatest: 'campaign_home_latest',
 } as const
 
 /** Sitewide chrome keys: header "Get the daily brief" button and footer link. */
