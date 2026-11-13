@@ -117,6 +117,8 @@ export interface ClassifiedArticle extends RawArticle {
   keyStat: string | null
   rejectionReason: string | null
   hasRealImage?: boolean // Flag for hero/featured selection
+  /** articles.updated_at. Omitted when the row was not loaded from the database. */
+  updatedAt?: string | null
 }
 
 // Track already-classified article IDs to avoid re-processing
