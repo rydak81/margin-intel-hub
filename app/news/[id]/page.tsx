@@ -1,4 +1,3 @@
-import { ORGANIZATION_REF } from "@/lib/site-jsonld"
 import { ArticleImage } from "@/components/article-image"
 import Link from "next/link"
 import { JsonLd } from "@/components/json-ld"
@@ -37,6 +36,8 @@ import { getArticleById, getRelatedArticles } from "@/lib/article-store"
 import { getSourceIntelligence } from "@/lib/source-intelligence"
 import { LinkedInPostGenerator } from "@/components/linkedin-post-generator"
 import { latestAnalysis } from "@/lib/analysis"
+import { newsArticleJsonLd } from "@/lib/news-article-seo"
+import { NewsArticleFollowOn } from "@/components/news-article-follow-on"
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString("en-US", {
@@ -100,8 +101,6 @@ export default async function ArticlePage({
   const readTime = getReadTime(contentText)
   const sourceIntelligence = getSourceIntelligence(article.sourceName, article.sourceType)
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://marketplacebeta.com"
-  const articleUrl = `${siteUrl}/news/${article.id}`
-  const articleDescription = article.aiSummary || article.summary || "Read the full analysis on MarketplaceBeta"
   const standfirst = cleanArticleContent(article.aiSummary || article.summary, article.title)
   const intelligenceHighlights = [
     article.whatThisMeans
@@ -134,33 +133,17 @@ export default async function ArticlePage({
       : null,
   ].filter(Boolean) as Array<{ label: string; icon: typeof Target; content: string }>
 
-  const articleJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "NewsArticle",
-    headline: article.title,
-    description: articleDescription,
-    datePublished: article.publishedAt,
-    dateModified: article.publishedAt,
-    image: [articleImage],
-    mainEntityOfPage: articleUrl,
-    publisher: ORGANIZATION_REF,
-    // The briefing (summary, operator take, next steps) is MarketplaceBeta's;
-    // the underlying report is credited via isBasedOn rather than as author.
-    author: {
-      "@type": "Organization",
-      name: "MarketplaceBeta",
-      url: siteUrl,
-    },
-    ...(article.sourceUrl
-      ? {
-          isBasedOn: {
-            "@type": "CreativeWork",
-            url: article.sourceUrl,
-            ...(article.sourceName ? { publisher: { "@type": "Organization", name: article.sourceName } } : {}),
-          },
-        }
-      : {}),
-  }
+  const articleJsonLd = newsArticleJsonLd({
+    id: article.id,
+    title: article.title,
+    summary: article.summary,
+    aiSummary: article.aiSummary,
+    sourceName: article.sourceName,
+    sourceUrl: article.sourceUrl,
+    publishedAt: article.publishedAt,
+    updatedAt: article.updatedAt,
+    image: articleImage,
+  }, siteUrl)
 
   return (
     <div className="min-h-screen bg-background">
@@ -418,6 +401,8 @@ export default async function ArticlePage({
                 }}
               />
             </div>
+
+            <NewsArticleFollowOn platforms={article.platforms} />
           </article>
 
           <aside className="space-y-6">
