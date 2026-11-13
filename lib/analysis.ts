@@ -53,8 +53,8 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
     "slug": "ebay-international-fee-165-eis-2026",
     "seoTitle": "eBay International Fee 2026: 1.65%, and When eIS Waives It",
     "metaDescription": "eBay's 1.65% international fee for US sellers: when it applies, why eBay International Shipping waives it, and what it adds at $50 to $3,000.",
-    "headline": "eBay's 1.65% international fee: eIS waives it up to $2,500, and above that it's a pricing line you can't ship around",
-    "dek": "US sellers who ship overseas themselves pay eBay an extra 1.65% of the total sale on international orders. eBay International Shipping removes the fee, but only on eligible items worth up to $2,500. We re-read eBay's selling fees page and the eBay International Shipping page on November 13, 2026, worked the fee at five prices, and found where it hurts most: high-ticket items in low-rate categories.",
+    "headline": "eBay's 1.65% international fee: eIS waives it under a $2,500 cap, and above that it's a pricing line you can't ship around",
+    "dek": "US sellers who ship overseas themselves pay eBay an extra 1.65% of the total sale on international orders. eBay International Shipping removes the fee on eligible orders up to $2,500, though eBay's Seller Center page measures that cap as item value excluding taxes, duties and delivery fees, while its help page includes shipping. We re-read both eIS pages and eBay's selling fees page on November 13, 2026, worked the fee at five prices, and found where it hurts most: high-ticket items in low-rate categories.",
     "publishedOn": "2026-11-13",
     "updatedOn": "2026-11-13",
     "author": "MarketplaceBeta Intelligence",
@@ -68,7 +68,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
       "seller fees",
       "high-ticket"
     ],
-    "takeaway": "If you're a US seller and an eligible listing sells through eBay International Shipping (eIS), you don't pay eBay's international fee. If you ship abroad yourself, eBay adds 1.65% of the total amount of the sale, and per eBay's wording the fee also applies when the buyer's registered address is outside the US, wherever the item is delivered. eIS only covers items valued up to $2,500 (excluding taxes, duties and delivery fees), so anything above that pays the 1.65% if it sells abroad. This week, confirm you're enrolled in eIS, check recent invoices for international fee charges, and decide whether each listing over $2,500 should ship internationally at all, and at what price.",
+    "takeaway": "If you're a US seller and an eligible listing sells through eBay International Shipping (eIS), you don't pay eBay's international fee. If you ship abroad yourself, eBay adds 1.65% of the total amount of the sale, and per eBay's wording the fee also applies when the buyer's registered address is outside the US, wherever the item is delivered. eIS only covers eligible orders up to $2,500: eBay's Seller Center page measures that as item value excluding taxes, duties and delivery fees, while its help page says the order cost can't exceed $2,500 including shipping, so an item priced under $2,500 can still miss eIS once shipping is counted. This week, confirm you're enrolled in eIS, check recent invoices for international fee charges, and decide whether each listing over $2,500, or close enough that shipping would push the order over, should ship internationally at all, and at what price.",
     "forecastIds": [],
     "newsletterSource": "campaign_kw_ebay_intl_fee",
     "sections": [
@@ -140,9 +140,9 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
         "id": "why-it-matters",
         "title": "Why it matters: the $2,500 line and low-rate categories",
         "paragraphs": [
-          "Across Most Categories the fee adds about 12% to the eBay bill at every price in the table, because 1.65 points sits on top of 13.6% plus the small per-order fee. That's real money, but for most sellers under $2,500 it's avoidable: eBay's International Shipping page says eligible listings are shown to international buyers automatically based on category, item value up to $2,500 (excluding taxes, duties and delivery fees) and the item being physically located in the US, and the seller only has to get the parcel to eBay's domestic hub.",
-          "Above $2,500, eIS isn't an option by eBay's own eligibility rule, so the fee can't be shipped around. If that item sells to an overseas buyer, you pay 1.65% or you don't offer international shipping. On a $3,000 Most Categories sale that's $49.50 (hypothetical, our arithmetic).",
-          "The fee hurts most where the base rate is lowest. Guitars & Basses pay 6.7% up to $7,500 on eBay's page, so on a hypothetical $3,000 guitar the international fee adds the same $49.50 but that's 24.6% of a much smaller eBay bill: $250.90 instead of $201.40. The same logic applies to Watches, Parts & Accessories, where eBay's rate falls to 6.5% on the portion from $1,000 to $7,500 (see our [eBay watch fees analysis](/intelligence/analysis/ebay-watch-fees-2026-15-percent-to-1000) and [guitar calculator](/fees/ebay/guitars-basses)). Any item in these categories priced above $2,500 falls outside eIS,, so if one sells abroad, the fee applies.",
+          "Across Most Categories the fee adds about 12% to the eBay bill at every price in the table, because 1.65 points sits on top of 13.6% plus the small per-order fee. That's real money, but for most sellers under $2,500 it's avoidable if the listing qualifies for eIS: eBay's Seller Center International Shipping page (re-read November 13, 2026) says eligible listings are shown to international buyers automatically based on category, item value up to $2,500 (excluding taxes, duties and delivery fees) and the item being physically located in the US, and the seller only has to get the parcel to eBay's domestic hub. eBay's eIS help page, also re-read November 13, 2026, describes the cap differently: it says the cost of the order doesn't exceed $2,500 USD, including shipping. An item priced under $2,500 can still miss eIS once shipping is counted. The help page also requires Above Standard or Top Rated seller performance and sets package limits: 48 inches in length, 84 inches in length and girth, and 44 lbs. in billable weight (66 lbs. to Canada).",
+          "Above $2,500 under either wording, eIS isn't an option, so the fee can't be shipped around. If that item sells to an overseas buyer, you pay 1.65% or you don't offer international shipping. On a $3,000 Most Categories sale that's $49.50 (hypothetical, our arithmetic).",
+          "The fee hurts most where the base rate is lowest. Guitars & Basses pay 6.7% up to $7,500 on eBay's page, so on a hypothetical $3,000 guitar the international fee adds the same $49.50 but that's 24.6% of a much smaller eBay bill: $250.90 instead of $201.40. The same logic applies to Watches, Parts & Accessories, where eBay's rate falls to 6.5% on the portion from $1,000 to $7,500 (see our [eBay watch fees analysis](/intelligence/analysis/ebay-watch-fees-2026-15-percent-to-1000) and [guitar calculator](/fees/ebay/guitars-basses)). Any item in these categories priced above $2,500 falls outside eIS, so if one sells abroad, the fee applies.",
           "The registered-address trigger is easy to miss. As eBay words it, a buyer whose registered address is outside the US triggers the fee if you're not shipping with eIS, even when the delivery address is in the US. Our hypothesis, not something eBay states, is that this mostly shows up on orders sent to US forwarding or gift addresses. Check a few of your own international fee charges before you assume either way.",
           "Self-shipping abroad carries costs beyond eBay's fee. Our earlier analysis covered how [USPS can now bill senders for duties an overseas buyer didn't pay](/intelligence/analysis/usps-foreign-duty-billing-2026) and the [fixed per-item charges on EU-bound parcels](/intelligence/analysis/eu-3-euro-duty-2-euro-handling-fee-us-sellers). eBay's eIS page says customs paperwork and international shipping are handled for you, and that if the buyer opens a return, eBay issues the refund at no cost to you. For eligible items, that makes eIS the default to beat, and the 1.65% fee is only one reason."
         ]
@@ -155,8 +155,8 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
         ],
         "bullets": [
           "Confirm you're enrolled in eIS. eBay's page says to go to Account Settings, choose Shipping Preferences, and look for Enrolled next to eBay International Shipping. eBay says it enrolls sellers when their account is eligible, so don't assume.",
-          "Pull the last 90 days of invoices from Seller Hub and find the international fee charges. Match each to an order and note whether the item was over $2,500, shipped by you, or delivered to a US address.",
-          "For every active listing over $2,500, decide on purpose: offer international shipping and price in 1.65% of the total sale, or exclude international buyers. In low-rate categories the fee weighs more: on a hypothetical $3,000 guitar it's $49.50 on top of $201.40, or 24.6% more than eBay otherwise takes (from the table above).",
+          "Pull the last 90 days of invoices from Seller Hub and find the international fee charges. Match each to an order and note whether the item was over $2,500 (or would have been, once shipping is counted), shipped by you, or delivered to a US address.",
+          "For every active listing over $2,500, and any that would exceed $2,500 once shipping is counted, decide on purpose: offer international shipping and price in 1.65% of the total sale, or exclude international buyers. In low-rate categories the fee weighs more: on a hypothetical $3,000 guitar it's $49.50 on top of $201.40, or 24.6% more than eBay otherwise takes (from the table above).",
           "Check your country exclusions toggle. eBay's eIS page says that if the toggle under eBay International Shipping settings is on, eligible items still ship to your excluded locations through eIS, and if it's off, your exclusions apply to every listing.",
           "Add an international column to your margin sheet: 1.65% of the total amount of the sale on non-eIS international orders, on top of the rates from our [eBay fee table](/fees/ebay). Keep the 3.25% currency conversion charge separate, for sales on non-US eBay sites only.",
           "Re-pull eBay's selling fees page before you reprice. Our [fee change log](/fees/changelog) records any change we find."
@@ -166,7 +166,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
         "id": "what-we-are-watching",
         "title": "What we're watching next",
         "paragraphs": [
-          "Any change to the 1.65% rate, the eIS $2,500 item-value limit or the registered-address wording. Each one moves the decision for high-ticket sellers. We'll log changes in the [fee change log](/fees/changelog).",
+          "Any change to the 1.65% rate, the eIS $2,500 cap (including how eBay's pages define it) or the registered-address wording. Each one moves the decision for high-ticket sellers. We'll log changes in the [fee change log](/fees/changelog).",
           "Whether eBay extends eIS to more countries of registration. Its page says it currently accepts only US sellers and plans to expand.",
           "Cross-border costs on the self-ship path, which keep moving. None of our open [forecasts](/intelligence/forecasts) is an eBay international-fee call, so we don't tie this piece to one. Broader fee and channel context is on the [Intelligence hub](/intelligence) and in the [Intelligence Dossier](/intelligence/dossier)."
         ]
@@ -175,25 +175,25 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
         "id": "faq",
         "title": "Questions sellers ask",
         "paragraphs": [
-          "Answers as of November 13, 2026, from eBay's selling fees page, eBay's International Shipping page and our fee tables."
+          "Answers as of November 13, 2026, from eBay's selling fees page, its Seller Center International Shipping page, its eIS help page and our fee tables."
         ],
         "bullets": [
           "What is eBay's international fee? For US-registered sellers, 1.65% of the total amount of the sale, charged when the item isn't shipped with eBay International Shipping and either the delivery address or the buyer's registered address is outside the US.",
           "Does eBay International Shipping avoid the fee? Yes. eBay says US-registered sellers who offer eIS on eligible listings aren't charged the international fee when an eligible item sells.",
-          "Which items qualify for eIS? eBay says eligibility depends on category, item value up to $2,500 (excluding taxes, duties and delivery fees), and the item being physically located in the US.",
+          "Which items qualify for eIS? eBay's Seller Center page says eligibility depends on category, item value up to $2,500 (excluding taxes, duties and delivery fees), and the item being physically located in the US. Its help page describes the cap as an order cost that doesn't exceed $2,500 including shipping, and also requires Above Standard or Top Rated seller performance and sets package size and weight limits. An item priced under $2,500 can still miss eIS once shipping is counted.",
           "What does the fee add on a $100 sale? On a hypothetical Most Categories sale with no shipping or tax, $1.65, taking eBay's total from $14.00 to $15.65.",
           "What about a $3,000 item? Same assumptions: $49.50. For Most Categories that takes eBay's total to $457.90. For Guitars & Basses it takes it to $250.90.",
           "Do I pay it if the item ships to a US address? Possibly. eBay's page says the fee applies if the buyer's registered address is outside the US, regardless of the delivery address, when you aren't using eIS.",
           "Is this the same as the 3.25% currency conversion charge? No. The 3.25% charge applies when eBay converts your funds, for example for listings or sales on an international eBay site. The 1.65% international fee is separate.",
           "Does the fee apply to shipping and tax? eBay calculates it on the total amount of the sale, which its page says includes the item price, handling, shipping collected from the buyer (with some exceptions) and sales tax.",
-          "Where can I check the rates myself? eBay's selling fees page and eBay International Shipping page, both linked in Sources, and our [eBay fee table](/fees/ebay)."
+          "Where can I check the rates myself? eBay's selling fees page, its Seller Center International Shipping page and its eIS help page, all linked in Sources, and our [eBay fee table](/fees/ebay)."
         ]
       },
       {
         "id": "methods",
         "title": "How this was made",
         "paragraphs": [
-          "We fetched eBay's US selling fees help page and its Seller Center page for eBay International Shipping on November 13, 2026, and compared the final value rates with our [eBay fee table](/fees/ebay) (verified October 16, 2026). The Most Categories and Guitars & Basses rows match. Worked dollars are our arithmetic for one item with $0 buyer shipping and $0 tax, rounded to the cent. Where 1.65% produces a half cent ($0.825 at $50 and $4.125 at $250) we round up, because eBay's page doesn't state its rounding. These are hypothetical illustrations, not measured seller settlements. The registered-address explanation in the why-it-matters section is labeled as our hypothesis. We didn't use forecast data or measure international order volume.",
+          "We fetched eBay's US selling fees help page, its Seller Center page for eBay International Shipping and its eBay International Shipping help page on November 13, 2026, and compared the final value rates with our [eBay fee table](/fees/ebay) (verified October 16, 2026). The Most Categories and Guitars & Basses rows match. The two eIS pages describe the $2,500 cap differently, as noted in the why-it-matters section. Worked dollars are our arithmetic for one item with $0 buyer shipping and $0 tax, rounded to the cent. Where 1.65% produces a half cent ($0.825 at $50 and $4.125 at $250) we round up, because eBay's page doesn't state its rounding. These are hypothetical illustrations, not measured seller settlements. The registered-address explanation in the why-it-matters section is labeled as our hypothesis. We didn't use forecast data or measure international order volume.",
           "Published through an automated research and editorial process with evidence checks. No individual human review of this revision is claimed. Suggested citation: MarketplaceBeta Intelligence, \"eBay's 1.65% international fee,\" November 13, 2026, with the canonical article URL and a link to /fees/ebay. Attribute fee rules to eBay and check your own Seller Hub invoices before you reprice."
         ]
       }
@@ -208,6 +208,11 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
         "label": "eBay Seller Center: eBay International Shipping (re-read Nov 13, 2026)",
         "href": "https://www.ebay.com/sellercenter/shipping/ebay-international-shipping",
         "context": "Seller ships to a domestic hub; customs paperwork and international shipping handled by eBay; eBay issues refunds on returns at no cost to the seller; eligibility by category, item value up to $2,500 excluding taxes, duties and delivery fees, and US item location; only US sellers accepted; enrollment check and country-exclusion toggle."
+      },
+      {
+        "label": "eBay Help: eBay International Shipping program (re-read Nov 13, 2026)",
+        "href": "https://www.ebay.com/help/selling/shipping-items/setting-shipping-options/ebay-international-shipping-program?id=5348",
+        "context": "Order cost must not exceed $2,500 USD, including shipping; seller must be Above Standard or Top Rated, eligible for seller protections, and have Low or Average Service Metrics; packages no more than 48 inches in length, 84 inches in length and girth, and 44 lbs. billable weight (66 lbs. to Canada); no international fee when shipping with eIS."
       },
       {
         "label": "MarketplaceBeta: eBay fees by category (verified Oct 16, 2026)",
