@@ -56,7 +56,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
     "headline": "Etsy's duty-paid rule for US orders: price the duty in, then price in Etsy's cut of the duty",
     "dek": "Since July 9, 2026, Etsy expects sellers outside the US to ship US orders Delivered Duty Paid, with duties and import fees built into the checkout price. A parcel that arrives with a bill for the buyer loses Etsy Purchase Protection, and Etsy can refund the buyer and deduct the charge from the seller. Here is who the rule hits, why adding the duty to your price leaves you short, and the US price that actually covers it.",
     "publishedOn": "2026-11-11",
-    "updatedOn": "2026-11-11",
+    "updatedOn": "2026-11-16",
     "author": "MarketplaceBeta Intelligence",
     "reviewMode": "automated",
     "readTime": "7 min",
@@ -98,7 +98,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
         "title": "Why it matters: Etsy charges its fees on the duty you add",
         "paragraphs": [
           "DDP means the duty ends up in the price the buyer pays. Etsy's 6.5% transaction fee applies to \"the cost of the entire order,\" and payment processing comes on top, at a rate set by the country of your bank account, per Etsy's [payment processing help page](https://help.etsy.com/hc/en-us/articles/115015628847). That table lists 4% + £0.20 for a UK bank account and 3% + $0.25 for a US one. So when you raise your US price by exactly the duty, Etsy takes its percentage of that increase and you come up short on every order.",
-          "The fix is to gross the duty up by the percentage fees you pay. The formula is the duty divided by (1 minus your percentage fees). The flat processing fee does not change with price, so it drops out. If the order came through an Offsite Ad, add that fee too. Etsy's Offsite Ads fee is 15% of the order, or 12% once a shop has made $10,000 in a 365-day period, capped at $100 an order, as covered in our [Offsite Ads analysis](/intelligence/analysis/etsy-offsite-ads-fees-2026) and on our [Etsy fee page](/fees/etsy).",
+          "The fix is to gross the duty up by the percentage fees you pay. The formula is the duty divided by (1 minus your percentage fees). The flat processing fee does not change with price, so it drops out. If the order came through an Offsite Ad, add that fee too. Etsy's Offsite Ads fee is 15% of the order, or 12% with no opt-out once a shop has made $10,000 or more in any consecutive 365-day period, capped at $100 an order, as covered in our [Offsite Ads analysis](/intelligence/analysis/etsy-offsite-ads-fees-2026) and on our [Etsy fee page](/fees/etsy).",
           "The duty depends on where the goods were made, not where the shop is. USTR's tariffs apply to products of each economy. A UK shop reselling China-made supplies faces the China rate on those items, not the UK rate. Our reading, which you should confirm with your carrier or a customs broker for your own tariff lines, is that the right number for your US price is the duty your DDP carrier actually quotes on the label, plus any fee it charges for prepaying it."
         ],
         "table": {
