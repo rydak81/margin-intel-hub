@@ -8,7 +8,6 @@ import { SponsorOfferCards } from '@/components/sponsor-offer-cards'
 import { UpgradeLink } from '@/components/upgrade-link'
 import { DOSSIER_OPERATOR_FEATURES, FREE_FEATURES, PRO_FEATURES, resolveOffers } from '@/lib/paid-offer'
 
-// Re-render daily so the sponsor founding rate-lock line drops off after its deadline.
 export const revalidate = 86400
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://marketplacebeta.com'
