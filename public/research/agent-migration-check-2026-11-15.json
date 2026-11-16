@@ -1,0 +1,65 @@
+{
+  "method": "marketplacebeta-agent-migration-check-v1",
+  "readOn": "2026-11-15",
+  "status": "proposed_protocol_not_executed",
+  "sources": [
+    {
+      "url": "https://platform.claude.com/docs/en/managed-agents/self-hosted/differences",
+      "publishedOn": null,
+      "readOn": "2026-11-15",
+      "basis": "Current vendor documentation; not independently reproduced"
+    }
+  ],
+  "cases": [
+    {
+      "id": "image-input",
+      "input": "Synthetic image with known visual fact; no answer in its filename or accompanying text",
+      "expected": "Correctly identifies the image-only fact",
+      "record": [
+        "input route",
+        "expected answer",
+        "actual answer",
+        "session events",
+        "review result"
+      ]
+    },
+    {
+      "id": "worker-stall",
+      "input": "Draft-only tool task with test worker deliberately stopped",
+      "expected": "Task remains incomplete, is detected, and completes once after worker recovery",
+      "record": [
+        "start",
+        "alert",
+        "restart",
+        "completion",
+        "duplicate output check"
+      ]
+    },
+    {
+      "id": "scheduled-output",
+      "input": "Dry run through the intended replacement scheduler",
+      "expected": "Dated output and terminal status observed",
+      "record": [
+        "schedule",
+        "session id",
+        "artifact",
+        "terminal result",
+        "missing output alert"
+      ]
+    }
+  ],
+  "comparison": {
+    "baseline": null,
+    "candidate": null,
+    "model": null,
+    "prompt": null,
+    "permissions": null,
+    "timeout": null,
+    "acceptedTasks": null,
+    "startedTasks": null,
+    "unknownOutcomes": null,
+    "totalCost": null,
+    "reviewMinutes": null
+  },
+  "privacy": "Use synthetic inputs; store populated logs privately. No credentials or customer records."
+}
