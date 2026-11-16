@@ -2094,11 +2094,11 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
   {
     "slug": "etsy-offsite-ads-fees-2026",
     "seoTitle": "Etsy Offsite Ads Fees 2026: 15%, 12%, $100 Cap, Opt-Out",
-    "metaDescription": "Etsy takes 15% of the whole order, shipping included, or 12% above $10,000 in sales, capped at $100. Who can opt out, plus the pricing math.",
+    "metaDescription": "Etsy takes 15% of the whole order, shipping included; opt-out only if always under $10,000 in any consecutive 365-day period, then 12% for life. $100 cap.",
     "headline": "Etsy's Offsite Ads fee takes 12% to 15% of the whole order, shipping included, and you can only opt out below $10,000",
-    "dek": "On any order placed within 30 days of a click on one of Etsy's Offsite Ads, Etsy charges 15% of item price plus shipping, or 12% once your shop has made $10,000 in sales over 365 days, capped at $100 an order. Here is the math on a $20, $50 and $100 sale, how to price for it, and what to check in your dashboard this week.",
+    "dek": "On any order placed within 30 days of a click on one of Etsy's Offsite Ads, Etsy charges 15% of item price plus shipping if your shop has always made less than $10,000 in any consecutive 365-day period, or 12% once it reaches $10,000, with participation then required for the life of the shop, capped at $100 an order. Here is the math on a $20, $50 and $100 sale, how to price for it, and what to check in your dashboard this week.",
     "publishedOn": "2026-10-27",
-    "updatedOn": "2026-10-27",
+    "updatedOn": "2026-11-16",
     "author": "MarketplaceBeta Intelligence",
     "readTime": "8 min",
     "tags": [
@@ -2108,7 +2108,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
       "advertising",
       "2026"
     ],
-    "takeaway": "If your Etsy shop has never reached $10,000 in sales over 365 days, you can still opt out of Offsite Ads, and you lose that choice for the life of the shop once you cross the line. Either way, price for a fee that runs on the whole order, shipping included: an order sold through an ad needs a price about 20% higher at the 15% rate, or about 15% higher at the 12% rate, to leave you the same money.",
+    "takeaway": "If your Etsy shop has always made less than $10,000 in any consecutive 365-day period, you can still opt out of Offsite Ads, and you lose that choice for the life of the shop once you cross the line. Either way, price for a fee that runs on the whole order, shipping included: an order sold through an ad needs a price about 20% higher at the 15% rate, or about 15% higher at the 12% rate, to leave you the same money.",
     "forecastIds": [],
     "newsletterSource": "campaign_kw_etsy_offsite_ads",
     "sections": [
