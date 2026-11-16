@@ -67,7 +67,7 @@ export interface Marketplace {
 }
 
 // ── Amazon ────────────────────────────────────────────────────────────────────
-// Rates mirror the schedule already encoded in components/profit-calculator.tsx.
+// The profit calculator (components/profit-calculator.tsx) reads these rates via lib/profit-calculator-fees.ts.
 
 // Re-verified 2026-11-12 against https://sell.amazon.com/pricing (official Amazon fee table),
 // including category rates, tier breakpoints, minimum referral fees and the Professional plan fee.

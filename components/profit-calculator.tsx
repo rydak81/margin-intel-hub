@@ -35,42 +35,18 @@ import {
   Trash2,
   FileText,
 } from "lucide-react"
+import { formatVerifiedDate, rateLabel, type MarketplaceSlug } from "@/lib/marketplace-fees"
+import {
+  CALCULATOR_MARKETPLACES,
+  DEFAULT_CALCULATOR_MARKETPLACE,
+  computeCalculatorMarketplaceFees,
+  defaultCategorySlug,
+  resolveCalculatorCategory,
+  type CalculatorFeeLine,
+} from "@/lib/profit-calculator-fees"
 
-// Amazon category referral fees (2024 rates)
-const CATEGORY_FEES: Record<string, { referral: number; label: string }> = {
-  "standard": { referral: 15, label: "Standard" },
-  "amazon-device-accessories": { referral: 45, label: "Amazon Device Accessories" },
-  "appliances": { referral: 15, label: "Appliances" },
-  "automotive": { referral: 12, label: "Automotive" },
-  "baby-products": { referral: 8, label: "Baby Products" },
-  "backpacks-handbags": { referral: 15, label: "Backpacks & Handbags" },
-  "beauty": { referral: 8, label: "Beauty" },
-  "business-industrial": { referral: 12, label: "Business & Industrial" },
-  "clothing-accessories": { referral: 17, label: "Clothing & Accessories" },
-  "computers": { referral: 8, label: "Computers" },
-  "consumer-electronics": { referral: 8, label: "Consumer Electronics" },
-  "electronics-accessories": { referral: 15, label: "Electronics Accessories" },
-  "furniture": { referral: 15, label: "Furniture" },
-  "grocery": { referral: 8, label: "Grocery & Gourmet" },
-  "health-personal-care": { referral: 8, label: "Health & Personal Care" },
-  "home-garden": { referral: 15, label: "Home & Garden" },
-  "jewelry": { referral: 20, label: "Jewelry" },
-  "kitchen": { referral: 15, label: "Kitchen" },
-  "lawn-garden": { referral: 15, label: "Lawn & Garden" },
-  "luggage": { referral: 15, label: "Luggage" },
-  "musical-instruments": { referral: 15, label: "Musical Instruments" },
-  "office-products": { referral: 15, label: "Office Products" },
-  "outdoors": { referral: 15, label: "Outdoors" },
-  "pet-supplies": { referral: 15, label: "Pet Supplies" },
-  "shoes": { referral: 15, label: "Shoes" },
-  "sports": { referral: 15, label: "Sports & Outdoors" },
-  "tools-home-improvement": { referral: 15, label: "Tools & Home Improvement" },
-  "toys-games": { referral: 15, label: "Toys & Games" },
-  "video-games": { referral: 15, label: "Video Games" },
-  "watches": { referral: 16, label: "Watches" },
-}
-
-// FBA fee structure (2024 rates) - simplified tiers
+// Amazon FBA fulfillment estimate (2024 size-tier rates) - simplified tiers.
+// Not part of the canonical fee tables in lib/marketplace-fees.ts; labelled as an estimate in the UI.
 const FBA_SIZE_TIERS = {
   small_standard: {
     name: "Small Standard",
@@ -127,12 +103,12 @@ interface FormData {
   productName: string
   sellingPrice: number
   unitsPerDay: number
+  marketplace: MarketplaceSlug
   category: string
   wholesalePrice: number
   shippingToAmazon: number
   tariffRate: number
   packagingCost: number
-  referralFee: number
   fbaFee: number
   storageFee: number
   includeFuelSurcharge: boolean
@@ -168,6 +144,11 @@ interface CalculationResult {
   sizeTier: string
   estimatedFbaFee: number
   estimatedReferralFee: number
+  referralFeeDetail: string
+  referralRateLabel: string
+  minFeeApplied: boolean
+  marketplaceOtherFees: CalculatorFeeLine[]
+  marketplaceOtherFeesTotal: number
   fuelSurchargePerUnit: number
   seasonalityMultiplier: number
   adjustedUnitsPerDay: number
@@ -180,6 +161,7 @@ interface CalculationResult {
     tariffs: number
     packaging: number
     referralFee: number
+    otherMarketplaceFees: number
     fbaFee: number
     fuelSurcharge: number
     storageFee: number
@@ -254,12 +236,12 @@ const defaultFormData: FormData = {
   productName: "",
   sellingPrice: 29.99,
   unitsPerDay: 10,
-  category: "standard",
+  marketplace: DEFAULT_CALCULATOR_MARKETPLACE,
+  category: defaultCategorySlug(DEFAULT_CALCULATOR_MARKETPLACE),
   wholesalePrice: 8.00,
   shippingToAmazon: 1.50,
   tariffRate: 0,
   packagingCost: 0.50,
-  referralFee: 15,
   fbaFee: 5.40,
   storageFee: 0.15,
   includeFuelSurcharge: true,
@@ -318,7 +300,6 @@ export function ProfitCalculator() {
       shippingToAmazon,
       tariffRate,
       packagingCost,
-      referralFee,
       fbaFee,
       storageFee,
       includeFuelSurcharge,
@@ -331,11 +312,13 @@ export function ProfitCalculator() {
       leadTime,
       moq,
       category,
+      marketplace,
     } = formData
 
-    // Auto-calculate FBA fee if enabled
+    // Auto-calculate FBA fee if enabled (Amazon only; other marketplaces use the manual fulfillment input)
+    const isAmazon = marketplace === "amazon"
     const fbaResult = calculateFbaFee(productWeight, productLength, productWidth, productHeight)
-    const actualFbaFee = autoCalculateFees ? fbaResult.fee : fbaFee
+    const actualFbaFee = isAmazon && autoCalculateFees ? fbaResult.fee : fbaFee
     const sizeTier = fbaResult.tier
 
     // Revenue calculation
@@ -345,10 +328,12 @@ export function ProfitCalculator() {
     const tariffCost = wholesalePrice * (tariffRate / 100)
     const totalCogs = wholesalePrice + shippingToAmazon + tariffCost + packagingCost
 
-    // Amazon fees
-    const referralFeeAmount = sellingPrice * (referralFee / 100)
-    const fuelSurchargePerUnit = includeFuelSurcharge ? actualFbaFee * (fuelSurchargeRate / 100) : 0
-    const amazonFeesBeforeFuel = referralFeeAmount + actualFbaFee + storageFee
+    // Marketplace fees from the canonical fee tables (referral rate, tiers, minimum fee,
+    // per-order, listing and payment-processing fees), plus seller-entered fulfillment and storage
+    const marketplaceFees = computeCalculatorMarketplaceFees(marketplace, category, sellingPrice)
+    const referralFeeAmount = marketplaceFees.referralFee
+    const fuelSurchargePerUnit = isAmazon && includeFuelSurcharge ? actualFbaFee * (fuelSurchargeRate / 100) : 0
+    const amazonFeesBeforeFuel = referralFeeAmount + marketplaceFees.otherFeesTotal + actualFbaFee + storageFee
     const totalAmazonFees = amazonFeesBeforeFuel + fuelSurchargePerUnit
 
     // Advertising
@@ -403,6 +388,11 @@ export function ProfitCalculator() {
       sizeTier,
       estimatedFbaFee: fbaResult.fee,
       estimatedReferralFee: referralFeeAmount,
+      referralFeeDetail: marketplaceFees.referralDetail,
+      referralRateLabel: marketplaceFees.rateLabel,
+      minFeeApplied: marketplaceFees.minFeeApplied,
+      marketplaceOtherFees: marketplaceFees.otherLines,
+      marketplaceOtherFeesTotal: marketplaceFees.otherFeesTotal,
       fuelSurchargePerUnit,
       seasonalityMultiplier,
       adjustedUnitsPerDay,
@@ -415,6 +405,7 @@ export function ProfitCalculator() {
         tariffs: tariffCost,
         packaging: packagingCost,
         referralFee: referralFeeAmount,
+        otherMarketplaceFees: marketplaceFees.otherFeesTotal,
         fbaFee: actualFbaFee,
         fuelSurcharge: fuelSurchargePerUnit,
         storageFee,
@@ -445,12 +436,19 @@ export function ProfitCalculator() {
   }
 
   const handleCategoryChange = (category: string) => {
-    setFormData(prev => ({
-      ...prev,
-      category,
-      referralFee: CATEGORY_FEES[category]?.referral || 15
-    }))
+    setFormData(prev => ({ ...prev, category }))
   }
+
+  const handleMarketplaceChange = (marketplace: string) => {
+    const slug = marketplace as MarketplaceSlug
+    setFormData(prev => ({ ...prev, marketplace: slug, category: defaultCategorySlug(slug) }))
+  }
+
+  const feeContext = resolveCalculatorCategory(formData.marketplace, formData.category)
+  const isAmazon = feeContext.marketplace.slug === "amazon"
+  const marketplaceName = feeContext.marketplace.shortName
+  const feeName = feeContext.marketplace.feeName
+  const feeNameTitle = feeName.charAt(0).toUpperCase() + feeName.slice(1)
 
   const resetForm = () => {
     setFormData(defaultFormData)
@@ -490,7 +488,8 @@ export function ProfitCalculator() {
 Deal Calculator Summary
 =======================
 Product: ${formData.productName || "Untitled Product"}
-Category: ${CATEGORY_FEES[formData.category]?.label || formData.category}
+Marketplace: ${feeContext.marketplace.name}
+Category: ${feeContext.category.label} (${calculation.referralRateLabel} ${feeName})
 
 PRICING & SALES
 ---------------
@@ -502,7 +501,7 @@ PER-UNIT ANALYSIS
 -----------------
 Revenue: $${calculation.revenue.toFixed(2)}
 COGS: -$${calculation.cogs.toFixed(2)}
-Amazon Fees: -$${calculation.amazonFees.toFixed(2)}
+${marketplaceName} Fees: -$${calculation.amazonFees.toFixed(2)}
 Advertising (${formData.targetTacos}% TACoS): -$${calculation.advertisingCost.toFixed(2)}
 Net Profit: $${calculation.netProfit.toFixed(2)}
 Margin: ${calculation.margin.toFixed(1)}%
@@ -512,19 +511,20 @@ MONTHLY P&L SUMMARY
 -------------------
 Monthly Revenue: $${calculation.monthlyRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
 Monthly COGS: -$${calculation.monthlyCogs.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-Monthly Amazon Fees (before fuel): -$${calculation.monthlyAmazonFeesBeforeFuel.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+Monthly ${marketplaceName} Fees (before fuel): -$${calculation.monthlyAmazonFeesBeforeFuel.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
 Monthly Fuel Surcharge: -$${calculation.monthlyFuelSurcharge.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
 Monthly Ad Spend: -$${calculation.monthlyAdSpend.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
 Monthly Net Profit: $${calculation.monthlyProfit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
 Annual Net Profit: $${calculation.annualProfit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
 Monthly ROI: ${calculation.monthlyROI.toFixed(1)}%
 
-FBA FEE BREAKDOWN
------------------
-Referral Fee (${formData.referralFee}%): $${calculation.estimatedReferralFee.toFixed(2)}
-FBA Fulfillment: $${calculation.estimatedFbaFee.toFixed(2)}
-Fuel Surcharge (${formData.fuelSurchargeRate}% of FBA): $${calculation.fuelSurchargePerUnit.toFixed(2)}
-Storage Fee: $${formData.storageFee.toFixed(2)}
+FEE BREAKDOWN
+-------------
+${feeNameTitle} (${calculation.referralFeeDetail}): $${calculation.estimatedReferralFee.toFixed(2)}
+${calculation.marketplaceOtherFees.map((line) => `${line.label}: $${line.amount.toFixed(2)}`).join("\n")}${calculation.marketplaceOtherFees.length ? "\n" : ""}${isAmazon ? "FBA Fulfillment (estimate)" : "Fulfillment (your input)"}: $${calculation.costBreakdown.fbaFee.toFixed(2)}
+Fuel Surcharge${isAmazon ? ` (${formData.fuelSurchargeRate}% of FBA)` : " (Amazon only)"}: $${calculation.fuelSurchargePerUnit.toFixed(2)}
+Storage Fee (your input): $${formData.storageFee.toFixed(2)}
+Marketplace fee rates: MarketplaceBeta ${feeContext.marketplace.name} fee table, verified ${formatVerifiedDate(feeContext.marketplace.lastVerified)}
 
 INVENTORY PLANNING
 ------------------
@@ -556,6 +556,28 @@ Generated by MarketplaceBeta Deal Calculator
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
   }, [generateSummary, formData.productName])
+
+  const categoryOptions = feeContext.marketplace.categories.map((c) => {
+    const isDefault = c.slug === defaultCategorySlug(feeContext.marketplace.slug)
+    return (
+      <SelectItem key={c.slug} value={c.slug}>
+        {c.label} ({rateLabel(c)}{c.minFee ? `, $${c.minFee.toFixed(2)} min` : ""}){isDefault ? " (default)" : ""}
+      </SelectItem>
+    )
+  })
+
+  const feeSourceNote = (
+    <p className="text-xs leading-5 text-muted-foreground">
+      {feeNameTitle} rates, minimum fees and per-order, listing and processing fees come from our{" "}
+      <a href={`/fees/${feeContext.marketplace.slug}/${feeContext.category.slug}`} className="underline underline-offset-2">
+        {feeContext.marketplace.name} {feeContext.category.label} fee table
+      </a>
+      , verified {formatVerifiedDate(feeContext.marketplace.lastVerified)}.
+      {feeContext.isDefaultCategory ? ` Default category: ${feeContext.category.label}; pick yours for an exact rate.` : ""}
+      {feeContext.category.note ? ` ${feeContext.category.note}` : ""}
+      {" "}Assumes free shipping to the buyer (no buyer-paid shipping in the fee base).
+    </p>
+  )
 
   return (
     <div className="space-y-6">
@@ -625,21 +647,35 @@ Generated by MarketplaceBeta Deal Calculator
                       />
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="category">Category</Label>
-                    <Select value={formData.category} onValueChange={handleCategoryChange}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Object.entries(CATEGORY_FEES).map(([key, { referral, label }]) => (
-                          <SelectItem key={key} value={key}>
-                            {label} ({referral}%)
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="marketplace">Marketplace</Label>
+                      <Select value={feeContext.marketplace.slug} onValueChange={handleMarketplaceChange}>
+                        <SelectTrigger id="marketplace">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {CALCULATOR_MARKETPLACES.map((m) => (
+                            <SelectItem key={m.slug} value={m.slug}>
+                              {m.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="category">Category</Label>
+                      <Select value={feeContext.category.slug} onValueChange={handleCategoryChange}>
+                        <SelectTrigger id="category">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {categoryOptions}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
+                  {feeSourceNote}
                 </CardContent>
               </Card>
 
@@ -702,42 +738,67 @@ Generated by MarketplaceBeta Deal Calculator
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <DollarSign className="h-5 w-5 text-primary" />
-                    Amazon Fees & Advertising
+                    {marketplaceName} Fees & Advertising
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="referralFee">Referral Fee (%)</Label>
-                      <Input
-                        id="referralFee"
-                        type="number"
-                        step="0.1"
-                        value={formData.referralFee}
-                        onChange={(e) => handleInputChange("referralFee", e.target.value)}
-                      />
+                      <Label className="flex items-center gap-1">
+                        {feeNameTitle} / Unit ($)
+                        <Badge variant="secondary" className="text-xs">Fee table</Badge>
+                      </Label>
+                      <div
+                        aria-live="polite"
+                        className="flex h-10 items-center rounded-md border bg-muted px-3 text-sm font-semibold tabular-nums"
+                      >
+                        ${calculation.estimatedReferralFee.toFixed(2)}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {calculation.referralFeeDetail}
+                        {calculation.minFeeApplied && (
+                          <Badge variant="outline" className="ml-1 text-xs">Minimum fee</Badge>
+                        )}
+                      </p>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="fbaFee" className="flex items-center gap-1">
-                        FBA Fee / Unit ($)
-                        {autoCalculateFees && (
-                          <Badge variant="secondary" className="text-xs">Auto</Badge>
+                        {isAmazon ? "FBA Fee / Unit ($)" : "Fulfillment / Unit ($)"}
+                        {isAmazon && autoCalculateFees && (
+                          <Badge variant="secondary" className="text-xs">Auto estimate</Badge>
                         )}
                       </Label>
                       <Input
                         id="fbaFee"
                         type="number"
                         step="0.01"
-                        value={autoCalculateFees ? calculation.estimatedFbaFee : formData.fbaFee}
+                        value={isAmazon && autoCalculateFees ? calculation.estimatedFbaFee : formData.fbaFee}
                         onChange={(e) => handleInputChange("fbaFee", e.target.value)}
-                        disabled={autoCalculateFees}
-                        className={autoCalculateFees ? "bg-muted" : ""}
+                        disabled={isAmazon && autoCalculateFees}
+                        className={isAmazon && autoCalculateFees ? "bg-muted" : ""}
                       />
+                      <p className="text-xs text-muted-foreground">
+                        {isAmazon
+                          ? "Estimate from 2024 FBA size tiers; not from our fee tables."
+                          : "Your own shipping or fulfillment cost; not in our fee tables."}
+                      </p>
                     </div>
                   </div>
+                  {calculation.marketplaceOtherFees.length > 0 && (
+                    <div className="space-y-1 rounded-md border bg-muted/40 p-3 text-xs">
+                      {calculation.marketplaceOtherFees.map((line) => (
+                        <div key={line.label} className="flex justify-between gap-3">
+                          <span className="text-muted-foreground">
+                            {line.label}{line.detail ? ` (${line.detail})` : ""}
+                          </span>
+                          <span className="font-semibold tabular-nums">${line.amount.toFixed(2)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="storageFee">Monthly Storage / Unit ($)</Label>
+                      <Label htmlFor="storageFee">Monthly Storage / Unit ($, your input)</Label>
                       <Input
                         id="storageFee"
                         type="number"
@@ -757,6 +818,7 @@ Generated by MarketplaceBeta Deal Calculator
                       />
                     </div>
                   </div>
+                  {isAmazon && (
                   <div className="rounded-xl border border-sky-400/20 bg-sky-500/5 p-4">
                     <div className="flex items-start justify-between gap-4">
                       <div className="space-y-1">
@@ -793,6 +855,7 @@ Generated by MarketplaceBeta Deal Calculator
                       </div>
                     </div>
                   </div>
+                  )}
                 </CardContent>
               </Card>
 
@@ -982,10 +1045,10 @@ Generated by MarketplaceBeta Deal Calculator
                       <span className="font-medium text-red-500 tabular-nums">-${calculation.cogs.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Amazon Fees / Unit</span>
+                      <span className="text-muted-foreground">{marketplaceName} Fees / Unit</span>
                       <span className="font-medium text-red-500 tabular-nums">-${calculation.amazonFeesBeforeFuel.toFixed(2)}</span>
                     </div>
-                    {formData.includeFuelSurcharge && (
+                    {isAmazon && formData.includeFuelSurcharge && (
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Fuel Surcharge / Unit</span>
                         <span className="font-medium text-red-500 tabular-nums">-${calculation.fuelSurchargePerUnit.toFixed(2)}</span>
@@ -1097,10 +1160,10 @@ Generated by MarketplaceBeta Deal Calculator
                       <span className="font-semibold text-red-500 tabular-nums">-${calculation.monthlyCogs.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </div>
                     <div className="flex justify-between items-center p-3 rounded-lg bg-muted/30">
-                      <span>Monthly Amazon Fees</span>
+                      <span>Monthly {marketplaceName} Fees</span>
                       <span className="font-semibold text-red-500 tabular-nums">-${calculation.monthlyAmazonFeesBeforeFuel.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </div>
-                    {formData.includeFuelSurcharge && (
+                    {isAmazon && formData.includeFuelSurcharge && (
                       <div className="flex justify-between items-center p-3 rounded-lg bg-muted/30">
                         <span>Monthly Fuel Surcharge</span>
                         <span className="font-semibold text-red-500 tabular-nums">-${calculation.monthlyFuelSurcharge.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
@@ -1155,16 +1218,12 @@ Generated by MarketplaceBeta Deal Calculator
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label>Product Category</Label>
-                    <Select value={formData.category} onValueChange={handleCategoryChange}>
+                    <Select value={feeContext.category.slug} onValueChange={handleCategoryChange}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {Object.entries(CATEGORY_FEES).map(([key, { referral, label }]) => (
-                          <SelectItem key={key} value={key}>
-                            {label} ({referral}% referral)
-                          </SelectItem>
-                        ))}
+                        {categoryOptions}
                       </SelectContent>
                     </Select>
                   </div>
@@ -1228,7 +1287,7 @@ Generated by MarketplaceBeta Deal Calculator
             <Card>
               <CardHeader>
                 <CardTitle>Fee Breakdown</CardTitle>
-                <CardDescription>Estimated Amazon fees for your product</CardDescription>
+                <CardDescription>Estimated {marketplaceName} fees for your product</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
@@ -1239,25 +1298,39 @@ Generated by MarketplaceBeta Deal Calculator
                 <div className="space-y-3">
                   <div className="flex justify-between items-center p-3 rounded-lg bg-muted/30">
                     <div>
-                      <p className="font-medium">Referral Fee</p>
-                      <p className="text-xs text-muted-foreground">{formData.referralFee}% of selling price</p>
+                      <p className="font-medium">{feeNameTitle}</p>
+                      <p className="text-xs text-muted-foreground">{calculation.referralFeeDetail}</p>
                     </div>
                     <span className="font-semibold tabular-nums">${calculation.estimatedReferralFee.toFixed(2)}</span>
                   </div>
                   
+                  {calculation.marketplaceOtherFees.map((line) => (
+                    <div key={line.label} className="flex justify-between items-center p-3 rounded-lg bg-muted/30">
+                      <div>
+                        <p className="font-medium">{line.label}</p>
+                        {line.detail && <p className="text-xs text-muted-foreground">{line.detail}</p>}
+                      </div>
+                      <span className="font-semibold tabular-nums">${line.amount.toFixed(2)}</span>
+                    </div>
+                  ))}
+
                   <div className="flex justify-between items-center p-3 rounded-lg bg-muted/30">
                     <div>
-                      <p className="font-medium">FBA Fulfillment Fee</p>
-                      <p className="text-xs text-muted-foreground">Based on size & weight</p>
+                      <p className="font-medium">{isAmazon ? "FBA Fulfillment Fee" : "Fulfillment"}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {isAmazon
+                          ? autoCalculateFees ? "Estimate based on size & weight" : "Your input"
+                          : "Your input"}
+                      </p>
                     </div>
-                    <span className="font-semibold tabular-nums">${calculation.estimatedFbaFee.toFixed(2)}</span>
+                    <span className="font-semibold tabular-nums">${calculation.costBreakdown.fbaFee.toFixed(2)}</span>
                   </div>
 
                   <div className="flex justify-between items-center p-3 rounded-lg bg-muted/30">
                     <div>
                       <p className="font-medium">Fuel Surcharge</p>
                       <p className="text-xs text-muted-foreground">
-                        {formData.includeFuelSurcharge ? `${formData.fuelSurchargeRate}% of fulfillment fee` : "Currently excluded"}
+                        {!isAmazon ? "Amazon FBA only" : formData.includeFuelSurcharge ? `${formData.fuelSurchargeRate}% of fulfillment fee` : "Currently excluded"}
                       </p>
                     </div>
                     <span className="font-semibold tabular-nums">${calculation.fuelSurchargePerUnit.toFixed(2)}</span>
@@ -1266,7 +1339,7 @@ Generated by MarketplaceBeta Deal Calculator
                   <div className="flex justify-between items-center p-3 rounded-lg bg-muted/30">
                     <div>
                       <p className="font-medium">Monthly Storage Fee</p>
-                      <p className="text-xs text-muted-foreground">Per unit estimate</p>
+                      <p className="text-xs text-muted-foreground">Per unit, your input</p>
                     </div>
                     <span className="font-semibold tabular-nums">${formData.storageFee.toFixed(2)}</span>
                   </div>
@@ -1274,7 +1347,7 @@ Generated by MarketplaceBeta Deal Calculator
                   <Separator />
 
                   <div className="flex justify-between items-center p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                    <span className="font-semibold">Total Amazon Fees</span>
+                    <span className="font-semibold">Total {marketplaceName} Fees</span>
                     <span className="text-xl font-bold text-amber-600 tabular-nums">
                       ${calculation.amazonFees.toFixed(2)}
                     </span>
@@ -1419,15 +1492,21 @@ Generated by MarketplaceBeta Deal Calculator
 
                 <div className="space-y-3">
                   <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
-                    Amazon Fees
+                    {marketplaceName} Fees
                   </h4>
                   <div className="space-y-2">
                     <div className="flex justify-between items-center p-2 rounded bg-muted/30">
-                      <span>Referral Fee ({formData.referralFee}%)</span>
+                      <span>{feeNameTitle} ({calculation.referralRateLabel}{calculation.minFeeApplied ? ", minimum fee applied" : ""})</span>
                       <span className="font-medium tabular-nums">${calculation.costBreakdown.referralFee.toFixed(2)}</span>
                     </div>
+                    {calculation.marketplaceOtherFees.map((line) => (
+                      <div key={line.label} className="flex justify-between items-center p-2 rounded bg-muted/30">
+                        <span>{line.label}</span>
+                        <span className="font-medium tabular-nums">${line.amount.toFixed(2)}</span>
+                      </div>
+                    ))}
                     <div className="flex justify-between items-center p-2 rounded bg-muted/30">
-                      <span>FBA Fulfillment Fee</span>
+                      <span>{isAmazon ? "FBA Fulfillment Fee" : "Fulfillment"}</span>
                       <span className="font-medium tabular-nums">${calculation.costBreakdown.fbaFee.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between items-center p-2 rounded bg-muted/30">
@@ -1439,7 +1518,7 @@ Generated by MarketplaceBeta Deal Calculator
                       <span className="font-medium tabular-nums">${calculation.costBreakdown.storageFee.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between items-center p-2 rounded bg-primary/10 font-semibold">
-                      <span>Total Amazon Fees</span>
+                      <span>Total {marketplaceName} Fees</span>
                       <span className="tabular-nums">${calculation.amazonFees.toFixed(2)}</span>
                     </div>
                   </div>
@@ -1469,7 +1548,7 @@ Generated by MarketplaceBeta Deal Calculator
                 <div className="space-y-4">
                   {[
                     { label: "COGS", value: calculation.cogs, color: "bg-blue-500" },
-                    { label: "Amazon Fees", value: calculation.amazonFees, color: "bg-amber-500" },
+                    { label: `${marketplaceName} Fees`, value: calculation.amazonFees, color: "bg-amber-500" },
                     { label: "Advertising", value: calculation.advertisingCost, color: "bg-purple-500" },
                     { label: "Net Profit", value: Math.max(calculation.netProfit, 0), color: "bg-emerald-500" },
                   ].map((item) => {
