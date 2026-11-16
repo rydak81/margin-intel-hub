@@ -5,9 +5,10 @@ import { ArrowRight } from 'lucide-react'
 import { PremiumSiteHeader } from '@/components/premium-site-header'
 import { PremiumSiteFooter } from '@/components/premium-site-footer'
 import { SponsorBriefLink } from '@/components/brief-cta'
+import { BriefSignupLink } from '@/components/brief-signup-link'
 import { JsonLd } from '@/components/json-ld'
 import { AnalysisInline } from '@/components/analysis-inline'
-import { AnalysisFeeLinks, AnalysisWorkflowLink } from '@/components/related-links'
+import { AnalysisEbayReading, AnalysisFeeLinks, AnalysisWorkflowLink } from '@/components/related-links'
 import { HolidayHubBackLink } from '@/components/holiday-hub-link'
 import { isHolidayAnalysis } from '@/lib/holiday-hub'
 import { ANALYSIS_ARTICLES, getAnalysis } from '@/lib/analysis'
@@ -47,9 +48,10 @@ export default async function AnalysisPage({ params }: Props) {
   const schema: Record<string, unknown>[] = [
     { '@context': 'https://schema.org', '@type': 'Article', headline: a.headline, description: a.metaDescription, datePublished: a.publishedOn, dateModified: a.updatedOn, keywords: a.tags.join(', '), mainEntityOfPage: url, author: { '@type': 'Organization', name: 'MarketplaceBeta', url: `${siteUrl}/about` }, publisher: ORGANIZATION_REF },
     { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Intelligence', item: `${siteUrl}/intelligence` },
-      { '@type': 'ListItem', position: 2, name: 'Analysis', item: `${siteUrl}/intelligence/analysis` },
-      { '@type': 'ListItem', position: 3, name: a.seoTitle, item: url },
+      { '@type': 'ListItem', position: 1, name: 'Home', item: siteUrl },
+      { '@type': 'ListItem', position: 2, name: 'Intelligence', item: `${siteUrl}/intelligence` },
+      { '@type': 'ListItem', position: 3, name: 'Analysis', item: `${siteUrl}/intelligence/analysis` },
+      { '@type': 'ListItem', position: 4, name: a.seoTitle, item: url },
     ] },
   ]
   const faqSchema = analysisFaqJsonLd(a)
@@ -58,7 +60,7 @@ export default async function AnalysisPage({ params }: Props) {
     <JsonLd data={schema} />
     <PremiumSiteHeader active="analysis" backHref="/intelligence/analysis" backLabel="Analysis" ctaHref={cta} />
     <main className="mx-auto site-width px-4 py-10 sm:px-6">
-      <nav aria-label="Breadcrumb" className="mb-6 text-sm text-muted-foreground"><Link href="/intelligence" className="font-semibold text-primary">Intelligence</Link><span aria-hidden="true"> / </span><Link href="/intelligence/analysis" className="font-semibold text-primary">Analysis</Link></nav>
+      <nav aria-label="Breadcrumb" className="mb-6 text-sm text-muted-foreground"><Link href="/" className="font-semibold text-primary">Home</Link><span aria-hidden="true"> / </span><Link href="/intelligence" className="font-semibold text-primary">Intelligence</Link><span aria-hidden="true"> / </span><Link href="/intelligence/analysis" className="font-semibold text-primary">Analysis</Link><span aria-hidden="true"> / </span><span className="text-foreground">{a.seoTitle}</span></nav>
       <header className="editorial-intro rounded-2xl border border-border p-6 sm:p-10">
         <p className="editorial-eyebrow">Analysis · {a.tags[0]}</p>
         <h1 className="mt-4 max-w-4xl text-4xl font-bold leading-tight sm:text-5xl">{a.headline}</h1>
@@ -69,6 +71,7 @@ export default async function AnalysisPage({ params }: Props) {
       <div className="mt-10 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_280px]">
         <article className="guide-copy rounded-2xl border border-border bg-card p-6 sm:p-10 editorial-elevated">
           <div className="mb-10 rounded-xl border-l-4 border-blue-600 bg-blue-50 p-5 dark:bg-blue-950/40"><p className="font-bold">The decision</p><p className="mt-2">{a.takeaway}</p></div>
+          <AnalysisEbayReading article={a} />
           {a.sections.map(section => <section key={section.id} id={section.id} className="mb-10 scroll-mt-48 last:mb-0">
             <h2 className="mb-5 text-2xl font-bold sm:text-3xl">{section.title}</h2>
             {section.paragraphs.map((p, i) => <p key={i} className="mb-5 leading-8 text-muted-foreground"><AnalysisInline text={p} /></p>)}
@@ -88,7 +91,7 @@ export default async function AnalysisPage({ params }: Props) {
         </article>
         <aside className="space-y-6 lg:sticky lg:top-44">
           <nav aria-label="On this page" className="rounded-2xl border border-border bg-card p-6 editorial-elevated"><p className="editorial-eyebrow">On this page</p><ul className="mt-4 space-y-3 text-sm">{a.sections.map(s => <li key={s.id}><a href={`#${s.id}`} className="hover:text-primary hover:underline">{s.title}</a></li>)}{forecasts.length > 0 && <li><a href="#forecasts" className="hover:text-primary">Forecasts tracked</a></li>}<li><a href="#sources" className="hover:text-primary">Sources</a></li></ul></nav>
-          <div className="rounded-2xl bg-slate-950 p-6 text-white editorial-elevated"><h2 className="text-xl font-bold">Get the next one in your inbox</h2><p className="mt-3 text-sm text-slate-300">The free Daily Marketplace Brief: fee changes, forecast grades and operator analysis like this.</p><Link href={cta} className="mt-5 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-3 text-sm font-bold text-white">Subscribe free<ArrowRight className="h-4 w-4" /></Link><SponsorBriefLink tone="dark" className="mt-4" /></div>
+          <div className="rounded-2xl bg-slate-950 p-6 text-white editorial-elevated"><h2 className="text-xl font-bold">Get the next one in your inbox</h2><p className="mt-3 text-sm text-slate-300">The free Daily Marketplace Brief: fee changes, forecast grades and operator analysis like this.</p><BriefSignupLink source={a.newsletterSource} className="mt-5 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-3 text-sm font-bold text-white">Subscribe free<ArrowRight className="h-4 w-4" /></BriefSignupLink><SponsorBriefLink tone="dark" className="mt-4" /></div>
         </aside>
       </div>
     </main><PremiumSiteFooter /></div>

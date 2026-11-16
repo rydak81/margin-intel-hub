@@ -1,6 +1,9 @@
 import { AI_PLAYBOOKS } from '@/lib/ai-playbooks'
+import { createElement } from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import sitemap from '@/app/sitemap'
+import { NewsArticleFollowOn } from '@/components/news-article-follow-on'
 import nextConfig from '@/next.config.mjs'
 import { generateMetadata as categoryMetadata } from '@/app/fees/[marketplace]/[category]/page'
 import { generateMetadata as saleMetadata } from '@/app/fees/[marketplace]/sale/[price]/page'
@@ -8,6 +11,9 @@ import { metadata as forecastsMetadata } from '@/app/intelligence/forecasts/page
 import { MARKETPLACES, getAllFeeRoutes } from '@/lib/marketplace-fees'
 import { SALE_PRICES, getAllSaleRoutes } from '@/lib/sale-fee-pages'
 import { INDEXABLE_SALE_PAGES, feeCategoryCanonicalPath, isIndexableSalePage, isSelfCanonicalFeeCategory } from '@/lib/seo-indexing'
+import { newsArticleCopy, newsArticleJsonLd, newsArticleMetadataFields, relatedAnalysisForNews } from '@/lib/news-article-seo'
+import { analysisMarketplaces, relatedAnalysisForMarketplace } from '@/lib/related-links'
+import { ORGANIZATION_ID } from '@/lib/site-jsonld'
 import { ANALYSIS_ARTICLES } from '@/lib/analysis'
 import { parseInitialArticles } from '@/lib/articles-initial'
 
@@ -127,9 +133,151 @@ describe('/articles crawler HTML', () => {
     expect(html).not.toContain('Loading research archive')
   })
   it('still has an H1 when the list could not be loaded', async () => {
-    const { renderToStaticMarkup } = await import('react-dom/server')
-    const { createElement } = await import('react')
     const { ArticlesStaticList } = await import('@/app/articles/articles-static-list')
     expect(renderToStaticMarkup(createElement(ArticlesStaticList, { initial: null }))).toContain('<h1')
+  })
+})
+
+const REPRICER = {
+  id: 'art_jir4d3',
+  title: 'Seller Snap launches MCP server connecting its Amazon repricer to ChatGPT and Claude',
+  aiSummary: 'Ask your Amazon repricer anything in ChatGPT and Claude LAS VEGAS, Nevada, November 9, 2026.',
+  sourceName: 'Seller Snap Blog',
+  sourceUrl: 'https://sellersnap.io/amazon-repricer-mcp-chatgpt-claude/',
+  publishedAt: '2026-11-09T14:00:35+00:00',
+  imageUrl: 'https://sellersnap.io/wp-content/uploads/2026/11/seller-snap-amazon-repricer-mcp-chatgpt-claude-1024x538.png',
+}
+
+describe('news article head', () => {
+  it('builds a unique title, description, canonical and social tags from the row', () => {
+    const meta = newsArticleMetadataFields({ ...REPRICER, updatedAt: '2026-11-10T08:00:00Z', siteUrl: SITE })
+    expect(meta.title).toBe(`${REPRICER.title} | MarketplaceBeta`)
+    expect(meta.description).toContain('Ask your Amazon repricer')
+    expect(meta.description).not.toBe(newsArticleMetadataFields({
+      ...REPRICER,
+      id: 'art_other',
+      title: 'Walmart changed a referral fee',
+      aiSummary: 'Walmart changed a referral fee.',
+      siteUrl: SITE,
+    }).description)
+    expect(meta.authors).toBeNull()
+    expect(meta.alternates?.canonical).toBe(`${SITE}/news/art_jir4d3`)
+    expect(meta.openGraph).toMatchObject({
+      title: REPRICER.title,
+      description: meta.description,
+      url: `${SITE}/news/art_jir4d3`,
+      siteName: 'MarketplaceBeta',
+      type: 'article',
+      publishedTime: '2026-11-09T14:00:35.000Z',
+      modifiedTime: '2026-11-10T08:00:00.000Z',
+    })
+    expect(meta.twitter).toMatchObject({
+      card: 'summary_large_image',
+      title: REPRICER.title,
+      description: meta.description,
+      images: [REPRICER.imageUrl],
+    })
+    expect(meta.openGraph && 'authors' in meta.openGraph && meta.openGraph.authors).toBeFalsy()
+  })
+
+  it('omits modified time when the row has no updated_at', () => {
+    const meta = newsArticleMetadataFields({ ...REPRICER, siteUrl: SITE })
+    expect(meta.openGraph).toMatchObject({ publishedTime: '2026-11-09T14:00:35.000Z' })
+    expect(meta.openGraph).not.toHaveProperty('modifiedTime')
+  })
+
+  it('uses a per-article description when the row has no summary', () => {
+    const alpha = newsArticleCopy({ id: 'art_a', title: 'Alpha fee change', sourceName: 'Example', publishedAt: '2026-11-09T00:00:00Z' })
+    const beta = newsArticleCopy({ id: 'art_b', title: 'Beta fee change', sourceName: 'Example', publishedAt: '2026-11-09T00:00:00Z' })
+    expect(alpha.description).toContain('Alpha fee change')
+    expect(beta.description).toContain('Beta fee change')
+    expect(alpha.description).not.toBe(beta.description)
+  })
+
+  it('withholds a stale time-relative summary from the description', () => {
+    const copy = newsArticleCopy({
+      id: 'art_5ggnzl',
+      title: 'How we built the agents that built AWS Emulator',
+      aiSummary: 'The emulator ships today.',
+      sourceName: 'About Amazon',
+      publishedAt: '2020-01-01T00:00:00Z',
+    })
+    expect(copy.description).not.toMatch(/\bships today\b/)
+    expect(copy.description).toContain('How we built the agents that built AWS Emulator')
+    expect(copy.description).toContain('2020-01-01')
+  })
+})
+
+describe('news article JSON-LD', () => {
+  it('names MarketplaceBeta as publisher and does not invent an author or a modified date', () => {
+    const ld = newsArticleJsonLd(REPRICER, SITE)
+    expect(ld['@type']).toBe('NewsArticle')
+    expect(ld.headline).toBe(REPRICER.title)
+    expect(ld.datePublished).toBe('2026-11-09T14:00:35.000Z')
+    expect(ld).not.toHaveProperty('dateModified')
+    expect(ld).not.toHaveProperty('author')
+    expect(ld.mainEntityOfPage).toBe(`${SITE}/news/art_jir4d3`)
+    expect(ld.publisher).toEqual({
+      '@type': 'Organization',
+      '@id': ORGANIZATION_ID,
+      name: 'MarketplaceBeta',
+      url: SITE,
+    })
+    expect(ld.isBasedOn).toEqual({
+      '@type': 'CreativeWork',
+      url: REPRICER.sourceUrl,
+      publisher: { '@type': 'Organization', name: 'Seller Snap Blog' },
+    })
+  })
+
+  it('uses updated_at for dateModified and drops unparseable dates', () => {
+    expect(newsArticleJsonLd({ ...REPRICER, updatedAt: '2026-11-12T01:02:03Z' }, SITE).dateModified).toBe('2026-11-12T01:02:03.000Z')
+    const blank = newsArticleJsonLd({ id: 'art_x', title: 'Untitled briefing', publishedAt: 'not-a-date', updatedAt: '' }, SITE)
+    expect(blank).not.toHaveProperty('datePublished')
+    expect(blank).not.toHaveProperty('dateModified')
+    expect(blank).not.toHaveProperty('author')
+  })
+})
+
+describe('news article follow-on', () => {
+  const vendor = [ ['kee', 'pa'], ['ever', 'bee'] ].map(parts => parts.join('')).join('|')
+  const forbidden = new RegExp(`${vendor}|probability|\\bodds\\b`, 'i')
+
+  it('links at most three analysis pages on the tagged marketplace', () => {
+    const picked = relatedAnalysisForNews(['Amazon'])
+    expect(picked.length).toBeGreaterThan(0)
+    expect(picked.length).toBeLessThanOrEqual(3)
+    const amazon = new Set(relatedAnalysisForMarketplace('amazon', 3).map(article => article.slug))
+    for (const article of picked) expect(amazon.has(article.slug)).toBe(true)
+    for (const article of relatedAnalysisForNews(['ebay'])) {
+      expect(analysisMarketplaces(article).some(marketplace => marketplace.slug === 'ebay')).toBe(true)
+    }
+    expect(relatedAnalysisForNews(['tiktok']).map(article => article.slug)).toEqual(
+      relatedAnalysisForMarketplace('tiktok-shop', 3).map(article => article.slug),
+    )
+  })
+
+  it('skips analysis links when no marketplace matches', () => {
+    expect(relatedAnalysisForNews(['shopify', 'target', 'multi_platform'])).toEqual([])
+    expect(relatedAnalysisForNews(undefined)).toEqual([])
+  })
+
+  it('renders the matched links and the existing Daily Brief signup', () => {
+    const html = renderToStaticMarkup(createElement(NewsArticleFollowOn, { platforms: ['ebay'] }))
+    expect(html).toContain('id="related-analysis"')
+    const hrefs = [...html.matchAll(/href="(\/intelligence\/analysis\/[^"]+)"/g)].map(match => match[1])
+    expect(hrefs.length).toBeGreaterThanOrEqual(1)
+    expect(hrefs.length).toBeLessThanOrEqual(3)
+    expect(new Set(hrefs).size).toBe(hrefs.length)
+    expect(html).toContain('href="/newsletter?source=campaign_cta_news#subscribe"')
+    expect(html).toContain('href="/sponsor#inquiry"')
+    expect(html).not.toMatch(forbidden)
+  })
+
+  it('keeps the Brief signup when there is no analysis match', () => {
+    const html = renderToStaticMarkup(createElement(NewsArticleFollowOn, { platforms: ['shopify'] }))
+    expect(html).not.toContain('id="related-analysis"')
+    expect(html).toContain('href="/newsletter?source=campaign_cta_news#subscribe"')
+    expect(html).not.toMatch(forbidden)
   })
 })

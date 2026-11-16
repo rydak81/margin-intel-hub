@@ -46,15 +46,4 @@ export const SPONSOR_OFFER_DEFS: readonly SponsorOfferDef[] = [
 /** Always last in the select: questions and anything not priced above. */
 export const SPONSOR_OTHER_OFFER = { value: 'other', label: 'Something else / question' } as const
 
-/** Founding rate lock: booked on or before this date (America/New_York, inclusive). */
-export const FOUNDING_LOCK_DEADLINE = { year: 2026, month: 11, day: 15, label: 'November 15, 2026' } as const
-export const FOUNDING_LOCK_TEXT = 'Rate locked for 6 months if booked by November 15, 2026.'
-
-/** True while the founding rate lock can still be offered. */
-export function foundingLockOpen(now: Date = new Date()): boolean {
-  const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' }).format(now)
-  const { year, month, day } = FOUNDING_LOCK_DEADLINE
-  return parts <= `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-}
-
 export const SPONSOR_PAYMENT_NOTE = 'Payment is by invoice or payment link after your inquiry. PayPal is also possible.'
