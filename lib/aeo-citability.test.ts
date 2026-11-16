@@ -166,7 +166,7 @@ describe('fee page short answers', () => {
     expect(feeShortAnswer(ten('amazon'))).toBe('As of October 16, 2026, Amazon charges referral fees of 8% to 45% depending on category, plus a $39.99 per month fee for the Professional selling plan.')
     expect(feeShortAnswer(ten('walmart'))).toBe('As of October 16, 2026, Walmart Marketplace charges referral fees of 8% to 20% depending on category, with no monthly subscription or setup fee.')
     expect(feeShortAnswer(ten('ebay'))).toBe('As of October 16, 2026, eBay charges final value fees of 6.7% to 15.3% depending on category, plus a per-order fee of $0.30 through $10 and $0.40 above.')
-    expect(feeShortAnswer(ten('etsy'))).toBe('As of October 16, 2026, Etsy charges a flat 6.5% transaction fee in every category, plus a $0.20 listing fee and 3% + $0.25 payment processing.')
+    expect(feeShortAnswer(ten('etsy'))).toBe('As of November 16, 2026, Etsy charges a flat 6.5% transaction fee in every category, plus a $0.20 listing fee and 3% + $0.25 payment processing.')
     expect(feeShortAnswer(ten('tiktok-shop'))).toBe("As of October 21, 2026, TikTok Shop's published US commission is 6% for most categories (5% for five fine-jewelry sub-categories); trade reports of an 8% rate from Aug 4, 2026 are not confirmed by TikTok.")
   })
   it('never names data tools or probabilities', () => {
