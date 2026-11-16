@@ -52,9 +52,9 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
   {
     "slug": "etsy-fees-on-a-20-sale-2026-shipping-tax-ads",
     "seoTitle": "Etsy Fees on a $20 Sale: $2.35, Then Shipping and Ads",
-    "metaDescription": "Etsy takes $2.35 from a bare $20 sale. Add $4 shipping and it's $2.73; an Offsite Ads order runs $6.33. The math from Etsy's fee pages.",
+    "metaDescription": "Etsy takes $2.35 from a bare $20 sale. Add $4 shipping and it's $2.73; at the 15% Offsite Ads rate it's $6.33. The math from Etsy's fee pages.",
     "headline": "How much Etsy takes from a $20 sale: $2.35 on paper, more once shipping, tax and Offsite Ads are in the order",
-    "dek": "The quick answer to \"what does Etsy take on $20\" assumes no shipping, no tax and no ad. Real orders have at least one of those. We re-read Etsy's fee and payment processing help pages on November 16, 2026 and worked five hypothetical $20 orders, from the bare $2.35 to $6.33 on an Offsite Ads sale.",
+    "dek": "The quick answer to \"what does Etsy take on $20\" assumes no shipping, no tax and no ad. Real orders have at least one of those. We re-read Etsy's fee, payment processing and Offsite Ads help pages on November 16, 2026 and worked five hypothetical $20 orders, from the bare $2.35 to $6.33 at the 15% Offsite Ads rate.",
     "publishedOn": "2026-11-16",
     "updatedOn": "2026-11-16",
     "author": "MarketplaceBeta Intelligence",
@@ -68,7 +68,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
       "Offsite Ads",
       "pricing"
     ],
-    "takeaway": "For a US seller, Etsy's fees on a bare $20 item come to $2.35 (11.75%): the 6.5% transaction fee ($1.30), US payment processing of 3% plus $0.25 ($0.85) and the $0.20 listing fee, all per Etsy's help pages re-read November 16, 2026. That number assumes the buyer pays no shipping and no tax. Etsy charges both the transaction fee and processing on shipping too, so a $20 item with $4 shipping pays $2.73, exactly the same as a $24 item with free shipping. Charging $4 shipping, or pricing at $24 with free shipping, leaves you $3.62 more per order than shipping free at $20 and paying a $4 label yourself (hypothetical, our arithmetic). If an Offsite Ads click drove the sale, the same $24 order pays $6.33. Price for the order you actually get, not the $2.35 headline.",
+    "takeaway": "For a US seller, Etsy's fees on a bare $20 item come to $2.35 (11.75%): the 6.5% transaction fee ($1.30), US payment processing of 3% plus $0.25 ($0.85) and the $0.20 listing fee, all per Etsy's help pages re-read November 16, 2026. That number assumes the buyer pays no shipping and no tax. Etsy charges both the transaction fee and processing on shipping too, so a $20 item with $4 shipping pays $2.73, exactly the same as a $24 item with free shipping. Charging $4 shipping, or pricing at $24 with free shipping, leaves you $3.62 more per order than shipping free at $20 and paying a $4 label yourself (hypothetical, our arithmetic). If an Offsite Ads click drove the sale, the same $24 order pays $6.33 at the 15% Offsite Ads rate. Price for the order you actually get, not the $2.35 headline.",
     "forecastIds": [],
     "newsletterSource": "campaign_kw_etsy_sale",
     "sections": [
@@ -154,7 +154,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
         "paragraphs": [
           "Free shipping at the same $20 price is the expensive choice. In the bare case you keep $17.65 after Etsy fees. If you then pay a $4 label yourself (hypothetical label cost), $13.65 is left. Charge $4 shipping instead, or price the item at $24 with free shipping, and you keep $21.27 after fees, or $17.27 after the same label. That is $3.62 more per order (our arithmetic). The fee rises by $0.38, but you recover the $4.",
           "Sales tax can add a few cents. Etsy's two help pages word this differently. The payment processing page says processing is taken from the total including \"any applicable sales tax.\" The fees and taxes page says it includes \"sales tax if you charge tax on the listing.\" Etsy's [US sales tax help page](https://help.etsy.com/hc/en-us/articles/360000343968) says Etsy itself collects and remits US sales tax on orders shipped to US recipients in the states it lists. If processing does run on that tax, a hypothetical 8% tax ($1.92) on the $24 order lifts processing from $0.97 to $1.03, for $2.79 in total fees. We have not confirmed which wording governs. Check one recent taxed order in your Payment account before you build it into a margin sheet.",
-          "Offsite Ads are the big swing. Etsy's fees page lists the Offsite Ads fee at 15% of the order total if you made less than $10,000 on Etsy in the past 365 days, 12% if you made at least $10,000, and never more than $100 per order. On the $24 order that is $3.60 or $2.88 on top of $2.73, so total fees are $6.33 (26.4%) or $5.61 (23.4%). Our earlier [Offsite Ads analysis](/intelligence/analysis/etsy-offsite-ads-fees-2026) covers who can opt out and how to price for it. The point here is narrower: a $20 Etsy sale can cost $2.35 or $6.33 depending on how the buyer arrived.",
+          "Offsite Ads are the big swing. Etsy's fees page lists the Offsite Ads fee at 15% of the order total if you made less than $10,000 on Etsy in the past 365 days, 12% if you made at least $10,000, and never more than $100 per order. Etsy's [Offsite Ads help page](https://help.etsy.com/hc/en-us/articles/360000338367) is stricter: the 15% rate and the option to opt out apply only if your shop has always made less than $10,000 in any consecutive 365-day period. Once you have reached $10,000, the 12% rate applies and participation is required for the life of the shop. On the $24 order that is $3.60 or $2.88 on top of $2.73, so total fees are $6.33 at the 15% Offsite Ads rate (26.4%) or $5.61 at 12% (23.4%). Our earlier [Offsite Ads analysis](/intelligence/analysis/etsy-offsite-ads-fees-2026) covers who can opt out and how to price for it. The point here is narrower: a $20 Etsy sale can cost $2.35 or $6.33 at the 15% Offsite Ads rate depending on how the buyer arrived.",
           "Multi-quantity orders spread the fixed costs. Etsy's fees page charges $0.20 for each additional quantity sold in one transaction, and the processing page lists the flat part of processing per order. Two $20 items with $4 shipping in one order pay $4.83 in total by our arithmetic ($2.86 transaction, $1.57 processing, $0.40 listing), about 11.0% of the $44 order, or $2.42 per item. Fee context across channels sits on the [Intelligence hub](/intelligence) and in the [Intelligence Dossier](/intelligence/dossier). None of our open [forecasts](/intelligence/forecasts) is an Etsy fee call, so we do not tie this piece to one."
         ]
       },
@@ -168,7 +168,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
           "Replace any \"6.5% of item price\" line in your margin sheet with 6.5% of item plus shipping plus gift wrap, and processing at 3% of the total plus $0.25 per order (US bank account). Check it against our [Etsy fee table](/fees/etsy).",
           "Find your $15 to $30 listings that ship free at the same price you would charge with paid shipping. On a $20 item with a $4 label, that choice costs about $3.62 per order versus charging shipping or pricing at $24 (hypothetical, our arithmetic).",
           "Open one recent taxed order and one Offsite Ads order in your Payment account and compare the fee lines to the table above. That settles the sales tax question for your shop.",
-          "If you are under $10,000 in sales over the past 365 days, decide now whether to stay in Offsite Ads. Etsy's fees page puts the fee at 15% of the order total below that line and 12% at or above it, capped at $100 per order.",
+          "If your shop has never reached $10,000 in sales in any consecutive 365-day period, decide now whether to stay in Offsite Ads. Etsy's Offsite Ads help page puts the fee at 15% of the order total below that line, and at 12% once you have ever crossed it, capped at $100 per order. Crossing it also makes participation mandatory for the life of the shop.",
           "If your bank account is outside the US, use your own row in Etsy's processing table. It varies by country; the UK row, for example, is 4% + 0.20 GBP. Etsy's fees page also lists a 2.5% fee when your listing currency differs from your payment account currency, and a regulatory operating fee for sellers in some countries.",
           "Re-check the fee pages before a big repricing. Our [fee change log](/fees/changelog) records any change we find."
         ]
@@ -186,7 +186,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
         "id": "faq",
         "title": "Questions sellers ask",
         "paragraphs": [
-          "Answers as of November 16, 2026, from Etsy's fees and taxes help page, its payment processing help page and our fee tables. Dollar figures are hypothetical, for a US seller with a US bank account."
+          "Answers as of November 16, 2026, from Etsy's fees and taxes help page, its payment processing help page, its Offsite Ads help page and our fee tables. Dollar figures are hypothetical, for a US seller with a US bank account."
         ],
         "bullets": [
           "How much does Etsy take from a $20 sale? $2.35 if the buyer pays no shipping and no tax and no Offsite Ad was involved: $1.30 transaction fee, $0.85 processing and $0.20 listing, or 11.75%.",
@@ -194,16 +194,16 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
           "What does Etsy take on a $20 item with $4 shipping? $2.73: $1.56 transaction fee, $0.97 processing and $0.20 listing.",
           "Is free shipping cheaper on Etsy fees? Not by itself. A $24 item with free shipping pays the same $2.73 as a $20 item with $4 shipping. Free shipping at $20 lowers the fee to $2.35 but leaves you paying the label.",
           "Does Etsy charge processing on sales tax? Etsy's payment processing page says the total includes any applicable sales tax; its fees page says sales tax if you charge tax on the listing. Check a taxed order in your Payment account. At a hypothetical 8% tax on a $24 order, the difference is $0.06.",
-          "What if the sale came from an Offsite Ad? On the $24 order, add $3.60 at 15% or $2.88 at 12%, for $6.33 or $5.61 in total fees. Etsy caps the Offsite Ads fee at $100 per order.",
+          "What if the sale came from an Offsite Ad? On the $24 order, add $3.60 at 15% or $2.88 at 12%, for $6.33 at the 15% Offsite Ads rate or $5.61 at 12%. Etsy's Offsite Ads help page caps the fee at $100 per order; the 15% rate and the option to opt out apply only if your shop has always made less than $10,000 in any consecutive 365-day period, and once you have reached $10,000 the 12% rate applies and participation is required for the life of the shop.",
           "Is the listing fee charged on every sale? Etsy charges $0.20 per listing when you list it and $0.20 for each additional quantity sold in one transaction. Our $20 figure counts one listing fee per sale.",
-          "Where can I check the rates myself? Etsy's fees and taxes help page and payment processing help page, both linked in Sources, and our [Etsy fee table](/fees/etsy)."
+          "Where can I check the rates myself? Etsy's fees and taxes help page, payment processing help page and Offsite Ads help page, all linked in Sources, and our [Etsy fee table](/fees/etsy)."
         ]
       },
       {
         "id": "methods",
         "title": "How this was made",
         "paragraphs": [
-          "We fetched Etsy's \"What are the Fees and Taxes for Selling on Etsy?\" help page, its payment processing help page and its US sales tax help page on November 16, 2026, and compared the rates with our [Etsy fee table](/fees/etsy) and [$20 sale page](/fees/etsy/on-a-20-sale) (verified October 16, 2026) and the October 16 entry on our [fee change log](/fees/changelog). They match. Worked dollars are our arithmetic for a US seller with a US bank account and USD listings, rounded half-up to the cent per fee line. The $4 shipping charge, $4 label cost and 8% sales tax are illustrations, not measured averages. We did not use forecast data or measure Offsite Ads volume.",
+          "We fetched Etsy's \"What are the Fees and Taxes for Selling on Etsy?\" help page, its payment processing help page, its US sales tax help page and its Offsite Ads help page on November 16, 2026, and compared the rates with our [Etsy fee table](/fees/etsy) and [$20 sale page](/fees/etsy/on-a-20-sale) (verified October 16, 2026) and the October 16 entry on our [fee change log](/fees/changelog). They match. Worked dollars are our arithmetic for a US seller with a US bank account and USD listings, rounded half-up to the cent per fee line. The $4 shipping charge, $4 label cost and 8% sales tax are illustrations, not measured averages. We did not use forecast data or measure Offsite Ads volume.",
           "Published through an automated research and editorial process with evidence checks. No individual human review of this revision is claimed. Suggested citation: MarketplaceBeta Intelligence, \"How much Etsy takes from a $20 sale,\" November 16, 2026, with a link to the canonical article. Check your own Payment account fee lines before you reprice."
         ]
       }
@@ -212,7 +212,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
       {
         "label": "Etsy Help: What are the Fees and Taxes for Selling on Etsy? (re-read Nov 16, 2026)",
         "href": "https://help.etsy.com/hc/en-us/articles/115014483627",
-        "context": "$0.20 listing fee; $0.20 per additional quantity sold in one transaction; 6.5% transaction fee on the total order amount, applying to shipping and gift wrap charged; processing taken from total sale price including shipping and sales tax if you charge tax on the listing; Offsite Ads 15% below $10,000 in the past 365 days, 12% at or above, max $100 per order; 2.5% currency conversion fee; regulatory operating fee for sellers in some countries."
+        "context": "$0.20 listing fee; $0.20 per additional quantity sold in one transaction; 6.5% transaction fee on the total order amount, applying to shipping and gift wrap charged; processing taken from total sale price including shipping and sales tax if you charge tax on the listing; Offsite Ads 15% if you made less than $10,000 in the past 365 days, 12% if you made at least $10,000, max $100 per order (fees page wording; the Offsite Ads help page is stricter: 15% and opt-out only if the shop has always made less than $10,000 in any consecutive 365-day period, 12% and mandatory participation once that line has ever been crossed); 2.5% currency conversion fee; regulatory operating fee for sellers in some countries."
       },
       {
         "label": "Etsy Help: What are Payment Processing Fees for Selling on Etsy? (re-read Nov 16, 2026)",
@@ -223,6 +223,11 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
         "label": "Etsy Help: How US State Sales Tax and Fees Applies to Etsy Orders (re-read Nov 16, 2026)",
         "href": "https://help.etsy.com/hc/en-us/articles/360000343968",
         "context": "Etsy calculates, collects and remits US sales tax on orders shipped to US recipients in listed states."
+      },
+      {
+        "label": "Etsy Help: How Etsy's Offsite Ads Work (re-read Nov 16, 2026)",
+        "href": "https://help.etsy.com/hc/en-us/articles/360000338367",
+        "context": "15% fee and the option to opt out apply only if the shop has always made less than $10,000 USD in any consecutive 365-day period; once the shop has made $10,000 or more in any consecutive 365-day period, the rate is 12% and participation is required for the lifetime of the shop; fee never exceeds $100 USD per order; charged on the amount made from the sale before the advertising fee was applied; 30-day attribution."
       },
       {
         "label": "MarketplaceBeta: Etsy fees by category (verified Oct 16, 2026)",
