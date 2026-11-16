@@ -178,7 +178,7 @@ export function feeByPriceFaq(rows: MarketplaceRow[] = buildRows()): FaqItem[] {
     },
     {
       question: 'Are Etsy Offsite Ads included in the Etsy figures?',
-      answer: `No. The Etsy baseline excludes Offsite Ads, which are shown as a separate line. Offsite Ads are optional only for shops that earned less than $${o.thresholdUsd.toLocaleString('en-US')} in the past 365 days. The fee is ${o.standardPct}% of the order total, or ${o.discountedPct}% once a shop is past $${o.thresholdUsd.toLocaleString('en-US')}, capped at $${o.capUsd} per order, and it is charged only on orders attributed to an ad click. On a hypothetical $50 item that is ${money(etsyOffsite.fee15)} at ${o.standardPct}% or ${money(etsyOffsite.fee12)} at ${o.discountedPct}%.`,
+      answer: `No. The Etsy baseline excludes Offsite Ads, which are shown as a separate line. The ${o.standardPct}% rate and the option to opt out apply only if your shop has always made less than $${o.thresholdUsd.toLocaleString('en-US')} in any consecutive 365-day period. Once a shop has reached $${o.thresholdUsd.toLocaleString('en-US')}, the ${o.discountedPct}% rate applies and participation is required for the life of the shop. The fee is capped at $${o.capUsd} per order, and it is charged only on orders attributed to an ad click. On a hypothetical $50 item that is ${money(etsyOffsite.fee15)} at ${o.standardPct}% or ${money(etsyOffsite.fee12)} at ${o.discountedPct}%.`,
     },
     {
       question: 'What is not included in these totals?',

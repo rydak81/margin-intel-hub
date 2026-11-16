@@ -333,7 +333,7 @@ export const MARKETPLACES: Marketplace[] = [
     sourceUrl: "https://help.etsy.com/hc/en-us/articles/115014483627-What-are-the-Fees-and-Taxes-for-Selling-on-Etsy",
     lastVerified: "2026-11-16",
     summary:
-      "Etsy applies one flat transaction fee across every category, which makes it the simplest take rate to model — but the headline number understates the real cost. Listing fees and payment processing stack on top, and so can Offsite Ads fees on orders attributed to an ad click. Offsite Ads are optional only for shops that earned less than $10,000 in the past 365 days (15% fee, or 12% once past $10,000, capped at $100 per order, on a base that includes shipping and gift wrap). All of these materially change unit economics on low-priced items.",
+      "Etsy applies one flat transaction fee across every category, which makes it the simplest take rate to model — but the headline number understates the real cost. Listing fees and payment processing stack on top, and so can Offsite Ads fees on orders attributed to an ad click. The 15% rate and the option to opt out apply only if your shop has always made less than $10,000 in any consecutive 365-day period. Once a shop has reached $10,000, the 12% rate applies and participation is required for the life of the shop. The fee is capped at $100 per order, on a base that includes shipping and gift wrap. All of these materially change unit economics on low-priced items.",
     categories: ETSY_CATEGORIES,
   },
 ]

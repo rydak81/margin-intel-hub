@@ -87,9 +87,10 @@ describe('short answer and FAQ', () => {
     expect(answer).toContain('eBay at $10 and $25 ($1.66 and $3.80), then Amazon and Walmart at $50 and $100 ($7.50 and $15.00)')
   })
   it('is the first FAQ answer', () => expect(feeByPriceFaq(rows)[0].answer).toBe(answer))
-  it('says Offsite Ads are optional only below $10,000 and never shows the unconfirmed TikTok rate or banned names', () => {
+  it('says the 15% rate and opt-out apply only below $10,000 in any consecutive 365-day period, and never shows the unconfirmed TikTok rate or banned names', () => {
     const faq = JSON.stringify(feeByPriceFaq(rows))
-    expect(faq).toContain('optional only for shops that earned less than $10,000 in the past 365 days')
+    expect(faq).toContain('always made less than $10,000 in any consecutive 365-day period')
+    expect(faq).toContain('participation is required for the life of the shop')
     expect(faq).not.toMatch(/\b8% (rate|commission)|Aug(ust)? 4/)
     expect(faq).not.toMatch(FORBIDDEN)
     expect(faq).not.toMatch(/probabilit|\bodds\b/i)

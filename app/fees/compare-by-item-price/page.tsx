@@ -154,7 +154,7 @@ export default function FeeComparisonByPricePage() {
         <section id="etsy-offsite-ads" className="mt-10">
           <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Etsy Offsite Ads: a separate line, not in the Etsy total above</h2>
           <p className="mt-2 leading-relaxed text-slate-600 dark:text-slate-300">
-            Offsite Ads are optional only for shops that earned less than ${thousand} in the past 365 days. The fee is {OFFSITE_ADS.standardPct}% of the order total, or {OFFSITE_ADS.discountedPct}% once a shop is past ${thousand}, capped at ${OFFSITE_ADS.capUsd} per order. It is charged only when a buyer orders after clicking an ad, and the fee base includes shipping and gift wrap (this page assumes none). Source:{" "}
+            The {OFFSITE_ADS.standardPct}% rate and the option to opt out apply only if your shop has always made less than ${thousand} in any consecutive 365-day period. Once a shop has reached ${thousand}, the {OFFSITE_ADS.discountedPct}% rate applies and participation is required for the life of the shop. The fee is capped at ${OFFSITE_ADS.capUsd} per order. It is charged only when a buyer orders after clicking an ad, and the fee base includes shipping and gift wrap (this page assumes none). Source:{" "}
             <a href={ETSY_FEES_POLICY_URL} target="_blank" rel="noopener noreferrer nofollow" className="font-medium text-sky-600 underline underline-offset-4 dark:text-sky-400">Etsy Fees &amp; Payments Policy</a>.
           </p>
           <div className="mt-4 overflow-x-auto">
