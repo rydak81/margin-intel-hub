@@ -3,10 +3,10 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { ANALYSIS_ARTICLES, latestAnalysis, type AnalysisArticle } from '@/lib/analysis'
 import { MARKETPLACES } from '@/lib/marketplace-fees'
-import { FeeRelatedLinks, AnalysisEbayReading, AnalysisFeeLinks } from '@/components/related-links'
+import { FeeRelatedLinks, AnalysisEbayReading, AnalysisEtsyReading, AnalysisFeeLinks } from '@/components/related-links'
 import { newsletterSource } from '@/lib/newsletter-source'
 import {
-  RELATED_ANALYSIS_LIMIT, RELATED_FEE_COMPARE, analysisMarketplaces, countMentions, ebayAnalysisBriefSource, ebayAnalysisRelated, isEbayAnalysis, relatedAnalysisForMarketplace,
+  RELATED_ANALYSIS_LIMIT, RELATED_FEE_COMPARE, analysisMarketplaces, countMentions, ebayAnalysisBriefSource, ebayAnalysisRelated, etsyAnalysisBriefSource, etsyAnalysisRelated, isEbayAnalysis, isEtsyAnalysis, relatedAnalysisForMarketplace,
 } from '@/lib/related-links'
 
 const mp = (slug: string) => MARKETPLACES.find(m => m.slug === slug)!
@@ -176,6 +176,108 @@ describe('eBay analysis related reading', () => {
     expect(ebayAnalysisBriefSource(fixture)).toBe('campaign_ebay_fixture')
     const unkeyed = article({ slug: 'ebay-custom', tags: ['seller fees'], newsletterSource: 'campaign_custom_ebay' })
     expect(ebayAnalysisBriefSource(unkeyed)).toBe('campaign_cta_ebay_ebay-custom')
+  })
+})
+
+describe('Etsy analysis related reading', () => {
+  const ddp = ANALYSIS_ARTICLES.find(a => a.slug === 'etsy-ddp-us-orders-2026-duty-paid-pricing')!
+  const offsite = ANALYSIS_ARTICLES.find(a => a.slug === 'etsy-offsite-ads-fees-2026')!
+  const watches = ANALYSIS_ARTICLES.find(a => a.slug === 'ebay-watch-fees-2026-15-percent-to-1000')!
+  const perOrder = ANALYSIS_ARTICLES.find(a => a.slug === 'ebay-per-order-fee-2026-under-10')!
+
+  it('treats etsy-* slugs and a leading Etsy tag as Etsy analysis', () => {
+    expect(isEtsyAnalysis(ddp)).toBe(true)
+    expect(isEtsyAnalysis(offsite)).toBe(true)
+    expect(isEtsyAnalysis(article({ slug: 'future-etsy-note', tags: ['Etsy', 'fees'] }))).toBe(true)
+    const returns = ANALYSIS_ARTICLES.find(a => a.slug === 'holiday-returns-2026-amazon-walmart-etsy-ebay')!
+    expect(isEtsyAnalysis(returns)).toBe(false)
+    expect(isEtsyAnalysis(perOrder)).toBe(false)
+    for (const a of ANALYSIS_ARTICLES.filter(x => !isEtsyAnalysis(x))) expect(etsyAnalysisRelated(a)).toBeNull()
+  })
+
+  it('on the duty-paid piece, links the Offsite Ads analysis, the eBay fee analyses on main, and the Etsy fee page', () => {
+    const links = etsyAnalysisRelated(ddp)!
+    expect(links.map(l => l.href)).toEqual([
+      `/intelligence/analysis/${offsite.slug}`,
+      `/intelligence/analysis/${watches.slug}`,
+      `/intelligence/analysis/${perOrder.slug}`,
+      '/fees/etsy',
+    ])
+    expect(links[0].label).toBe(offsite.headline)
+    expect(links[1].label).toBe(watches.headline)
+    expect(links[2].label).toBe(perOrder.headline)
+    expect(links[3].label).toBe('Etsy fee page')
+    expect(links[3].note).toBe('Fee table')
+    expect(links.map(l => `${l.label} ${l.note}`).join('\n')).not.toMatch(FORBIDDEN)
+  })
+
+  it('on the Offsite Ads piece, links the duty-paid analysis, the eBay fee analyses, and the Etsy fee pages it already cites', () => {
+    const links = etsyAnalysisRelated(offsite)!
+    expect(links.map(l => l.href)).toEqual([
+      `/intelligence/analysis/${ddp.slug}`,
+      `/intelligence/analysis/${watches.slug}`,
+      `/intelligence/analysis/${perOrder.slug}`,
+      '/fees/etsy',
+      '/fees/etsy/on-a-20-sale',
+      '/fees/etsy/on-a-50-sale',
+    ])
+    expect(links[3].label).toBe('Etsy fee table')
+    expect(links[4].label).toBe('$20 sale')
+    expect(links[5].label).toBe('$50 sale')
+    expect(links[4].note).toBe('Sale fee page')
+    expect(links.map(l => l.href)).not.toContain('/fees/compare/ebay-vs-etsy')
+    expect(links.map(l => l.href)).not.toContain('/fees/ebay')
+  })
+
+  it('attributes the inline Brief signup as campaign_etsy_ddp, distinct from the sidebar key', () => {
+    expect(ddp.newsletterSource).toBe('campaign_kw_etsy_ddp')
+    expect(etsyAnalysisBriefSource(ddp)).toBe('campaign_etsy_ddp')
+    expect(newsletterSource('?source=campaign_etsy_ddp')).toBe('newsletter_campaign_etsy_ddp')
+    expect(offsite.newsletterSource).toBe('campaign_kw_etsy_offsite_ads')
+    expect(etsyAnalysisBriefSource(offsite)).toBe('campaign_etsy_offsite_ads')
+    expect(newsletterSource('?source=campaign_etsy_offsite_ads')).toBe('newsletter_campaign_etsy_offsite_ads')
+    expect(etsyAnalysisBriefSource(offsite)).not.toBe(offsite.newsletterSource)
+    expect(etsyAnalysisBriefSource(ANALYSIS_ARTICLES.find(a => !isEtsyAnalysis(a))!)).toBeNull()
+  })
+
+  it('renders the block with the signup only on Etsy analysis', () => {
+    const html = renderToStaticMarkup(createElement(AnalysisEtsyReading, { article: ddp }))
+    expect(html).toContain('id="related-reading"')
+    expect(html).toContain(`href="/intelligence/analysis/${offsite.slug}"`)
+    expect(html).toContain(`href="/intelligence/analysis/${watches.slug}"`)
+    expect(html).toContain(`href="/intelligence/analysis/${perOrder.slug}"`)
+    expect(html).toContain('href="/fees/etsy"')
+    expect(html).toContain('href="/newsletter?source=campaign_etsy_ddp#subscribe"')
+    expect(html).toContain('data-cta="brief_signup"')
+    expect(html).not.toMatch(FORBIDDEN)
+    const other = ANALYSIS_ARTICLES.find(a => !isEtsyAnalysis(a))!
+    expect(renderToStaticMarkup(createElement(AnalysisEtsyReading, { article: other }))).toBe('')
+  })
+
+  it('picks up a later Etsy article and skips a cited fee path that is not a page', () => {
+    const fixture = article({
+      slug: 'etsy-fixture-fees',
+      tags: ['Etsy', 'fees'],
+      newsletterSource: 'campaign_kw_etsy_fixture',
+      publishedOn: '2099-01-01',
+      updatedOn: '2099-01-01',
+      seoTitle: 'Fixture Etsy fees',
+      headline: 'Fixture Etsy fees',
+      sections: [{ id: 's', title: 'Body', paragraphs: ['See the [handmade calculator](/fees/etsy/handmade) and the [missing page](/fees/etsy/not-a-page).'] }],
+    })
+    const hrefs = etsyAnalysisRelated(fixture, [fixture, ...latestAnalysis()])!.map(l => l.href)
+    expect(hrefs[0]).toBe(`/intelligence/analysis/${ddp.slug}`)
+    expect(hrefs).toContain(`/intelligence/analysis/${offsite.slug}`)
+    expect(hrefs).toContain(`/intelligence/analysis/${watches.slug}`)
+    expect(hrefs).toContain(`/intelligence/analysis/${perOrder.slug}`)
+    expect(hrefs).toContain('/fees/etsy')
+    expect(hrefs).toContain('/fees/etsy/handmade')
+    expect(hrefs).not.toContain('/fees/etsy/not-a-page')
+    expect(etsyAnalysisBriefSource(fixture)).toBe('campaign_etsy_fixture')
+    expect(newsletterSource('?source=campaign_etsy_fixture')).toBe('newsletter_campaign_etsy_fixture')
+    const unkeyed = article({ slug: 'etsy-custom', tags: ['seller fees'], newsletterSource: 'campaign_custom_etsy' })
+    expect(etsyAnalysisBriefSource(unkeyed)).toBe('campaign_cta_etsy_etsy-custom')
+    expect(newsletterSource('?source=campaign_cta_etsy_etsy-custom')).toBe('newsletter_campaign_cta_etsy_etsy-custom')
   })
 })
 

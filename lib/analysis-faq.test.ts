@@ -91,8 +91,9 @@ describe('Etsy Offsite Ads wording', () => {
   const etsy = MARKETPLACES.find(m => m.slug === 'etsy')!
   it('does not call Offsite Ads simply optional', () => {
     expect(etsy.summary).not.toMatch(/optional Offsite Ads/i)
-    expect(etsy.summary).toContain('optional only for shops that earned less than $10,000 in the past 365 days')
-    expect(etsy.summary).toContain('15% fee, or 12% once past $10,000, capped at $100 per order')
+    expect(etsy.summary).toContain('The 15% rate and the option to opt out apply only if your shop has always made less than $10,000 in any consecutive 365-day period')
+    expect(etsy.summary).toContain('Once a shop has reached $10,000, the 12% rate applies and participation is required for the life of the shop')
+    expect(etsy.summary).toContain('The fee is capped at $100 per order')
   })
   it('has no unqualified "optional ... Offsite" wording anywhere in app, lib or components', () => {
     const files = ['lib/marketplace-fees.ts', 'lib/fee-short-answer.ts', 'lib/fee-changelog.ts', 'lib/llms-txt.ts']

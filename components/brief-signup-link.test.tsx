@@ -150,6 +150,21 @@ describe('brief_cta_click', () => {
     expect(analytics.track).toHaveBeenCalledWith('brief_cta_click', { resource: 'campaign_cta_footer' })
   })
 
+  it('an Etsy analysis inline Brief signup counts campaign_etsy_ddp', async () => {
+    const article = ANALYSIS_ARTICLES.find(a => a.slug === 'etsy-ddp-us-orders-2026-duty-paid-pricing')!
+    window.history.replaceState(null, '', `/intelligence/analysis/${article.slug}`)
+    const { default: Page } = await import('@/app/intelligence/analysis/[slug]/page')
+    const element = await Page({ params: Promise.resolve({ slug: article.slug }) })
+    await act(async () => { root.render(element) })
+    const signup = container.querySelector('a[data-cta="brief_signup"][href="/newsletter?source=campaign_etsy_ddp#subscribe"]') as HTMLAnchorElement
+    expect(signup).toBeTruthy()
+    expect(container.querySelector('#related-reading')).toBeTruthy()
+    expect(clickLink(signup)).toBe(false)
+    expect(analytics.track).toHaveBeenCalledTimes(1)
+    expect(analytics.track).toHaveBeenCalledWith('brief_cta_click', { resource: 'campaign_etsy_ddp' })
+    expect(signup.getAttribute('href')).toBe('/newsletter?source=campaign_etsy_ddp#subscribe')
+  })
+
   it('an analysis article sidebar click counts that article key and keeps its signup url', async () => {
     const article = ANALYSIS_ARTICLES.find(a => a.newsletterSource === 'campaign_kw_ebay_watches')!
     window.history.replaceState(null, '', `/intelligence/analysis/${article.slug}`)
