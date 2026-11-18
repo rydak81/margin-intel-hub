@@ -122,7 +122,7 @@ function etsyOffsiteAds(rows: MarketplaceRow[]): FaqItem {
     question: `Does Etsy charge more on a $${FAQ_SALE_PRICE} sale that came from an Offsite Ad?`,
     answer:
       `Yes. On top of the ${money(o.baselineFees)} in standard fees, an order placed after a click on one of Etsy's Offsite Ads costs ${money(o.fee15)} at ${OFFSITE_ADS.standardPct}% or ${money(o.fee12)} at ${OFFSITE_ADS.discountedPct}%, leaving ${money(o.netAfter15)} or ${money(o.netAfter12)}. ` +
-      `The ${OFFSITE_ADS.discountedPct}% rate applies once a shop has made $${OFFSITE_ADS.thresholdUsd.toLocaleString('en-US')} in sales in 365 days, the fee is capped at $${OFFSITE_ADS.capUsd} per order, and shops below that line can opt out (Etsy Fees & Payments Policy). ` +
+      `The ${OFFSITE_ADS.standardPct}% rate and the option to opt out apply only if your shop has always made less than $${OFFSITE_ADS.thresholdUsd.toLocaleString('en-US')} in any consecutive 365-day period. Once a shop has reached $${OFFSITE_ADS.thresholdUsd.toLocaleString('en-US')}, the ${OFFSITE_ADS.discountedPct}% rate applies and participation is required for the life of the shop. The fee is capped at $${OFFSITE_ADS.capUsd} per order (Etsy Fees & Payments Policy). ` +
       `This assumes no shipping or gift wrap, which Etsy also charges the fee on. See our ${COMPARE_LINK_TEXT}.`,
     link: { text: COMPARE_LINK_TEXT, href: FEE_BY_PRICE_PATH },
   }
