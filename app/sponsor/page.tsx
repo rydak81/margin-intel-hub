@@ -6,7 +6,6 @@ import { JsonLd } from '@/components/json-ld'
 import { SponsorInquiryForm } from '@/components/sponsor-inquiry-form'
 import { SponsorOfferCards } from '@/components/sponsor-offer-cards'
 
-// Re-render daily so the founding rate-lock line drops off after its deadline.
 export const revalidate = 86400
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://marketplacebeta.com'
