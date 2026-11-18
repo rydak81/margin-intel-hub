@@ -6,7 +6,7 @@ import { MARKETPLACES } from '@/lib/marketplace-fees'
 import { FeeRelatedLinks, AnalysisEbayReading, AnalysisEtsyReading, AnalysisFeeLinks } from '@/components/related-links'
 import { newsletterSource } from '@/lib/newsletter-source'
 import {
-  RELATED_ANALYSIS_LIMIT, RELATED_FEE_COMPARE, analysisMarketplaces, countMentions, ebayAnalysisBriefSource, ebayAnalysisRelated, etsyAnalysisBriefSource, etsyAnalysisRelated, isEbayAnalysis, isEtsyAnalysis, relatedAnalysisForMarketplace,
+  RELATED_ANALYSIS_LIMIT, RELATED_FEE_COMPARE, analysisMarketplaces, countMentions, ebayAnalysisBriefSource, ebayAnalysisRelated, etsyAnalysisBriefSource, etsyAnalysisRelated, isEbayAnalysis, isEtsyAnalysis, isEtsyEbayFeeComparison, relatedAnalysisForMarketplace,
 } from '@/lib/related-links'
 
 const mp = (slug: string) => MARKETPLACES.find(m => m.slug === slug)!
@@ -22,6 +22,27 @@ function article(overrides: Partial<AnalysisArticle> = {}, body: string[] = []):
   }
 }
 const slugs = (a: AnalysisArticle) => analysisMarketplaces(a).map(m => m.slug)
+const articleHref = (a: AnalysisArticle) => `/intelligence/analysis/${a.slug}`
+const byDate = (articles: readonly AnalysisArticle[]) => articles.map((a, i) => ({ a, i }))
+  .sort((x, y) => y.a.publishedOn.localeCompare(x.a.publishedOn) || x.i - y.i)
+  .map(({ a }) => a)
+
+/** Sibling analyses, then Etsy-vs-eBay comparisons, then the fee pages this piece cites. */
+function ebayReadingHrefs(article: AnalysisArticle, feeHrefs: string[], articles: readonly AnalysisArticle[] = latestAnalysis()) {
+  const ordered = byDate(articles)
+  const siblings = ordered.filter(a => a.slug !== article.slug && isEbayAnalysis(a))
+  const seen = new Set(siblings.map(a => a.slug))
+  const comparisons = ordered.filter(a => a.slug !== article.slug && isEtsyEbayFeeComparison(a) && !seen.has(a.slug))
+  return [...siblings.map(articleHref), ...comparisons.map(articleHref), ...feeHrefs]
+}
+
+/** Other Etsy analyses, then eBay analyses, then the Etsy fee pages this piece cites. */
+function etsyReadingHrefs(article: AnalysisArticle, feeHrefs: string[], articles: readonly AnalysisArticle[] = latestAnalysis()) {
+  const ordered = byDate(articles)
+  const etsy = ordered.filter(a => a.slug !== article.slug && isEtsyAnalysis(a))
+  const ebay = ordered.filter(a => a.slug !== article.slug && isEbayAnalysis(a))
+  return [...etsy.map(articleHref), ...ebay.map(articleHref), ...feeHrefs]
+}
 
 describe('countMentions', () => {
   it('matches whole words, case-insensitive, including possessives', () => {
@@ -113,28 +134,23 @@ describe('eBay analysis related reading', () => {
 
   it('links the newer watch analysis, the Etsy vs eBay comparison, and the eBay fee pages the per-order piece already cites', () => {
     const links = ebayAnalysisRelated(perOrder)!
-    expect(links.map(l => l.href)).toEqual([
-      '/intelligence/analysis/ebay-watch-fees-2026-15-percent-to-1000',
-      '/intelligence/analysis/etsy-vs-ebay-fees-2026-20-50-100',
-      '/fees/ebay',
-      '/fees/ebay/most-categories',
-      '/fees/ebay/on-a-10-sale',
-    ])
-    expect(links[2].label).toBe('eBay fee table')
-    expect(links[3].label).toBe('Most Categories calculator')
-    expect(links[4].label).toBe('$10 sale page')
+    const fees = ['/fees/ebay', '/fees/ebay/most-categories', '/fees/ebay/on-a-10-sale']
+    expect(links.map(l => l.href)).toEqual(ebayReadingHrefs(perOrder, fees))
+    const byHref = Object.fromEntries(links.map(l => [l.href, l]))
+    expect(byHref[articleHref(watches)].label).toBe(watches.headline)
+    expect(byHref['/fees/ebay'].label).toBe('eBay fee table')
+    expect(byHref['/fees/ebay/most-categories'].label).toBe('Most Categories calculator')
+    expect(byHref['/fees/ebay/on-a-10-sale'].label).toBe('$10 sale page')
     expect(links.map(l => `${l.label} ${l.note}`).join('\n')).not.toMatch(FORBIDDEN)
   })
 
   it('on the watch piece, links the per-order analysis, the Etsy vs eBay comparison, the fee table and the watches calculator', () => {
     const links = ebayAnalysisRelated(watches)!
-    expect(links.map(l => l.href)).toEqual([
-      '/intelligence/analysis/ebay-per-order-fee-2026-under-10',
-      '/intelligence/analysis/etsy-vs-ebay-fees-2026-20-50-100',
-      '/fees/ebay',
-      '/fees/ebay/watches',
-    ])
-    expect(links[3].label).toBe('eBay watches calculator')
+    const fees = ['/fees/ebay', '/fees/ebay/watches']
+    expect(links.map(l => l.href)).toEqual(ebayReadingHrefs(watches, fees))
+    const byHref = Object.fromEntries(links.map(l => [l.href, l]))
+    expect(byHref[articleHref(perOrder)].label).toBe(perOrder.headline)
+    expect(byHref['/fees/ebay/watches'].label).toBe('eBay watches calculator')
     expect(links.map(l => l.href)).not.toContain('/fees/walmart')
   })
 
@@ -171,12 +187,13 @@ describe('eBay analysis related reading', () => {
       headline: 'Fixture eBay fees',
       sections: [{ id: 's', title: 'Body', paragraphs: ['See the [guitars calculator](/fees/ebay/guitars-basses).'] }],
     })
-    const hrefs = ebayAnalysisRelated(fixture, [fixture, ...latestAnalysis()])!.map(l => l.href)
-    expect(hrefs[0]).toBe('/intelligence/analysis/ebay-watch-fees-2026-15-percent-to-1000')
+    const pool = [fixture, ...latestAnalysis()]
+    const hrefs = ebayAnalysisRelated(fixture, pool)!.map(l => l.href)
+    expect(hrefs).toEqual(ebayReadingHrefs(fixture, ['/fees/ebay', '/fees/ebay/guitars-basses'], pool))
+    expect(hrefs[0]).toBe(articleHref(byDate(pool).find(a => a.slug !== fixture.slug && isEbayAnalysis(a))!))
+    expect(hrefs).toContain('/intelligence/analysis/ebay-watch-fees-2026-15-percent-to-1000')
     expect(hrefs).toContain('/intelligence/analysis/ebay-per-order-fee-2026-under-10')
     expect(hrefs).toContain('/intelligence/analysis/etsy-vs-ebay-fees-2026-20-50-100')
-    expect(hrefs).toContain('/fees/ebay')
-    expect(hrefs).toContain('/fees/ebay/guitars-basses')
     expect(ebayAnalysisBriefSource(fixture)).toBe('campaign_ebay_fixture')
     const unkeyed = article({ slug: 'ebay-custom', tags: ['seller fees'], newsletterSource: 'campaign_custom_ebay' })
     expect(ebayAnalysisBriefSource(unkeyed)).toBe('campaign_cta_ebay_ebay-custom')
@@ -202,37 +219,28 @@ describe('Etsy analysis related reading', () => {
 
   it('on the duty-paid piece, links the Etsy vs eBay comparison, the Offsite Ads analysis, the eBay fee analyses on main, and the Etsy fee page', () => {
     const links = etsyAnalysisRelated(ddp)!
-    expect(links.map(l => l.href)).toEqual([
-      `/intelligence/analysis/${comparison.slug}`,
-      `/intelligence/analysis/${offsite.slug}`,
-      `/intelligence/analysis/${watches.slug}`,
-      `/intelligence/analysis/${perOrder.slug}`,
-      '/fees/etsy',
-    ])
-    expect(links[0].label).toBe(comparison.headline)
-    expect(links[1].label).toBe(offsite.headline)
-    expect(links[2].label).toBe(watches.headline)
-    expect(links[3].label).toBe(perOrder.headline)
-    expect(links[4].label).toBe('Etsy fee page')
-    expect(links[4].note).toBe('Fee table')
+    expect(links.map(l => l.href)).toEqual(etsyReadingHrefs(ddp, ['/fees/etsy']))
+    const byHref = Object.fromEntries(links.map(l => [l.href, l]))
+    expect(byHref[articleHref(comparison)].label).toBe(comparison.headline)
+    expect(byHref[articleHref(offsite)].label).toBe(offsite.headline)
+    expect(byHref[articleHref(watches)].label).toBe(watches.headline)
+    expect(byHref[articleHref(perOrder)].label).toBe(perOrder.headline)
+    expect(byHref['/fees/etsy'].label).toBe('Etsy fee page')
+    expect(byHref['/fees/etsy'].note).toBe('Fee table')
     expect(links.map(l => `${l.label} ${l.note}`).join('\n')).not.toMatch(FORBIDDEN)
   })
 
   it('on the Offsite Ads piece, links the Etsy vs eBay comparison, the duty-paid analysis, the eBay fee analyses, and the Etsy fee pages it already cites', () => {
     const links = etsyAnalysisRelated(offsite)!
-    expect(links.map(l => l.href)).toEqual([
-      `/intelligence/analysis/${comparison.slug}`,
-      `/intelligence/analysis/${ddp.slug}`,
-      `/intelligence/analysis/${watches.slug}`,
-      `/intelligence/analysis/${perOrder.slug}`,
-      '/fees/etsy',
-      '/fees/etsy/on-a-20-sale',
-      '/fees/etsy/on-a-50-sale',
-    ])
-    expect(links[4].label).toBe('Etsy fee table')
-    expect(links[5].label).toBe('$20 sale')
-    expect(links[6].label).toBe('$50 sale')
-    expect(links[5].note).toBe('Sale fee page')
+    const fees = ['/fees/etsy', '/fees/etsy/on-a-20-sale', '/fees/etsy/on-a-50-sale']
+    expect(links.map(l => l.href)).toEqual(etsyReadingHrefs(offsite, fees))
+    const byHref = Object.fromEntries(links.map(l => [l.href, l]))
+    expect(byHref[articleHref(comparison)].label).toBe(comparison.headline)
+    expect(byHref[articleHref(ddp)].label).toBe(ddp.headline)
+    expect(byHref['/fees/etsy'].label).toBe('Etsy fee table')
+    expect(byHref['/fees/etsy/on-a-20-sale'].label).toBe('$20 sale')
+    expect(byHref['/fees/etsy/on-a-50-sale'].label).toBe('$50 sale')
+    expect(byHref['/fees/etsy/on-a-20-sale'].note).toBe('Sale fee page')
     expect(links.map(l => l.href)).not.toContain('/fees/compare/ebay-vs-etsy')
     expect(links.map(l => l.href)).not.toContain('/fees/ebay')
   })
@@ -274,14 +282,15 @@ describe('Etsy analysis related reading', () => {
       headline: 'Fixture Etsy fees',
       sections: [{ id: 's', title: 'Body', paragraphs: ['See the [handmade calculator](/fees/etsy/handmade) and the [missing page](/fees/etsy/not-a-page).'] }],
     })
-    const hrefs = etsyAnalysisRelated(fixture, [fixture, ...latestAnalysis()])!.map(l => l.href)
-    expect(hrefs[0]).toBe(`/intelligence/analysis/${comparison.slug}`)
+    const pool = [fixture, ...latestAnalysis()]
+    const hrefs = etsyAnalysisRelated(fixture, pool)!.map(l => l.href)
+    expect(hrefs).toEqual(etsyReadingHrefs(fixture, ['/fees/etsy', '/fees/etsy/handmade'], pool))
+    expect(hrefs[0]).toBe(articleHref(byDate(pool).find(a => a.slug !== fixture.slug && isEtsyAnalysis(a))!))
+    expect(hrefs).toContain(`/intelligence/analysis/${comparison.slug}`)
     expect(hrefs).toContain(`/intelligence/analysis/${ddp.slug}`)
     expect(hrefs).toContain(`/intelligence/analysis/${offsite.slug}`)
     expect(hrefs).toContain(`/intelligence/analysis/${watches.slug}`)
     expect(hrefs).toContain(`/intelligence/analysis/${perOrder.slug}`)
-    expect(hrefs).toContain('/fees/etsy')
-    expect(hrefs).toContain('/fees/etsy/handmade')
     expect(hrefs).not.toContain('/fees/etsy/not-a-page')
     expect(etsyAnalysisBriefSource(fixture)).toBe('campaign_etsy_fixture')
     expect(newsletterSource('?source=campaign_etsy_fixture')).toBe('newsletter_campaign_etsy_fixture')
@@ -294,20 +303,16 @@ describe('Etsy analysis related reading', () => {
     expect(isEtsyAnalysis(comparison)).toBe(true)
     expect(isEbayAnalysis(comparison)).toBe(false)
     const links = etsyAnalysisRelated(comparison)!
-    expect(links.map(l => l.href)).toEqual([
-      `/intelligence/analysis/${ddp.slug}`,
-      `/intelligence/analysis/${offsite.slug}`,
-      `/intelligence/analysis/${watches.slug}`,
-      `/intelligence/analysis/${perOrder.slug}`,
-      '/fees/etsy',
-      '/fees/etsy/on-a-20-sale',
-      '/fees/etsy/on-a-100-sale',
-    ])
-    expect(links[4].label).toBe('Etsy fee table')
-    expect(links[4].note).toBe('Fee table')
-    expect(links[5].label).toBe('Etsy $20 sale page')
-    expect(links[6].label).toBe('Etsy $100 sale page')
-    expect(links[5].note).toBe('Sale fee page')
+    const fees = ['/fees/etsy', '/fees/etsy/on-a-20-sale', '/fees/etsy/on-a-100-sale']
+    expect(links.map(l => l.href)).toEqual(etsyReadingHrefs(comparison, fees))
+    const byHref = Object.fromEntries(links.map(l => [l.href, l]))
+    expect(byHref[articleHref(ddp)].label).toBe(ddp.headline)
+    expect(byHref[articleHref(offsite)].label).toBe(offsite.headline)
+    expect(byHref['/fees/etsy'].label).toBe('Etsy fee table')
+    expect(byHref['/fees/etsy'].note).toBe('Fee table')
+    expect(byHref['/fees/etsy/on-a-20-sale'].label).toBe('Etsy $20 sale page')
+    expect(byHref['/fees/etsy/on-a-100-sale'].label).toBe('Etsy $100 sale page')
+    expect(byHref['/fees/etsy/on-a-20-sale'].note).toBe('Sale fee page')
     expect(links.map(l => l.href)).not.toContain(`/intelligence/analysis/${comparison.slug}`)
     expect(links.map(l => l.href)).not.toContain('/fees/compare/ebay-vs-etsy')
     expect(links.map(l => l.href)).not.toContain('/fees/ebay')
@@ -367,16 +372,17 @@ describe('fee category pages show the same Related block', () => {
     }
   })
 
-  it('Walmart category pages link the New Seller Savings analysis', async () => {
-    const slug = 'walmart-new-seller-savings-2026-worth-it'
-    expect(ANALYSIS_ARTICLES.some(a => a.slug === slug)).toBe(true)
+  it('Walmart category pages link the Walmart analyses selected for the Related block', async () => {
+    const selected = relatedAnalysisForMarketplace('walmart')
+    expect(selected.length).toBeGreaterThan(0)
+    expect(relatedAnalysisForMarketplace('walmart', Infinity).map(a => a.slug)).toContain('walmart-new-seller-savings-2026-worth-it')
     const { getAllFeeRoutes } = await import('@/lib/marketplace-fees')
     const { default: Page } = await import('@/app/fees/[marketplace]/[category]/page')
     const walmart = getAllFeeRoutes().filter(r => r.marketplace === 'walmart')
     expect(walmart.length).toBeGreaterThan(0)
     for (const r of walmart) {
       const html = renderToStaticMarkup(await Page({ params: Promise.resolve(r) } as never))
-      expect(html, r.category).toContain(`href="/intelligence/analysis/${slug}"`)
+      for (const a of selected) expect(html, r.category).toContain(`href="/intelligence/analysis/${a.slug}"`)
       expect(html).not.toMatch(FORBIDDEN)
     }
   })
