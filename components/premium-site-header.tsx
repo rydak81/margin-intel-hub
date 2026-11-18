@@ -2,6 +2,7 @@
 
 import { useState, type ReactNode } from "react"
 import Link from "next/link"
+import { track } from "@vercel/analytics"
 import { ArrowLeft, ArrowUpRight, Menu, X, Search, LayoutDashboard } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { SITE_NAVIGATION } from "@/lib/site-navigation"
@@ -24,6 +25,17 @@ interface PremiumSiteHeaderProps {
 }
 
 const NAV_ITEMS = SITE_NAVIGATION
+
+/** Source key on a /newsletter?source=<key> href, or null when this header link is not a Brief signup. */
+function briefSourceKey(href: string): string | null {
+  return /^\/newsletter\?source=([^#&]+)/.exec(href)?.[1] ?? null
+}
+
+function trackBriefCtaClick(href: string) {
+  const resource = briefSourceKey(href)
+  if (!resource) return
+  try { track("brief_cta_click", { resource }) } catch { /* analytics must not block the click */ }
+}
 
 export function PremiumSiteHeader({
   active, backHref, backLabel = "Back", ctaHref: pageCtaHref = HEADER_BRIEF_HREF, ctaLabel = "Get the daily brief",
@@ -48,7 +60,7 @@ export function PremiumSiteHeader({
             <Link href="/intelligence" aria-label="Open intelligence dashboard" title="Intelligence dashboard" className="inline-flex h-11 shrink-0 items-center gap-2 rounded-lg border border-blue-400/40 bg-blue-500/15 px-3 text-sm font-semibold text-blue-100 hover:bg-blue-500/30"><LayoutDashboard className="h-5 w-5" /><span className="hidden sm:inline">Dashboard</span></Link>
             {actions ?? (
               <Button asChild className="hidden h-11 rounded-lg bg-blue-600 px-5 text-sm font-semibold text-white hover:bg-blue-500 sm:inline-flex">
-                <Link href={ctaHref}>{ctaLabel}<ArrowUpRight className="ml-2 h-4 w-4" /></Link>
+                <Link href={ctaHref} onClick={() => trackBriefCtaClick(pageCtaHref)}>{ctaLabel}<ArrowUpRight className="ml-2 h-4 w-4" /></Link>
               </Button>
             )}
             <Button type="button" variant="ghost" size="icon" className="h-11 w-11 text-white hover:bg-white/10 hover:text-white lg:hidden" onClick={() => setMobileMenuOpen(open => !open)} aria-expanded={mobileMenuOpen} aria-controls="site-mobile-navigation" aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}>
@@ -76,7 +88,7 @@ export function PremiumSiteHeader({
               ))}
             </div>
             {mobileContent}
-            <Link href={ctaHref} onClick={() => setMobileMenuOpen(false)} className="mt-4 block rounded-lg bg-blue-600 px-4 py-3 text-center text-base font-semibold text-white hover:bg-blue-500">{ctaLabel}</Link>
+            <Link href={ctaHref} onClick={() => { trackBriefCtaClick(pageCtaHref); setMobileMenuOpen(false) }} className="mt-4 block rounded-lg bg-blue-600 px-4 py-3 text-center text-base font-semibold text-white hover:bg-blue-500">{ctaLabel}</Link>
           </nav>
         )}
       </div>
