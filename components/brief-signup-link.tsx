@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type ComponentProps } from "react"
 import Link from "next/link"
+import { track } from "@vercel/analytics"
 import { BRIEF_SOURCE_STORAGE_KEY, incomingBriefSource, resolveBriefSource, withBriefSource } from "@/lib/brief-cta"
 
 function readStored(): string | null {
@@ -37,7 +38,17 @@ export function useBriefHref(href: string): string {
 type BriefSignupLinkProps = Omit<ComponentProps<typeof Link>, "href"> & { source: string }
 
 /** Brief signup link that honours a valid incoming ?source (see useBriefSource). */
-export function BriefSignupLink({ source, ...props }: BriefSignupLinkProps) {
+export function BriefSignupLink({ source, onClick, ...props }: BriefSignupLinkProps) {
   const key = useBriefSource(source)
-  return <Link data-cta="brief_signup" {...props} href={`/newsletter?source=${key}#subscribe`} />
+  return (
+    <Link
+      data-cta="brief_signup"
+      {...props}
+      href={`/newsletter?source=${key}#subscribe`}
+      onClick={(event) => {
+        try { track("brief_cta_click", { resource: source }) } catch { /* analytics must not block the click */ }
+        onClick?.(event)
+      }}
+    />
+  )
 }
