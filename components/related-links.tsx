@@ -2,7 +2,7 @@ import Link from 'next/link'
 import type { AnalysisArticle } from '@/lib/analysis'
 import type { Marketplace } from '@/lib/marketplace-fees'
 import { BriefCta } from '@/components/brief-cta'
-import { RELATED_FEE_COMPARE, analysisMarketplaces, ebayAnalysisBriefSource, ebayAnalysisRelated, relatedAnalysisForMarketplace } from '@/lib/related-links'
+import { RELATED_FEE_COMPARE, analysisMarketplaces, ebayAnalysisBriefSource, ebayAnalysisRelated, etsyAnalysisBriefSource, etsyAnalysisRelated, type AnalysisReadingLink, relatedAnalysisForMarketplace } from '@/lib/related-links'
 import { workflowForAnalysis, type AiRelatedLink } from '@/lib/ai-related'
 
 const fmtDate = (iso: string) => new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' })
@@ -34,13 +34,11 @@ export function FeeRelatedLinks({ marketplace }: { marketplace: Marketplace }) {
 }
 
 /**
- * Related reading and a Daily Brief signup for eBay analysis pages, placed at the
- * decision (the answer the visitor came for). Other articles render nothing.
- * The signup key is distinct from the sidebar's campaign_kw_* link.
+ * Related reading and a Daily Brief signup, placed at the decision (the answer
+ * the visitor came for). The signup key is distinct from the sidebar's campaign_kw_* link.
+ * BriefCta records brief_cta_click with resource set to that key.
  */
-export function AnalysisEbayReading({ article }: { article: AnalysisArticle }) {
-  const links = ebayAnalysisRelated(article)
-  const source = ebayAnalysisBriefSource(article)
+function AnalysisReadingBlock({ links, source }: { links: AnalysisReadingLink[] | null; source: `campaign_${string}` | null }) {
   if (!links || !source) return null
   return (
     <>
@@ -61,6 +59,16 @@ export function AnalysisEbayReading({ article }: { article: AnalysisArticle }) {
       <BriefCta source={source} className="mb-10" />
     </>
   )
+}
+
+/** Related reading and a Daily Brief signup for eBay analysis pages. Other articles render nothing. */
+export function AnalysisEbayReading({ article }: { article: AnalysisArticle }) {
+  return <AnalysisReadingBlock links={ebayAnalysisRelated(article)} source={ebayAnalysisBriefSource(article)} />
+}
+
+/** Related reading and a Daily Brief signup for Etsy analysis pages. Other articles render nothing. */
+export function AnalysisEtsyReading({ article }: { article: AnalysisArticle }) {
+  return <AnalysisReadingBlock links={etsyAnalysisRelated(article)} source={etsyAnalysisBriefSource(article)} />
 }
 
 /** Server-rendered links from an analysis article back to the fee pages it covers. */
