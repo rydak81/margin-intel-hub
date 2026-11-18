@@ -71,7 +71,8 @@ describe('analysis discovery', () => {
     expect(SITE_NAVIGATION.some(item => item.href === '/intelligence/analysis')).toBe(true)
   })
   it('keeps published articles in their existing order and inserts a newer article ahead of an older one', () => {
-    expect(ANALYSIS_ARTICLES.map(a => a.slug)).toEqual([...HISTORICAL_SLUGS])
+    const published = (HISTORICAL_SLUGS as readonly string[])
+    expect(ANALYSIS_ARTICLES.map(a => a.slug).filter(slug => published.includes(slug))).toEqual([...published])
     const older = { slug: 'fixture-older-article', publishedOn: '2026-11-12' }
     const newer = { slug: 'fixture-newer-article', publishedOn: '2026-11-13' }
     const slugs = assembleArticles([...ANALYSIS_ARTICLES, older, newer]).map(a => a.slug)
