@@ -301,5 +301,6 @@ function dbRowToArticle(row: any): ClassifiedArticle {
     rejectionReason: row.rejection_reason || null,
     tier: row.tier || 3,
     sourceType: row.source_type || 'industry',
+    updatedAt: typeof row.updated_at === 'string' && row.updated_at ? row.updated_at : null,
   }
 }
