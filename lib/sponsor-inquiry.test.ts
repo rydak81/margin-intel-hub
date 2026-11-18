@@ -3,7 +3,7 @@ import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest'
 import {
   HONEYPOT_FIELD, SPONSOR_OFFERS, SPONSOR_OFFER_VALUES, createRateLimiter, clientIp, inquiryRecipient, sponsorInquiryEmail, validateSponsorInquiry,
 } from './sponsor-inquiry'
-import { FOUNDING_LOCK_TEXT, SPONSOR_OFFER_DEFS, SPONSOR_PAYMENT_NOTE, foundingLockOpen } from './sponsor-offers'
+import { SPONSOR_OFFER_DEFS, SPONSOR_PAYMENT_NOTE } from './sponsor-offers'
 
 const valid = { name: 'Ada Lovelace', email: 'Ada@Example.com ', company: 'Acme', offer: 'single_slot', message: 'We sell repricing software.', sourcePage: 'sponsor' }
 
@@ -65,18 +65,18 @@ describe('validateSponsorInquiry', () => {
 
 describe('sponsor pricing copy', () => {
   const read = (p: string) => readFileSync(new URL(`../${p}`, import.meta.url), 'utf8')
-  it('foundingLockOpen follows the Nov 15, 2026 deadline in New York time', () => {
-    expect(foundingLockOpen(new Date('2026-11-15T23:00:00-05:00'))).toBe(true)
-    expect(foundingLockOpen(new Date('2026-11-16T00:30:00-05:00'))).toBe(false)
-    expect(foundingLockOpen(new Date('2026-10-26T12:00:00-04:00'))).toBe(true)
-  })
   it('terms are as approved and mention invoice, payment link and PayPal but not a payment processor', () => {
     expect(SPONSOR_OFFER_DEFS.map(o => [o.name, o.price, o.unit])).toEqual([
       ['Founding Sponsor', '$149', 'per week'], ['Single Brief slot', '$39', ''], ['Dossier presenting sponsor', '$299', ''],
     ])
     expect(SPONSOR_OFFER_DEFS[0].detail).toMatch(/5 Daily Marketplace Brief slots.*30-day sponsored tool listing/)
-    expect(FOUNDING_LOCK_TEXT).toMatch(/6 months.*November 15, 2026/)
     expect(SPONSOR_PAYMENT_NOTE).toMatch(/invoice or payment link.*PayPal/)
+  })
+  it('does not advertise the expired Nov 15 founding rate lock', () => {
+    const copy = ['lib/sponsor-offers.ts', 'components/sponsor-offer-cards.tsx', 'components/sponsor-inquiry-form.tsx', 'app/sponsor/page.tsx', 'app/pricing/page.tsx'].map(read).join('\n')
+    expect(copy).not.toMatch(/November 15, 2026/)
+    expect(copy).not.toMatch(/locked for 6 months/i)
+    expect(copy).not.toMatch(/FOUNDING_LOCK|foundingLockOpen/)
   })
   it('/sponsor and /pricing render prices from the shared component, with no hard-coded prices', () => {
     for (const p of ['app/sponsor/page.tsx', 'app/pricing/page.tsx']) {

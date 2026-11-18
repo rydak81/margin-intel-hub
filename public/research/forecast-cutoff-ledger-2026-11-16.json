@@ -1,0 +1,110 @@
+{
+  "method": "forecast-cutoff-ledger-v1",
+  "status": "proposed_protocol_unexecuted",
+  "createdOn": "2026-11-16",
+  "canonicalUrl": "https://marketplacebeta.com/intelligence/analysis/ecommerce-ai-forecast-backtest-cutoff-ledger",
+  "researchCutoff": "2026-11-16T12:58:27Z",
+  "sources": [
+    {
+      "url": "https://mistral.ai/news/timestral/",
+      "context": "Published October 15, 2026; read November 16. Vendor description of forecasting inputs, not merchant performance evidence.",
+      "readOn": "2026-11-16"
+    },
+    {
+      "url": "https://otexts.com/fpp3/toolbox.html",
+      "context": "Sections on seasonal naïve forecasts and time-series cross-validation; read November 16, 2026; publication date not assigned.",
+      "readOn": "2026-11-16"
+    }
+  ],
+  "evidenceBasis": "Original proposed workflow informed by primary sources. No merchant records or model execution.",
+  "design": {
+    "series": 10,
+    "developmentCutoffs": 4,
+    "horizonDays": 7,
+    "developmentComparisons": 40,
+    "developmentDailyTargets": 280,
+    "holdoutCutoffs": 1,
+    "holdoutComparisons": 10,
+    "holdoutDailyTargets": 70,
+    "baseline": "Previous week's corresponding weekday",
+    "unit": "ordered units per SKU-channel-day",
+    "timezone": null,
+    "cancellationTreatment": null,
+    "returns": "separate series",
+    "cohortSelectionRule": null,
+    "exclusions": []
+  },
+  "inputRecord": {
+    "sku": null,
+    "channel": null,
+    "targetDate": null,
+    "forecastCutoff": null,
+    "inputSnapshotHash": null,
+    "transformationVersion": null,
+    "field": null,
+    "value": null,
+    "describesPeriod": null,
+    "availableAt": null,
+    "sourceRecordVersion": null,
+    "availabilityEvidence": null,
+    "eligibility": null,
+    "exclusionReason": null
+  },
+  "caseRecord": {
+    "sku": null,
+    "channel": null,
+    "cutoff": null,
+    "targetDate": null,
+    "candidateVersion": null,
+    "pointForecastDefinition": null,
+    "roundingAndNonnegativeRule": null,
+    "baselineForecast": null,
+    "candidateForecast": null,
+    "actualOrderedUnits": null,
+    "actualFinalizedAt": null,
+    "stockStatus": null,
+    "executionStatus": null,
+    "error": null,
+    "executionCost": null,
+    "currency": null,
+    "reviewMinutes": null
+  },
+  "scoreContract": {
+    "mae": "mean(abs(forecast - actual)) on disclosed paired eligible dates, reported by SKU",
+    "signedError": "mean(forecast - actual); negative means underforecast",
+    "coverage": [
+      "planned",
+      "reconstructable",
+      "returned",
+      "scored"
+    ],
+    "missingOutputs": "Retain in all-attempt completion denominator; disclose any paired-accuracy exclusions",
+    "stockConstraints": "Report constrained and unknown periods separately; do not infer unmet demand",
+    "relativeImprovement": "If baseline MAE is zero, relative improvement is undefined; report absolute errors instead"
+  },
+  "predeclaredGates": {
+    "errorImprovement": null,
+    "underforecastLimit": null,
+    "completionRequirement": null,
+    "reviewTimeBudget": null,
+    "owner": null,
+    "frozenAt": null
+  },
+  "inventoryShadowTest": {
+    "leadTime": null,
+    "minimumOrderQuantity": null,
+    "packSize": null,
+    "stockOnHand": null,
+    "budget": null,
+    "assumptionsAvailableAt": null,
+    "proposedOrder": null,
+    "operatorDecision": null
+  },
+  "results": null,
+  "limitations": [
+    "No model run or merchant outcomes",
+    "Small purposive pilot is not general validation",
+    "Model terms and deployment requirements unverified"
+  ],
+  "reuse": "Original blank ledger and design reusable with attribution. Keep completed merchant records private."
+}
