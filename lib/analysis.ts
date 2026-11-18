@@ -258,7 +258,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
     "headline": "Etsy's duty-paid rule for US orders: price the duty in, then price in Etsy's cut of the duty",
     "dek": "Since July 9, 2026, Etsy expects sellers outside the US to ship US orders Delivered Duty Paid, with duties and import fees built into the checkout price. A parcel that arrives with a bill for the buyer loses Etsy Purchase Protection, and Etsy can refund the buyer and deduct the charge from the seller. Here is who the rule hits, why adding the duty to your price leaves you short, and the US price that actually covers it.",
     "publishedOn": "2026-11-11",
-    "updatedOn": "2026-11-11",
+    "updatedOn": "2026-11-16",
     "author": "MarketplaceBeta Intelligence",
     "reviewMode": "automated",
     "readTime": "7 min",
@@ -300,7 +300,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
         "title": "Why it matters: Etsy charges its fees on the duty you add",
         "paragraphs": [
           "DDP means the duty ends up in the price the buyer pays. Etsy's 6.5% transaction fee applies to \"the cost of the entire order,\" and payment processing comes on top, at a rate set by the country of your bank account, per Etsy's [payment processing help page](https://help.etsy.com/hc/en-us/articles/115015628847). That table lists 4% + £0.20 for a UK bank account and 3% + $0.25 for a US one. So when you raise your US price by exactly the duty, Etsy takes its percentage of that increase and you come up short on every order.",
-          "The fix is to gross the duty up by the percentage fees you pay. The formula is the duty divided by (1 minus your percentage fees). The flat processing fee does not change with price, so it drops out. If the order came through an Offsite Ad, add that fee too. Etsy's Offsite Ads fee is 15% of the order, or 12% once a shop has made $10,000 in a 365-day period, capped at $100 an order, as covered in our [Offsite Ads analysis](/intelligence/analysis/etsy-offsite-ads-fees-2026) and on our [Etsy fee page](/fees/etsy).",
+          "The fix is to gross the duty up by the percentage fees you pay. The formula is the duty divided by (1 minus your percentage fees). The flat processing fee does not change with price, so it drops out. If the order came through an Offsite Ad, add that fee too. Etsy's Offsite Ads fee is 15% of the order, or 12% with no opt-out once a shop has made $10,000 or more in any consecutive 365-day period, capped at $100 an order, as covered in our [Offsite Ads analysis](/intelligence/analysis/etsy-offsite-ads-fees-2026) and on our [Etsy fee page](/fees/etsy).",
           "The duty depends on where the goods were made, not where the shop is. USTR's tariffs apply to products of each economy. A UK shop reselling China-made supplies faces the China rate on those items, not the UK rate. Our reading, which you should confirm with your carrier or a customs broker for your own tariff lines, is that the right number for your US price is the duty your DDP carrier actually quotes on the label, plus any fee it charges for prepaying it."
         ],
         "table": {
@@ -2513,11 +2513,11 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
   {
     "slug": "etsy-offsite-ads-fees-2026",
     "seoTitle": "Etsy Offsite Ads Fees 2026: 15%, 12%, $100 Cap, Opt-Out",
-    "metaDescription": "Etsy takes 15% of the whole order, shipping included, or 12% above $10,000 in sales, capped at $100. Who can opt out, plus the pricing math.",
+    "metaDescription": "Etsy takes 15% of the order, shipping included; opt-out only if always under $10,000 in any consecutive 365-day period, then 12% and no opt-out. $100 cap.",
     "headline": "Etsy's Offsite Ads fee takes 12% to 15% of the whole order, shipping included, and you can only opt out below $10,000",
-    "dek": "On any order placed within 30 days of a click on one of Etsy's Offsite Ads, Etsy charges 15% of item price plus shipping, or 12% once your shop has made $10,000 in sales over 365 days, capped at $100 an order. Here is the math on a $20, $50 and $100 sale, how to price for it, and what to check in your dashboard this week.",
+    "dek": "On any order placed within 30 days of a click on one of Etsy's Offsite Ads, Etsy charges 15% of item price plus shipping if your shop has always made less than $10,000 in any consecutive 365-day period, or 12% once it reaches $10,000, with participation then required for the life of the shop, capped at $100 an order. Here is the math on a $20, $50 and $100 sale, how to price for it, and what to check in your dashboard this week.",
     "publishedOn": "2026-10-27",
-    "updatedOn": "2026-10-27",
+    "updatedOn": "2026-11-16",
     "author": "MarketplaceBeta Intelligence",
     "readTime": "8 min",
     "tags": [
@@ -2527,7 +2527,7 @@ export const ANALYSIS_ARTICLES: AnalysisArticle[] = [
       "advertising",
       "2026"
     ],
-    "takeaway": "If your Etsy shop has never reached $10,000 in sales over 365 days, you can still opt out of Offsite Ads, and you lose that choice for the life of the shop once you cross the line. Either way, price for a fee that runs on the whole order, shipping included: an order sold through an ad needs a price about 20% higher at the 15% rate, or about 15% higher at the 12% rate, to leave you the same money.",
+    "takeaway": "If your Etsy shop has always made less than $10,000 in any consecutive 365-day period, you can still opt out of Offsite Ads, and you lose that choice for the life of the shop once you cross the line. Either way, price for a fee that runs on the whole order, shipping included: an order sold through an ad needs a price about 20% higher at the 15% rate, or about 15% higher at the 12% rate, to leave you the same money.",
     "forecastIds": [],
     "newsletterSource": "campaign_kw_etsy_offsite_ads",
     "sections": [
