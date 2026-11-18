@@ -20,6 +20,7 @@ import { briefCtaSource } from '@/lib/brief-cta'
 import { FEE_BY_PRICE_PATH, FEE_BY_PRICE_TITLE } from '@/lib/fee-by-price'
 import { getCategory, MARKETPLACES, type Marketplace, type MarketplaceSlug } from '@/lib/marketplace-fees'
 import { newsletterSource } from '@/lib/newsletter-source'
+import { SALE_PRICES } from '@/lib/sale-fee-pages'
 
 export const RELATED_FEE_COMPARE = { href: FEE_BY_PRICE_PATH, label: FEE_BY_PRICE_TITLE }
 export const RELATED_ANALYSIS_LIMIT = 3
@@ -80,29 +81,62 @@ export function isEbayAnalysis(article: Pick<AnalysisArticle, 'slug' | 'tags'>):
   return article.slug.startsWith('ebay-') || article.tags[0] === 'eBay'
 }
 
-const EBAY_FEE_HREF = /^\/fees\/ebay(?:\/[a-z0-9-]+)?$/
-const EBAY_SALE_HREF = /^\/fees\/ebay\/on-a-(\d+)-sale$/
+/**
+ * An analysis page is an Etsy piece when the slug is etsy-* or the first tag is
+ * Etsy. A passing mention (holiday returns, parcel surcharges) does not qualify.
+ */
+export function isEtsyAnalysis(article: Pick<AnalysisArticle, 'slug' | 'tags'>): boolean {
+  return article.slug.startsWith('etsy-') || article.tags[0] === 'Etsy'
+}
+
+type FeeMarketplace = 'ebay' | 'etsy'
+
+const FEE_HREF: Record<FeeMarketplace, RegExp> = {
+  ebay: /^\/fees\/ebay(?:\/[a-z0-9-]+)?$/,
+  etsy: /^\/fees\/etsy(?:\/[a-z0-9-]+)?$/,
+}
+const SALE_HREF: Record<FeeMarketplace, RegExp> = {
+  ebay: /^\/fees\/ebay\/on-a-(\d+)-sale$/,
+  etsy: /^\/fees\/etsy\/on-a-(\d+)-sale$/,
+}
 
 function allowlistedCampaign(key: string): boolean {
   return newsletterSource(`?source=${key}`) === `newsletter_${key}`
 }
 
 /**
- * Brief signup key for the high-intent block on an eBay analysis page.
+ * Brief signup key for the high-intent block on an eBay or Etsy analysis page.
  * Strips `kw_` from the article's keyword campaign so this signup is distinct
  * from the sidebar (`campaign_kw_ebay_per_order` → `campaign_ebay_per_order`).
+ * A generated key is used only when it passes lib/newsletter-source.ts.
  */
-export function ebayAnalysisBriefSource(
+function marketplaceAnalysisBriefSource(
   article: Pick<AnalysisArticle, 'slug' | 'tags' | 'newsletterSource'>,
+  marketplace: FeeMarketplace,
+  matches: boolean,
 ): `campaign_${string}` | null {
-  if (!isEbayAnalysis(article)) return null
+  if (!matches) return null
   const fromKeyword = article.newsletterSource.replace(/^campaign_kw_/, 'campaign_')
   if (fromKeyword !== article.newsletterSource && allowlistedCampaign(fromKeyword)) {
     return fromKeyword as `campaign_${string}`
   }
-  const generated = briefCtaSource('ebay', article.slug)
+  const generated = briefCtaSource(marketplace, article.slug)
   if (generated !== article.newsletterSource && allowlistedCampaign(generated)) return generated
-  return briefCtaSource('ebay', article.slug, 'read')
+  return briefCtaSource(marketplace, article.slug, 'read')
+}
+
+/** Brief signup key for the high-intent block on an eBay analysis page. */
+export function ebayAnalysisBriefSource(
+  article: Pick<AnalysisArticle, 'slug' | 'tags' | 'newsletterSource'>,
+): `campaign_${string}` | null {
+  return marketplaceAnalysisBriefSource(article, 'ebay', isEbayAnalysis(article))
+}
+
+/** Brief signup key for the high-intent block on an Etsy analysis page. */
+export function etsyAnalysisBriefSource(
+  article: Pick<AnalysisArticle, 'slug' | 'tags' | 'newsletterSource'>,
+): `campaign_${string}` | null {
+  return marketplaceAnalysisBriefSource(article, 'etsy', isEtsyAnalysis(article))
 }
 
 export interface AnalysisReadingLink {
@@ -123,26 +157,77 @@ function citedFeeLabel(article: Pick<AnalysisArticle, 'sections'>, href: string)
   return undefined
 }
 
-function feeFallbackLabel(href: string): string {
-  if (href === '/fees/ebay') return 'eBay fees by category'
-  const sale = EBAY_SALE_HREF.exec(href)
-  if (sale) return `eBay fees on a $${sale[1]} sale`
-  const category = getCategory('ebay', href.slice('/fees/ebay/'.length))
-  return category ? `${category.label} calculator` : 'eBay fee page'
+const FEE_NAME: Record<FeeMarketplace, string> = { ebay: 'eBay', etsy: 'Etsy' }
+
+function feeFallbackLabel(marketplace: FeeMarketplace, href: string): string {
+  const name = FEE_NAME[marketplace]
+  const hub = `/fees/${marketplace}`
+  if (href === hub) return marketplace === 'ebay' ? 'eBay fees by category' : 'Etsy fees by category'
+  const sale = SALE_HREF[marketplace].exec(href)
+  if (sale) return `${name} fees on a $${sale[1]} sale`
+  const category = getCategory(marketplace, href.slice(`${hub}/`.length))
+  return category ? `${category.label} calculator` : `${name} fee page`
 }
 
-/** /fees/ebay first, then calculators and sale pages in the order the article cites them. */
-function ebayFeeHrefs(article: Pick<AnalysisArticle, 'sections' | 'sources'>): string[] {
+function feeNote(marketplace: FeeMarketplace, href: string): string {
+  if (href === `/fees/${marketplace}`) return 'Fee table'
+  return SALE_HREF[marketplace].test(href) ? 'Sale fee page' : 'Calculator'
+}
+
+/** True when `href` is a fee hub, category calculator, or sale page this repo already generates. */
+function feeRouteExists(marketplace: FeeMarketplace, href: string): boolean {
+  const hub = `/fees/${marketplace}`
+  if (href === hub) return true
+  const prefix = `${hub}/`
+  if (!href.startsWith(prefix)) return false
+  const rest = href.slice(prefix.length)
+  if (getCategory(marketplace, rest)) return true
+  const sale = /^on-a-(\d+)-sale$/.exec(rest)
+  return sale !== null && (SALE_PRICES as readonly number[]).includes(Number(sale[1]))
+}
+
+/**
+ * Hub first, then calculators and sale pages in the order the article cites them.
+ * Etsy drops a cited path that is not a page this repo already generates.
+ */
+function citedFeeHrefs(
+  article: Pick<AnalysisArticle, 'sections' | 'sources'>,
+  marketplace: FeeMarketplace,
+  onlyExisting: boolean,
+): string[] {
+  const hub = `/fees/${marketplace}`
   const chunks = article.sections.flatMap(s => [...s.paragraphs, ...(s.bullets ?? [])])
   const hrefs = [...chunks.flatMap(linkHrefs), ...article.sources.map(s => s.href)]
   const seen = new Set<string>()
   const calculators: string[] = []
   for (const href of hrefs) {
-    if (!EBAY_FEE_HREF.test(href) || href === '/fees/ebay' || seen.has(href)) continue
+    if (!FEE_HREF[marketplace].test(href) || href === hub || seen.has(href)) continue
+    if (onlyExisting && !feeRouteExists(marketplace, href)) continue
     seen.add(href)
     calculators.push(href)
   }
-  return ['/fees/ebay', ...calculators]
+  return [hub, ...calculators]
+}
+
+function analysisReadingLink(article: AnalysisArticle): AnalysisReadingLink {
+  return {
+    href: `/intelligence/analysis/${article.slug}`,
+    label: article.headline,
+    note: 'Analysis',
+    date: article.publishedOn,
+  }
+}
+
+function feeReadingLinks(article: AnalysisArticle, marketplace: FeeMarketplace, hrefs: string[]): AnalysisReadingLink[] {
+  return hrefs.map(href => ({
+    href,
+    label: citedFeeLabel(article, href) ?? feeFallbackLabel(marketplace, href),
+    note: feeNote(marketplace, href),
+  }))
+}
+
+function newestFirst(articles: readonly AnalysisArticle[], keep: (article: AnalysisArticle) => boolean, exceptSlug: string): AnalysisArticle[] {
+  return articles.filter(a => a.slug !== exceptSlug && keep(a)).sort((a, b) => b.publishedOn.localeCompare(a.publishedOn))
 }
 
 /**
@@ -154,19 +239,25 @@ export function ebayAnalysisRelated(
   articles: readonly AnalysisArticle[] = latestAnalysis(),
 ): AnalysisReadingLink[] | null {
   if (!isEbayAnalysis(article)) return null
-  const siblings = articles
-    .filter(a => a.slug !== article.slug && isEbayAnalysis(a))
-    .sort((a, b) => b.publishedOn.localeCompare(a.publishedOn))
-  const analysisLinks: AnalysisReadingLink[] = siblings.map(a => ({
-    href: `/intelligence/analysis/${a.slug}`,
-    label: a.headline,
-    note: 'Analysis',
-    date: a.publishedOn,
-  }))
-  const feeLinks: AnalysisReadingLink[] = ebayFeeHrefs(article).map(href => ({
-    href,
-    label: citedFeeLabel(article, href) ?? feeFallbackLabel(href),
-    note: href === '/fees/ebay' ? 'Fee table' : EBAY_SALE_HREF.test(href) ? 'Sale fee page' : 'Calculator',
-  }))
-  return [...analysisLinks, ...feeLinks]
+  return [
+    ...newestFirst(articles, isEbayAnalysis, article.slug).map(analysisReadingLink),
+    ...feeReadingLinks(article, 'ebay', citedFeeHrefs(article, 'ebay', false)),
+  ]
+}
+
+/**
+ * Other Etsy analysis, then the eBay fee analyses already published, newest
+ * first, then the Etsy fee table and any /fees/etsy pages this piece cites
+ * that already exist. Null for other articles.
+ */
+export function etsyAnalysisRelated(
+  article: AnalysisArticle,
+  articles: readonly AnalysisArticle[] = latestAnalysis(),
+): AnalysisReadingLink[] | null {
+  if (!isEtsyAnalysis(article)) return null
+  return [
+    ...newestFirst(articles, isEtsyAnalysis, article.slug).map(analysisReadingLink),
+    ...newestFirst(articles, isEbayAnalysis, article.slug).map(analysisReadingLink),
+    ...feeReadingLinks(article, 'etsy', citedFeeHrefs(article, 'etsy', true)),
+  ]
 }
