@@ -95,6 +95,12 @@ describe('permanent redirects', () => {
     const bySource = Object.fromEntries(redirects.map(r => [r.source, r.permanent === true]))
     for (const s of ['/solutions/:path*', '/partners/:path*', '/community/:path*']) expect(bySource[s]).toBe(true)
   })
+  it('permanently redirects the retired Walmart Cell Phones page and does not generate that route', async () => {
+    expect(nextConfig.redirects).toBeTypeOf('function')
+    const redirects = await nextConfig.redirects!()
+    expect(redirects).toContainEqual({ source: '/fees/walmart/cell-phones', destination: '/fees/walmart', permanent: true })
+    expect(getAllFeeRoutes()).not.toContainEqual({ marketplace: 'walmart', category: 'cell-phones' })
+  })
 })
 
 describe('forecasts title', () => {
