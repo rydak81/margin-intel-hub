@@ -7,7 +7,7 @@ export const article = {
     "headline": "Amazon's 2027 FBA fees: peak pricing ends January 14, but for many small items the fee doesn't come back down",
     "dek": "Amazon told sellers on November 5, 2026 that FBA fulfillment fees rise by $0.19 a unit on average from January 15, 2027, and that storage fees and the low-inventory-level fee change on February 1. The changes land in the middle of holiday sell-through, so the decisions are about this season's stock: what to clear before it ages, which promotions to run before a new fee starts, and which small items need a new price on January 15.",
     "publishedOn": "2026-11-18",
-    "updatedOn": "2026-11-18",
+    "updatedOn": "2026-11-19",
     "author": "MarketplaceBeta Intelligence",
     "reviewMode": "automated",
     "readTime": "7 min",
@@ -27,11 +27,11 @@ export const article = {
         "id": "answer",
         "title": "The short answer",
         "paragraphs": [
-          "Amazon's [November 5, 2026 announcement](https://sellingpartners.aboutamazon.com/update-to-us-referral-and-fulfillment-by-amazon-fees-for-2027), re-read November 18, 2026, says that \"on average, FBA fulfillment fees will increase by $0.19 per unit sold, approximately 0.8% of the average item's selling price,\" with most changes effective January 15, 2027. The 3.5% fuel and logistics surcharge \"remains unchanged.\" Effective February 1, 2027, Amazon will \"eliminate the storage utilization surcharge,\" fold the aged inventory surcharge into \"a single, age-based rate,\" and change how the low-inventory-level fee is assessed.",
+          "Amazon's [November 5, 2026 announcement](https://sellingpartners.aboutamazon.com/update-to-us-referral-and-fulfillment-by-amazon-fees-for-2027), re-read November 19, 2026, says that \"on average, FBA fulfillment fees will increase by $0.19 per unit sold, approximately 0.8% of the average item's selling price,\" with most changes effective January 15, 2027. The 3.5% fuel and logistics surcharge \"remains unchanged.\" Effective February 1, 2027, Amazon will \"eliminate the storage utilization surcharge,\" fold the aged inventory surcharge into \"a single, age-based rate,\" and change how the low-inventory-level fee is assessed.",
           "The average hides the spread. Amazon's [fee summary for sellers in Korea](https://sell.amazon.co.kr/update/amazon-new-updates/us-fee-changes-2027), an official Amazon page covering the US changes and re-read the same day, breaks the standard-size increase out by size and price. [Supply Chain Dive](https://www.supplychaindive.com/news/amazon-to-expand-fuel-and-logistics-surcharge-to-more-services/874693/) published the same table on November 17, 2026. Small standard items priced $10 to $50 rise $0.40 a unit on average, about twice the account-wide $0.19."
         ],
         "table": {
-          "caption": "Average per-unit FBA fulfillment fee change for standard-size items from January 15, 2027, before the 3.5% surcharge · Sources: Amazon 2027 US fee summary (Amazon Global Selling Korea) and Supply Chain Dive, Nov 17, 2026, both re-read Nov 18, 2026",
+          "caption": "Average per-unit FBA fulfillment fee change for standard-size items from January 15, 2027, before the 3.5% surcharge · Sources: Amazon 2027 US fee summary (Amazon Global Selling Korea) and Supply Chain Dive, Nov 17, 2026, both re-read Nov 19, 2026",
           "headings": [
             "Item price",
             "Small standard",
@@ -112,7 +112,7 @@ export const article = {
         "id": "faq",
         "title": "Questions sellers ask",
         "paragraphs": [
-          "Answers checked against Amazon's 2027 fee announcement and fee summary on November 18, 2026."
+          "Answers checked against Amazon's 2027 fee announcement and fee summary on November 19, 2026."
         ],
         "bullets": [
           "How much are Amazon's FBA fees going up in 2027? By $0.19 a unit sold on average from January 15, 2027, which Amazon puts at about 0.8% of the average selling price, per its [November 5 announcement](https://sellingpartners.aboutamazon.com/update-to-us-referral-and-fulfillment-by-amazon-fees-for-2027). Small standard items rise $0.20 under $10, $0.40 from $10 to $50 and $0.70 over $50 on average; some products go down.",
@@ -126,7 +126,7 @@ export const article = {
         "id": "methods",
         "title": "How this was made",
         "paragraphs": [
-          "We re-read Amazon's November 5, 2026 announcement on its Selling Partners site, Amazon's summary of the 2027 US fee changes on its Global Selling site for Korea, Amazon's summary of the 2026 US fee changes on its Global Selling site for Taiwan, an Amazon staff post on the low-inventory-level fee in the Seller Forums, and Supply Chain Dive's November 17, 2026 report, all on November 18, 2026. Amazon's full US fee pages sit behind the Seller Central login, so the new storage rates and per-item fulfillment rates are not in this piece. Peak-fee figures come from our [holiday peak fee page](/fees/amazon/holiday-peak-2026). Every dollar figure beyond Amazon's published averages is our arithmetic on hypothetical items, rounded to the cent.",
+          "We re-read Amazon's November 5, 2026 announcement on its Selling Partners site, Amazon's summary of the 2027 US fee changes on its Global Selling site for Korea, Amazon's summary of the 2026 US fee changes on its Global Selling site for Taiwan, an Amazon staff post on the low-inventory-level fee in the Seller Forums, and Supply Chain Dive's November 17, 2026 report, all on November 19, 2026. Amazon's full US fee pages sit behind the Seller Central login, so the new storage rates and per-item fulfillment rates are not in this piece. Peak-fee figures come from our [holiday peak fee page](/fees/amazon/holiday-peak-2026). Every dollar figure beyond Amazon's published averages is our arithmetic on hypothetical items, rounded to the cent.",
           "Prepared through an automated research and editorial process with evidence checks. No individual human review of this revision is claimed."
         ]
       }
@@ -135,27 +135,27 @@ export const article = {
       {
         "label": "Amazon Selling Partners: Update to US Referral and Fulfillment by Amazon fees for 2027 (Nov 5, 2026)",
         "href": "https://sellingpartners.aboutamazon.com/update-to-us-referral-and-fulfillment-by-amazon-fees-for-2027",
-        "context": "$0.19 average per-unit FBA increase (about 0.8% of average selling price) from Jan 15, 2027; 3.5% surcharge unchanged; storage utilization surcharge eliminated and aged inventory surcharge combined into an age-based rate from Feb 1; low-inventory-level fee to use the four weeks before and after assessment. Re-read Nov 18, 2026."
+        "context": "$0.19 average per-unit FBA increase (about 0.8% of average selling price) from Jan 15, 2027; 3.5% surcharge unchanged; storage utilization surcharge eliminated and aged inventory surcharge combined into an age-based rate from Feb 1; low-inventory-level fee to use the four weeks before and after assessment. Re-read Nov 19, 2026."
       },
       {
         "label": "Amazon Global Selling (Korea): 2027 US referral and FBA fee changes",
         "href": "https://sell.amazon.co.kr/update/amazon-new-updates/us-fee-changes-2027",
-        "context": "Official Amazon summary of the US changes: averages by size and price band; Buy X, Get Y fee of $5 plus 2% (capped at $2,000); Central inbound region merged into East; low-price rate removed for five fee categories; new bulky and Extra-large tiers; low-inventory-level fee method and example; AWD, MCF and MCD changes; dashboard data basis. Re-read Nov 18, 2026."
+        "context": "Official Amazon summary of the US changes: averages by size and price band; Buy X, Get Y fee of $5 plus 2% (capped at $2,000); Central inbound region merged into East; low-price rate removed for five fee categories; new bulky and Extra-large tiers; low-inventory-level fee method and example; AWD, MCF and MCD changes; dashboard data basis. Re-read Nov 19, 2026."
       },
       {
         "label": "Supply Chain Dive: Amazon to expand fuel and logistics surcharge to more services (Nov 17, 2026)",
         "href": "https://www.supplychaindive.com/news/amazon-to-expand-fuel-and-logistics-surcharge-to-more-services/874693/",
-        "context": "Standard-size average increase table from Amazon; surcharge extended to AWD and MCD transportation from Feb 1, 2027; aged inventory surcharge applies at 181 days or more. Re-read Nov 18, 2026."
+        "context": "Standard-size average increase table from Amazon; surcharge extended to AWD and MCD transportation from Feb 1, 2027; aged inventory surcharge applies at 181 days or more. Re-read Nov 19, 2026."
       },
       {
         "label": "Amazon Global Selling (Taiwan): 2026 US referral and FBA fee changes",
         "href": "https://gs.amazon.com.tw/news/na-service-and-fba-fee-change-251105",
-        "context": "Low-inventory-level fee measured per FNSKU from Jan 15, 2026; AWD transportation $1.40 per cubic foot in 2026. Re-read Nov 18, 2026."
+        "context": "Low-inventory-level fee measured per FNSKU from Jan 15, 2026; AWD transportation $1.40 per cubic foot in 2026. Re-read Nov 19, 2026."
       },
       {
         "label": "Amazon Seller Forums: Low-inventory-level fee further explained (Amazon staff post)",
         "href": "https://sellercentral.amazon.com/seller-forums/discussions/t/aa9f98e5-fa91-4949-af8f-6cf918c86a77",
-        "context": "Fee applies only when historical days of supply is below 28 days on both the 30-day and 90-day measures; where to see the metric on the FBA Inventory page. Re-read Nov 18, 2026."
+        "context": "Fee applies only when historical days of supply is below 28 days on both the 30-day and 90-day measures; where to see the metric on the FBA Inventory page. Re-read Nov 19, 2026."
       },
       {
         "label": "MarketplaceBeta: Amazon holiday peak fees 2026 + 3.5% surcharge",
