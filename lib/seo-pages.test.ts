@@ -15,6 +15,7 @@ import { newsArticleCopy, newsArticleJsonLd, newsArticleMetadataFields, relatedA
 import { analysisMarketplaces, relatedAnalysisForMarketplace } from '@/lib/related-links'
 import { ORGANIZATION_ID } from '@/lib/site-jsonld'
 import { ANALYSIS_ARTICLES } from '@/lib/analysis'
+import { ANSWER_PATHS } from '@/lib/answers'
 import { parseInitialArticles } from '@/lib/articles-initial'
 
 const SITE = 'https://marketplacebeta.com'
@@ -82,7 +83,7 @@ describe('sitemap after dedupe', () => {
     // 157 URLs on main before this change; the sitemap has no news rows without database credentials.
     const urls = (await sitemap()).map(e => e.url)
     // Each new analysis article adds one URL; 157 was counted with 5 articles. +1: /fees/compare-by-item-price. Final +1: /holiday-2026.
-    expect(urls).toHaveLength(157 - 19 - 25 + 1 + INDEXABLE_SALE_PAGES.length + (ANALYSIS_ARTICLES.length - 5) + AI_PLAYBOOKS.length + 1)
+    expect(urls).toHaveLength(157 - 19 - 25 + 1 + INDEXABLE_SALE_PAGES.length + (ANALYSIS_ARTICLES.length - 5) + AI_PLAYBOOKS.length + 1 + ANSWER_PATHS.length)
     expect(new Set(urls).size).toBe(urls.length)
   })
 })

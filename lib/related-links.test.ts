@@ -181,6 +181,7 @@ describe('eBay analysis related reading', () => {
 
 describe('Etsy analysis related reading', () => {
   const ddp = ANALYSIS_ARTICLES.find(a => a.slug === 'etsy-ddp-us-orders-2026-duty-paid-pricing')!
+  const compare = ANALYSIS_ARTICLES.find(a => a.slug === 'etsy-vs-ebay-fees-2026-20-50-100')!
   const offsite = ANALYSIS_ARTICLES.find(a => a.slug === 'etsy-offsite-ads-fees-2026')!
   const watches = ANALYSIS_ARTICLES.find(a => a.slug === 'ebay-watch-fees-2026-15-percent-to-1000')!
   const perOrder = ANALYSIS_ARTICLES.find(a => a.slug === 'ebay-per-order-fee-2026-under-10')!
@@ -198,22 +199,25 @@ describe('Etsy analysis related reading', () => {
   it('on the duty-paid piece, links the Offsite Ads analysis, the eBay fee analyses on main, and the Etsy fee page', () => {
     const links = etsyAnalysisRelated(ddp)!
     expect(links.map(l => l.href)).toEqual([
+      `/intelligence/analysis/${compare.slug}`,
       `/intelligence/analysis/${offsite.slug}`,
       `/intelligence/analysis/${watches.slug}`,
       `/intelligence/analysis/${perOrder.slug}`,
       '/fees/etsy',
     ])
-    expect(links[0].label).toBe(offsite.headline)
-    expect(links[1].label).toBe(watches.headline)
-    expect(links[2].label).toBe(perOrder.headline)
-    expect(links[3].label).toBe('Etsy fee page')
-    expect(links[3].note).toBe('Fee table')
+    expect(links[0].label).toBe(compare.headline)
+    expect(links[1].label).toBe(offsite.headline)
+    expect(links[2].label).toBe(watches.headline)
+    expect(links[3].label).toBe(perOrder.headline)
+    expect(links[4].label).toBe('Etsy fee page')
+    expect(links[4].note).toBe('Fee table')
     expect(links.map(l => `${l.label} ${l.note}`).join('\n')).not.toMatch(FORBIDDEN)
   })
 
   it('on the Offsite Ads piece, links the duty-paid analysis, the eBay fee analyses, and the Etsy fee pages it already cites', () => {
     const links = etsyAnalysisRelated(offsite)!
     expect(links.map(l => l.href)).toEqual([
+      `/intelligence/analysis/${compare.slug}`,
       `/intelligence/analysis/${ddp.slug}`,
       `/intelligence/analysis/${watches.slug}`,
       `/intelligence/analysis/${perOrder.slug}`,
@@ -221,10 +225,10 @@ describe('Etsy analysis related reading', () => {
       '/fees/etsy/on-a-20-sale',
       '/fees/etsy/on-a-50-sale',
     ])
-    expect(links[3].label).toBe('Etsy fee table')
-    expect(links[4].label).toBe('$20 sale')
-    expect(links[5].label).toBe('$50 sale')
-    expect(links[4].note).toBe('Sale fee page')
+    expect(links[4].label).toBe('Etsy fee table')
+    expect(links[5].label).toBe('$20 sale')
+    expect(links[6].label).toBe('$50 sale')
+    expect(links[5].note).toBe('Sale fee page')
     expect(links.map(l => l.href)).not.toContain('/fees/compare/ebay-vs-etsy')
     expect(links.map(l => l.href)).not.toContain('/fees/ebay')
   })
@@ -266,7 +270,8 @@ describe('Etsy analysis related reading', () => {
       sections: [{ id: 's', title: 'Body', paragraphs: ['See the [handmade calculator](/fees/etsy/handmade) and the [missing page](/fees/etsy/not-a-page).'] }],
     })
     const hrefs = etsyAnalysisRelated(fixture, [fixture, ...latestAnalysis()])!.map(l => l.href)
-    expect(hrefs[0]).toBe(`/intelligence/analysis/${ddp.slug}`)
+    expect(hrefs[0]).toBe(`/intelligence/analysis/${compare.slug}`)
+    expect(hrefs).toContain(`/intelligence/analysis/${ddp.slug}`)
     expect(hrefs).toContain(`/intelligence/analysis/${offsite.slug}`)
     expect(hrefs).toContain(`/intelligence/analysis/${watches.slug}`)
     expect(hrefs).toContain(`/intelligence/analysis/${perOrder.slug}`)
