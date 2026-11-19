@@ -146,12 +146,22 @@ const AMAZON_CATEGORIES: FeeCategory[] = [
 
 // ── Walmart ───────────────────────────────────────────────────────────────────
 
-// Verified 2026-10-16 against https://marketplace.walmart.com/pricing/ (official Walmart referral fee table)
+// Targeted re-check 2026-11-19 against https://marketplace.walmart.com/pricing/ and
+// Marketplace Learn "Referral fee schedule for contract categories" (updated Mar 9, 2026).
+// Confirmed today: neither official table lists a Cell Phones row; added official
+// Appliances - Compact, Musical Instruments, and Personal Computers rows; Baby remains
+// 8% at $10 or less. This is not a full recertification of every pre-existing Walmart row.
+// Previous verification: 2026-10-16 against https://marketplace.walmart.com/pricing/.
 const WALMART_CATEGORIES: FeeCategory[] = [
   {
     slug: "apparel-accessories", label: "Apparel & Accessories", referralPct: 15,
     note: "Tiered by total price: 5% at $15 or less, 10% from $15.01 to $20, 15% over $20.",
     tierMode: "whole", tiers: [{ upTo: 15, pct: 5 }, { upTo: 20, pct: 10 }, { upTo: null, pct: 15 }],
+  },
+  {
+    slug: "appliances-compact", label: "Appliances - Compact", referralPct: 12,
+    note: "12% for the portion of the total sales price up to $300; 8% for any portion of the total sales price greater than $300.",
+    tierMode: "marginal", tiers: [{ upTo: 300, pct: 12 }, { upTo: null, pct: 8 }],
   },
   { slug: "automotive", label: "Automotive & Powersports", referralPct: 12 },
   {
@@ -166,7 +176,6 @@ const WALMART_CATEGORIES: FeeCategory[] = [
   },
   { slug: "books", label: "Books", referralPct: 15 },
   { slug: "camera-photo", label: "Camera & Photo", referralPct: 8 },
-  { slug: "cell-phones", label: "Cell Phones", referralPct: 8 },
   { slug: "consumer-electronics", label: "Consumer Electronics", referralPct: 8 },
   {
     slug: "electronics-accessories", label: "Electronics Accessories", referralPct: 15,
@@ -191,8 +200,10 @@ const WALMART_CATEGORIES: FeeCategory[] = [
     tierMode: "marginal", tiers: [{ upTo: 250, pct: 20 }, { upTo: null, pct: 5 }],
   },
   { slug: "kitchen", label: "Kitchen", referralPct: 15 },
+  { slug: "musical-instruments", label: "Musical Instruments", referralPct: 12 },
   { slug: "office-products", label: "Office Products", referralPct: 15 },
   { slug: "outdoors", label: "Outdoors", referralPct: 15 },
+  { slug: "personal-computers", label: "Personal Computers", referralPct: 6 },
   { slug: "pet-supplies", label: "Pet Supplies", referralPct: 15 },
   { slug: "shoes", label: "Shoes, Handbags & Sunglasses", referralPct: 15 },
   { slug: "sporting-goods", label: "Sporting Goods", referralPct: 15 },
@@ -287,9 +298,12 @@ export const MARKETPLACES: Marketplace[] = [
     shortName: "Walmart",
     feeName: "referral fee",
     fulfillmentName: "WFS",
-    // Source: https://marketplace.walmart.com/pricing/ (old Marketplace Learn URL now returns "No Data found")
+    // Primary source: https://marketplace.walmart.com/pricing/
+    // Detailed schedule: Marketplace Learn "Referral fee schedule for contract categories"
+    // (https://marketplacelearn.walmart.com/guides/Selling%20on%20Walmart/Referral-fee-schedule-for-contract-categories,
+    // last updated Mar 9, 2026). Rates for the 2026-11-19 category corrections agree on both pages.
     sourceUrl: "https://marketplace.walmart.com/pricing/",
-    lastVerified: "2026-10-16",
+    lastVerified: "2026-11-19",
     summary:
       "Walmart Marketplace charges no monthly subscription or setup fee — sellers pay only a category-based referral fee on each sale. That makes the effective take rate easier to model than Amazon's, though Walmart Fulfillment Services (WFS) adds fulfillment and storage costs for sellers who use it.",
     categories: WALMART_CATEGORIES,
