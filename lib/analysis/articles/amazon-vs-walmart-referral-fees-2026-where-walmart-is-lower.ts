@@ -94,7 +94,7 @@ export const article = {
       "id": "what-changed",
       "title": "What changed, and what didn't",
       "paragraphs": [
-        "The rates in this comparison match our [Amazon fee table](/fees/amazon), last verified November 12, 2026, and our [Walmart fee table](/fees/walmart), last verified October 16, 2026. What changed is the reason to look. On November 5, 2026, [Amazon told sellers](https://sellingpartners.aboutamazon.com/update-to-us-referral-and-fulfillment-by-amazon-fees-for-2027) that FBA fulfillment fees rise by $0.19 a unit on average from January 15, 2027, and [Amazon's summary of the changes](https://sell.amazon.co.kr/update/amazon-new-updates/us-fee-changes-2027) says most referral fees stay the same. If you are re-running Amazon margins this month, the obvious question is where else a SKU could go. On referral fees alone, Walmart is the cheaper answer in only five categories.",
+        "The rates in this comparison match our [Amazon fee table](/fees/amazon), last verified November 12, 2026, and our [Walmart fee table](/fees/walmart), last verified November 19, 2026. What changed is the reason to look. On November 5, 2026, [Amazon told sellers](https://sellingpartners.aboutamazon.com/update-to-us-referral-and-fulfillment-by-amazon-fees-for-2027) that FBA fulfillment fees rise by $0.19 a unit on average from January 15, 2027, and [Amazon's summary of the changes](https://sell.amazon.co.kr/update/amazon-new-updates/us-fee-changes-2027) says most referral fees stay the same. If you are re-running Amazon margins this month, the obvious question is where else a SKU could go. On referral fees alone, Walmart is the cheaper answer in only five categories.",
         "Here is where the two tables match, per the same three pages:"
       ],
       "bullets": [
@@ -135,7 +135,7 @@ export const article = {
         "For each candidate, find the contract category Walmart assigns. Marketplace Learn says the fee \"is determined by the product type that Walmart assigns to your items during the item setup process,\" and shows it in the commission rate column on your Statements page. If Walmart puts your instrument somewhere other than Musical Instruments, the 12% doesn't apply.",
         "Add fulfillment before deciding. Put the WFS fee from Walmart's table (or your own shipping cost) next to your FBA fee, including the $0.50 apparel add-on and the $1 under-$10 add-on on WFS. Drop any SKU where fulfillment eats the referral saving.",
         "Audit prices near $10, $15 and $20 on both channels, counting buyer-paid shipping. Reprice anything in a dead zone: down to the threshold, or up past the break-even.",
-        "Cross-check with our [Amazon vs Walmart fee comparison](/fees/compare/amazon-vs-walmart), the [Amazon fee table](/fees/amazon), the [Walmart fee table](/fees/walmart) and the [fee comparison by item price](/fees/compare-by-item-price). Our Walmart table doesn't yet list Personal Computers, Musical Instruments or Compact Appliances, so use Walmart's own pages for those three."
+        "Cross-check with our [Amazon vs Walmart fee comparison](/fees/compare/amazon-vs-walmart), the [Amazon fee table](/fees/amazon), the [Walmart fee table](/fees/walmart) and the [fee comparison by item price](/fees/compare-by-item-price). For computers, instruments and compact appliances, see our [Personal Computers](/fees/walmart/personal-computers), [Musical Instruments](/fees/walmart/musical-instruments) and [Compact Appliances](/fees/walmart/appliances-compact) pages. The cited sources for those rates remain Walmart's [pricing page](https://marketplace.walmart.com/pricing/) and [Marketplace Learn fee schedule](https://marketplacelearn.walmart.com/guides/Selling%20on%20Walmart/Referral-fee-schedule-for-contract-categories)."
       ]
     },
     {
@@ -155,7 +155,7 @@ export const article = {
       ],
       "bullets": [
         "Are Walmart's referral fees lower than Amazon's? Only in five matching categories: clothing over $20 (15% vs 17%), computers (6% vs 8%), musical instruments (12% vs 15%), compact appliances (12% vs 15% up to $300) and watches (15% vs 16% up to $1,500). Most other matching categories carry the same rate.",
-        "Does Walmart charge a monthly fee like Amazon? Walmart's pricing page says it has \"zero setup, monthly, or hidden fees.\" Amazon's Professional plan is $39.99 a month, and the Individual plan is $0.99 per item sold.",
+        "Does Walmart charge a monthly fee like Amazon? Walmart's pricing page says \"Walmart Marketplace and Walmart Fulfillment Services operate with competitive cost structures including zero setup, monthly, or hidden fees.\" Amazon's Professional plan is $39.99 a month, and the Individual plan is $0.99 per item sold.",
         "Does Walmart have a minimum referral fee? Neither Walmart page we read lists one. Amazon lists a $0.30 minimum in most categories, which only matters below $2 at a 15% rate.",
         "Do Amazon and Walmart charge referral fees on shipping? Yes. Both count shipping and gift wrap in the total sales price, and the total sets which tier applies.",
         "What is Walmart's referral fee on clothing? 5% at a total sales price of $15 or less, 10% from $15 to $20, and 15% above $20. Amazon's is the same up to $20, then 17%. See our [Walmart apparel fee page](/fees/walmart/apparel-accessories) and [Amazon clothing fee page](/fees/amazon/clothing-accessories)."
@@ -179,7 +179,7 @@ export const article = {
     {
       "label": "Walmart Marketplace: Pricing",
       "href": "https://marketplace.walmart.com/pricing/",
-      "context": "Referral fee table by category; total sales price includes shipping, handling and gift wrap; zero setup or monthly fees; WFS standard fee $3.45 at 1 lb or less, plus $0.50 for apparel and $1 for items priced under $10. Re-read Nov 19, 2026."
+      "context": "Referral fee table by category; total sales price includes shipping, handling and gift wrap; hero line that Marketplace and WFS operate with zero setup, monthly, or hidden fees; WFS standard fee $3.45 at 1 lb or less, plus $0.50 for apparel and $1 for items priced under $10. Re-read Nov 19, 2026."
     },
     {
       "label": "Walmart Marketplace Learn: Referral fee schedule for contract categories",
