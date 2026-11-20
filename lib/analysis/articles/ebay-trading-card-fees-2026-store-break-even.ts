@@ -57,7 +57,7 @@ export const article = {
         "Three things around the rate are worth a fresh look:"
       ],
       "bullets": [
-        "Authenticity Guarantee starts at $200. eBay's [community announcement](https://community.ebay.com/forum/announcements-57928/topic/authenticity-guarantee-is-expanding-to-more-trading-cards-469377/) said: \"Over the coming weeks, we're expanding eBay's Authenticity Guarantee to include eligible single trading cards priced at $200 and above (down from $250).\" eBay's [Authenticity Guarantee help page](https://www.ebay.com/help/selling/selling-tools/selling-authenticity-guarantee?id=4644) now says cards \"must have a Buy It Now price of $200 or more, or sell in an auction for $200 or more.\" eBay's [Seller Center trading card page](https://www.ebay.com/sellercenter/selling/what-to-sell/selling-trading-cards) still says \"Raw and graded cards over $250 automatically go through Authenticity Guarantee (AG).\" That Seller Center line predates the announced cut, so plan for $200.",
+        "Authenticity Guarantee starts at $200. eBay's [community announcement](https://community.ebay.com/forum/announcements-57928/topic/authenticity-guarantee-is-expanding-to-more-trading-cards-469377/) said: \"Over the coming weeks, we're expanding eBay's Authenticity Guarantee to include eligible single trading cards priced at $200 and above (down from $250).\" eBay's [Authenticity Guarantee help page](https://www.ebay.com/help/selling/selling-tools/selling-authenticity-guarantee?id=4644) now says cards \"must have a Buy It Now price of $200 or more, or sell in an auction for $200 or more.\" eBay's [Authenticity Guarantee trading card terms](https://www.ebay.com/authenticity-guarantee/tradingcards) say the same, covering eligible single cards \"$200 and above.\" eBay's [Seller Center trading card page](https://www.ebay.com/sellercenter/selling/what-to-sell/selling-trading-cards) still says \"Raw and graded cards over $250 automatically go through Authenticity Guarantee (AG).\" That Seller Center line predates the announced cut, so plan for $200.",
         "Three official eBay pages quote three different standard envelope rates. The [standard envelope help page](https://www.ebay.com/help/selling/shipping-items/setting-shipping-options/ebay-standard-envelope?id=5308) lists $0.82 for 1 oz, $1.11 for 2 oz and $1.40 for 3 oz. The [Seller Center standard envelope page](https://www.ebay.com/sellercenter/shipping/choosing-a-carrier-and-service/ebay-standard-envelope) lists $0.78, $1.07 and $1.36. The [Seller Center trading card page](https://www.ebay.com/sellercenter/selling/what-to-sell/selling-trading-cards) lists $0.63, $0.87 and $1.11. We plan on the help page's higher rates. Your label price in eBay Labels is the real number.",
         "Two eBay pages describe the card rate differently. The [Seller Center fees page](https://www.ebay.com/sellercenter/selling/start-selling-on-ebay/seller-fees) lists one \"Trading Cards\" row at 13.25%, and 12.35% for Stores. The help pages split that into the four categories named above, comics included. We follow the help pages, which name the categories."
       ]
@@ -180,7 +180,12 @@ export const article = {
       "context": "Single cards in three card categories at $200 or more; no opt in or opt out; signature confirmation at $750 or more to the authenticator; delay notice of 7 days or more. Re-read Nov 20, 2026."
     },
     {
-      "label": "eBay Community: Authenticity Guarantee is expanding to more trading cards ",
+      "label": "eBay: Authenticity Guarantee for trading cards",
+      "href": "https://www.ebay.com/authenticity-guarantee/tradingcards",
+      "context": "US eligible single sports, non-sport and collectible card game cards at $200 and above, raw or graded by approved graders. Re-read Nov 20, 2026."
+    },
+    {
+      "label": "eBay Community: Authenticity Guarantee is expanding to more trading cards",
       "href": "https://community.ebay.com/forum/announcements-57928/topic/authenticity-guarantee-is-expanding-to-more-trading-cards-469377/",
       "context": "Threshold for eligible single trading cards lowered to $200 from $250 \"over the coming weeks.\" Re-read Nov 20, 2026."
     },
