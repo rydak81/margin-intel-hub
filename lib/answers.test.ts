@@ -158,7 +158,6 @@ describe('answer pages', () => {
     expect(tiktokCopy).not.toMatch(/\b8%/)
 
     expect(ETSY_SALE_EXAMPLES.plain).toEqual({ transactionBase: 44, processingBase: 44, transaction: 2.86, processing: 1.57, listing: 0.2, total: 4.63 })
-    expect(ETSY_SALE_EXAMPLES.withWrap).toEqual({ transactionBase: 46, processingBase: 44, transaction: 2.99, processing: 1.57, listing: 0.2, total: 4.76 })
   })
 
   it('groups by marketplace and by job, and links 3 to 5 other answers', () => {

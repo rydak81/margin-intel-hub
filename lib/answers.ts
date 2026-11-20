@@ -261,17 +261,17 @@ const tiktokCollectiblesHead = tiktokReferralAmount(TIKTOK_OVER_10K, TIKTOK_MOST
 const tiktokCollectiblesTail = cents((tiktokCollectiblesBase - TIKTOK_OVER_10K) * (TIKTOK_OVER_10K_PCT / 100))
 const tiktokCollectiblesFee = tiktokReferralAmount(tiktokCollectiblesBase, TIKTOK_MOST_PCT, true)
 
-export function etsyTake(item: number, shipping: number, giftWrap: number) {
-  const transactionBase = cents(item + shipping + giftWrap)
-  const processingBase = cents(item + shipping)
+/** Order with no gift wrap and no sales tax. The processing help page names shipping and sales tax in that base. */
+export function etsyTake(item: number, shipping: number) {
+  const transactionBase = cents(item + shipping)
+  const processingBase = transactionBase
   const transaction = cents(transactionBase * (ETSY_TRANSACTION_PCT / 100))
   const processing = cents(processingBase * (ETSY_PROCESSING_PCT / 100) + ETSY_PROCESSING_FLAT)
   const listing = ETSY_LISTING_FEE
   return { transactionBase, processingBase, transaction, processing, listing, total: cents(transaction + processing + listing) }
 }
 
-const etsySale = etsyTake(36, 8, 0)
-const etsySaleWrap = etsyTake(36, 8, 2)
+const etsySale = etsyTake(36, 8)
 
 export const ANSWER_PAGES: AnswerPage[] = [
   {
@@ -653,7 +653,7 @@ export const ANSWER_PAGES: AnswerPage[] = [
       },
     ],
     checks: [
-      'Decide standard or big and bulky before reading a fee. Standard is 150 lb or less, longest side 108 inches or less, and longest side plus girth 165 inches or less. Girth is 2 times width plus height. One miss moves the unit to big and bulky.',
+      'Decide standard or big and bulky before reading a fee. Standard is 150 lb or less, longest side 108 inches or less, and longest side plus girth 165 inches or less. Girth is 2 × (width + height). One miss moves the unit to big and bulky.',
       'For a unit of at least 1 lb, compare unit weight with dimensional weight (length × width × height / 139) and keep the greater one. Add 0.25 lb, then round up to the next pound.',
       `Add ${usd(WFS_UNDER_10_ADD)} when the retail price is under $10. Add ${usd(WFS_APPAREL_ADD)} for apparel and ${usd(WFS_HAZMAT_ADD)} for an item that is or contains a chemical, aerosol, pesticide, or battery.`,
       `Oversize, standard items only: add ${usd(WFS_OVERSIZE_SMALL)} when the longest side is over 48 inches and up to 96, the median side is over 30 inches, or length plus girth is over 105 and up to 130. Add ${usd(WFS_OVERSIZE_LARGE)} when the longest side is over 96 and up to 108, or length plus girth is over 130 and up to 165. On that larger add-on, the page also starts the unit weight at 90 lb.`,
@@ -740,29 +740,17 @@ export const ANSWER_PAGES: AnswerPage[] = [
           line('Etsy on this sale', usd(etsySale.total), 'Transaction + processing + the listing fee. Offsite Ads is not included.'),
         ],
       },
-      {
-        heading: 'The same order with $2 gift wrap',
-        caption: 'Same hypothetical order, plus $2 gift wrap and still no sales tax. The transaction base grows by the gift wrap. The processing line stays on the item price plus shipping, because the processing page names shipping and sales tax and does not name gift wrap.',
-        lines: [
-          line('Transaction base', usd(etsySaleWrap.transactionBase), '$36.00 + $8.00 + $2.00.'),
-          line('Transaction fee', usd(etsySaleWrap.transaction), `6.5% of ${usd(etsySaleWrap.transactionBase)}. That is ${usd(cents(etsySaleWrap.transaction - etsySale.transaction))} more than the order with no gift wrap.`),
-          line('Processing base', usd(etsySaleWrap.processingBase), 'Item price plus shipping. Gift wrap is not added here.'),
-          line('Payment processing', usd(etsySaleWrap.processing), `Same ${usd(etsySale.processing)} as the order with no gift wrap.`),
-          line('Listing fee', usd(etsySaleWrap.listing), 'Still one listing.'),
-          line('Etsy on this sale', usd(etsySaleWrap.total), 'Transaction + processing + the listing fee.'),
-        ],
-      },
     ],
     checks: [
       'Open one order in the payment account. The transaction line should be 6.5% of the item price plus shipping and gift wrap. Shipping and gift wrap can show as their own transaction lines.',
-      'For a US bank account, the processing line should be 3% of the total sale price, including shipping and any sales tax you charged, plus $0.25.',
+      'For a US bank account, the processing line should be 3% of the total sale price, including shipping and any sales tax you charged, plus $0.25. The processing help page names those two additions and does not name gift wrap, so read that line on an order that charges gift wrap.',
       'The listing fee is $0.20 when you list, including when the item does not sell. Auto-renew is another $0.20. A second quantity sold in the same order adds $0.20.',
       'If the order is marked as Offsite Ads, that fee is separate from the three lines above. The Offsite Ads answer has the 15% and 12% rates and the $100 cap.',
       'A shop that has always stayed under $10,000 in a 365-day period can still opt out of Offsite Ads. After $10,000, the Offsite Ads help page says participation is required for the life of the shop.',
     ],
     feeLinks: [
       { href: '/fees/etsy', label: 'Etsy fees by category', note: 'The transaction fee is 6.5% in every category, with the $0.20 listing fee and US processing of 3% + $0.25.' },
-      { href: '/fees/etsy/all-categories', label: 'Etsy all-categories transaction fee', note: 'The 6.5% rate used in the examples.' },
+      { href: '/fees/etsy/all-categories', label: 'Etsy all-categories transaction fee', note: 'The 6.5% rate used in the example.' },
       { href: '/answers/etsy-offsite-ads-fee', label: 'What is the Etsy Offsite Ads fee?', note: 'A separate fee when a buyer orders within 30 days of an offsite-ad click. It is not in the totals above.' },
     ],
     analysisSlugs: ['etsy-offsite-ads-fees-2026', 'etsy-vs-ebay-fees-2026-20-50-100'],
@@ -870,4 +858,4 @@ export const TIKTOK_EXAMPLES = {
   collectibles: { base: tiktokCollectiblesBase, head: tiktokCollectiblesHead, tail: tiktokCollectiblesTail, fee: tiktokCollectiblesFee },
   preownedOnCollectiblesBase: tiktokReferralAmount(tiktokCollectiblesBase, TIKTOK_PREOWNED_PCT, true),
 }
-export const ETSY_SALE_EXAMPLES = { plain: etsySale, withWrap: etsySaleWrap }
+export const ETSY_SALE_EXAMPLES = { plain: etsySale }
