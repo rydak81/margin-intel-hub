@@ -9,6 +9,7 @@ import {
   ANSWER_PAGES,
   ANSWERS_PATH,
   CHECKED_ON,
+  CHECKED_ON_2026_11_20,
   JOB_GROUPS,
   MARKETPLACE_GROUPS,
   answerPath,
@@ -20,7 +21,7 @@ import {
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://marketplacebeta.com"
 const CANONICAL = `${SITE_URL}${ANSWERS_PATH}`
 const TITLE = "Questions sellers ask"
-const DESCRIPTION = "Direct answers on Etsy Offsite Ads, Amazon FBA dates for 2027, and what eBay charges on shipping, tax, and each order."
+const DESCRIPTION = "Direct answers on Etsy, Amazon, Walmart, TikTok Shop, and eBay fees, each with the source and a worked example."
 const HUB_SOURCE = answerTrackingSource("index")
 
 export const metadata: Metadata = {
@@ -75,7 +76,7 @@ export default function AnswersIndexPage() {
         </nav>
         <h1 className="mt-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-white">Questions sellers ask</h1>
         <p className="mt-4 max-w-3xl text-lg leading-relaxed text-slate-700 dark:text-slate-200">
-          Short answers to fee, storage, and ads questions, each with the marketplace&apos;s own source and a hypothetical worked example. Figures below were checked <time dateTime={CHECKED_ON}>{formatAnswerDate(CHECKED_ON)}</time>. The Amazon size-tier fulfillment dollars on the sale page were read October 21, 2026.
+          Short answers to fee, storage, and ads questions, each with the marketplace&apos;s own source and a hypothetical worked example. The first six answers were checked <time dateTime={CHECKED_ON}>{formatAnswerDate(CHECKED_ON)}</time>. Walmart, TikTok Shop, and the Etsy sale answer were checked <time dateTime={CHECKED_ON_2026_11_20}>{formatAnswerDate(CHECKED_ON_2026_11_20)}</time>. The Amazon size-tier fulfillment dollars on the sale page were read October 21, 2026.
         </p>
 
         <section className="mt-10">
