@@ -1,5 +1,6 @@
 /** Published order of ANALYSIS_ARTICLES at the per-file split. Relative order stays put. */
 export const HISTORICAL_SLUGS = [
+  'amazon-030-minimum-referral-fee-categories-2026',
   'etsy-vs-ebay-fees-2026-20-50-100',
   'etsy-ddp-us-orders-2026-duty-paid-pricing',
   'ebay-watch-fees-2026-15-percent-to-1000',
@@ -15,6 +16,7 @@ export const HISTORICAL_SLUGS = [
   'chatgpt-discovery-metrics-order-ledger',
   'self-hosted-agent-migration-input-completion-check',
   'ecommerce-ai-forecast-backtest-cutoff-ledger',
+  'ai-research-headline-origin-audit',
   'holiday-shipping-cutoffs-2026-small-sellers',
   'tiktok-shop-referral-fee-6-or-8-percent',
   'ups-fedex-2027-rate-increase-small-sellers',
@@ -40,6 +42,7 @@ type Dated = { slug: string; publishedOn: string }
  */
 export function assembleArticles<T extends Dated>(articles: readonly T[]): T[] {
   const bySlug = new Map(articles.map(article => [article.slug, article]))
+  if (bySlug.size !== articles.length) throw new Error('Analysis catalog has a duplicate slug')
   const missing = HISTORICAL_SLUGS.filter(slug => !bySlug.has(slug))
   if (missing.length) throw new Error(`Missing published analysis article ${missing[0]}`)
   const historical = HISTORICAL_SLUGS.map(slug => bySlug.get(slug)!)
@@ -52,6 +55,5 @@ export function assembleArticles<T extends Dated>(articles: readonly T[]): T[] {
     const index = result.findIndex(existing => existing.publishedOn < article.publishedOn)
     result.splice(index === -1 ? result.length : index, 0, article)
   }
-  if (result.length !== articles.length) throw new Error('Analysis catalog has a duplicate slug')
   return result
 }
