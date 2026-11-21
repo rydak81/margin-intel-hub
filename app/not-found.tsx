@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { AnalyticsNotFoundMarker } from "@/components/analytics-not-found-marker"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -48,6 +49,7 @@ const TRENDING_ARTICLES = [
 export default function NotFound() {
   return (
     <div className="min-h-screen bg-background">
+      <AnalyticsNotFoundMarker />
       {/* Header */}
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4">
