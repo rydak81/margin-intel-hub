@@ -19,10 +19,10 @@ export function feeShortAnswer(m: Marketplace): string {
   const asOf = `As of ${formatVerifiedDate(m.lastVerified)}`
   const { lowest, highest } = feeRange(m)
 
-  // TikTok Shop: the page's headline is the published 6%, with the unconfirmed 8% report
-  // stated as unconfirmed. Both facts are already in this marketplace's summary and notes.
+  // TikTok Shop: keep the published 6% as the headline. Pre-Owned makes the numeric
+  // floor 5%, so the generic "lowest to highest" sentence would bury the majority rate.
   if (m.slug === 'tiktok-shop') {
-    return `${asOf}, TikTok Shop's published US commission is ${pct(lowest)} for most categories (5% for five fine-jewelry sub-categories); trade reports of an 8% rate from Aug 4, 2026 are not confirmed by TikTok.`
+    return `${asOf}, TikTok Shop's published US commission is 6% for most categories, 5% for five fine-jewelry sub-categories and for Pre-Owned, and 3% on the portion of a Collectibles or Pre-Owned sale over $10,000.`
   }
 
   const base = lowest === highest

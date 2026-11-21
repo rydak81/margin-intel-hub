@@ -8,6 +8,7 @@ import { FeeUnlockGate } from "@/components/fee-unlock-gate"
 import {
   compareAcrossMarketplaces,
   computeFeeBreakdown,
+  feeCategoryHref,
   type FeeCategory,
   type Marketplace,
 } from "@/lib/marketplace-fees"
@@ -283,7 +284,7 @@ export function FeeCalculator({ marketplace, category }: FeeCalculatorProps) {
                     <tr key={`${row.marketplace.slug}:${row.category.slug}`}>
                       <td className="py-2.5">
                         <Link
-                          href={`/fees/${row.marketplace.slug}/${row.category.slug}`}
+                          href={feeCategoryHref(row.marketplace.slug, row.category) ?? `/fees/${row.marketplace.slug}`}
                           className="font-medium text-slate-900 hover:text-sky-600 dark:text-white dark:hover:text-sky-400"
                         >
                           {row.marketplace.shortName}

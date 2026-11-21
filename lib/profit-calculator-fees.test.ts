@@ -25,6 +25,8 @@ describe('profit calculator marketplace fees', () => {
     expect(category.slug).toBe('everything-else')
     expect(isDefaultCategory).toBe(true)
     expect(getCategory('amazon', 'everything-else')).toMatchObject({ referralPct: 15, minFee: 0.3 })
+    expect(defaultCategorySlug('walmart')).toBe('everything-else')
+    expect(resolveCalculatorCategory('walmart', 'not-a-category').category.slug).toBe('everything-else')
   })
 
   it('applies the $0.30 Amazon minimum on a cheap item', () => {

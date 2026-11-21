@@ -30,7 +30,7 @@ export const DEFAULT_CALCULATOR_MARKETPLACE: MarketplaceSlug = 'amazon'
  */
 const DEFAULT_CATEGORY: Record<MarketplaceSlug, string> = {
   amazon: 'everything-else',
-  walmart: 'home-garden',
+  walmart: 'everything-else',
   'tiktok-shop': 'apparel-accessories',
   ebay: 'most-categories',
   etsy: 'all-categories',

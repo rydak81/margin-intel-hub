@@ -769,6 +769,22 @@ export function answerPath(slug: string): string {
   return `${ANSWERS_PATH}/${slug}`
 }
 
+/**
+ * The answer's updated date: the latest day a source on that page was read.
+ * When every source was read the same day, that is also the published date.
+ */
+export function answerUpdatedOn(page: AnswerPage): string {
+  return page.sources.reduce((latest, source) => source.checkedOn > latest ? source.checkedOn : latest, page.sources[0]?.checkedOn ?? CHECKED_ON)
+}
+
+/** The index lists every answer, so it moves when the newest answer does. */
+export function answersIndexUpdatedOn(): string {
+  return ANSWER_PAGES.reduce((latest, page) => {
+    const updated = answerUpdatedOn(page)
+    return updated > latest ? updated : latest
+  }, CHECKED_ON)
+}
+
 export function answerTrackingSource(slug: string): `answers_${string}` {
   return `answers_${slug}`
 }

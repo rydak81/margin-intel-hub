@@ -7,7 +7,7 @@ import { BRIEF_CTA_KEYS, SPONSOR_CTA_HREF, SPONSOR_CTA_LABEL, briefCtaSource, br
 import { newsletterSource } from '@/lib/newsletter-source'
 import { SPONSOR_OFFER_DEFS } from '@/lib/sponsor-offers'
 import { MARKETPLACES, getAllFeeRoutes } from '@/lib/marketplace-fees'
-import { getAllPairs } from '@/lib/fee-compare'
+import { RATE_RANGE_CAP_NOTE, getAllPairs } from '@/lib/fee-compare'
 import { getAllSaleRoutes } from '@/lib/sale-fee-pages'
 import { OPERATOR_GUIDES } from '@/lib/operator-guides'
 import { ANALYSIS_ARTICLES } from '@/lib/analysis'
@@ -94,7 +94,12 @@ describe('every fee and article template shows exactly one keyed Brief CTA and o
   })
   it('/fees/compare/[pair]', async () => {
     const { default: Page } = await import('@/app/fees/compare/[pair]/page')
-    for (const p of getAllPairs()) check(html(await Page(params({ pair: p.slug }))), BRIEF_CTA_KEYS.feeCompare(p.slug))
+    for (const p of getAllPairs()) {
+      const out = html(await Page(params({ pair: p.slug })))
+      check(out, BRIEF_CTA_KEYS.feeCompare(p.slug))
+      expect(out).toContain(RATE_RANGE_CAP_NOTE)
+      if (p.a.slug === 'walmart' || p.b.slug === 'walmart') expect(out).toContain('6% to 20%')
+    }
   })
   it('/fees/compare-by-item-price keeps its campaign_kw key', async () => {
     const { default: Page } = await import('@/app/fees/compare-by-item-price/page')
