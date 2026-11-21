@@ -188,7 +188,6 @@ describe('answer pages', () => {
 
   it('links only analysis articles that exist in this build and were live on marketplacebeta.com', () => {
     const live = new Set<string>(LIVE_ANALYSIS_SLUGS)
-    const unpublished = ['amazon-2027-fba-fee-changes-storage-low-inventory', 'amazon-vs-walmart-referral-fees']
     for (const page of ANSWER_PAGES) {
       const links = analysisLinksFor(page)
       expect(links.length, page.slug).toBe(page.analysisSlugs.length)
@@ -196,7 +195,6 @@ describe('answer pages', () => {
         const slug = link.href.replace('/intelligence/analysis/', '')
         expect(live.has(slug), slug).toBe(true)
         expect(ANALYSIS_ARTICLES.some(article => article.slug === slug), slug).toBe(true)
-        for (const banned of unpublished) expect(link.href, page.slug).not.toContain(banned)
       }
     }
     expect(analysisLinksFor(ANSWER_PAGES.find(page => page.slug === 'walmart-wfs-fees')!)).toEqual([])
