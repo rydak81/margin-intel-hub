@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { ANALYSIS_ARTICLES, latestAnalysis, parseInlineLinks } from '@/lib/analysis'
+import { HISTORICAL_SLUGS, assembleArticles } from '@/lib/analysis/sort-articles'
 import { SITE_NAVIGATION } from '@/lib/site-navigation'
 import { FORECASTS } from '@/lib/forecasts'
 import { newsletterSource } from '@/lib/newsletter-source'
@@ -68,6 +69,17 @@ describe('parseInlineLinks', () => {
 describe('analysis discovery', () => {
   it('is in the main navigation', () => {
     expect(SITE_NAVIGATION.some(item => item.href === '/intelligence/analysis')).toBe(true)
+  })
+  it('keeps published articles in their existing order and inserts a newer article ahead of an older one', () => {
+    const published = (HISTORICAL_SLUGS as readonly string[])
+    expect(ANALYSIS_ARTICLES.map(a => a.slug).filter(slug => published.includes(slug))).toEqual([...published])
+    const older = { slug: 'fixture-older-article', publishedOn: '2026-11-12' }
+    const newer = { slug: 'fixture-newer-article', publishedOn: '2026-11-13' }
+    const slugs = assembleArticles([...ANALYSIS_ARTICLES, older, newer]).map(a => a.slug)
+    expect(slugs.filter(slug => (HISTORICAL_SLUGS as readonly string[]).includes(slug))).toEqual([...HISTORICAL_SLUGS])
+    expect(slugs.indexOf(newer.slug)).toBeLessThan(slugs.indexOf(older.slug))
+    expect(slugs.indexOf(newer.slug)).toBeLessThan(slugs.indexOf('amazon-030-minimum-referral-fee-categories-2026'))
+    expect(slugs.indexOf(older.slug)).toBeLessThan(slugs.indexOf('etsy-ddp-us-orders-2026-duty-paid-pricing'))
   })
   it('lists newest first and honours the limit', () => {
     const all = latestAnalysis()
