@@ -85,7 +85,7 @@ export function isEbayAnalysis(article: Pick<AnalysisArticle, 'slug' | 'tags'>):
  * A head-to-head Etsy and eBay fee piece. Named in the slug (`etsy-vs-ebay-…` or
  * `ebay-vs-etsy-…`) or the leading tag. A passing mention of both does not qualify.
  */
-function isEtsyEbayFeeComparison(article: Pick<AnalysisArticle, 'slug' | 'tags'>): boolean {
+export function isEtsyEbayFeeComparison(article: Pick<AnalysisArticle, 'slug' | 'tags'>): boolean {
   const tag = article.tags[0] ?? ''
   return /^(?:etsy-vs-ebay|ebay-vs-etsy)-/.test(article.slug) || tag === 'Etsy vs eBay' || tag === 'eBay vs Etsy'
 }
