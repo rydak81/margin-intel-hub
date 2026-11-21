@@ -33,10 +33,18 @@ export function getPairsFor(marketplaceSlug: string): MarketplacePair[] {
   return getAllPairs().filter(p => p.a.slug === marketplaceSlug || p.b.slug === marketplaceSlug)
 }
 
+/**
+ * Headline referral rates only. A lower tier that applies above a price cap
+ * (Walmart Collectibles at 2.35% past $2,500, for example) is left out, so the
+ * range matches the marketplace hub short answer.
+ */
 export function rateRange(m: Marketplace): { min: number; max: number } {
-  const rates = m.categories.flatMap(c => [c.referralPct, ...(c.tiers ?? []).map(t => t.pct)])
+  const rates = m.categories.map(c => c.referralPct)
   return { min: Math.min(...rates), max: Math.max(...rates) }
 }
+
+/** Shown under the compare-page range. The range itself stays on headline rates. */
+export const RATE_RANGE_CAP_NOTE = 'Some categories, Collectibles among them, drop to a lower rate above a price cap.'
 
 export interface MatchedCategoryRow {
   label: string

@@ -148,7 +148,7 @@ describe('page', () => {
     const ds = blocks[2]
     expect(ds.creator).toEqual({ '@id': `${SITE}/#organization` })
     expect(ds.dateModified).toBe(verifiedRange().newest)
-    expect(ds.dateModified).toBe('2026-11-21')
+    expect(ds.dateModified).toBe('2026-11-20')
     expect(ds.isAccessibleForFree).toBe(true)
     expect(JSON.stringify(blocks)).not.toMatch(/sameAs/)
     expect(read('app/fees/compare-by-item-price/page.tsx')).toContain('creator: ORGANIZATION_REF')
