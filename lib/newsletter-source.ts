@@ -18,10 +18,11 @@ const FIXED_SOURCES = [
 
 const FIXED_SOURCE_SET = new Set<string>(FIXED_SOURCES)
 
-/** campaign_<slug>: lowercase alphanumeric / underscore / hyphen; full key max 64 chars. */
+/** campaign_<slug> or answers_<slug>: lowercase alphanumeric / underscore / hyphen; full key max 64 chars. */
 const CAMPAIGN_SOURCE_RE = /^campaign_[a-z0-9](?:[a-z0-9_-]{0,53}[a-z0-9])?$/
+const ANSWERS_SOURCE_RE = /^answers_[a-z0-9](?:[a-z0-9_-]{0,54}[a-z0-9])?$/
 
-export type NewsletterSourceKey = (typeof FIXED_SOURCES)[number] | `campaign_${string}`
+export type NewsletterSourceKey = (typeof FIXED_SOURCES)[number] | `campaign_${string}` | `answers_${string}`
 
 export type NewsletterAttribution =
   | 'newsletter_page'
@@ -30,8 +31,8 @@ export type NewsletterAttribution =
 function isAllowlistedSource(raw: string): raw is NewsletterSourceKey {
   if (raw.length === 0 || raw.length > 64) return false
   if (FIXED_SOURCE_SET.has(raw)) return true
-  // "campaign_" (9) + at least one slug char; full string already capped at 64.
-  return CAMPAIGN_SOURCE_RE.test(raw) && raw.length <= 64
+  // Prefix plus at least one slug char; full string already capped at 64.
+  return (CAMPAIGN_SOURCE_RE.test(raw) || ANSWERS_SOURCE_RE.test(raw)) && raw.length <= 64
 }
 
 function toAttribution(key: NewsletterSourceKey): NewsletterAttribution {

@@ -21,6 +21,15 @@ describe('newsletterSource', () => {
     }
   })
 
+  it('accepts answers_<slug> keys used by /answers (lowercase alnum/_/-, max 64)', () => {
+    expect(newsletterSource('?source=answers_etsy-offsite-ads-fee')).toBe(
+      'newsletter_answers_etsy-offsite-ads-fee',
+    )
+    expect(newsletterSource('?source=answers_index')).toBe('newsletter_answers_index')
+    expect(newsletterSource('?source=answers_')).toBe('newsletter_page')
+    expect(newsletterSource('?source=answers_bad-')).toBe('newsletter_page')
+  })
+
   it('accepts campaign_<slug> keys (lowercase alnum/_/-, max 64)', () => {
     expect(newsletterSource('?source=campaign_launch_oct26')).toBe(
       'newsletter_campaign_launch_oct26',
