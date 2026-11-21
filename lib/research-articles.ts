@@ -9,6 +9,8 @@ import { article as a6 } from '@/lib/analysis/articles/chatgpt-discovery-metrics
 import { article as a7 } from '@/lib/analysis/articles/self-hosted-agent-migration-input-completion-check'
 import { article as a8 } from '@/lib/analysis/articles/ecommerce-ai-forecast-backtest-cutoff-ledger'
 
+import { article as a9 } from '@/lib/analysis/articles/ai-research-headline-origin-audit'
+
 /** Research reports, in their published order. New reports are appended. See CONTRIBUTING.md. */
 export const RESEARCH_ARTICLES: AnalysisArticle[] = [
   a0,
@@ -20,4 +22,5 @@ export const RESEARCH_ARTICLES: AnalysisArticle[] = [
   a6,
   a7,
   a8,
+  a9,
 ]
