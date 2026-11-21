@@ -5,7 +5,7 @@ export const article = {
   "seoTitle": "Amazon vs Walmart Referral Fees: Where Walmart Is Lower",
   "metaDescription": "Walmart's referral fee matches Amazon's in most categories. It's lower in five: clothing over $20, computers, instruments, compact appliances, watches.",
   "headline": "Amazon vs Walmart referral fees: the same rate in most categories, lower on Walmart in five",
-  "dek": "We re-read Amazon's and Walmart's public referral fee tables on November 19, 2026 and lined them up category by category. Walmart's published rate is never higher on a matching category, but it's only lower in five. If you are adding Walmart to an Amazon catalog, those five, plus the price cliffs both marketplaces share, decide which SKUs go first.",
+  "dek": "We re-read Amazon's and Walmart's public referral fee tables on November 19, 2026 and lined them up category by category. Five matched categories have a lower standard percentage at Walmart. Item-specific exceptions and Amazon’s minimum fee can create other savings. If you are adding Walmart to an Amazon catalog, those five, plus the price cliffs both marketplaces share, decide which SKUs go first.",
   "publishedOn": "2026-11-19",
   "updatedOn": "2026-11-19",
   "author": "MarketplaceBeta Intelligence",
@@ -19,7 +19,7 @@ export const article = {
     "pricing",
     "2026"
   ],
-  "takeaway": "Don't move a SKU to Walmart for the referral fee unless it sits in one of five categories. On the November 19, 2026 tables, Walmart charges less than Amazon only for clothing priced over $20 (15% vs 17%), computers (6% vs 8%), musical instruments (12% vs 15%), compact appliances (12% vs 15% up to $300) and watches (15% vs 16% up to $1,500). Everywhere else with a matching category the rate is the same, so fulfillment cost, not the referral fee, decides. This week, pull your Amazon SKUs in those five categories, check the category Walmart assigns at item setup, and keep every price clear of the $10, $15 and $20 cliffs, counting shipping.",
+  "takeaway": "Start a referral-fee comparison with these five categories. On the November 19, 2026 tables, Walmart’s standard published percentages are lower for clothing priced over $20 (15% vs 17%), computers (6% vs 8%), musical instruments (12% vs 15%), compact appliances (12% vs 15% up to $300) and watches (15% vs 16% up to $1,500). The other standard percentages we matched are equal. Check product-specific exceptions and minimum fees before comparing fulfillment costs. This week, pull your Amazon SKUs in those five categories, check the category Walmart assigns at item setup, and keep every price clear of the $10, $15 and $20 cliffs, counting shipping.",
   "forecastIds": [],
   "newsletterSource": "campaign_kw_add_walmart",
   "sections": [
@@ -94,7 +94,7 @@ export const article = {
       "id": "what-changed",
       "title": "What changed, and what didn't",
       "paragraphs": [
-        "The rates in this comparison match our [Amazon fee table](/fees/amazon), last verified November 12, 2026, and our [Walmart fee table](/fees/walmart), last verified November 19, 2026. What changed is the reason to look. On November 5, 2026, [Amazon told sellers](https://sellingpartners.aboutamazon.com/update-to-us-referral-and-fulfillment-by-amazon-fees-for-2027) that FBA fulfillment fees rise by $0.19 a unit on average from January 15, 2027, and [Amazon's summary of the changes](https://sell.amazon.co.kr/update/amazon-new-updates/us-fee-changes-2027) says most referral fees stay the same. If you are re-running Amazon margins this month, the obvious question is where else a SKU could go. On referral fees alone, Walmart is the cheaper answer in only five categories.",
+        "The rates in this comparison match our [Amazon fee table](/fees/amazon), last verified November 12, 2026, and our [Walmart fee table](/fees/walmart), last verified November 19, 2026. What changed is the reason to look. On November 5, 2026, [Amazon told sellers](https://sellingpartners.aboutamazon.com/update-to-us-referral-and-fulfillment-by-amazon-fees-for-2027) that FBA fulfillment fees rise by $0.19 a unit on average from January 15, 2027, and [Amazon's summary of the changes](https://sell.amazon.co.kr/update/amazon-new-updates/us-fee-changes-2027) says most referral fees stay the same. If you are re-running Amazon margins this month, the obvious question is where else a SKU could go. Our comparison found five matched categories with lower standard percentage rates at Walmart.",
         "Here is where the two tables match, per the same three pages:"
       ],
       "bullets": [
@@ -154,7 +154,7 @@ export const article = {
         "Answers checked against Amazon's and Walmart's public fee pages on November 19, 2026."
       ],
       "bullets": [
-        "Are Walmart's referral fees lower than Amazon's? Only in five matching categories: clothing over $20 (15% vs 17%), computers (6% vs 8%), musical instruments (12% vs 15%), compact appliances (12% vs 15% up to $300) and watches (15% vs 16% up to $1,500). Most other matching categories carry the same rate.",
+        "Are Walmart's referral fees lower than Amazon's? Five matched categories have lower standard percentage rates at Walmart: clothing over $20 (15% vs 17%), computers (6% vs 8%), musical instruments (12% vs 15%), compact appliances (12% vs 15% up to $300) and watches (15% vs 16% up to $1,500). Most other matching categories carry the same rate.",
         "Does Walmart charge a monthly fee like Amazon? Walmart's pricing page says \"Walmart Marketplace and Walmart Fulfillment Services operate with competitive cost structures including zero setup, monthly, or hidden fees.\" Amazon's Professional plan is $39.99 a month, and the Individual plan is $0.99 per item sold.",
         "Does Walmart have a minimum referral fee? Neither Walmart page we read lists one. Amazon lists a $0.30 minimum in most categories, which only matters below $2 at a 15% rate.",
         "Do Amazon and Walmart charge referral fees on shipping? Yes. Both count shipping and gift wrap in the total sales price, and the total sets which tier applies.",
