@@ -85,14 +85,16 @@ export const FEE_SCHEDULES: Record<Marketplace, CategoryRates> = {
       source: "Published referral fee tables (Watches: 16% to $1,500, 3% above)",
     },
   },
-  // Walmart: Consumer Electronics and Cell Phones 8%. Walmart cut referral
-  // fees on 14 categories in June 2026 — re-check often; cuts are quiet.
+  // Walmart: Consumer Electronics 8% on the official tables. There is no Cell Phones
+  // row on Walmart's public pricing page (removed from lib/marketplace-fees.ts on
+  // 2026-11-19). Walmart cut referral fees on 14 categories in June 2026 — re-check
+  // often; cuts are quiet. These repricer defaults remain unverified.
   walmart: forAll(
     {
       tiers: flat(0.08),
       fixedFees: 0,
       lastVerified: "Unverified defaults",
-      source: "Walmart Marketplace fee schedule (electronics/cell phones 8%)",
+      source: "Walmart Marketplace fee schedule (consumer electronics 8%)",
       note: "June 2026 category cuts may apply — verify current contract rates",
     },
     "Walmart Marketplace",

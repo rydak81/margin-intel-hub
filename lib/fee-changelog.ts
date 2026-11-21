@@ -34,7 +34,6 @@ export const FEE_CHANGELOG: FeeChangelogEntry[] = [
       { marketplace: 'amazon', category: 'Electronics Accessories', before: '15% flat', after: '15% on the first $100, then 8% above; $0.30 minimum' },
       { marketplace: 'walmart', category: 'Apparel & Accessories', before: '15% flat', after: '5% at $15 or less, 10% from $15.01 to $20, 15% over $20 (whole price)' },
       { marketplace: 'walmart', category: 'Electronics Accessories', before: '15% flat', after: '15% on the first $100, then 8% above' },
-      { marketplace: 'walmart', category: 'Baby', before: '8% at $10 or less, 15% above (whole price)', after: '8% at $15 or less, 15% above (whole price)' },
       { marketplace: 'walmart', category: 'Jewelry', before: '20% flat', after: '20% on the first $250, then 5% above' },
       { marketplace: 'walmart', category: 'Watches', before: '15% flat', after: '15% on the first $1,500, then 3% above' },
       { marketplace: 'ebay', category: 'Most Categories', before: '13.25%', after: '13.6%' },
@@ -97,6 +96,19 @@ export const FEE_CHANGELOG: FeeChangelogEntry[] = [
       { marketplace: 'amazon', category: 'Toys & Games', before: 'No minimum referral fee', after: '$0.30 minimum referral fee' },
       { marketplace: 'amazon', category: 'Watches', before: 'No minimum referral fee', after: '$0.30 minimum referral fee' },
       { marketplace: 'amazon', category: 'Everything Else', before: 'No minimum referral fee', after: '$0.30 minimum referral fee' },
+    ],
+  },
+  {
+    date: '2026-11-19',
+    title: 'Walmart category list corrected against official pricing tables',
+    summary: 'Re-read Walmart\'s public referral-fee table at marketplace.walmart.com/pricing/ and the Marketplace Learn contract-category schedule (updated Mar 9, 2026) on November 19, 2026. Neither page lists a Cell Phones row, so that unsourced 8% category was removed rather than guessed. Three official rows that we did not model — Appliances - Compact, Musical Instruments and Personal Computers — were added at the published rates. The October 16 changelog had incorrectly recorded Walmart Baby as moving to a $15 threshold; both official tables, and our fee data, already used 8% at $10 or less and 15% on the whole price above $10, so that changelog line was removed. This is a targeted category correction, not a full recertification of every pre-existing Walmart row.',
+    sources: ['https://marketplace.walmart.com/pricing/', 'https://marketplacelearn.walmart.com/guides/Selling%20on%20Walmart/Referral-fee-schedule-for-contract-categories'],
+    changes: [
+      { marketplace: 'walmart', category: 'Cell Phones', before: '8% (modelled without an official row)', after: 'Removed; neither official table lists a Cell Phones category' },
+      { marketplace: 'walmart', category: 'Appliances - Compact', before: 'Not modelled', after: '12% for the portion of the total sales price up to $300; 8% for any portion of the total sales price greater than $300' },
+      { marketplace: 'walmart', category: 'Musical Instruments', before: 'Not modelled', after: '12%' },
+      { marketplace: 'walmart', category: 'Personal Computers', before: 'Not modelled', after: '6%' },
+      { marketplace: 'walmart', category: 'Baby (October 16 changelog typo)', before: 'Changelog after-text said 8% at $15 or less, 15% above (whole price)', after: 'Corrected to 8% at $10 or less, 15% above (whole price), matching both official tables and the fee data, which were already $10' },
     ],
   },
 ]

@@ -108,3 +108,36 @@ test('Amazon referral minimums follow the public table, including the $4.99 clot
 
   assert.equal(amazon.categories.find(c => c.slug === 'fine-art'), undefined)
 })
+
+test('Walmart official tables: no Cell Phones row; Compact Appliances, Musical Instruments, Personal Computers and Baby match the live schedule', () => {
+  assert.equal(walmart.categories.find(c => c.slug === 'cell-phones'), undefined)
+  assert.equal(walmart.categories.some(c => /cell phones/i.test(c.label)), false)
+
+  const compact = walmart.categories.find(c => c.slug === 'appliances-compact')!
+  assert.equal(compact.label, 'Appliances - Compact')
+  assert.equal(compact.referralPct, 12)
+  assert.equal(compact.tierMode, 'marginal')
+  assert.deepEqual(compact.tiers, [{ upTo: 300, pct: 12 }, { upTo: null, pct: 8 }])
+  assert.equal(referralFee(300, compact).amount, 36)
+  // 8% of the $0.01 excess rounds to $0.00 at cent precision; $301 shows the second tier.
+  assert.equal(referralFee(300.01, compact).amount, 36)
+  assert.equal(referralFee(301, compact).amount, 36.08)
+  assert.equal(referralFee(400, compact).amount, 44)
+
+  const instruments = walmart.categories.find(c => c.slug === 'musical-instruments')!
+  assert.equal(instruments.label, 'Musical Instruments')
+  assert.equal(instruments.referralPct, 12)
+  assert.equal(instruments.tiers, undefined)
+  assert.equal(referralFee(50, instruments).amount, 6)
+
+  const pcs = walmart.categories.find(c => c.slug === 'personal-computers')!
+  assert.equal(pcs.label, 'Personal Computers')
+  assert.equal(pcs.referralPct, 6)
+  assert.equal(referralFee(50, pcs).amount, 3)
+
+  const baby = walmart.categories.find(c => c.slug === 'baby')!
+  assert.equal(baby.tierMode, 'whole')
+  assert.deepEqual(baby.tiers, [{ upTo: 10, pct: 8 }, { upTo: null, pct: 15 }])
+  assert.equal(referralFee(10, baby).amount, 0.8)
+  assert.equal(referralFee(10.01, baby).amount, 1.5)
+})
