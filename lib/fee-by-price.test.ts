@@ -10,7 +10,7 @@ import { MARKETPLACES, formatVerifiedDate } from '@/lib/marketplace-fees'
 import { newsletterSource } from '@/lib/newsletter-source'
 import {
   COMPARE_PRICES, FEE_BY_PRICE_CTA, FEE_BY_PRICE_DESCRIPTION, FEE_BY_PRICE_PATH, FEE_BY_PRICE_TITLE, OFFSITE_ADS,
-  buildOffsiteRows, buildRows, feeByPriceFaq, feeByPriceShortAnswer, offsiteFee, referenceCategory,
+  buildOffsiteRows, buildRows, feeByPriceFaq, feeByPriceShortAnswer, offsiteFee, referenceCategory, verifiedRange,
 } from '@/lib/fee-by-price'
 
 vi.mock('@/components/premium-site-header', () => ({ PremiumSiteHeader: () => null }))
@@ -146,7 +146,8 @@ describe('page', () => {
     expect(faq.mainEntity[0].acceptedAnswer.text).toBe(feeByPriceShortAnswer(rows))
     const ds = blocks[2]
     expect(ds.creator).toEqual({ '@id': `${SITE}/#organization` })
-    expect(ds.dateModified).toBe('2026-11-16')
+    expect(ds.dateModified).toBe(verifiedRange().newest)
+    expect(ds.dateModified).toBe('2026-11-19')
     expect(ds.isAccessibleForFree).toBe(true)
     expect(JSON.stringify(blocks)).not.toMatch(/sameAs/)
     expect(read('app/fees/compare-by-item-price/page.tsx')).toContain('creator: ORGANIZATION_REF')
