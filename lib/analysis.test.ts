@@ -78,7 +78,7 @@ describe('analysis discovery', () => {
     const slugs = assembleArticles([...ANALYSIS_ARTICLES, older, newer]).map(a => a.slug)
     expect(slugs.filter(slug => (HISTORICAL_SLUGS as readonly string[]).includes(slug))).toEqual([...HISTORICAL_SLUGS])
     expect(slugs.indexOf(newer.slug)).toBeLessThan(slugs.indexOf(older.slug))
-    expect(slugs.indexOf(newer.slug)).toBeGreaterThan(slugs.indexOf('etsy-vs-ebay-fees-2026-20-50-100'))
+    expect(slugs.indexOf(newer.slug)).toBeLessThan(slugs.indexOf('amazon-030-minimum-referral-fee-categories-2026'))
     expect(slugs.indexOf(older.slug)).toBeLessThan(slugs.indexOf('etsy-ddp-us-orders-2026-duty-paid-pricing'))
   })
   it('lists newest first and honours the limit', () => {
