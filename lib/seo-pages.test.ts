@@ -24,7 +24,7 @@ const params = (p: object) => ({ params: Promise.resolve(p) }) as never
 describe('fee category canonicals', () => {
   it('canonicalises TikTok Shop and Etsy categories to the marketplace page', async () => {
     const routes = getAllFeeRoutes().filter(r => r.marketplace === 'tiktok-shop' || r.marketplace === 'etsy')
-    expect(routes.filter(r => r.marketplace === 'tiktok-shop')).toHaveLength(12)
+    expect(routes.filter(r => r.marketplace === 'tiktok-shop')).toHaveLength(14)
     expect(routes.filter(r => r.marketplace === 'etsy')).toHaveLength(7)
     for (const r of routes) {
       const meta = await categoryMetadata(params(r))
@@ -78,13 +78,35 @@ describe('sitemap after dedupe', () => {
     expect(urls).toContain(`${SITE}/fees/amazon/holiday-peak-2026`)
     const expectedCategories = getAllFeeRoutes().filter(r => isSelfCanonicalFeeCategory(r.marketplace)).length
     expect(urls.filter(u => /\/fees\/(amazon|walmart|ebay)\/[^/]+$/.test(u) && !/holiday-peak/.test(u))).toHaveLength(expectedCategories)
+    const walmartPages = [
+      '/fees/walmart/appliances-major',
+      '/fees/walmart/base-power-tools',
+      '/fees/walmart/collectibles',
+      '/fees/walmart/indoor-outdoor-furniture',
+      '/fees/walmart/outdoor-power-tools',
+      '/fees/walmart/plumbing-heating-cooling-ventilation',
+      '/fees/walmart/tires-wheels',
+      '/fees/walmart/video-game-consoles',
+    ]
+    for (const path of walmartPages) expect(urls).toContain(`${SITE}${path}`)
+    expect(urls).toContain(`${SITE}/fees/ebay/trading-cards-store`)
+    for (const path of [
+      '/fees/walmart/music',
+      '/fees/walmart/video-dvd',
+      '/fees/walmart/luggage-travel-accessories',
+      '/fees/walmart/everything-else',
+      '/fees/tiktok-shop/pre-owned',
+      '/fees/tiktok-shop/collectibles',
+    ]) expect(urls).not.toContain(`${SITE}${path}`)
   })
   it('lists 43 fewer URLs than before (19 category + 25 sale pages, 1 sale page allowlisted back)', async () => {
     // 157 URLs on main before this change; the sitemap has no news rows without database credentials.
     const urls = (await sitemap()).map(e => e.url)
     // Each new analysis article adds one URL; 157 was counted with 5 articles. +1: /fees/compare-by-item-price. Final +1: /holiday-2026.
     // +2: net new Walmart category pages on 2026-11-19 (removed unsourced Cell Phones; added Appliances - Compact, Musical Instruments, Personal Computers).
-    expect(urls).toHaveLength(157 - 19 - 25 + 1 + INDEXABLE_SALE_PAGES.length + (ANALYSIS_ARTICLES.length - 5) + AI_PLAYBOOKS.length + 1 + 2 + ANSWER_PATHS.length)
+    // +8: Walmart pages on 2026-11-21 whose rate differs from a flat 15%. Music, Video & DVD, Luggage & Travel Accessories and Everything Else are table rows only.
+    // +1: eBay Basic Store trading-cards and comics page.
+    expect(urls).toHaveLength(157 - 19 - 25 + 1 + INDEXABLE_SALE_PAGES.length + (ANALYSIS_ARTICLES.length - 5) + AI_PLAYBOOKS.length + 1 + 2 + 8 + 1 + ANSWER_PATHS.length)
     expect(new Set(urls).size).toBe(urls.length)
   })
 })

@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { getMarketplace, getComparableCategories, computeFeeBreakdown, referralFee, compareAcrossMarketplaces, orderFee } from '@/lib/marketplace-fees'
-import { comparisonDescription, getAllPairs, matchedCategories, overviewRows } from '@/lib/fee-compare'
+import { getMarketplace, getAllFeeRoutes, getComparableCategories, computeFeeBreakdown, referralFee, compareAcrossMarketplaces, orderFee } from '@/lib/marketplace-fees'
+import { comparisonDescription, getAllPairs, matchedCategories, overviewRows, rateRange } from '@/lib/fee-compare'
+import { defaultCategorySlug } from '@/lib/profit-calculator-fees'
+import { referenceCategory } from '@/lib/fee-by-price'
 const ebay = getMarketplace('ebay')!
 const amazon = getMarketplace('amazon')!
 const walmart = getMarketplace('walmart')!
@@ -140,4 +142,134 @@ test('Walmart official tables: no Cell Phones row; Compact Appliances, Musical I
   assert.deepEqual(baby.tiers, [{ upTo: 10, pct: 8 }, { upTo: null, pct: 15 }])
   assert.equal(referralFee(10, baby).amount, 0.8)
   assert.equal(referralFee(10.01, baby).amount, 1.5)
+})
+
+test('Walmart contract categories added 2026-11-21 match the official tables, including table-only 15% rows', () => {
+  assert.equal(walmart.categories.length, 38)
+  assert.equal(walmart.lastVerified, '2026-11-21')
+
+  const flat = (slug: string, label: string, pct: number) => {
+    const row = walmart.categories.find(c => c.slug === slug)!
+    assert.equal(row.label, label)
+    assert.equal(row.referralPct, pct)
+    assert.equal(row.tierMode, undefined)
+    assert.equal(row.tiers, undefined)
+    assert.equal(referralFee(100, row).amount, pct)
+  }
+  flat('appliances-major', 'Appliances - Major', 8)
+  flat('base-power-tools', 'Base Power Tools', 12)
+  flat('plumbing-heating-cooling-ventilation', 'Plumbing, Heating, Cooling & Ventilation', 10)
+  flat('tires-wheels', 'Tires & Wheels', 10)
+  flat('video-game-consoles', 'Video Game Consoles', 8)
+
+  const tableOnly = ['luggage-travel-accessories', 'music', 'video-dvd', 'everything-else']
+  for (const slug of tableOnly) {
+    const row = walmart.categories.find(c => c.slug === slug)!
+    assert.equal(row.referralPct, 15)
+    assert.equal(row.tableOnly, true)
+    assert.equal(referralFee(40, row).amount, 6)
+  }
+  assert.deepEqual(tableOnly.map(slug => walmart.categories.find(c => c.slug === slug)!.label), [
+    'Luggage & Travel Accessories', 'Music', 'Video & DVD', 'Everything Else',
+  ])
+  const routes = new Set(getAllFeeRoutes().filter(r => r.marketplace === 'walmart').map(r => r.category))
+  for (const slug of tableOnly) assert.equal(routes.has(slug), false)
+  for (const slug of ['appliances-major', 'base-power-tools', 'collectibles', 'indoor-outdoor-furniture', 'outdoor-power-tools', 'plumbing-heating-cooling-ventilation', 'tires-wheels', 'video-game-consoles']) {
+    assert.equal(routes.has(slug), true, slug)
+  }
+
+  const furniture = walmart.categories.find(c => c.slug === 'indoor-outdoor-furniture')!
+  assert.equal(furniture.tierMode, 'marginal')
+  assert.deepEqual(furniture.tiers, [{ upTo: 200, pct: 15 }, { upTo: null, pct: 10 }])
+  assert.equal(referralFee(200, furniture).amount, 30)
+  assert.equal(referralFee(300, furniture).amount, 40)
+
+  const outdoor = walmart.categories.find(c => c.slug === 'outdoor-power-tools')!
+  assert.equal(outdoor.tierMode, 'whole')
+  assert.deepEqual(outdoor.tiers, [{ upTo: 500, pct: 15 }, { upTo: null, pct: 8 }])
+  assert.equal(referralFee(500, outdoor).amount, 75)
+  assert.equal(referralFee(500.01, outdoor).amount, 40)
+  assert.ok(referralFee(500.01, outdoor).amount < referralFee(500, outdoor).amount)
+
+  const collectibles = walmart.categories.find(c => c.slug === 'collectibles')!
+  assert.equal(collectibles.label, 'Collectibles (for approved sellers)')
+  assert.equal(collectibles.referralPct, 8)
+  assert.equal(collectibles.tierMode, 'marginal')
+  assert.deepEqual(collectibles.tiers, [{ upTo: 2500, pct: 8 }, { upTo: null, pct: 2.35 }])
+  assert.equal(referralFee(2500, collectibles).amount, 200)
+  assert.equal(referralFee(3500, collectibles).amount, 223.5)
+  assert.match(collectibles.note!, /all other collectible categories/)
+  assert.match(collectibles.note!, /portion the portion/)
+  assert.match(collectibles.note!, /8% only/)
+
+  const office = walmart.categories.find(c => c.slug === 'office-products')!
+  assert.equal(office.referralPct, 15)
+  assert.match(office.note!, /12%/)
+  assert.match(office.note!, /Printer Cartridges/)
+  for (const slug of ['outdoors', 'sporting-goods']) {
+    const row = walmart.categories.find(c => c.slug === slug)!
+    assert.equal(row.referralPct, 15)
+    assert.match(row.note!, /Hunting Trail Monitors, Binoculars, Telescopes, Spotting Scopes, and Night Vision Goggles/)
+    assert.match(row.note!, /8%/)
+  }
+  assert.equal(walmart.categories.find(c => c.slug === 'shoes')!.label, 'Shoes, Handbags, Backpacks & Sunglasses')
+  assert.equal(walmart.categories.find(c => c.slug === 'video-games')!.label, 'Software & Computer Video Games')
+  assert.equal(referenceCategory(walmart).category.slug, 'everything-else')
+  assert.equal(defaultCategorySlug('walmart'), 'everything-else')
+  assert.deepEqual(rateRange(walmart), { min: 2.35, max: 20 })
+  assert.equal(walmart.categories.find(c => c.slug === 'printer-cartridges'), undefined)
+})
+
+test('TikTok published schedule: Pre-Owned 5%, Collectibles 6%, 3% over $10,000, no 8% hedge', () => {
+  const tiktok = getMarketplace('tiktok-shop')!
+  assert.equal(tiktok.lastVerified, '2026-11-21')
+  assert.equal(tiktok.categories.length, 14)
+  assert.doesNotMatch(tiktok.summary, /moved to 8%|8% on Aug 4/)
+  assert.match(tiktok.summary, /Pre-Owned/)
+  assert.match(tiktok.summary, /10\/08\/2026/)
+
+  const preOwned = tiktok.categories.find(c => c.slug === 'pre-owned')!
+  assert.equal(preOwned.referralPct, 5)
+  assert.equal(preOwned.tierMode, 'marginal')
+  assert.deepEqual(preOwned.tiers, [{ upTo: 10000, pct: 5 }, { upTo: null, pct: 3 }])
+  assert.equal(referralFee(10000, preOwned).amount, 500)
+  assert.equal(referralFee(12000, preOwned).amount, 560)
+
+  const collectibles = tiktok.categories.find(c => c.slug === 'collectibles')!
+  assert.equal(collectibles.referralPct, 6)
+  assert.equal(collectibles.tierMode, 'marginal')
+  assert.deepEqual(collectibles.tiers, [{ upTo: 10000, pct: 6 }, { upTo: null, pct: 3 }])
+  assert.equal(referralFee(10000, collectibles).amount, 600)
+  assert.equal(referralFee(12000, collectibles).amount, 660)
+
+  const tiered = tiktok.categories.filter(c => c.tiers?.some(t => t.upTo === 10000)).map(c => c.slug).sort()
+  assert.deepEqual(tiered, ['collectibles', 'pre-owned'])
+  for (const c of tiktok.categories) {
+    assert.doesNotMatch(c.note ?? '', /moved to 8%/)
+    if (c.slug !== 'pre-owned' && c.slug !== 'collectibles') assert.equal(c.tiers, undefined, c.slug)
+  }
+  const jewelry = tiktok.categories.find(c => c.slug === 'jewelry-accessories')!
+  assert.match(jewelry.note!, /Diamond, Gold, Jade, Platinum\/Carat Gold/)
+  assert.doesNotMatch(jewelry.note!, /8%/)
+  assert.deepEqual(rateRange(tiktok), { min: 3, max: 6 })
+})
+
+test('eBay trading cards and comics: 13.25% with no Store or a Starter Store, 12.35% with a Basic Store or higher', () => {
+  const cards = category('trading-cards')
+  assert.equal(cards.referralPct, 13.25)
+  assert.deepEqual(cards.tiers, [{ upTo: 7500, pct: 13.25 }, { upTo: null, pct: 2.35 }])
+  assert.match(cards.note!, /Comic books pay the same 13\.25%/)
+  assert.match(cards.note!, /no Store or a Starter Store/)
+  assert.equal(referralFee(7500, cards).amount, 993.75)
+  assert.equal(referralFee(8500, cards).amount, 1017.25)
+
+  const store = category('trading-cards-store')
+  assert.equal(store.label, 'Trading Cards & Comics (Basic Store or higher, excluding NFTs)')
+  assert.equal(store.referralPct, 12.35)
+  assert.equal(store.tierMode, 'marginal')
+  assert.deepEqual(store.tiers, [{ upTo: 2500, pct: 12.35 }, { upTo: null, pct: 2.35 }])
+  assert.match(store.note!, /Comic books pay this same rate/)
+  assert.equal(referralFee(2500, store).amount, 308.75)
+  assert.equal(referralFee(3500, store).amount, 332.25)
+  assert.equal(ebay.lastVerified, '2026-11-21')
 })

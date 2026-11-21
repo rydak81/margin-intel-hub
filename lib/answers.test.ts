@@ -38,6 +38,8 @@ import {
   analysisLinksFor,
   answerPath,
   answerTrackingSource,
+  answerUpdatedOn,
+  answersIndexUpdatedOn,
   answersIn,
   relatedAnswers,
   wfsStandardFulfillmentFee,
@@ -249,10 +251,35 @@ describe('answer pages', () => {
     for (const page of ANSWER_PAGES) expect(out).toContain(page.directAnswer)
     expect(out).not.toMatch(FORBIDDEN)
 
-    const urls = (await sitemap()).map(entry => entry.url)
+    const entries = await sitemap()
+    const urls = entries.map(entry => entry.url)
     for (const path of ANSWER_PATHS) {
       const url = `https://marketplacebeta.com${path}`
       expect(urls.filter(item => item === url)).toEqual([url])
     }
+  })
+
+  it('sets each answer sitemap lastmod from that page’s own updated date', async () => {
+    const entries = await sitemap()
+    const lastmod = (path: string) => {
+      const entry = entries.find(item => item.url === `https://marketplacebeta.com${path}`)
+      expect(entry?.lastModified).toBeInstanceOf(Date)
+      return (entry!.lastModified as Date).toISOString().slice(0, 10)
+    }
+    for (const page of ANSWER_PAGES) {
+      expect(lastmod(answerPath(page.slug)), page.slug).toBe(answerUpdatedOn(page))
+    }
+    expect(lastmod('/answers')).toBe(answersIndexUpdatedOn())
+    for (const slug of [
+      'how-much-does-walmart-take-from-a-sale',
+      'walmart-wfs-fees',
+      'tiktok-shop-seller-fees',
+      'how-much-does-etsy-take-from-a-sale',
+    ]) {
+      expect(answerUpdatedOn(ANSWER_PAGES.find(page => page.slug === slug)!)).toBe('2026-11-20')
+      expect(lastmod(answerPath(slug))).toBe('2026-11-20')
+    }
+    expect(lastmod('/answers/etsy-offsite-ads-fee')).toBe('2026-11-19')
+    expect(lastmod('/answers/how-much-does-amazon-take-from-a-sale')).toBe('2026-11-19')
   })
 })

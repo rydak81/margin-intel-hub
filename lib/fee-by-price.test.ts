@@ -30,7 +30,8 @@ describe('fee math, hand-computed from the fee tables', () => {
     expect(totals('amazon')).toEqual([1.5, 3.75, 7.5, 15])
     expect(nets('amazon')).toEqual([8.5, 21.25, 42.5, 85])
   })
-  it('Walmart "Home & Garden" 15% referral fee', () => {
+  it('Walmart "Everything Else" 15% referral fee', () => {
+    expect(referenceCategory(MARKETPLACES.find(m => m.slug === 'walmart')!).category.slug).toBe('everything-else')
     expect(totals('walmart')).toEqual([1.5, 3.75, 7.5, 15])
     expect(nets('walmart')).toEqual([8.5, 21.25, 42.5, 85])
   })
@@ -79,7 +80,7 @@ describe('fee math, hand-computed from the fee tables', () => {
 describe('short answer and FAQ', () => {
   const answer = feeByPriceShortAnswer(rows)
   it('is one dated sentence computed from the table', () => {
-    expect(answer.startsWith(`As of ${formatVerifiedDate('2026-10-16')}, `)).toBe(true)
+    expect(answer.startsWith(`As of ${formatVerifiedDate('2026-11-12')}, `)).toBe(true)
     expect(answer.endsWith('.')).toBe(true)
     expect(answer.slice(0, -1)).not.toMatch(/\.\s/)
     expect(answer).toContain('hypothetical')
@@ -147,7 +148,7 @@ describe('page', () => {
     const ds = blocks[2]
     expect(ds.creator).toEqual({ '@id': `${SITE}/#organization` })
     expect(ds.dateModified).toBe(verifiedRange().newest)
-    expect(ds.dateModified).toBe('2026-11-19')
+    expect(ds.dateModified).toBe('2026-11-21')
     expect(ds.isAccessibleForFree).toBe(true)
     expect(JSON.stringify(blocks)).not.toMatch(/sameAs/)
     expect(read('app/fees/compare-by-item-price/page.tsx')).toContain('creator: ORGANIZATION_REF')

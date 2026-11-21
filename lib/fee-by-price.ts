@@ -37,8 +37,8 @@ export const OFFSITE_ADS = {
 interface ReferenceChoice { categorySlug: string; why: string }
 const REFERENCE: Record<string, ReferenceChoice> = {
   amazon: { categorySlug: 'everything-else', why: 'the catch-all category, at the rate most Amazon categories share' },
-  walmart: { categorySlug: 'home-garden', why: 'a flat-rate category at the rate most Walmart categories share (the table has no catch-all row)' },
-  'tiktok-shop': { categorySlug: 'apparel-accessories', why: 'one of the categories at the published rate (all but five fine-jewelry sub-categories)' },
+  walmart: { categorySlug: 'everything-else', why: 'the catch-all category, at the rate most Walmart categories share' },
+  'tiktok-shop': { categorySlug: 'apparel-accessories', why: 'one of the categories at the published 6% rate' },
   ebay: { categorySlug: 'most-categories', why: 'eBay\'s "most categories" row (special-rate categories excluded)' },
   etsy: { categorySlug: 'all-categories', why: 'Etsy charges one flat transaction fee in every category' },
 }
@@ -186,7 +186,7 @@ export function feeByPriceFaq(rows: MarketplaceRow[] = buildRows()): FaqItem[] {
     },
     {
       question: 'Why does TikTok Shop show the lowest fees here?',
-      answer: `The TikTok Shop figures use the 6% commission in TikTok's published US schedule, which also covers payment processing. Some trade reports describe a higher rate that TikTok has not confirmed, so check the referral fee line on your own settlement statement.`,
+      answer: `The TikTok Shop figures use Apparel & Accessories at the published 6% commission, which also covers payment processing. Pre-Owned is 5%, and Collectibles and Pre-Owned pay 3% on the portion of a sale over $10,000.`,
     },
   ]
 }

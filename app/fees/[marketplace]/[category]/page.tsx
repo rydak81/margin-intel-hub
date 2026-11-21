@@ -7,6 +7,7 @@ import { BriefCta } from "@/components/brief-cta"
 import { BRIEF_CTA_KEYS } from "@/lib/brief-cta"
 import { FeeCalculator } from "@/components/fee-calculator"
 import {
+  feeCategoryHref,
   formatVerifiedDate,
   getAllFeeRoutes,
   getCategory,
@@ -327,11 +328,11 @@ export default async function FeeCategoryPage({ params }: PageProps) {
           </h2>
           <div className="mt-4 flex flex-wrap gap-2">
             {marketplace.categories
-              .filter((c) => c.slug !== category.slug)
+              .filter((c) => c.slug !== category.slug && feeCategoryHref(marketplace.slug, c))
               .map((c) => (
                 <Link
                   key={c.slug}
-                  href={`/fees/${marketplace.slug}/${c.slug}`}
+                  href={feeCategoryHref(marketplace.slug, c)!}
                   className="rounded-full border border-slate-200 px-3 py-1.5 text-sm text-slate-700 transition hover:border-sky-400 hover:text-sky-700 dark:border-white/10 dark:text-slate-300 dark:hover:border-sky-400/60 dark:hover:text-sky-300"
                 >
                   {c.label}{" "}

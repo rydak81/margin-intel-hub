@@ -11,7 +11,10 @@ test('published rate matches the fee dataset (no drift from /fees/tiktok-shop)',
   const tts = getMarketplace('tiktok-shop')!
   assert.equal(PUBLISHED_RATE_PCT, 6)
   assert.equal(REPORTED_RATE_PCT, 8)
-  for (const c of tts.categories) assert.equal(c.referralPct, PUBLISHED_RATE_PCT, c.slug)
+  for (const c of tts.categories) {
+    if (c.slug === 'pre-owned') assert.equal(c.referralPct, 5)
+    else assert.equal(c.referralPct, PUBLISHED_RATE_PCT, c.slug)
+  }
 })
 
 test("TikTok's own worked example reproduces: 6% x ($102 + $5 - $2) = $6.30", () => {
@@ -56,6 +59,7 @@ test('the change log entry for the TikTok correction links to the explainer', as
   const { FEE_CHANGELOG } = await import('@/lib/fee-changelog')
   const { TIKTOK_FEE_CHANGE_PATH } = await import('@/lib/tiktok-fee-change-2026')
   const linked = FEE_CHANGELOG.filter(e => e.explainer?.href === TIKTOK_FEE_CHANGE_PATH)
-  assert.equal(linked.length, 1)
-  assert.ok(linked[0].changes.some(c => c.marketplace === 'tiktok-shop'))
+  const correction = linked.find(e => e.date === '2026-10-21')
+  assert.ok(correction)
+  assert.ok(correction.changes.some(c => c.marketplace === 'tiktok-shop'))
 })
