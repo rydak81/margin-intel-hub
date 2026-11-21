@@ -111,28 +111,30 @@ describe('eBay analysis related reading', () => {
     for (const a of ANALYSIS_ARTICLES.filter(x => !isEbayAnalysis(x))) expect(ebayAnalysisRelated(a)).toBeNull()
   })
 
-  it('links the newer watch analysis and the eBay fee pages the per-order piece already cites', () => {
+  it('links the newer watch analysis, the Etsy vs eBay comparison, and the eBay fee pages the per-order piece already cites', () => {
     const links = ebayAnalysisRelated(perOrder)!
     expect(links.map(l => l.href)).toEqual([
       '/intelligence/analysis/ebay-watch-fees-2026-15-percent-to-1000',
+      '/intelligence/analysis/etsy-vs-ebay-fees-2026-20-50-100',
       '/fees/ebay',
       '/fees/ebay/most-categories',
       '/fees/ebay/on-a-10-sale',
     ])
-    expect(links[1].label).toBe('eBay fee table')
-    expect(links[2].label).toBe('Most Categories calculator')
-    expect(links[3].label).toBe('$10 sale page')
+    expect(links[2].label).toBe('eBay fee table')
+    expect(links[3].label).toBe('Most Categories calculator')
+    expect(links[4].label).toBe('$10 sale page')
     expect(links.map(l => `${l.label} ${l.note}`).join('\n')).not.toMatch(FORBIDDEN)
   })
 
-  it('on the watch piece, links the per-order analysis, the fee table and the watches calculator', () => {
+  it('on the watch piece, links the per-order analysis, the Etsy vs eBay comparison, the fee table and the watches calculator', () => {
     const links = ebayAnalysisRelated(watches)!
     expect(links.map(l => l.href)).toEqual([
       '/intelligence/analysis/ebay-per-order-fee-2026-under-10',
+      '/intelligence/analysis/etsy-vs-ebay-fees-2026-20-50-100',
       '/fees/ebay',
       '/fees/ebay/watches',
     ])
-    expect(links[2].label).toBe('eBay watches calculator')
+    expect(links[3].label).toBe('eBay watches calculator')
     expect(links.map(l => l.href)).not.toContain('/fees/walmart')
   })
 
@@ -149,6 +151,7 @@ describe('eBay analysis related reading', () => {
     const html = renderToStaticMarkup(createElement(AnalysisEbayReading, { article: perOrder }))
     expect(html).toContain('id="related-reading"')
     expect(html).toContain('href="/intelligence/analysis/ebay-watch-fees-2026-15-percent-to-1000"')
+    expect(html).toContain('href="/intelligence/analysis/etsy-vs-ebay-fees-2026-20-50-100"')
     expect(html).toContain('href="/fees/ebay/most-categories"')
     expect(html).toContain('href="/newsletter?source=campaign_ebay_per_order#subscribe"')
     expect(html).toContain('data-cta="brief_signup"')
@@ -171,6 +174,7 @@ describe('eBay analysis related reading', () => {
     const hrefs = ebayAnalysisRelated(fixture, [fixture, ...latestAnalysis()])!.map(l => l.href)
     expect(hrefs[0]).toBe('/intelligence/analysis/ebay-watch-fees-2026-15-percent-to-1000')
     expect(hrefs).toContain('/intelligence/analysis/ebay-per-order-fee-2026-under-10')
+    expect(hrefs).toContain('/intelligence/analysis/etsy-vs-ebay-fees-2026-20-50-100')
     expect(hrefs).toContain('/fees/ebay')
     expect(hrefs).toContain('/fees/ebay/guitars-basses')
     expect(ebayAnalysisBriefSource(fixture)).toBe('campaign_ebay_fixture')
@@ -180,8 +184,8 @@ describe('eBay analysis related reading', () => {
 })
 
 describe('Etsy analysis related reading', () => {
+  const comparison = ANALYSIS_ARTICLES.find(a => a.slug === 'etsy-vs-ebay-fees-2026-20-50-100')!
   const ddp = ANALYSIS_ARTICLES.find(a => a.slug === 'etsy-ddp-us-orders-2026-duty-paid-pricing')!
-  const compare = ANALYSIS_ARTICLES.find(a => a.slug === 'etsy-vs-ebay-fees-2026-20-50-100')!
   const offsite = ANALYSIS_ARTICLES.find(a => a.slug === 'etsy-offsite-ads-fees-2026')!
   const watches = ANALYSIS_ARTICLES.find(a => a.slug === 'ebay-watch-fees-2026-15-percent-to-1000')!
   const perOrder = ANALYSIS_ARTICLES.find(a => a.slug === 'ebay-per-order-fee-2026-under-10')!
@@ -196,16 +200,16 @@ describe('Etsy analysis related reading', () => {
     for (const a of ANALYSIS_ARTICLES.filter(x => !isEtsyAnalysis(x))) expect(etsyAnalysisRelated(a)).toBeNull()
   })
 
-  it('on the duty-paid piece, links the Offsite Ads analysis, the eBay fee analyses on main, and the Etsy fee page', () => {
+  it('on the duty-paid piece, links the Etsy vs eBay comparison, the Offsite Ads analysis, the eBay fee analyses on main, and the Etsy fee page', () => {
     const links = etsyAnalysisRelated(ddp)!
     expect(links.map(l => l.href)).toEqual([
-      `/intelligence/analysis/${compare.slug}`,
+      `/intelligence/analysis/${comparison.slug}`,
       `/intelligence/analysis/${offsite.slug}`,
       `/intelligence/analysis/${watches.slug}`,
       `/intelligence/analysis/${perOrder.slug}`,
       '/fees/etsy',
     ])
-    expect(links[0].label).toBe(compare.headline)
+    expect(links[0].label).toBe(comparison.headline)
     expect(links[1].label).toBe(offsite.headline)
     expect(links[2].label).toBe(watches.headline)
     expect(links[3].label).toBe(perOrder.headline)
@@ -214,10 +218,10 @@ describe('Etsy analysis related reading', () => {
     expect(links.map(l => `${l.label} ${l.note}`).join('\n')).not.toMatch(FORBIDDEN)
   })
 
-  it('on the Offsite Ads piece, links the duty-paid analysis, the eBay fee analyses, and the Etsy fee pages it already cites', () => {
+  it('on the Offsite Ads piece, links the Etsy vs eBay comparison, the duty-paid analysis, the eBay fee analyses, and the Etsy fee pages it already cites', () => {
     const links = etsyAnalysisRelated(offsite)!
     expect(links.map(l => l.href)).toEqual([
-      `/intelligence/analysis/${compare.slug}`,
+      `/intelligence/analysis/${comparison.slug}`,
       `/intelligence/analysis/${ddp.slug}`,
       `/intelligence/analysis/${watches.slug}`,
       `/intelligence/analysis/${perOrder.slug}`,
@@ -247,6 +251,7 @@ describe('Etsy analysis related reading', () => {
   it('renders the block with the signup only on Etsy analysis', () => {
     const html = renderToStaticMarkup(createElement(AnalysisEtsyReading, { article: ddp }))
     expect(html).toContain('id="related-reading"')
+    expect(html).toContain(`href="/intelligence/analysis/${comparison.slug}"`)
     expect(html).toContain(`href="/intelligence/analysis/${offsite.slug}"`)
     expect(html).toContain(`href="/intelligence/analysis/${watches.slug}"`)
     expect(html).toContain(`href="/intelligence/analysis/${perOrder.slug}"`)
@@ -270,7 +275,7 @@ describe('Etsy analysis related reading', () => {
       sections: [{ id: 's', title: 'Body', paragraphs: ['See the [handmade calculator](/fees/etsy/handmade) and the [missing page](/fees/etsy/not-a-page).'] }],
     })
     const hrefs = etsyAnalysisRelated(fixture, [fixture, ...latestAnalysis()])!.map(l => l.href)
-    expect(hrefs[0]).toBe(`/intelligence/analysis/${compare.slug}`)
+    expect(hrefs[0]).toBe(`/intelligence/analysis/${comparison.slug}`)
     expect(hrefs).toContain(`/intelligence/analysis/${ddp.slug}`)
     expect(hrefs).toContain(`/intelligence/analysis/${offsite.slug}`)
     expect(hrefs).toContain(`/intelligence/analysis/${watches.slug}`)
@@ -283,6 +288,49 @@ describe('Etsy analysis related reading', () => {
     const unkeyed = article({ slug: 'etsy-custom', tags: ['seller fees'], newsletterSource: 'campaign_custom_etsy' })
     expect(etsyAnalysisBriefSource(unkeyed)).toBe('campaign_cta_etsy_etsy-custom')
     expect(newsletterSource('?source=campaign_cta_etsy_etsy-custom')).toBe('newsletter_campaign_cta_etsy_etsy-custom')
+  })
+
+  it('the Etsy vs eBay comparison links back to the Etsy and eBay fee analyses, which link to it', () => {
+    expect(isEtsyAnalysis(comparison)).toBe(true)
+    expect(isEbayAnalysis(comparison)).toBe(false)
+    const links = etsyAnalysisRelated(comparison)!
+    expect(links.map(l => l.href)).toEqual([
+      `/intelligence/analysis/${ddp.slug}`,
+      `/intelligence/analysis/${offsite.slug}`,
+      `/intelligence/analysis/${watches.slug}`,
+      `/intelligence/analysis/${perOrder.slug}`,
+      '/fees/etsy',
+      '/fees/etsy/on-a-20-sale',
+      '/fees/etsy/on-a-100-sale',
+    ])
+    expect(links[4].label).toBe('Etsy fee table')
+    expect(links[4].note).toBe('Fee table')
+    expect(links[5].label).toBe('Etsy $20 sale page')
+    expect(links[6].label).toBe('Etsy $100 sale page')
+    expect(links[5].note).toBe('Sale fee page')
+    expect(links.map(l => l.href)).not.toContain(`/intelligence/analysis/${comparison.slug}`)
+    expect(links.map(l => l.href)).not.toContain('/fees/compare/ebay-vs-etsy')
+    expect(links.map(l => l.href)).not.toContain('/fees/ebay')
+    expect(links.map(l => `${l.label} ${l.note}`).join('\n')).not.toMatch(FORBIDDEN)
+    expect(comparison.newsletterSource).toBe('campaign_kw_cmp_ebay_etsy')
+    expect(etsyAnalysisBriefSource(comparison)).toBe('campaign_cmp_ebay_etsy')
+    expect(etsyAnalysisBriefSource(comparison)).not.toBe(comparison.newsletterSource)
+    expect(newsletterSource('?source=campaign_cmp_ebay_etsy')).toBe('newsletter_campaign_cmp_ebay_etsy')
+    expect(ebayAnalysisBriefSource(comparison)).toBeNull()
+    const html = renderToStaticMarkup(createElement(AnalysisEtsyReading, { article: comparison }))
+    for (const slug of [ddp.slug, offsite.slug, watches.slug, perOrder.slug]) {
+      expect(html).toContain(`href="/intelligence/analysis/${slug}"`)
+    }
+    expect(html).toContain('id="related-reading"')
+    expect(html).toContain('href="/newsletter?source=campaign_cmp_ebay_etsy#subscribe"')
+    expect(html).toContain('data-cta="brief_signup"')
+    expect(renderToStaticMarkup(createElement(AnalysisEbayReading, { article: comparison }))).toBe('')
+    for (const article of [ddp, offsite]) {
+      expect(etsyAnalysisRelated(article)!.map(l => l.href)).toContain(`/intelligence/analysis/${comparison.slug}`)
+    }
+    for (const article of [watches, perOrder]) {
+      expect(ebayAnalysisRelated(article)!.map(l => l.href)).toContain(`/intelligence/analysis/${comparison.slug}`)
+    }
   })
 })
 

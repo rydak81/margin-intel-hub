@@ -82,6 +82,15 @@ export function isEbayAnalysis(article: Pick<AnalysisArticle, 'slug' | 'tags'>):
 }
 
 /**
+ * A head-to-head Etsy and eBay fee piece. Named in the slug (`etsy-vs-ebay-…` or
+ * `ebay-vs-etsy-…`) or the leading tag. A passing mention of both does not qualify.
+ */
+function isEtsyEbayFeeComparison(article: Pick<AnalysisArticle, 'slug' | 'tags'>): boolean {
+  const tag = article.tags[0] ?? ''
+  return /^(?:etsy-vs-ebay|ebay-vs-etsy)-/.test(article.slug) || tag === 'Etsy vs eBay' || tag === 'eBay vs Etsy'
+}
+
+/**
  * An analysis page is an Etsy piece when the slug is etsy-* or the first tag is
  * Etsy. A passing mention (holiday returns, parcel surcharges) does not qualify.
  */
@@ -231,16 +240,21 @@ function newestFirst(articles: readonly AnalysisArticle[], keep: (article: Analy
 }
 
 /**
- * Sibling eBay analysis (newest first) plus the eBay fee table and any
- * /fees/ebay calculators the piece already cites. Null for other articles.
+ * Sibling eBay analysis (newest first), then any Etsy-vs-eBay fee comparison
+ * already published (newest first), then the eBay fee table and any /fees/ebay
+ * calculators the piece already cites. Null for other articles.
  */
 export function ebayAnalysisRelated(
   article: AnalysisArticle,
   articles: readonly AnalysisArticle[] = latestAnalysis(),
 ): AnalysisReadingLink[] | null {
   if (!isEbayAnalysis(article)) return null
+  const siblings = newestFirst(articles, isEbayAnalysis, article.slug)
+  const seen = new Set(siblings.map(a => a.slug))
+  const comparisons = newestFirst(articles, isEtsyEbayFeeComparison, article.slug).filter(a => !seen.has(a.slug))
   return [
-    ...newestFirst(articles, isEbayAnalysis, article.slug).map(analysisReadingLink),
+    ...siblings.map(analysisReadingLink),
+    ...comparisons.map(analysisReadingLink),
     ...feeReadingLinks(article, 'ebay', citedFeeHrefs(article, 'ebay', false)),
   ]
 }
