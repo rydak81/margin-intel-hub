@@ -12,7 +12,7 @@ import { RecommendedTools } from '@/components/recommended-tools'
 import { SponsoredToolListing } from '@/components/sponsored-tool-listing'
 import { sponsoredListingFor } from '@/lib/sponsored-listing'
 import { getRecommendedOffers } from '@/lib/affiliates'
-import { EXAMPLE_PRICE, comparisonDescription, getAllPairs, matchedCategories, money, overviewRows, rateRange, resolvePair } from '@/lib/fee-compare'
+import { EXAMPLE_PRICE, RATE_RANGE_CAP_NOTE, comparisonDescription, getAllPairs, matchedCategories, money, overviewRows, rateRange, resolvePair } from '@/lib/fee-compare'
 import { formatVerifiedDate } from '@/lib/marketplace-fees'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://marketplacebeta.com'
@@ -93,6 +93,7 @@ export default async function ComparePage({ params }: PageProps) {
         <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
           {a.name} charges a {ra.min === ra.max ? `${ra.min}%` : `${ra.min}% to ${ra.max}%`} {a.feeName}; {b.name} charges a {rb.min === rb.max ? `${rb.min}%` : `${rb.min}% to ${rb.max}%`} {b.feeName}. Here is how the modeled schedules line up, using the same data as our fee calculators.
         </p>
+        <p className="mt-2 text-sm text-muted-foreground">{RATE_RANGE_CAP_NOTE}</p>
         <ShareButtons className="mt-5" url={canonical} placement={`compare-${resolved.pair.slug}`} text={`${a.shortName} vs ${b.shortName} seller fees, side by side:`} />
 
         <section className="mt-8 overflow-x-auto rounded-xl border border-border">

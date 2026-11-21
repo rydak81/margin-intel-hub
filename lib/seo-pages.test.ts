@@ -104,7 +104,7 @@ describe('sitemap after dedupe', () => {
     const urls = (await sitemap()).map(e => e.url)
     // Each new analysis article adds one URL; 157 was counted with 5 articles. +1: /fees/compare-by-item-price. Final +1: /holiday-2026.
     // +2: net new Walmart category pages on 2026-11-19 (removed unsourced Cell Phones; added Appliances - Compact, Musical Instruments, Personal Computers).
-    // +8: Walmart pages on 2026-11-21 whose rate differs from a flat 15%. Music, Video & DVD, Luggage & Travel Accessories and Everything Else are table rows only.
+    // +8: Walmart pages on 2026-11-20 whose rate differs from a flat 15%. Music, Video & DVD, Luggage & Travel Accessories and Everything Else are table rows only.
     // +1: eBay Basic Store trading-cards and comics page.
     expect(urls).toHaveLength(157 - 19 - 25 + 1 + INDEXABLE_SALE_PAGES.length + (ANALYSIS_ARTICLES.length - 5) + AI_PLAYBOOKS.length + 1 + 2 + 8 + 1 + ANSWER_PATHS.length)
     expect(new Set(urls).size).toBe(urls.length)

@@ -152,7 +152,7 @@ const AMAZON_CATEGORIES: FeeCategory[] = [
 
 // ── Walmart ───────────────────────────────────────────────────────────────────
 
-// Re-read 2026-11-21 against https://marketplace.walmart.com/pricing/ and
+// Re-read 2026-11-20 against https://marketplace.walmart.com/pricing/ and
 // Marketplace Learn "Referral fee schedule for contract categories" (updated Mar 9, 2026).
 // Added the 12 contract categories still missing after the 2026-11-19 correction.
 // Flat 15% siblings (Music, Video & DVD, Luggage & Travel Accessories, Everything Else)
@@ -258,7 +258,7 @@ const WALMART_CATEGORIES: FeeCategory[] = [
 
 // ── TikTok Shop ───────────────────────────────────────────────────────────────
 
-// Re-read 2026-11-21 against TikTok Shop Academy "Referral Fees by Category" (page dated 10/08/2026).
+// Re-read 2026-11-20 against TikTok Shop Academy "Referral Fees by Category" (page dated 10/08/2026).
 // The live table still lists 6% for almost every category, 5% for five fine-jewelry sub-categories
 // and every Pre-Owned row, and 3% on the portion of a Collectibles or Pre-Owned sale over $10,000.
 const TIKTOK_CATEGORIES: FeeCategory[] = [
@@ -288,7 +288,7 @@ const TIKTOK_CATEGORIES: FeeCategory[] = [
 
 // ── eBay ──────────────────────────────────────────────────────────────────────
 
-// Re-read 2026-11-21 against the basic selling-fees page (id=4822) and Store selling fees (id=4809).
+// Re-read 2026-11-20 against the basic selling-fees page (id=4822) and Store selling fees (id=4809).
 // Previously modelled non-Store rates were unchanged. Trading cards and comics now also have
 // the Basic-or-higher Store schedule (12.35% up to $2,500, then 2.35%).
 const ebayMarginal = (pct: number): Pick<FeeCategory, 'tierMode' | 'tiers' | 'note'> => ({
@@ -361,7 +361,7 @@ export const MARKETPLACES: Marketplace[] = [
     // (https://marketplacelearn.walmart.com/guides/Selling%20on%20Walmart/Referral-fee-schedule-for-contract-categories,
     // last updated Mar 9, 2026). Rates for the 2026-11-19 category corrections agree on both pages.
     sourceUrl: "https://marketplace.walmart.com/pricing/",
-    lastVerified: "2026-11-21",
+    lastVerified: "2026-11-20",
     summary:
       "Walmart Marketplace charges no monthly subscription or setup fee — sellers pay only a category-based referral fee on each sale. That makes the effective take rate easier to model than Amazon's, though Walmart Fulfillment Services (WFS) adds fulfillment and storage costs for sellers who use it.",
     categories: WALMART_CATEGORIES,
@@ -373,7 +373,7 @@ export const MARKETPLACES: Marketplace[] = [
     feeName: "commission",
     fulfillmentName: "Fulfilled by TikTok",
     sourceUrl: "https://seller-us.tiktok.com/university/essay?knowledge_id=5988482086864682&lang=en",
-    lastVerified: "2026-11-21",
+    lastVerified: "2026-11-20",
     summary:
       "TikTok Shop charges a commission on each order, with payment processing bundled into it rather than billed as a separate line. Rates have moved several times since the US launch as introductory pricing wound down, so this is the schedule most worth re-checking before you model margin on it. TikTok's published US table, dated 10/08/2026, lists 6% for most categories, 5% for five fine-jewelry sub-categories and for Pre-Owned, and 3% on the portion of a Collectibles or Pre-Owned sale over $10,000. The published table versus trade reports is covered at /fees/tiktok-shop/fee-change-2026.",
     categories: TIKTOK_CATEGORIES,
@@ -388,9 +388,9 @@ export const MARKETPLACES: Marketplace[] = [
     smallOrderFee: { upTo: 10, amount: 0.3 },
     // Source: https://www.ebay.com/help/selling/fees-credits-invoices/selling-fees?id=4822 ($0.40 per-order fee on orders over $10; $0.30 at $10 or less)
     sourceUrl: "https://www.ebay.com/help/selling/fees-credits-invoices/selling-fees?id=4822",
-    lastVerified: "2026-11-21",
+    lastVerified: "2026-11-20",
     summary:
-      "US eBay.com rates, re-read November 21, 2026. One item per order, domestic sale, standard seller performance, no promotions. Final value fees include buyer shipping and collected tax; the per-order charge is $0.30 through $10 and $0.40 above. Calculators assume zero collected tax and handling, and exclude insertion fees, ads, international fees and seller surcharges. Trading cards and comics are 13.25% up to $7,500 with no Store or a Starter Store, and 12.35% up to $2,500 with a Basic Store or higher; the portion above either threshold is 2.35%. Other Store, vehicle and Live schedules are not modelled.",
+      "US eBay.com rates, re-read November 20, 2026. One item per order, domestic sale, standard seller performance, no promotions. Final value fees include buyer shipping and collected tax; the per-order charge is $0.30 through $10 and $0.40 above. Calculators assume zero collected tax and handling, and exclude insertion fees, ads, international fees and seller surcharges. Trading cards and comics are 13.25% up to $7,500 with no Store or a Starter Store, and 12.35% up to $2,500 with a Basic Store or higher; the portion above either threshold is 2.35%. Other Store, vehicle and Live schedules are not modelled.",
     categories: EBAY_CATEGORIES,
   },
   {

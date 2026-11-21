@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { getMarketplace, getAllFeeRoutes, getComparableCategories, computeFeeBreakdown, referralFee, compareAcrossMarketplaces, orderFee } from '@/lib/marketplace-fees'
-import { comparisonDescription, getAllPairs, matchedCategories, overviewRows, rateRange } from '@/lib/fee-compare'
+import { RATE_RANGE_CAP_NOTE, comparisonDescription, getAllPairs, matchedCategories, overviewRows, rateRange } from '@/lib/fee-compare'
 import { defaultCategorySlug } from '@/lib/profit-calculator-fees'
 import { referenceCategory } from '@/lib/fee-by-price'
 const ebay = getMarketplace('ebay')!
@@ -144,9 +144,9 @@ test('Walmart official tables: no Cell Phones row; Compact Appliances, Musical I
   assert.equal(referralFee(10.01, baby).amount, 1.5)
 })
 
-test('Walmart contract categories added 2026-11-21 match the official tables, including table-only 15% rows', () => {
+test('Walmart contract categories added 2026-11-20 match the official tables, including table-only 15% rows', () => {
   assert.equal(walmart.categories.length, 38)
-  assert.equal(walmart.lastVerified, '2026-11-21')
+  assert.equal(walmart.lastVerified, '2026-11-20')
 
   const flat = (slug: string, label: string, pct: number) => {
     const row = walmart.categories.find(c => c.slug === slug)!
@@ -216,13 +216,15 @@ test('Walmart contract categories added 2026-11-21 match the official tables, in
   assert.equal(walmart.categories.find(c => c.slug === 'video-games')!.label, 'Software & Computer Video Games')
   assert.equal(referenceCategory(walmart).category.slug, 'everything-else')
   assert.equal(defaultCategorySlug('walmart'), 'everything-else')
-  assert.deepEqual(rateRange(walmart), { min: 2.35, max: 20 })
+  assert.deepEqual(rateRange(walmart), { min: 6, max: 20 })
+  assert.equal(overviewRows(amazon, walmart).find(r => r.label === 'Commission rate range')!.b, '6% to 20%')
+  assert.match(RATE_RANGE_CAP_NOTE, /Collectibles/)
   assert.equal(walmart.categories.find(c => c.slug === 'printer-cartridges'), undefined)
 })
 
 test('TikTok published schedule: Pre-Owned 5%, Collectibles 6%, 3% over $10,000, no 8% hedge', () => {
   const tiktok = getMarketplace('tiktok-shop')!
-  assert.equal(tiktok.lastVerified, '2026-11-21')
+  assert.equal(tiktok.lastVerified, '2026-11-20')
   assert.equal(tiktok.categories.length, 14)
   assert.doesNotMatch(tiktok.summary, /moved to 8%|8% on Aug 4/)
   assert.match(tiktok.summary, /Pre-Owned/)
@@ -251,7 +253,7 @@ test('TikTok published schedule: Pre-Owned 5%, Collectibles 6%, 3% over $10,000,
   const jewelry = tiktok.categories.find(c => c.slug === 'jewelry-accessories')!
   assert.match(jewelry.note!, /Diamond, Gold, Jade, Platinum\/Carat Gold/)
   assert.doesNotMatch(jewelry.note!, /8%/)
-  assert.deepEqual(rateRange(tiktok), { min: 3, max: 6 })
+  assert.deepEqual(rateRange(tiktok), { min: 5, max: 6 })
 })
 
 test('eBay trading cards and comics: 13.25% with no Store or a Starter Store, 12.35% with a Basic Store or higher', () => {
@@ -271,5 +273,5 @@ test('eBay trading cards and comics: 13.25% with no Store or a Starter Store, 12
   assert.match(store.note!, /Comic books pay this same rate/)
   assert.equal(referralFee(2500, store).amount, 308.75)
   assert.equal(referralFee(3500, store).amount, 332.25)
-  assert.equal(ebay.lastVerified, '2026-11-21')
+  assert.equal(ebay.lastVerified, '2026-11-20')
 })
