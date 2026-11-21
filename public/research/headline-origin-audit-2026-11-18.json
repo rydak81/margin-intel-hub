@@ -1,0 +1,167 @@
+{
+  "method": "marketplacebeta-headline-coverage-v1",
+  "reviewMethod": "aggregator-sensitivity-review-v1",
+  "asOf": "2026-11-18T00:00:00.000Z",
+  "readOn": "2026-11-18",
+  "baseline": {
+    "from": "2026-10-21T00:00:00.000Z",
+    "toExclusive": "2026-11-04T00:00:00.000Z"
+  },
+  "current": {
+    "from": "2026-11-04T00:00:00.000Z",
+    "toExclusive": "2026-11-18T00:00:00.000Z"
+  },
+  "complete": true,
+  "inputCount": 857,
+  "eligibleCount": 763,
+  "matchedSourceCount": 9,
+  "matchedArticleCount": 729,
+  "retainedShare": 0.9554390563564875,
+  "latestEligiblePublication": "2026-11-17T22:54:31.000Z",
+  "omitted": {
+    "outsideWindow": 0,
+    "notEligible": 87,
+    "invalid": 0,
+    "duplicates": 7
+  },
+  "metric": {
+    "id": "advertising",
+    "label": "Advertising and acquisition",
+    "currentHits": 26,
+    "currentN": 392,
+    "baselineHits": 6,
+    "baselineN": 337,
+    "currentShare": 0.0663265306122449,
+    "baselineShare": 0.017804154302670624,
+    "pooledChangePP": 4.852237630957427,
+    "balancedChangePP": 4.71558823496808,
+    "bySource": [
+      {
+        "source": "aboutamazon.com",
+        "currentN": 21,
+        "baselineN": 22,
+        "currentHits": 1,
+        "baselineHits": 0
+      },
+      {
+        "source": "changelog.shopify.com",
+        "currentN": 15,
+        "baselineN": 24,
+        "currentHits": 0,
+        "baselineHits": 0
+      },
+      {
+        "source": "channelx.world",
+        "currentN": 42,
+        "baselineN": 37,
+        "currentHits": 1,
+        "baselineHits": 2
+      },
+      {
+        "source": "digitalcommerce360.com",
+        "currentN": 16,
+        "baselineN": 10,
+        "currentHits": 0,
+        "baselineHits": 0
+      },
+      {
+        "source": "freightwaves.com",
+        "currentN": 174,
+        "baselineN": 140,
+        "currentHits": 0,
+        "baselineHits": 0
+      },
+      {
+        "source": "modernretail.co",
+        "currentN": 25,
+        "baselineN": 25,
+        "currentHits": 0,
+        "baselineHits": 1
+      },
+      {
+        "source": "news.google.com",
+        "currentN": 43,
+        "baselineN": 27,
+        "currentHits": 24,
+        "baselineHits": 3
+      },
+      {
+        "source": "supplychaindive.com",
+        "currentN": 48,
+        "baselineN": 41,
+        "currentHits": 0,
+        "baselineHits": 0
+      },
+      {
+        "source": "theverge.com",
+        "currentN": 8,
+        "baselineN": 11,
+        "currentHits": 0,
+        "baselineHits": 0
+      }
+    ],
+    "review": [],
+    "status": "candidate"
+  },
+  "sensitivity": {
+    "description": "Post hoc diagnostic excluding news.google.com from both fixed matched-domain windows; not a corrected estimate and not a change to the screening algorithm.",
+    "excludedDomain": "news.google.com",
+    "matchedSourceCount": 8,
+    "currentHits": 2,
+    "currentN": 349,
+    "baselineHits": 3,
+    "baselineN": 310,
+    "pooledChangePP": -0.39467603290507447,
+    "balancedChangePP": -0.2828185328185329,
+    "failsMinimumTopicMatches": true
+  },
+  "editorialDecision": "Hold the advertising-direction claim; publish this methods audit instead.",
+  "limitations": [
+    "Measures keyword mentions in eligible news headlines, not AI adoption, transactions, demand, market share or business performance.",
+    "Purposive source sample; no statistical significance or population inference. Topics can overlap.",
+    "Exact normalized headlines and canonical URLs are deduplicated; paraphrased syndicated stories can remain.",
+    "Matched domains reduce source entry/exit effects; editorial output and retrospective relevance labels can still change.",
+    "Candidate means ready for source review, never permission to publish. Review primary sources and novelty before writing.",
+    "A source domain is the stored URL hostname, not necessarily the originating newsroom.",
+    "No complete story-origin clustering was performed. Do not label all aggregator records duplicates or assume they are independent.",
+    "The post hoc exclusion diagnoses sensitivity; it cannot establish a fall in advertising activity or sentiment."
+  ],
+  "code": {
+    "commit": "927da15f66cf8580b4383544e1baf5a4cce2ad3d",
+    "path": "lib/research-desk.ts"
+  },
+  "privacy": "Aggregate counts and original workflow only. No raw headlines, article bodies, database identifiers, customer rows, credentials or private provider lineage.",
+  "worksheet": {
+    "purpose": "Review a candidate trend before briefing a decision-maker",
+    "fields": [
+      "candidate_question",
+      "measured_unit",
+      "publication_window_start",
+      "publication_window_end_exclusive",
+      "retrieved_at",
+      "raw_n",
+      "eligible_n",
+      "duplicate_rule_version",
+      "matched_url_domains",
+      "originating_publisher",
+      "original_report_url",
+      "story_family",
+      "topic_hits",
+      "denominator",
+      "pooled_change_percentage_points",
+      "equal_domain_change_percentage_points",
+      "largest_source_share_of_hits",
+      "diagnostic_exclusion_rule",
+      "diagnostic_result",
+      "unresolved_origin_count",
+      "editorial_decision",
+      "decision_evidence_needed"
+    ],
+    "decisionRules": [
+      "Keep the original calculation alongside any diagnostic; never silently replace it.",
+      "Resolve source origin and group shared reporting before calling reports independent.",
+      "Escalate a sign reversal or concentrated coverage for review rather than changing a commercial budget.",
+      "Use merchant outcomes for merchant-performance claims; headline volume cannot supply them."
+    ]
+  }
+}

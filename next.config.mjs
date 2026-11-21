@@ -28,6 +28,7 @@ const nextConfig = {
   async redirects() {
     return [
       { source: '/desktop-manufacturing', destination: '/ai', permanent: true },
+      { source: '/fees/walmart/cell-phones', destination: '/fees/walmart', permanent: true },
       { source: '/solutions/:path*', destination: '/tools', permanent: true },
       { source: '/partners/:path*', destination: '/articles', permanent: true },
       { source: '/community/:path*', destination: '/articles', permanent: true },
