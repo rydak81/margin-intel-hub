@@ -8,7 +8,7 @@ import { BRIEF_CTA_KEYS } from '@/lib/brief-cta'
 import { JsonLd } from '@/components/json-ld'
 import { ShareButtons } from '@/components/share-buttons'
 import { AMAZON_PEAK_PATH } from '@/lib/amazon-holiday-peak-2026'
-import { formatVerifiedDate } from '@/lib/marketplace-fees'
+import { feeCategoryHref, formatVerifiedDate } from '@/lib/marketplace-fees'
 import { SALE_PRICES, feeRangeLabel, getAllSaleRoutes, money, ogImageUrl, parseSalePrice, saleFeeSummary, salePath } from '@/lib/sale-fee-pages'
 import { getPairsFor } from '@/lib/fee-compare'
 import { TIKTOK_FEE_CHANGE_PATH } from '@/lib/tiktok-fee-change-2026'
@@ -115,14 +115,17 @@ export default async function SaleFeePage({ params }: PageProps) {
               <th scope="col" className="border-b border-border px-4 py-3">You keep*</th>
             </tr></thead>
             <tbody>
-              {rows.map(r => (
+              {rows.map(r => {
+                const href = feeCategoryHref(m.slug, r.category)
+                return (
                 <tr key={r.category.slug} className="border-b border-border last:border-0 even:bg-secondary/40">
-                  <th scope="row" className="px-4 py-3 font-medium"><Link href={`/fees/${m.slug}/${r.category.slug}`} className="text-primary underline">{r.category.label}</Link></th>
+                  <th scope="row" className="px-4 py-3 font-medium">{href ? <Link href={href} className="text-primary underline">{r.category.label}</Link> : r.category.label}</th>
                   <td className="px-4 py-3 tabular-nums" title={r.detail}>{money(r.totalFees)}</td>
                   <td className="px-4 py-3 tabular-nums">{r.takeRatePct}%</td>
                   <td className="px-4 py-3 tabular-nums">{money(r.netProceeds)}</td>
                 </tr>
-              ))}
+                )
+              })}
             </tbody>
           </table>
         </section>

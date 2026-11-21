@@ -13,7 +13,7 @@ import { ANALYSIS_ARTICLES } from '@/lib/analysis'
 import { INDEXABLE_NEWS_SOURCE_TYPES, INDEXABLE_SALE_PAGES, dedupeByTitle, isSelfCanonicalFeeCategory } from '@/lib/seo-indexing'
 import { salePath } from '@/lib/sale-fee-pages'
 import { HOLIDAY_HUB_PATH, holidayHubUpdatedOn } from '@/lib/holiday-hub'
-import { ANSWER_PATHS, CHECKED_ON as ANSWERS_CHECKED_ON } from '@/lib/answers'
+import { ANSWER_PAGES, ANSWERS_PATH, answerPath, answerUpdatedOn, answersIndexUpdatedOn } from '@/lib/answers'
 
 export const revalidate = 300
 
@@ -225,11 +225,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${siteUrl}/intelligence/dossier`, changeFrequency: 'monthly', priority: 0.8 },
     ...['guides', ...OPERATOR_GUIDES.map(guide => `guides/${guide.slug}`)].map(path => ({ url: `${siteUrl}/${path}`, lastModified: new Date(GUIDE_UPDATED), changeFrequency: 'monthly' as const, priority: path.startsWith('guides') ? 0.8 : 0.5 })),
     ...['about', 'editorial-policy'].map(path => ({ url: `${siteUrl}/${path}`, changeFrequency: 'monthly' as const, priority: 0.5 })),
-    ...ANSWER_PATHS.map((path, index) => ({
-      url: `${siteUrl}${path}`,
-      lastModified: new Date(ANSWERS_CHECKED_ON),
+    { url: `${siteUrl}${ANSWERS_PATH}`, lastModified: new Date(answersIndexUpdatedOn()), changeFrequency: 'weekly', priority: 0.8 },
+    ...ANSWER_PAGES.map(page => ({
+      url: `${siteUrl}${answerPath(page.slug)}`,
+      lastModified: new Date(answerUpdatedOn(page)),
       changeFrequency: 'weekly' as const,
-      priority: index === 0 ? 0.8 : 0.7,
+      priority: 0.7,
     })),
     ...getFeeRoutes(), ...articleRoutes]
 }

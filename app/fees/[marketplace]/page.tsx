@@ -5,7 +5,7 @@ import { PremiumSiteHeader } from "@/components/premium-site-header"
 import { PremiumSiteFooter } from "@/components/premium-site-footer"
 import { BriefCta } from "@/components/brief-cta"
 import { BRIEF_CTA_KEYS } from "@/lib/brief-cta"
-import { MARKETPLACES, orderFeeLabel, formatVerifiedDate, getMarketplace } from "@/lib/marketplace-fees"
+import { MARKETPLACES, feeCategoryHref, orderFeeLabel, formatVerifiedDate, getMarketplace } from "@/lib/marketplace-fees"
 import { ExternalLink } from "lucide-react"
 import { AMAZON_PEAK_PATH } from "@/lib/amazon-holiday-peak-2026"
 import { JsonLd } from "@/components/json-ld"
@@ -187,15 +187,21 @@ export default async function MarketplaceFeesPage({ params }: PageProps) {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-white/5">
-              {marketplace.categories.map((category) => (
+              {marketplace.categories.map((category) => {
+                const href = feeCategoryHref(marketplace.slug, category)
+                return (
                 <tr key={category.slug} className="group">
                   <td className="py-3">
+                    {href ? (
                     <Link
-                      href={`/fees/${marketplace.slug}/${category.slug}`}
+                      href={href}
                       className="font-medium text-slate-900 group-hover:text-sky-600 dark:text-white dark:group-hover:text-sky-400"
                     >
                       {category.label}
                     </Link>
+                    ) : (
+                    <span className="font-medium text-slate-900 dark:text-white">{category.label}</span>
+                    )}
                     {category.note && (
                       <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
                         {category.note}
@@ -206,7 +212,8 @@ export default async function MarketplaceFeesPage({ params }: PageProps) {
                     {category.referralPct}%
                   </td>
                 </tr>
-              ))}
+                )
+              })}
             </tbody>
           </table>
         </div>

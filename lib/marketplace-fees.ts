@@ -40,6 +40,12 @@ export interface FeeCategory {
   tiers?: FeeTier[]
   /** Minimum fee charged per unit, if the marketplace enforces one. */
   minFee?: number
+  /**
+   * Official row that belongs in the fee table and calculators, but not as its
+   * own page or sitemap URL. Used when the rate is a flat 15% duplicate of
+   * categories that already have pages.
+   */
+  tableOnly?: boolean
 }
 
 export interface Marketplace {
@@ -146,12 +152,12 @@ const AMAZON_CATEGORIES: FeeCategory[] = [
 
 // ── Walmart ───────────────────────────────────────────────────────────────────
 
-// Targeted re-check 2026-11-19 against https://marketplace.walmart.com/pricing/ and
+// Re-read 2026-11-21 against https://marketplace.walmart.com/pricing/ and
 // Marketplace Learn "Referral fee schedule for contract categories" (updated Mar 9, 2026).
-// Confirmed today: neither official table lists a Cell Phones row; added official
-// Appliances - Compact, Musical Instruments, and Personal Computers rows; Baby remains
-// 8% at $10 or less. This is not a full recertification of every pre-existing Walmart row.
-// Previous verification: 2026-10-16 against https://marketplace.walmart.com/pricing/.
+// Added the 12 contract categories still missing after the 2026-11-19 correction.
+// Flat 15% siblings (Music, Video & DVD, Luggage & Travel Accessories, Everything Else)
+// stay in the table only. This is not a full recertification of every pre-existing row.
+// Previous verification: 2026-11-19.
 const WALMART_CATEGORIES: FeeCategory[] = [
   {
     slug: "apparel-accessories", label: "Apparel & Accessories", referralPct: 15,
@@ -163,12 +169,14 @@ const WALMART_CATEGORIES: FeeCategory[] = [
     note: "12% for the portion of the total sales price up to $300; 8% for any portion of the total sales price greater than $300.",
     tierMode: "marginal", tiers: [{ upTo: 300, pct: 12 }, { upTo: null, pct: 8 }],
   },
+  { slug: "appliances-major", label: "Appliances - Major", referralPct: 8 },
   { slug: "automotive", label: "Automotive & Powersports", referralPct: 12 },
   {
     slug: "baby", label: "Baby", referralPct: 15,
     note: "8% on items priced $10 or less; 15% on the whole price when over $10.",
     tierMode: "whole", tiers: [{ upTo: 10, pct: 8 }, { upTo: null, pct: 15 }],
   },
+  { slug: "base-power-tools", label: "Base Power Tools", referralPct: 12 },
   {
     slug: "beauty", label: "Beauty", referralPct: 15,
     note: "8% on items priced $10 or less; 15% on the whole price when over $10.",
@@ -176,6 +184,11 @@ const WALMART_CATEGORIES: FeeCategory[] = [
   },
   { slug: "books", label: "Books", referralPct: 15 },
   { slug: "camera-photo", label: "Camera & Photo", referralPct: 8 },
+  {
+    slug: "collectibles", label: "Collectibles (for approved sellers)", referralPct: 8,
+    note: "8% for the portion of the total sales price up to $2,500; 2.35% for the portion of the total sales price greater than $2,500 for trading cards, trading card games, comics, coins, autographed collectibles and collectible ephemera; 8% for items in all other collectible categories. Marketplace Learn prints \"the portion the portion\"; the pricing page lists this row as 8% only.",
+    tierMode: "marginal", tiers: [{ upTo: 2500, pct: 8 }, { upTo: null, pct: 2.35 }],
+  },
   { slug: "consumer-electronics", label: "Consumer Electronics", referralPct: 8 },
   {
     slug: "electronics-accessories", label: "Electronics Accessories", referralPct: 15,
@@ -193,6 +206,11 @@ const WALMART_CATEGORIES: FeeCategory[] = [
     tierMode: "whole", tiers: [{ upTo: 10, pct: 8 }, { upTo: null, pct: 15 }],
   },
   { slug: "home-garden", label: "Home & Garden", referralPct: 15 },
+  {
+    slug: "indoor-outdoor-furniture", label: "Indoor & Outdoor Furniture", referralPct: 15,
+    note: "15% for the portion of the total sales price up to $200; 10% for any portion of the total sales price greater than $200.",
+    tierMode: "marginal", tiers: [{ upTo: 200, pct: 15 }, { upTo: null, pct: 10 }],
+  },
   { slug: "industrial-scientific", label: "Industrial & Scientific", referralPct: 12 },
   {
     slug: "jewelry", label: "Jewelry", referralPct: 20,
@@ -200,47 +218,79 @@ const WALMART_CATEGORIES: FeeCategory[] = [
     tierMode: "marginal", tiers: [{ upTo: 250, pct: 20 }, { upTo: null, pct: 5 }],
   },
   { slug: "kitchen", label: "Kitchen", referralPct: 15 },
+  { slug: "luggage-travel-accessories", label: "Luggage & Travel Accessories", referralPct: 15, tableOnly: true },
+  { slug: "music", label: "Music", referralPct: 15, tableOnly: true },
   { slug: "musical-instruments", label: "Musical Instruments", referralPct: 12 },
-  { slug: "office-products", label: "Office Products", referralPct: 15 },
-  { slug: "outdoors", label: "Outdoors", referralPct: 15 },
+  {
+    slug: "office-products", label: "Office Products", referralPct: 15,
+    note: "15%, except 12% for Printer Cartridges",
+  },
+  {
+    slug: "outdoor-power-tools", label: "Outdoor Power Tools", referralPct: 15,
+    note: "15% for items with a total sales price of up to $500; 8% for items with a total sales price greater than $500.",
+    tierMode: "whole", tiers: [{ upTo: 500, pct: 15 }, { upTo: null, pct: 8 }],
+  },
+  {
+    slug: "outdoors", label: "Outdoors", referralPct: 15,
+    note: "15% except 8% for Hunting Trail Monitors, Binoculars, Telescopes, Spotting Scopes, and Night Vision Goggles",
+  },
   { slug: "personal-computers", label: "Personal Computers", referralPct: 6 },
   { slug: "pet-supplies", label: "Pet Supplies", referralPct: 15 },
-  { slug: "shoes", label: "Shoes, Handbags & Sunglasses", referralPct: 15 },
-  { slug: "sporting-goods", label: "Sporting Goods", referralPct: 15 },
+  { slug: "plumbing-heating-cooling-ventilation", label: "Plumbing, Heating, Cooling & Ventilation", referralPct: 10 },
+  { slug: "shoes", label: "Shoes, Handbags, Backpacks & Sunglasses", referralPct: 15 },
+  {
+    slug: "sporting-goods", label: "Sporting Goods", referralPct: 15,
+    note: "15% except 8% for Hunting Trail Monitors, Binoculars, Telescopes, Spotting Scopes, and Night Vision Goggles",
+  },
+  { slug: "tires-wheels", label: "Tires & Wheels", referralPct: 10 },
   { slug: "tools-home-improvement", label: "Tools & Home Improvement", referralPct: 15 },
   { slug: "toys-games", label: "Toys & Games", referralPct: 15 },
-  { slug: "video-games", label: "Video Games", referralPct: 15 },
+  { slug: "video-dvd", label: "Video & DVD", referralPct: 15, tableOnly: true },
+  { slug: "video-game-consoles", label: "Video Game Consoles", referralPct: 8 },
+  { slug: "video-games", label: "Software & Computer Video Games", referralPct: 15 },
   {
     slug: "watches", label: "Watches", referralPct: 15,
     note: "15% on the first $1,500, then 3% on the portion above.",
     tierMode: "marginal", tiers: [{ upTo: 1500, pct: 15 }, { upTo: null, pct: 3 }],
   },
+  { slug: "everything-else", label: "Everything Else", referralPct: 15, tableOnly: true },
 ]
 
 // ── TikTok Shop ───────────────────────────────────────────────────────────────
 
-// Verified 2026-10-21 against TikTok Shop Academy "Referral Fees by Category" (page dated 10/08/2026).
-const TIKTOK_NOTE =
-  "TikTok's published US table lists 6%. Some trade reports say most non-food categories moved to 8% on Aug 4, 2026, but TikTok has not confirmed it publicly. Check the referral fee line on your settlement statement; at 8% the fee is a third higher."
-
+// Re-read 2026-11-21 against TikTok Shop Academy "Referral Fees by Category" (page dated 10/08/2026).
+// The live table still lists 6% for almost every category, 5% for five fine-jewelry sub-categories
+// and every Pre-Owned row, and 3% on the portion of a Collectibles or Pre-Owned sale over $10,000.
 const TIKTOK_CATEGORIES: FeeCategory[] = [
-  { slug: "apparel-accessories", label: "Apparel & Accessories", referralPct: 6, note: TIKTOK_NOTE },
-  { slug: "beauty-personal-care", label: "Beauty & Personal Care", referralPct: 6, note: TIKTOK_NOTE },
-  { slug: "consumer-electronics", label: "Consumer Electronics", referralPct: 6, note: TIKTOK_NOTE },
-  { slug: "food-beverage", label: "Food & Beverage", referralPct: 6, note: TIKTOK_NOTE },
-  { slug: "health", label: "Health", referralPct: 6, note: TIKTOK_NOTE },
-  { slug: "home-supplies", label: "Home Supplies", referralPct: 6, note: TIKTOK_NOTE },
-  { slug: "jewelry-accessories", label: "Jewelry & Accessories", referralPct: 6, note: "6% for most jewelry; TikTok lists 5% for its Diamond, Gold, Jade, Platinum/Carat Gold and Ruby, Sapphire & Emerald sub-categories. Some trade reports say most non-food rates moved to 8% on Aug 4, 2026; TikTok has not confirmed it, so check your settlement statement." },
-  { slug: "kitchenware", label: "Kitchenware", referralPct: 6, note: TIKTOK_NOTE },
-  { slug: "pet-supplies", label: "Pet Supplies", referralPct: 6, note: TIKTOK_NOTE },
-  { slug: "shoes", label: "Shoes", referralPct: 6, note: TIKTOK_NOTE },
-  { slug: "sports-outdoor", label: "Sports & Outdoor", referralPct: 6, note: TIKTOK_NOTE },
-  { slug: "toys-hobbies", label: "Toys & Hobbies", referralPct: 6, note: TIKTOK_NOTE },
+  { slug: "apparel-accessories", label: "Apparel & Accessories", referralPct: 6 },
+  { slug: "beauty-personal-care", label: "Beauty & Personal Care", referralPct: 6 },
+  {
+    slug: "collectibles", label: "Collectibles", referralPct: 6,
+    note: "6% on the first $10,000, then 3% on any portion of the sale over $10,000. Applies to Cultural Items, Entertainment, Sports Collectibles, and Trading Cards & Accessories.",
+    tierMode: "marginal", tiers: [{ upTo: 10000, pct: 6 }, { upTo: null, pct: 3 }],
+  },
+  { slug: "consumer-electronics", label: "Consumer Electronics", referralPct: 6 },
+  { slug: "food-beverage", label: "Food & Beverage", referralPct: 6 },
+  { slug: "health", label: "Health", referralPct: 6 },
+  { slug: "home-supplies", label: "Home Supplies", referralPct: 6 },
+  { slug: "jewelry-accessories", label: "Jewelry & Accessories", referralPct: 6, note: "6% for most jewelry; TikTok lists 5% for its Diamond, Gold, Jade, Platinum/Carat Gold and Ruby, Sapphire & Emerald sub-categories." },
+  { slug: "kitchenware", label: "Kitchenware", referralPct: 6 },
+  { slug: "pet-supplies", label: "Pet Supplies", referralPct: 6 },
+  {
+    slug: "pre-owned", label: "Pre-Owned", referralPct: 5,
+    note: "5% on the first $10,000, then 3% on any portion of the sale over $10,000. Applies to TikTok's Pre-Owned sub-categories: Bags; Collectible Trading Cards; Luggage & Travel; Watches; Footwear; Refurbished Phones & Electronics; Fashion Accessories; Menswear; Womenswear; Collectible Coins and Paper Money; Collectible Figures; and Collectible Comic Books.",
+    tierMode: "marginal", tiers: [{ upTo: 10000, pct: 5 }, { upTo: null, pct: 3 }],
+  },
+  { slug: "shoes", label: "Shoes", referralPct: 6 },
+  { slug: "sports-outdoor", label: "Sports & Outdoor", referralPct: 6 },
+  { slug: "toys-hobbies", label: "Toys & Hobbies", referralPct: 6 },
 ]
 
 // ── eBay ──────────────────────────────────────────────────────────────────────
 
-// Verified 2026-10-16 against https://www.ebay.com/help/selling/fees-credits-invoices/selling-fees?id=4822 (basic, non-Store fees)
+// Re-read 2026-11-21 against the basic selling-fees page (id=4822) and Store selling fees (id=4809).
+// Previously modelled non-Store rates were unchanged. Trading cards and comics now also have
+// the Basic-or-higher Store schedule (12.35% up to $2,500, then 2.35%).
 const ebayMarginal = (pct: number): Pick<FeeCategory, 'tierMode' | 'tiers' | 'note'> => ({
   tierMode: 'marginal', tiers: [{ upTo: 7500, pct }, { upTo: null, pct: 2.35 }],
   note: `${pct}% on the first $7,500 per item, then 2.35% on the excess.`,
@@ -261,7 +311,15 @@ const EBAY_CATEGORIES: FeeCategory[] = [
     note: "13.6% on the first $7,500, then 2.35% on the excess. Guitars and basses have a separate calculator." },
   { slug: "guitars-basses", label: "Guitars & Basses", referralPct: 6.7, ...ebayMarginal(6.7) },
   { slug: "sporting-goods", label: "Sporting Goods", referralPct: 13.6, ...ebayMarginal(13.6) },
-  { slug: "trading-cards", label: "Trading Cards (excluding NFTs)", referralPct: 13.25, ...ebayMarginal(13.25) },
+  {
+    slug: "trading-cards", label: "Trading Cards (excluding NFTs)", referralPct: 13.25, ...ebayMarginal(13.25),
+    note: "13.25% on the first $7,500 per item, then 2.35% on the excess, with no Store or a Starter Store. Comic books pay the same 13.25% as trading cards. A Basic Store or higher uses a separate calculator.",
+  },
+  {
+    slug: "trading-cards-store", label: "Trading Cards & Comics (Basic Store or higher, excluding NFTs)", referralPct: 12.35,
+    note: "12.35% on the first $2,500 per item, then 2.35% on the excess, for a Basic, Premium, Anchor, or Enterprise Store. Comic books pay this same rate. No Store and a Starter Store stay at 13.25% on the first $7,500, then 2.35%.",
+    tierMode: "marginal", tiers: [{ upTo: 2500, pct: 12.35 }, { upTo: null, pct: 2.35 }],
+  },
   { slug: "video-games-consoles", label: "Video Games & Consoles", referralPct: 13.6, ...ebayMarginal(13.6) },
 ]
 
@@ -303,7 +361,7 @@ export const MARKETPLACES: Marketplace[] = [
     // (https://marketplacelearn.walmart.com/guides/Selling%20on%20Walmart/Referral-fee-schedule-for-contract-categories,
     // last updated Mar 9, 2026). Rates for the 2026-11-19 category corrections agree on both pages.
     sourceUrl: "https://marketplace.walmart.com/pricing/",
-    lastVerified: "2026-11-19",
+    lastVerified: "2026-11-21",
     summary:
       "Walmart Marketplace charges no monthly subscription or setup fee — sellers pay only a category-based referral fee on each sale. That makes the effective take rate easier to model than Amazon's, though Walmart Fulfillment Services (WFS) adds fulfillment and storage costs for sellers who use it.",
     categories: WALMART_CATEGORIES,
@@ -315,9 +373,9 @@ export const MARKETPLACES: Marketplace[] = [
     feeName: "commission",
     fulfillmentName: "Fulfilled by TikTok",
     sourceUrl: "https://seller-us.tiktok.com/university/essay?knowledge_id=5988482086864682&lang=en",
-    lastVerified: "2026-10-21",
+    lastVerified: "2026-11-21",
     summary:
-      "TikTok Shop charges a commission on each order, with payment processing bundled into it rather than billed as a separate line. Rates have moved several times since the US launch as introductory pricing wound down, so this is the schedule most worth re-checking before you model margin on it. TikTok's published US rate is 6% for most categories; some trade reports say it moved to 8% on Aug 4, 2026, which TikTok has not confirmed, so check your settlement statement.",
+      "TikTok Shop charges a commission on each order, with payment processing bundled into it rather than billed as a separate line. Rates have moved several times since the US launch as introductory pricing wound down, so this is the schedule most worth re-checking before you model margin on it. TikTok's published US table, dated 10/08/2026, lists 6% for most categories, 5% for five fine-jewelry sub-categories and for Pre-Owned, and 3% on the portion of a Collectibles or Pre-Owned sale over $10,000. The published table versus trade reports is covered at /fees/tiktok-shop/fee-change-2026.",
     categories: TIKTOK_CATEGORIES,
   },
   {
@@ -330,9 +388,9 @@ export const MARKETPLACES: Marketplace[] = [
     smallOrderFee: { upTo: 10, amount: 0.3 },
     // Source: https://www.ebay.com/help/selling/fees-credits-invoices/selling-fees?id=4822 ($0.40 per-order fee on orders over $10; $0.30 at $10 or less)
     sourceUrl: "https://www.ebay.com/help/selling/fees-credits-invoices/selling-fees?id=4822",
-    lastVerified: "2026-10-16",
+    lastVerified: "2026-11-21",
     summary:
-      "US eBay.com basic non-Store rates, checked October 16, 2026. One item per order, domestic sale, standard seller performance, no promotions. Final value fees include buyer shipping and collected tax; the per-order charge is $0.30 through $10 and $0.40 above. Calculators assume zero collected tax and handling, and exclude insertion fees, ads, international fees and seller surcharges. Store, vehicle, Live and special-rate categories require their own schedules.",
+      "US eBay.com rates, re-read November 21, 2026. One item per order, domestic sale, standard seller performance, no promotions. Final value fees include buyer shipping and collected tax; the per-order charge is $0.30 through $10 and $0.40 above. Calculators assume zero collected tax and handling, and exclude insertion fees, ads, international fees and seller surcharges. Trading cards and comics are 13.25% up to $7,500 with no Store or a Starter Store, and 12.35% up to $2,500 with a Basic Store or higher; the portion above either threshold is 2.35%. Other Store, vehicle and Live schedules are not modelled.",
     categories: EBAY_CATEGORIES,
   },
   {
@@ -376,11 +434,16 @@ export function getCategory(marketplaceSlug: string, categorySlug: string): FeeC
   return getMarketplace(marketplaceSlug)?.categories.find((c) => c.slug === categorySlug)
 }
 
-/** Every (marketplace, category) pair — drives generateStaticParams. */
+/** Every category that has its own page. Table-only rows stay in the fee table. */
 export function getAllFeeRoutes(): { marketplace: string; category: string }[] {
   return MARKETPLACES.flatMap((m) =>
-    m.categories.map((c) => ({ marketplace: m.slug, category: c.slug })),
+    m.categories.filter((c) => !c.tableOnly).map((c) => ({ marketplace: m.slug, category: c.slug })),
   )
+}
+
+/** Standalone calculator URL, or null when the row is table-only. */
+export function feeCategoryHref(marketplaceSlug: string, category: Pick<FeeCategory, "slug" | "tableOnly">): string | null {
+  return category.tableOnly ? null : `/fees/${marketplaceSlug}/${category.slug}`
 }
 
 /** Catch-all category slugs that stand in when a marketplace has no specific match. */
