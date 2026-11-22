@@ -10,7 +10,7 @@ const allText = (a: (typeof ANALYSIS_ARTICLES)[number]) => [
   ...a.sections.flatMap(s => [s.title, ...s.paragraphs, ...(s.bullets ?? []), ...(s.table ? [s.table.caption, ...s.table.headings, ...s.table.rows.flat()] : [])]),
 ].join('\n')
 
-const INTERNAL_PREFIXES = ['/intelligence', '/intelligence/forecasts', '/intelligence/dossier', '/intelligence/pressure-index', '/fees', '/newsletter', '/guides', '/tools', '/research']
+const INTERNAL_PREFIXES = ['/intelligence', '/intelligence/forecasts', '/intelligence/dossier', '/intelligence/pressure-index', '/fees', '/newsletter', '/guides', '/tools', '/research', '/answers']
 
 describe('analysis articles', () => {
   it('have unique slugs and valid ISO dates', () => {

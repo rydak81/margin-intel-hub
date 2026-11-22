@@ -35,6 +35,7 @@ export const TIKTOK_SELLER_HOME_URL = 'https://seller.tiktok.com/'
  * Slugs that returned HTTP 200 on marketplacebeta.com.
  * The first six were checked on CHECKED_ON and again on CHECKED_ON_2026_11_20.
  * The Walmart and TikTok Shop slugs were checked on CHECKED_ON_2026_11_20.
+ * The Amazon 2027 FBA slug returned 200 on marketplacebeta.com on 2026-11-20 at 9:40 PM ET.
  */
 export const LIVE_ANALYSIS_SLUGS = [
   'etsy-offsite-ads-fees-2026',
@@ -45,6 +46,7 @@ export const LIVE_ANALYSIS_SLUGS = [
   'q4-2026-parcel-surcharge-calendar',
   'walmart-new-seller-savings-2026-worth-it',
   'tiktok-shop-referral-fee-6-or-8-percent',
+  'amazon-2027-fba-fee-changes-storage-low-inventory',
 ] as const
 
 export type AnswerMarketplace = 'etsy' | 'amazon' | 'ebay' | 'walmart' | 'tiktok-shop'
@@ -412,7 +414,7 @@ export const ANSWER_PAGES: AnswerPage[] = [
       { href: '/fees/amazon', label: 'Amazon referral fees by category', note: 'Current referral rates. The 2027 letter describes fulfillment, storage, and low-inventory changes and does not restate these category rates.' },
       { href: '/fees/amazon/holiday-peak-2026', label: 'Amazon holiday peak fulfillment fees', note: 'The 2026 peak schedule in force through January 14, 2027, with size-tier rates and the surcharge.' },
     ],
-    analysisSlugs: ['amazon-holiday-peak-fees-2026-fba-surcharge', 'q4-2026-parcel-surcharge-calendar'],
+    analysisSlugs: ['amazon-2027-fba-fee-changes-storage-low-inventory', 'amazon-holiday-peak-fees-2026-fba-surcharge', 'q4-2026-parcel-surcharge-calendar'],
   },
   {
     slug: 'how-much-does-amazon-take-from-a-sale',
