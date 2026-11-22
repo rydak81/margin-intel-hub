@@ -7,7 +7,7 @@ export const article = {
   "headline": "ChatGPT discovery metrics need a separate order ledger",
   "dek": "New business insights create a useful observation point. They do not, by themselves, connect an AI mention to a profitable order. Here is a measurement plan for that gap.",
   "publishedOn": "2026-11-11",
-  "updatedOn": "2026-11-11",
+  "updatedOn": "2026-11-22",
   "author": "MarketplaceBeta Research",
   "reviewMode": "automated",
   "readTime": "6 min",
@@ -77,6 +77,41 @@ export const article = {
       ]
     },
     {
+      "id": "checkout-routes",
+      "title": "November 22 update: reconcile the checkout route before the pixel",
+      "paragraphs": [
+        "Shopify’s [Google AI Mode and Gemini help page](https://help.shopify.com/en/manual/online-sales-channels/agentic-storefronts/google) says its direct checkout fires server-to-server started/completed pixels, but not Google Analytics or standard/custom client-side pixels. Availability depends on rollout and eligibility. When direct checkout is unavailable or deactivated, customers can instead be redirected to the online store.",
+        "Its [ChatGPT channel help page](https://help.shopify.com/en/manual/online-sales-channels/agentic-storefronts/chatgpt) describes purchases through the merchant’s online-store checkout in an in-app browser or web tab. This does not guarantee a recorded browser event: consent, configuration and attribution still need checking. Both pages were read November 22, 2026; publication and effective dates are unknown. This is a documentation snapshot, not a claim of a change today.",
+        "Our operational inference: group by documented checkout route as well as channel. Missing browser events can be expected on one route and unresolved on another. Neither absence establishes a missing order, nor does an event alone establish paid revenue.",
+        "Use the [blank route reconciliation worksheet](/research/checkout-route-reconciliation-2026-11-22.json) with existing authorized records. Select up to ten eligible orders under a declared date window, or all available if fewer exist. If none exist, record not testable. Compare order identifiers, amounts and currencies with available server/client events; separate expected client-event absence from unexplained discrepancies. Deduplicate retries, retain the actual denominator and leave undocumented routes unknown. This proposed test has not been executed on a merchant account."
+      ],
+      "table": {
+        "caption": "Documented route distinctions · checked November 22, 2026 · no merchant observations",
+        "headings": [
+          "Route",
+          "Event boundary",
+          "Decision"
+        ],
+        "rows": [
+          [
+            "Google direct checkout",
+            "Server-to-server started/completed; no client pixels",
+            "Reconcile orders and available server events"
+          ],
+          [
+            "Google redirect to store",
+            "Different purchase path from direct checkout",
+            "Verify actual route and instrumentation"
+          ],
+          [
+            "ChatGPT to store checkout",
+            "Merchant checkout in browser",
+            "Compare available store events; investigate missingness"
+          ]
+        ]
+      }
+    },
+    {
       "id": "missingness",
       "title": "Unavailable is a result category, not a zero",
       "paragraphs": [
@@ -114,7 +149,8 @@ export const article = {
       "paragraphs": [
         "The topic was selected from MarketplaceBeta’s internal research brief with a November 11, 2026, 12:13:47 UTC cutoff. We inspected the complete claim-evidence linkage for that brief and reopened the relevant OpenAI primary announcement. The public evidence file contains a concise source map and an original blank worksheet; private research identifiers and source archives are excluded.",
         "The external factual scope is one announcement, published November 10 and read November 11, 2026. The rest is our proposed measurement method. We did not inspect a Business Hub account, run a merchant transaction, test an analytics export or observe any store outcome. Availability, definitions and integrations must be checked in the intended account.",
-        "No headline-volume comparison, adoption estimate, representative market sample, significance claim or forecast is made. This method can organize a pilot, but it cannot supply evidence that the pilot has succeeded."
+        "No headline-volume comparison, adoption estimate, representative market sample, significance claim or forecast is made. This method can organize a pilot, but it cannot supply evidence that the pilot has succeeded.",
+        "November 22 update: the route section adds two undated Shopify help pages and an original blank worksheet. Earlier evidence retains its November 11 dates. No merchant transactions, account access or analytics exports were tested."
       ]
     },
     {
@@ -136,6 +172,16 @@ export const article = {
       "label": "MarketplaceBeta measurement worksheet and source map",
       "href": "/research/chatgpt-discovery-measurement-2026-11-11.json",
       "context": "Original blank operator worksheet. No merchant records, measured conversion or financial outcomes."
+    },
+    {
+      "label": "Shopify: Google AI Mode and Gemini checkout",
+      "href": "https://help.shopify.com/en/manual/online-sales-channels/agentic-storefronts/google",
+      "context": "Undated primary help page; read November 22, 2026. Checkout route and measurement boundary."
+    },
+    {
+      "label": "Shopify: ChatGPT checkout",
+      "href": "https://help.shopify.com/en/manual/online-sales-channels/agentic-storefronts/chatgpt",
+      "context": "Undated primary help page; read November 22, 2026. Checkout route and measurement boundary."
     }
   ]
 } satisfies AnalysisArticle

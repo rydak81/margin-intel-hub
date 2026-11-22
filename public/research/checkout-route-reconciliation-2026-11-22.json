@@ -1,0 +1,55 @@
+{
+  "method": "checkout-route-reconciliation-v1",
+  "authoredOn": "2026-11-22",
+  "status": "proposed, not executed",
+  "sources": [
+    {
+      "url": "https://help.shopify.com/en/manual/online-sales-channels/agentic-storefronts/google",
+      "publishedOn": null,
+      "effectiveOn": null,
+      "retrievedOn": "2026-11-22"
+    },
+    {
+      "url": "https://help.shopify.com/en/manual/online-sales-channels/agentic-storefronts/chatgpt",
+      "publishedOn": null,
+      "effectiveOn": null,
+      "retrievedOn": "2026-11-22"
+    }
+  ],
+  "scope": {
+    "window": null,
+    "timezone": null,
+    "selectionRule": null,
+    "eligibleOrders": null,
+    "selectedOrders": null,
+    "maximumProposedSample": 10
+  },
+  "privateRowTemplate": {
+    "orderId": null,
+    "channel": null,
+    "documentedRoute": null,
+    "routeEvidence": null,
+    "orderTimestamp": null,
+    "orderAmount": null,
+    "currency": null,
+    "serverEventIds": [],
+    "clientEventIds": [],
+    "duplicateEventIds": [],
+    "result": null,
+    "unresolvedReason": null
+  },
+  "resultCategories": [
+    "matched",
+    "expected-client-event-absence",
+    "unexplained-discrepancy",
+    "unknown-route"
+  ],
+  "rules": [
+    "Keep completed worksheets private and omit customer identities.",
+    "No eligible orders means not testable, not zero conversion.",
+    "Reconcile separately by currency; declare tax/refund/cancellation treatment.",
+    "Deduplicate retries by recorded event identity, not merely similar amounts.",
+    "A reconciled order does not establish incremental sales."
+  ],
+  "reuse": "Reuse this original blank worksheet with MarketplaceBeta attribution and retain its unexecuted label. Cite Shopify for documented platform behavior."
+}
