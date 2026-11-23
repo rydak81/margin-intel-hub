@@ -1,0 +1,47 @@
+{
+  "method": "provider-route-audit-v1",
+  "authoredOn": "2026-11-23",
+  "status": "proposed-not-executed",
+  "scope": "One workflow, fixed time window, at most ten existing request records; retain selection rule and retries.",
+  "sources": [
+    {
+      "label": "Novita privacy notice",
+      "href": "https://novita.ai/blog/minimax-requests-privacy-notice/",
+      "context": "Published 2026-11-22; read November 23, 2026. Provider account, not independently reproduced."
+    },
+    {
+      "label": "OpenRouter incident response",
+      "href": "https://openrouter.ai/blog/announcements/data-processing-incidents-on-inference-providers/",
+      "context": "Published 2026-11-22; read November 23, 2026. Provider account, not independently reproduced."
+    },
+    {
+      "label": "Together incident report",
+      "href": "https://www.together.ai/blog/security-event-prompt-leakage-for-requests-in-june-and-july-of-2026",
+      "context": "Published 2026-11-21; read November 23, 2026. Provider account, not independently reproduced."
+    }
+  ],
+  "fields": [
+    "pseudonymous_request_label",
+    "request_time_utc",
+    "model_version",
+    "requested_endpoint",
+    "actual_provider_or_unknown",
+    "fallback_policy_or_unknown",
+    "applicable_retention_setting_or_unknown",
+    "evidence_reference_per_field",
+    "data_category_only",
+    "incident_window_overlap_or_unknown"
+  ],
+  "outputs": [
+    "provider_known_n / sampled_n",
+    "retention_documented_n / sampled_n",
+    "fallback_documented_n / sampled_n"
+  ],
+  "privacy": "Completed worksheets remain private. No prompts, credentials, customer identifiers or raw logs in public artifacts.",
+  "limitations": [
+    "No executed results",
+    "Not a security certification or breach prevalence estimate",
+    "Overlap is not proof of access"
+  ],
+  "reuse": "Cite MarketplaceBeta, provider-route-audit-v1, November 23 2026, and canonical article URL."
+}
