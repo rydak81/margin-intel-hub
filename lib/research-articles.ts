@@ -11,6 +11,8 @@ import { article as a8 } from '@/lib/analysis/articles/ecommerce-ai-forecast-bac
 
 import { article as a9 } from '@/lib/analysis/articles/ai-research-headline-origin-audit'
 
+import { article as a10 } from '@/lib/analysis/articles/ecommerce-ai-provider-route-audit'
+
 /** Research reports, in their published order. New reports are appended. See CONTRIBUTING.md. */
 export const RESEARCH_ARTICLES: AnalysisArticle[] = [
   a0,
@@ -23,4 +25,5 @@ export const RESEARCH_ARTICLES: AnalysisArticle[] = [
   a7,
   a8,
   a9,
+  a10,
 ]
