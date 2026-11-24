@@ -7,7 +7,7 @@ export const article = {
   "headline": "Your AI agent’s final answer is only half the acceptance test",
   "dek": "A correct-looking summary can coexist with an incorrect inventory or catalog state. A practical evaluation worksheet separates output quality, business-state accuracy and the full cost of accepted work.",
   "publishedOn": "2026-11-07",
-  "updatedOn": "2026-11-07",
+  "updatedOn": "2026-11-24",
   "author": "MarketplaceBeta Research",
   "reviewMode": "automated",
   "readTime": "7 min",
@@ -21,6 +21,72 @@ export const article = {
   "forecastIds": [],
   "newsletterSource": "campaign_ai_agent_evaluation",
   "sections": [
+    {
+      "id": "child-variant-pilot",
+      "title": "November 24 field exercise: when a family photo disagrees with a child listing",
+      "paragraphs": [
+        "Imagine a seller whose travel cups come singly and in pairs. A family photo shows two cups. An agent reads that photo correctly and proposes changing the single-cup listing to a pair. The error happens after recognition, when the agent assigns a family-level observation to a specific sellable unit.",
+        "We constructed a [six-listing exercise](/research/child-variant-acceptance-2026-11-24.json) to expose that failure. Each row has a fictional family, a child, a listed pack count and the count visible in the shared photo. Five rows also have a verified child specification. Decide whether to keep the listing, correct it or send it to review. A missing specification requires review even when the image and listing agree.",
+        "We ran two explicit rules. The image rule agreed with the expected decision on 2 of six rows. It would change correct listings, accept an incorrect count or clear an unresolved case depending on the row. Looking up the child specification and flagging missing evidence matched all six by construction. This exercise demonstrates the failure modes deliberately built into the fixture. Its scores cannot estimate a model’s accuracy on merchant traffic.",
+        "For a merchant pilot, freeze the active child listings and dated specifications before testing. Group siblings by Parent ASIN or equivalent family ID and reserve whole families for the holdout. Give the agent the evidence it could actually access during deployment. Keep reviewer decisions hidden until scoring. Count unnecessary changes, missed errors and unsupported approvals separately. Include unresolved rows in the total and time the work required to clear them.",
+        "A proposed release decision follows directly: a recommendation to change pack count must identify the sellable child and locate its supporting specification. Route missing or conflicting references to a person. If an agent passes only by referring every item, its unresolved share and review minutes will reveal that cost.",
+        "Method note: MarketplaceBeta reviewed all seven evidence links in its November 24 brief, cut off at 12:05:58 UTC. [METR’s November 20 research](https://metr.org/blog/2026-11-20-q4-2026-capability-update/) reports weaker judgment on its AI research tasks when clear feedback was unavailable. That motivated our choice of a catalog task with an explicit answer key. The ecommerce exercise and its rules are our own. Cite this update with the dated fixture and preserve its synthetic scope."
+      ],
+      "table": {
+        "caption": "Worked cases from the fictional November 24 fixture. Counts are units per offer.",
+        "headings": [
+          "Child",
+          "Listed",
+          "Family photo",
+          "Child specification",
+          "Decision"
+        ],
+        "rows": [
+          [
+            "A-small",
+            "1",
+            "2",
+            "1",
+            "keep"
+          ],
+          [
+            "A-large",
+            "1",
+            "2",
+            "2",
+            "correct"
+          ],
+          [
+            "B-single",
+            "1",
+            "1",
+            "1",
+            "keep"
+          ],
+          [
+            "B-pair",
+            "2",
+            "1",
+            "2",
+            "keep"
+          ],
+          [
+            "C-blue",
+            "1",
+            "1",
+            "Missing",
+            "review"
+          ],
+          [
+            "D-red",
+            "2",
+            "2",
+            "4",
+            "correct"
+          ]
+        ]
+      }
+    },
     {
       "id": "finding",
       "title": "The useful question: did the work finish correctly?",
@@ -163,6 +229,7 @@ export const article = {
     }
   ],
   "sources": [
+    {"label":"METR Q4 capability update","href":"https://metr.org/blog/2026-11-20-q4-2026-capability-update/","context":"November 20, 2026. Research-task feedback and judgment. Read November 24."},
     {
       "label": "IBM Research: same model, different harness",
       "href": "https://huggingface.co/blog/ibm-research/cuga-harness",

@@ -1,0 +1,83 @@
+{
+  "version": "child-variant-acceptance-v1",
+  "date": "2026-11-24",
+  "basis": "Six hand-constructed hypothetical child listings across four fictional families. Deterministic rules executed on the fixture. No model or merchant trial.",
+  "question": "Should the listed pack count be kept, corrected or flagged for review?",
+  "fields": {
+    "verifiedUnits": "Child-specific reference specification, null when unavailable",
+    "familyImageUnits": "Illustrative count visible in a shared family image",
+    "listedUnits": "Count in child listing"
+  },
+  "rules": {
+    "imageRule": "Keep if listed count equals image count, otherwise correct.",
+    "childRule": "Review if child reference unavailable. Otherwise keep if equal to listed count, correct if different."
+  },
+  "cases": [
+    {
+      "family": "A",
+      "child": "A-small",
+      "verifiedUnits": 1,
+      "listedUnits": 1,
+      "familyImageUnits": 2,
+      "expected": "keep",
+      "imageRule": "correct",
+      "childRule": "keep"
+    },
+    {
+      "family": "A",
+      "child": "A-large",
+      "verifiedUnits": 2,
+      "listedUnits": 1,
+      "familyImageUnits": 2,
+      "expected": "correct",
+      "imageRule": "correct",
+      "childRule": "correct"
+    },
+    {
+      "family": "B",
+      "child": "B-single",
+      "verifiedUnits": 1,
+      "listedUnits": 1,
+      "familyImageUnits": 1,
+      "expected": "keep",
+      "imageRule": "keep",
+      "childRule": "keep"
+    },
+    {
+      "family": "B",
+      "child": "B-pair",
+      "verifiedUnits": 2,
+      "listedUnits": 2,
+      "familyImageUnits": 1,
+      "expected": "keep",
+      "imageRule": "correct",
+      "childRule": "keep"
+    },
+    {
+      "family": "C",
+      "child": "C-blue",
+      "verifiedUnits": null,
+      "listedUnits": 1,
+      "familyImageUnits": 1,
+      "expected": "review",
+      "imageRule": "keep",
+      "childRule": "review"
+    },
+    {
+      "family": "D",
+      "child": "D-red",
+      "verifiedUnits": 4,
+      "listedUnits": 2,
+      "familyImageUnits": 2,
+      "expected": "correct",
+      "imageRule": "keep",
+      "childRule": "correct"
+    }
+  ],
+  "results": {
+    "imageRuleExact": 2,
+    "childRuleExact": 6,
+    "unit": "exact dispositions per 6 child listings"
+  },
+  "reuse": "Retain fixture label and version. Cite the dated MarketplaceBeta guide. Values are synthetic."
+}
