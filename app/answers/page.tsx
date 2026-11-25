@@ -10,6 +10,7 @@ import {
   ANSWERS_PATH,
   CHECKED_ON,
   CHECKED_ON_2026_11_20,
+  CHECKED_ON_2026_11_25,
   JOB_GROUPS,
   MARKETPLACE_GROUPS,
   answerPath,
@@ -76,7 +77,7 @@ export default function AnswersIndexPage() {
         </nav>
         <h1 className="mt-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-white">Questions sellers ask</h1>
         <p className="mt-4 max-w-3xl text-lg leading-relaxed text-slate-700 dark:text-slate-200">
-          Short answers to fee, storage, and ads questions, each with the marketplace&apos;s own source and a hypothetical worked example. The first six answers were checked <time dateTime={CHECKED_ON}>{formatAnswerDate(CHECKED_ON)}</time>. Walmart, TikTok Shop, and the Etsy sale answer were checked <time dateTime={CHECKED_ON_2026_11_20}>{formatAnswerDate(CHECKED_ON_2026_11_20)}</time>. The Amazon size-tier fulfillment dollars on the sale page were read October 21, 2026.
+          Short answers to fee, storage, and ads questions, each with the marketplace&apos;s own source and a hypothetical worked example. The first six answers were checked <time dateTime={CHECKED_ON}>{formatAnswerDate(CHECKED_ON)}</time>. Walmart, TikTok Shop, and the Etsy sale answer were checked <time dateTime={CHECKED_ON_2026_11_20}>{formatAnswerDate(CHECKED_ON_2026_11_20)}</time>. The eBay trading card answer was checked <time dateTime={CHECKED_ON_2026_11_25}>{formatAnswerDate(CHECKED_ON_2026_11_25)}</time>. The Amazon size-tier fulfillment dollars on the sale page were read October 21, 2026.
         </p>
 
         <section className="mt-10">
