@@ -7,7 +7,7 @@ import { AMAZON_PEAK_DESCRIPTION, AMAZON_PEAK_PATH, AMAZON_PEAK_TITLE } from '@/
 import { newsletterSource } from '@/lib/newsletter-source'
 import { SPONSOR_CTA_HREF, SPONSOR_CTA_LABEL } from '@/lib/brief-cta'
 import {
-  HOLIDAY_FEE_PAGES, HOLIDAY_HUB_DESCRIPTION, HOLIDAY_HUB_PATH, HOLIDAY_HUB_SOURCE, HOLIDAY_HUB_TITLE,
+  HOLIDAY_FEE_PAGES, HOLIDAY_HUB_DESCRIPTION, HOLIDAY_HUB_HEADING, HOLIDAY_HUB_PATH, HOLIDAY_HUB_REVISED_ON, HOLIDAY_HUB_SOURCE, HOLIDAY_HUB_TITLE,
   holidayAnalysis, holidayHubEntries, holidayHubUpdatedOn, isHolidayAnalysis, isOnHolidayHub,
 } from '@/lib/holiday-hub'
 
@@ -52,10 +52,19 @@ describe('/holiday-2026 route', () => {
     expect(metadata.description).toBe(HOLIDAY_HUB_DESCRIPTION)
     expect(HOLIDAY_HUB_TITLE.length).toBeLessThanOrEqual(60)
     expect(HOLIDAY_HUB_DESCRIPTION.length).toBeLessThanOrEqual(155)
+    expect(HOLIDAY_HUB_TITLE).toContain('Black Friday')
+    expect(HOLIDAY_HUB_TITLE).toContain('Cyber Monday')
+    expect(HOLIDAY_HUB_TITLE).toContain('2026')
+    expect(HOLIDAY_HUB_TITLE).toContain('Marketplace Sellers')
+    expect(HOLIDAY_HUB_DESCRIPTION).toContain('Black Friday and Cyber Monday 2026 for marketplace sellers')
+    expect(HOLIDAY_HUB_HEADING).toBe('Black Friday and Cyber Monday 2026 for marketplace sellers')
     const html = await hubHtml()
     expect(html).toContain('"@type":"CollectionPage"')
+    expect(html).toContain('"dateModified":"2026-11-25"')
     expect(html).toContain('"@type":"BreadcrumbList"')
+    expect(html).toContain(`>${esc(HOLIDAY_HUB_HEADING)}<`)
     expect(html.match(/<h1/g)).toHaveLength(1)
+    expect(holidayHubUpdatedOn()).toBe(HOLIDAY_HUB_REVISED_ON)
   })
 
   it('is in the sitemap once, dated from its newest entry, without dropping other routes', async () => {
@@ -104,10 +113,26 @@ describe('hub links', () => {
     }
   })
 
+  it('puts every hub page in This week, with that page\'s own description', async () => {
+    const html = await hubHtml()
+    const week = /<section id="this-week"[\s\S]*?<\/section>/.exec(html)?.[0] ?? ''
+    expect(week).toContain('>This week<')
+    expect(week).toContain('dateTime="2026-11-27"')
+    expect(week).toContain('November 27, 2026')
+    expect(week).toContain('dateTime="2026-11-30"')
+    expect(week).toContain('November 30, 2026')
+    for (const e of holidayHubEntries()) {
+      expect(week, e.href).toContain(`href="${e.href}"`)
+      expect(week, e.href).toContain(`<p class="mt-2 text-muted-foreground">${esc(e.description)}</p>`)
+    }
+    expect(week).toContain(`href="/newsletter?source=${HOLIDAY_HUB_SOURCE}#subscribe"`)
+    expect(week).not.toContain('usps-foreign-duty-billing-2026')
+  })
+
   it('links the comparison page and uses the hub Brief source and the sponsor CTA', async () => {
     const html = await hubHtml()
     expect(html).toContain('href="/fees/compare-by-item-price"')
-    expect(HOLIDAY_HUB_SOURCE).toBe('campaign_holiday_hub')
+    expect(HOLIDAY_HUB_SOURCE).toBe('campaign_holiday_bfcm')
     expect(newsletterSource(`?source=${HOLIDAY_HUB_SOURCE}`)).toBe(`newsletter_${HOLIDAY_HUB_SOURCE}`)
     expect(html).toContain(`href="/newsletter?source=${HOLIDAY_HUB_SOURCE}#subscribe"`)
     expect(html).toContain(`href="${SPONSOR_CTA_HREF}"`)
@@ -121,9 +146,12 @@ describe('hub links', () => {
 })
 
 describe('auto-join selector', () => {
-  it('selects the five holiday analysis pieces on main and skips non-holiday Q4 pieces', () => {
+  it('selects the holiday analysis pieces on main and skips non-holiday Q4 pieces', () => {
     const slugs = holidayAnalysis().map(a => a.slug)
     for (const s of REQUIRED_ANALYSIS) expect(slugs).toContain(s)
+    expect(slugs).toContain('amazon-holiday-peak-fees-2026-fba-surcharge')
+    expect(getAnalysis('usps-foreign-duty-billing-2026')).toBeDefined()
+    expect(slugs).not.toContain('usps-foreign-duty-billing-2026')
     expect(slugs).not.toContain('walmart-new-seller-savings-2026-worth-it')
     expect(slugs).not.toContain('ieepa-tariff-refunds-marketplace-sellers')
     expect(slugs).toEqual(latestAnalysis().filter(a => slugs.includes(a.slug)).map(a => a.slug))
@@ -153,6 +181,9 @@ describe('back-links to /holiday-2026', () => {
       const html = renderToStaticMarkup(await Page({ params: Promise.resolve({ slug: a.slug }) } as never))
       const links = html.includes(`href="${HOLIDAY_HUB_PATH}"`)
       expect(links, a.slug).toBe(isHolidayAnalysis(a))
+      const reading = /<section id="related-reading"[\s\S]*?<\/section>/.exec(html)?.[0] ?? ''
+      if (isHolidayAnalysis(a)) expect(reading, a.slug).toContain(`href="${HOLIDAY_HUB_PATH}"`)
+      else expect(reading, a.slug).not.toContain(HOLIDAY_HUB_PATH)
     }
   })
 

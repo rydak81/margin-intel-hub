@@ -17,6 +17,7 @@
  */
 import { latestAnalysis, parseInlineLinks, type AnalysisArticle } from '@/lib/analysis'
 import { briefCtaSource } from '@/lib/brief-cta'
+import { HOLIDAY_HUB_LINK_LABEL, HOLIDAY_HUB_PATH, isHolidayAnalysis } from '@/lib/holiday-hub'
 import { FEE_BY_PRICE_PATH, FEE_BY_PRICE_TITLE } from '@/lib/fee-by-price'
 import { getCategory, MARKETPLACES, type Marketplace, type MarketplaceSlug } from '@/lib/marketplace-fees'
 import { newsletterSource } from '@/lib/newsletter-source'
@@ -227,6 +228,26 @@ function analysisReadingLink(article: AnalysisArticle): AnalysisReadingLink {
   }
 }
 
+/** Hub link used in holiday analysis related reading. Label is the hub's own link text. */
+export function holidayHubReadingLink(): AnalysisReadingLink {
+  return { href: HOLIDAY_HUB_PATH, label: HOLIDAY_HUB_LINK_LABEL, note: 'Holiday hub' }
+}
+
+function withHolidayHub(article: Pick<AnalysisArticle, 'tags' | 'publishedOn'>, links: AnalysisReadingLink[]): AnalysisReadingLink[] {
+  if (!isHolidayAnalysis(article) || links.some(link => link.href === HOLIDAY_HUB_PATH)) return links
+  return [...links, holidayHubReadingLink()]
+}
+
+/**
+ * Related reading for a holiday analysis page that does not already have an
+ * eBay or Etsy related-reading block. Null otherwise, so those pages keep a
+ * single related-reading section.
+ */
+export function holidayAnalysisReading(article: AnalysisArticle): AnalysisReadingLink[] | null {
+  if (!isHolidayAnalysis(article) || isEbayAnalysis(article) || isEtsyAnalysis(article)) return null
+  return [holidayHubReadingLink()]
+}
+
 function feeReadingLinks(article: AnalysisArticle, marketplace: FeeMarketplace, hrefs: string[]): AnalysisReadingLink[] {
   return hrefs.map(href => ({
     href,
@@ -252,11 +273,11 @@ export function ebayAnalysisRelated(
   const siblings = newestFirst(articles, isEbayAnalysis, article.slug)
   const seen = new Set(siblings.map(a => a.slug))
   const comparisons = newestFirst(articles, isEtsyEbayFeeComparison, article.slug).filter(a => !seen.has(a.slug))
-  return [
+  return withHolidayHub(article, [
     ...siblings.map(analysisReadingLink),
     ...comparisons.map(analysisReadingLink),
     ...feeReadingLinks(article, 'ebay', citedFeeHrefs(article, 'ebay', false)),
-  ]
+  ])
 }
 
 /**
@@ -269,9 +290,9 @@ export function etsyAnalysisRelated(
   articles: readonly AnalysisArticle[] = latestAnalysis(),
 ): AnalysisReadingLink[] | null {
   if (!isEtsyAnalysis(article)) return null
-  return [
+  return withHolidayHub(article, [
     ...newestFirst(articles, isEtsyAnalysis, article.slug).map(analysisReadingLink),
     ...newestFirst(articles, isEbayAnalysis, article.slug).map(analysisReadingLink),
     ...feeReadingLinks(article, 'etsy', citedFeeHrefs(article, 'etsy', true)),
-  ]
+  ])
 }

@@ -102,6 +102,8 @@ describe('homepage wiring', () => {
     expect(html).toContain('dateTime="2026-11-06"')
     expect(html).toContain('Nov 6, 2026')
     expect(html).toContain('href="/intelligence/analysis"')
+    expect(html).toContain('href="/holiday-2026"')
+    expect(html).toContain('Black Friday &amp; Cyber Monday 2026 seller hub')
     expect(renderToStaticMarkup(createElement(HomepageLatestAnalysis, { articles: [] }) as ReactElement)).toBe('')
   })
 

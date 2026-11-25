@@ -1,5 +1,5 @@
 /**
- * Holiday 2026 seller hub at /holiday-2026.
+ * Black Friday and Cyber Monday 2026 seller hub at /holiday-2026.
  *
  * The hub list is computed, not hand-written:
  * - Analysis: every article in lib/analysis.ts with a holiday tag (a tag containing
@@ -19,14 +19,21 @@ import { AMAZON_PEAK_DESCRIPTION, AMAZON_PEAK_PATH, AMAZON_PEAK_TITLE, CHECKED_O
 import { briefSignupHref } from '@/lib/brief-cta'
 
 export const HOLIDAY_HUB_PATH = '/holiday-2026'
-export const HOLIDAY_HUB_TITLE = 'Holiday 2026 Seller Hub: Shipping, Returns, Fees'
-export const HOLIDAY_HUB_HEADING = 'Holiday 2026 seller hub'
-export const HOLIDAY_HUB_DESCRIPTION = 'Our 2026 holiday analysis and fee pages for marketplace sellers in one place: shipping cutoffs, returns, parcel surcharges, port backlogs and peak fees.'
-export const HOLIDAY_HUB_LINK_LABEL = 'Holiday 2026 seller hub'
+export const HOLIDAY_HUB_TITLE = 'Marketplace Sellers: Black Friday & Cyber Monday 2026'
+export const HOLIDAY_HUB_HEADING = 'Black Friday and Cyber Monday 2026 for marketplace sellers'
+export const HOLIDAY_HUB_DESCRIPTION = 'Black Friday and Cyber Monday 2026 for marketplace sellers: shipping cutoffs, returns, parcel surcharges, port backlogs and peak fees, in one hub.'
+export const HOLIDAY_HUB_LINK_LABEL = 'Black Friday & Cyber Monday 2026 seller hub'
 
 /** Newsletter attribution key for the hub. Passes the campaign_ rule in lib/newsletter-source.ts. */
-export const HOLIDAY_HUB_SOURCE = 'campaign_holiday_hub' as const
+export const HOLIDAY_HUB_SOURCE = 'campaign_holiday_bfcm' as const
 export const holidayHubBriefHref = () => briefSignupHref(HOLIDAY_HUB_SOURCE)
+
+/** When the hub page itself was revised for Black Friday and Cyber Monday. */
+export const HOLIDAY_HUB_REVISED_ON = '2026-11-25'
+
+/** Calendar dates stated on the hub. Not derived from article copy. */
+export const BLACK_FRIDAY_2026 = '2026-11-27'
+export const CYBER_MONDAY_2026 = '2026-11-30'
 
 /** Publish dates (inclusive) that count as the 2026 holiday season. */
 export const HOLIDAY_2026_WINDOW = { from: '2026-07-01', to: '2027-01-31' } as const
@@ -82,7 +89,11 @@ export function isOnHolidayHub(path: string, articles?: AnalysisArticle[]): bool
   return holidayHubEntries(articles).some(e => e.href === path)
 }
 
-/** Sitemap lastModified for the hub: the newest date among its entries. */
+/**
+ * dateModified for the hub page and its sitemap lastModified.
+ * The newer of the Black Friday revision and the newest linked page.
+ */
 export function holidayHubUpdatedOn(articles?: AnalysisArticle[]): string {
-  return holidayHubEntries(articles).reduce<string>((d, e) => (e.date > d ? e.date : d), HOLIDAY_2026_WINDOW.from)
+  const newestEntry = holidayHubEntries(articles).reduce<string>((d, e) => (e.date > d ? e.date : d), HOLIDAY_2026_WINDOW.from)
+  return newestEntry > HOLIDAY_HUB_REVISED_ON ? newestEntry : HOLIDAY_HUB_REVISED_ON
 }
