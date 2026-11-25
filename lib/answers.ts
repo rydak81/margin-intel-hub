@@ -825,6 +825,7 @@ export const ANSWER_PAGES: AnswerPage[] = [
       { href: '/fees/ebay/trading-cards', label: 'eBay trading card final value fee', note: '13.25% on the first $7,500 per item, then 2.35%, with no Store or a Starter Store. Comic books use this rate.' },
       { href: '/fees/ebay/trading-cards-store', label: 'eBay trading cards with a Basic Store or higher', note: '12.35% on the first $2,500 per item, then 2.35%.' },
       { href: '/fees/ebay', label: 'eBay fees by category', note: 'The per-order fee sits on top of the category percentage. $0.30 through $10 and $0.40 above.' },
+      { href: '/holiday-2026', label: 'Holiday 2026 seller hub: peak fees, deadlines and returns', note: 'Shipping cutoffs, returns and peak fees, collected on one page.' },
     ],
     analysisSlugs: ['ebay-trading-card-fees-2026-store-break-even'],
   },

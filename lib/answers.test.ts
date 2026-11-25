@@ -310,6 +310,7 @@ describe('answer pages', () => {
       '/fees/ebay/trading-cards',
       '/fees/ebay/trading-cards-store',
       '/fees/ebay',
+      '/holiday-2026',
       '/intelligence/analysis/ebay-trading-card-fees-2026-store-break-even',
       '/newsletter?source=answers_ebay_trading_cards#subscribe',
     ]) {
