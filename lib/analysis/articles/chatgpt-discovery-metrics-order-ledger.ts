@@ -7,7 +7,7 @@ export const article = {
   "headline": "ChatGPT discovery metrics need a separate order ledger",
   "dek": "New business insights create a useful observation point. They do not, by themselves, connect an AI mention to a profitable order. Here is a measurement plan for that gap.",
   "publishedOn": "2026-11-11",
-  "updatedOn": "2026-11-22",
+  "updatedOn": "2026-11-26",
   "author": "MarketplaceBeta Research",
   "reviewMode": "automated",
   "readTime": "6 min",
@@ -144,13 +144,53 @@ export const article = {
       ]
     },
     {
+      "id": "campaign-spend-join-test",
+      "title": "Can a join turn a profitable campaign into an apparent loss?",
+      "paragraphs": [
+        "An AI assistant asked to calculate channel contribution has to decide what each row represents. An order export can have several lines for one campaign. An ad export can have a single spend total for that same campaign. Matching their campaign IDs is correct. Adding the spend column after that match charges the campaign again for every order line.",
+        "We tested this with two fictional settled order lines in one campaign. Net receipts were $64 and $36 after discounts and refunds. Recorded variable costs were $42 and $25. The campaign incurred $20 in ad spend. At campaign level the arithmetic is $100 less $67 less $20, leaving $13. Joining the $20 total onto both lines and summing it reports a $7 loss. The underlying orders are identical in both calculations.",
+        "The [runnable SQLite worksheet](/research/campaign-spend-reconciliation-2026-11-26.sql) includes a second case with the last line’s variable cost removed. Both contribution calculations then return a blank (SQL NULL). This matters because a sum can silently skip a missing value and leave a plausible dollar figure on screen."
+      ],
+      "table": {
+        "caption": "Synthetic reconciliation test run November 26, 2026. USD for one campaign across two order lines.",
+        "headings": [
+          "Test case",
+          "Spend deducted",
+          "Contribution result"
+        ],
+        "rows": [
+          [
+            "Complete costs, spend once",
+            "$20",
+            "$13"
+          ],
+          [
+            "Same costs, spend repeated per line",
+            "$40",
+            "−$7"
+          ],
+          [
+            "One line missing its cost",
+            "$20 at campaign level",
+            "Unknown"
+          ]
+        ]
+      },
+      "bullets": [
+        "Before joining, write down the unit of each export and its unique key. Align the reporting window, currency and campaign scope. Sum line receipts and variable costs to the campaign before deducting campaign spend.",
+        "If you need SKU-level contribution, choose an allocation rule and check that allocated cents add back to the original campaign spend. Keep unallocated spend visible when the denominator is missing.",
+        "Give the assistant both test cases before using a merchant export. Require the known dollar answer on the complete case and an explicit missing-cost result on the other. The fixture tests arithmetic and missingness. Incremental lift still needs its own evidence."
+      ]
+    },
+    {
       "id": "methods",
       "title": "Evidence, scope and limitations",
       "paragraphs": [
         "The topic was selected from MarketplaceBeta’s internal research brief with a November 11, 2026, 12:13:47 UTC cutoff. We inspected the complete claim-evidence linkage for that brief and reopened the relevant OpenAI primary announcement. The public evidence file contains a concise source map and an original blank worksheet; private research identifiers and source archives are excluded.",
         "The external factual scope is one announcement, published November 10 and read November 11, 2026. The rest is our proposed measurement method. We did not inspect a Business Hub account, run a merchant transaction, test an analytics export or observe any store outcome. Availability, definitions and integrations must be checked in the intended account.",
         "No headline-volume comparison, adoption estimate, representative market sample, significance claim or forecast is made. This method can organize a pilot, but it cannot supply evidence that the pilot has succeeded.",
-        "November 22 update: the route section adds two undated Shopify help pages and an original blank worksheet. Earlier evidence retains its November 11 dates. No merchant transactions, account access or analytics exports were tested."
+        "November 22 update: the route section adds two undated Shopify help pages and an original blank worksheet. Earlier evidence retains its November 11 dates. No merchant transactions, account access or analytics exports were tested.",
+        "November 26 update: we reviewed TikTok’s October 7 Canadian announcement that GMV Max pro features account for additional costs such as affiliate costs, coupons and fees. The announcement prompted this bookkeeping test. The SQLite exercise uses fictional inputs and tests no platform dashboard, merchant or model. Its amounts are illustrative and its contribution subtotal excludes fixed overhead."
       ]
     },
     {
@@ -182,6 +222,16 @@ export const article = {
       "label": "Shopify: ChatGPT checkout",
       "href": "https://help.shopify.com/en/manual/online-sales-channels/agentic-storefronts/chatgpt",
       "context": "Undated primary help page; read November 22, 2026. Checkout route and measurement boundary."
+    },
+    {
+      "label": "TikTok World Canada announcement",
+      "href": "https://newsroom.tiktok.com/tiktok-world-canada-2026?lang=en-CA",
+      "context": "October 7, 2026. Read November 26 for the announced GMV Max cost categories. Account-specific availability and settlement coverage were not established."
+    },
+    {
+      "label": "Campaign spend reconciliation exercise",
+      "href": "/research/campaign-spend-reconciliation-2026-11-26.sql",
+      "context": "Original synthetic SQLite fixture, November 26, 2026. Reuse with attribution to MarketplaceBeta Research and preserve the hypothetical scope."
     }
   ]
 } satisfies AnalysisArticle
