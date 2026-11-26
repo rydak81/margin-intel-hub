@@ -12,6 +12,7 @@ import { getAllSaleRoutes } from '@/lib/sale-fee-pages'
 import { OPERATOR_GUIDES } from '@/lib/operator-guides'
 import { ANALYSIS_ARTICLES } from '@/lib/analysis'
 import { ebayAnalysisBriefSource, etsyAnalysisBriefSource, isEbayAnalysis, isEtsyAnalysis } from '@/lib/related-links'
+import { HOLIDAY_HUB_PATH, isHolidayAnalysis } from '@/lib/holiday-hub'
 import { BriefCta } from '@/components/brief-cta'
 
 vi.mock('@/components/premium-site-header', () => ({ PremiumSiteHeader: () => null }))
@@ -130,6 +131,12 @@ describe('every fee and article template shows exactly one keyed Brief CTA and o
         expect(out).toContain('id="related-reading"')
         expect(out).toContain(`href="/newsletter?source=${inline}#subscribe"`)
         expect(sponsorLinks(out)).toBe(2)
+      } else if (isHolidayAnalysis(a)) {
+        expect(inline).toBeNull()
+        expect(out).toContain('id="related-reading"')
+        expect(out).toContain(`href="${HOLIDAY_HUB_PATH}"`)
+        expect(out).not.toContain('campaign_holiday_bfcm')
+        expect(sponsorLinks(out)).toBe(1)
       } else {
         expect(inline).toBeNull()
         expect(out).not.toContain('id="related-reading"')

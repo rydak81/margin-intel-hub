@@ -7,7 +7,7 @@ import { JsonLd } from '@/components/json-ld'
 import { ORGANIZATION_REF } from '@/lib/site-jsonld'
 import { RELATED_FEE_COMPARE } from '@/lib/related-links'
 import {
-  HOLIDAY_FEE_PAGES, HOLIDAY_HUB_DESCRIPTION, HOLIDAY_HUB_HEADING, HOLIDAY_HUB_PATH, HOLIDAY_HUB_SOURCE, HOLIDAY_HUB_TITLE,
+  BLACK_FRIDAY_2026, CYBER_MONDAY_2026, HOLIDAY_FEE_PAGES, HOLIDAY_HUB_DESCRIPTION, HOLIDAY_HUB_HEADING, HOLIDAY_HUB_PATH, HOLIDAY_HUB_SOURCE, HOLIDAY_HUB_TITLE,
   holidayAnalysisEntries, holidayHubBriefHref, holidayHubEntries, holidayHubUpdatedOn, type HolidayHubEntry,
 } from '@/lib/holiday-hub'
 
@@ -22,14 +22,18 @@ export const metadata: Metadata = {
   twitter: { card: 'summary_large_image', title: HOLIDAY_HUB_TITLE, description: HOLIDAY_HUB_DESCRIPTION },
 }
 
-function EntryList({ entries, dateLabel }: { entries: HolidayHubEntry[]; dateLabel: string }) {
+function entryDateLabel(entry: HolidayHubEntry, dateLabel?: string) {
+  return dateLabel ?? (entry.kind === 'Fees' ? 'Checked' : 'Published')
+}
+
+function EntryList({ entries, dateLabel }: { entries: HolidayHubEntry[]; dateLabel?: string }) {
   return (
     <ul className="mt-6 space-y-5">
       {entries.map(e => (
         <li key={e.href} className="rounded-xl border border-border bg-card p-5">
           <Link href={e.href} className="text-lg font-semibold text-primary underline underline-offset-4">{e.title}</Link>
           <p className="mt-2 text-muted-foreground">{e.description}</p>
-          <p className="mt-2 text-sm text-muted-foreground">{e.kind} · {dateLabel} <time dateTime={e.date}>{fmtDate(e.date)}</time></p>
+          <p className="mt-2 text-sm text-muted-foreground">{e.kind} · {entryDateLabel(e, dateLabel)} <time dateTime={e.date}>{fmtDate(e.date)}</time></p>
         </li>
       ))}
     </ul>
@@ -56,18 +60,26 @@ export default function Holiday2026HubPage() {
     <PremiumSiteHeader ctaHref={holidayHubBriefHref()} />
     <main className="mx-auto site-width px-4 py-10 sm:px-6">
       <header className="editorial-intro rounded-2xl border border-border p-6 sm:p-10">
-        <p className="editorial-eyebrow">Q4 2026 · Marketplace sellers</p>
+        <p className="editorial-eyebrow">Black Friday and Cyber Monday · Marketplace sellers</p>
         <h1 className="mt-4 max-w-4xl text-4xl font-bold leading-tight sm:text-5xl">{HOLIDAY_HUB_HEADING}</h1>
         <p className="mt-5 max-w-3xl text-lg text-muted-foreground">{HOLIDAY_HUB_DESCRIPTION} Each page cites its own sources; new holiday pieces are added here as they publish.</p>
       </header>
-      <section id="analysis" aria-labelledby="holiday-analysis-heading" className="mt-12">
-        <h2 id="holiday-analysis-heading" className="text-2xl font-bold sm:text-3xl">Holiday analysis</h2>
+      <section id="this-week" aria-labelledby="this-week-heading" className="mt-12">
+        <h2 id="this-week-heading" className="text-3xl font-bold sm:text-4xl">This week</h2>
+        <p className="mt-3 max-w-3xl text-muted-foreground">
+          Black Friday is Friday, <time dateTime={BLACK_FRIDAY_2026}>November 27, 2026</time>. Cyber Monday is Monday, <time dateTime={CYBER_MONDAY_2026}>November 30, 2026</time>. Each summary is the linked page&apos;s own description.
+        </p>
+        <h3 id="holiday-analysis-heading" className="mt-8 text-2xl font-bold sm:text-3xl">Holiday analysis</h3>
         <p className="mt-2 text-sm text-muted-foreground">Newest first.</p>
         <EntryList entries={analysis} dateLabel="Published" />
-      </section>
-      <section id="fees" aria-labelledby="holiday-fees-heading" className="mt-12">
-        <h2 id="holiday-fees-heading" className="text-2xl font-bold sm:text-3xl">Holiday fee pages</h2>
+        <h3 id="holiday-fees-heading" className="mt-10 text-2xl font-bold sm:text-3xl">Holiday fee pages</h3>
         <EntryList entries={HOLIDAY_FEE_PAGES} dateLabel="Checked" />
+        <BriefCta
+          source={HOLIDAY_HUB_SOURCE}
+          heading="Get Black Friday and Cyber Monday changes in the Daily Brief"
+          body="The free Daily Marketplace Brief flags fee and policy changes across Amazon, Walmart, TikTok Shop, eBay and Etsy, with the source document."
+          className="mt-8"
+        />
       </section>
       <section id="related" aria-labelledby="related-heading" className="mt-12">
         <h2 id="related-heading" className="text-2xl font-bold">Related</h2>
@@ -79,7 +91,7 @@ export default function Holiday2026HubPage() {
       </section>
       <BriefCta
         source={HOLIDAY_HUB_SOURCE}
-        heading="Get holiday fee and policy changes as they land"
+        heading="Get Black Friday and Cyber Monday changes in the Daily Brief"
         body="The free Daily Marketplace Brief flags fee and policy changes across Amazon, Walmart, TikTok Shop, eBay and Etsy, with the source document."
         className="mt-12"
       />

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { HomepageAnalysisCard } from '@/lib/homepage-latest'
+import { HOLIDAY_HUB_LINK_LABEL, HOLIDAY_HUB_PATH } from '@/lib/holiday-hub'
 
 /** Newest original analysis, linked from the homepage. */
 export function HomepageLatestAnalysis({ articles }: { articles: HomepageAnalysisCard[] }) {
@@ -12,7 +13,10 @@ export function HomepageLatestAnalysis({ articles }: { articles: HomepageAnalysi
             <p className="editorial-eyebrow">Original analysis</p>
             <h2 id="homepage-latest-analysis" className="mt-2 text-2xl font-bold">Latest analysis</h2>
           </div>
-          <Link href="/intelligence/analysis" className="text-sm font-bold text-primary">All analysis →</Link>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <Link href={HOLIDAY_HUB_PATH} className="text-sm font-bold text-primary">{HOLIDAY_HUB_LINK_LABEL}</Link>
+            <Link href="/intelligence/analysis" className="text-sm font-bold text-primary">All analysis →</Link>
+          </div>
         </div>
         <ul className="mt-5 grid gap-5 md:grid-cols-2">
           {articles.map(article => (

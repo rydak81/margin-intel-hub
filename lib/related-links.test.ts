@@ -3,11 +3,12 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { ANALYSIS_ARTICLES, latestAnalysis, type AnalysisArticle } from '@/lib/analysis'
 import { MARKETPLACES } from '@/lib/marketplace-fees'
-import { FeeRelatedLinks, AnalysisEbayReading, AnalysisEtsyReading, AnalysisFeeLinks } from '@/components/related-links'
+import { FeeRelatedLinks, AnalysisEbayReading, AnalysisEtsyReading, AnalysisFeeLinks, AnalysisHolidayReading } from '@/components/related-links'
 import { newsletterSource } from '@/lib/newsletter-source'
 import {
-  RELATED_ANALYSIS_LIMIT, RELATED_FEE_COMPARE, EBAY_TRADING_CARD_ANSWER, analysisMarketplaces, countMentions, ebayAnalysisBriefSource, ebayAnalysisRelated, etsyAnalysisBriefSource, etsyAnalysisRelated, feeCategoryAnswerLink, isEbayAnalysis, isEtsyAnalysis, isEtsyEbayFeeComparison, relatedAnalysisForMarketplace,
+  RELATED_ANALYSIS_LIMIT, RELATED_FEE_COMPARE, EBAY_TRADING_CARD_ANSWER, analysisMarketplaces, countMentions, ebayAnalysisBriefSource, ebayAnalysisRelated, etsyAnalysisBriefSource, etsyAnalysisRelated, feeCategoryAnswerLink, holidayAnalysisReading, holidayHubReadingLink, isEbayAnalysis, isEtsyAnalysis, isEtsyEbayFeeComparison, relatedAnalysisForMarketplace,
 } from '@/lib/related-links'
+import { HOLIDAY_HUB_LINK_LABEL, HOLIDAY_HUB_PATH, isHolidayAnalysis } from '@/lib/holiday-hub'
 
 const mp = (slug: string) => MARKETPLACES.find(m => m.slug === slug)!
 const TOOL_NAMES = [['kee', 'pa'], ['ever', 'bee'], ['supa', 'base']].map(p => p.join(''))
@@ -336,6 +337,50 @@ describe('Etsy analysis related reading', () => {
     for (const article of [watches, perOrder]) {
       expect(ebayAnalysisRelated(article)!.map(l => l.href)).toContain(`/intelligence/analysis/${comparison.slug}`)
     }
+  })
+})
+
+describe('holiday analysis related reading', () => {
+  it('links the Black Friday and Cyber Monday hub on holiday analysis, and nowhere else', () => {
+    const holiday = ANALYSIS_ARTICLES.filter(isHolidayAnalysis)
+    expect(holiday.length).toBeGreaterThan(0)
+    for (const a of holiday) {
+      if (isEbayAnalysis(a) || isEtsyAnalysis(a)) {
+        expect(holidayAnalysisReading(a)).toBeNull()
+        const links = (isEbayAnalysis(a) ? ebayAnalysisRelated(a) : etsyAnalysisRelated(a))!
+        expect(links.at(-1)).toEqual(holidayHubReadingLink())
+      } else {
+        expect(holidayAnalysisReading(a)).toEqual([holidayHubReadingLink()])
+        const html = renderToStaticMarkup(createElement(AnalysisHolidayReading, { article: a }))
+        expect(html, a.slug).toContain('id="related-reading"')
+        expect(html, a.slug).toContain(`href="${HOLIDAY_HUB_PATH}"`)
+        expect(html, a.slug).toContain(HOLIDAY_HUB_LINK_LABEL.replace(/&/g, '&amp;'))
+        expect(html, a.slug).not.toContain('href="/newsletter')
+        expect(html, a.slug).not.toMatch(FORBIDDEN)
+      }
+    }
+    for (const a of ANALYSIS_ARTICLES.filter(x => !isHolidayAnalysis(x))) {
+      expect(holidayAnalysisReading(a)).toBeNull()
+      expect(renderToStaticMarkup(createElement(AnalysisHolidayReading, { article: a }))).toBe('')
+      for (const links of [ebayAnalysisRelated(a), etsyAnalysisRelated(a)]) {
+        expect(links?.some(link => link.href === HOLIDAY_HUB_PATH) ?? false).toBe(false)
+      }
+    }
+  })
+
+  it('appends the hub to a holiday-tagged eBay article without dropping the fee pages', () => {
+    const holidayEbay = article({
+      slug: 'ebay-holiday-fixture',
+      tags: ['eBay', 'holiday shipping'],
+      publishedOn: '2026-11-20',
+      updatedOn: '2026-11-20',
+      newsletterSource: 'campaign_kw_ebay_holiday',
+      sections: [{ id: 's', title: 'Body', paragraphs: ['See the [fee table](/fees/ebay).'] }],
+    })
+    const hrefs = ebayAnalysisRelated(holidayEbay, [holidayEbay, ...latestAnalysis()])!.map(l => l.href)
+    expect(hrefs).toContain('/fees/ebay')
+    expect(hrefs.at(-1)).toBe(HOLIDAY_HUB_PATH)
+    expect(holidayHubReadingLink()).toEqual({ href: HOLIDAY_HUB_PATH, label: HOLIDAY_HUB_LINK_LABEL, note: 'Holiday hub' })
   })
 })
 
