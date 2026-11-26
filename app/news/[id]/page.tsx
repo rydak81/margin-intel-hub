@@ -38,6 +38,7 @@ import { LinkedInPostGenerator } from "@/components/linkedin-post-generator"
 import { latestAnalysis } from "@/lib/analysis"
 import { newsArticleJsonLd } from "@/lib/news-article-seo"
 import { NewsArticleFollowOn } from "@/components/news-article-follow-on"
+import { NewsHolidayCallout } from "@/components/news-holiday-callout"
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString("en-US", {
@@ -205,6 +206,8 @@ export default async function ArticlePage({
                 </p>
               </div>
             ) : null}
+
+            <NewsHolidayCallout />
 
             <div className="mt-6 grid gap-4 md:grid-cols-2">
               {intelligenceHighlights.map((highlight) => (

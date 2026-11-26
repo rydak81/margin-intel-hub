@@ -14,6 +14,7 @@ const FIXED_SOURCES = [
   'sponsor',
   'embed',
   'share',
+  'news_holiday',
 ] as const
 
 const FIXED_SOURCE_SET = new Set<string>(FIXED_SOURCES)
