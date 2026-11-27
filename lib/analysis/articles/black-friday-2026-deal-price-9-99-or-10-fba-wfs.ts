@@ -23,7 +23,7 @@ export const article = {
   "forecastIds": [
     "F5"
   ],
-  "newsletterSource": "campaign_kw_marketplace_fee_comparison",
+  "newsletterSource": "campaign_kw_bfcm_deal_price",
   "sections": [
     {
       "id": "answer",
