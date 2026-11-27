@@ -2,7 +2,7 @@ import type { AnalysisArticle } from '@/lib/analysis/types'
 
 export const article = {
     "slug": "ups-fedex-2027-rate-increase-small-sellers",
-    "seoTitle": "FedEx and UPS 2027 Rate Increase: What Small Sellers Pay",
+    "seoTitle": "FedEx & UPS 2027 Rate Increase: Small Sellers",
     "metaDescription": "UPS raises rates Dec 21 and FedEx Jan 4, both 5.9% on average. Why a typical 1–5 lb home delivery rises more, and what to reprice now.",
     "headline": "UPS and FedEx both say 5.9% for 2027. On a small seller's typical box, plan for more",
     "dek": "UPS's increase lands December 21, in the middle of peak. FedEx follows on January 4. On FedEx's own list rates, a 1–5 lb residential Home Delivery package goes up 6.5% to 6.8% once the residential charge is counted, and UPS is adding a 5% fuel surcharge to rates that used to include fuel. Here is the arithmetic, the calendar, and what to change before the first new label prints.",

@@ -2,7 +2,7 @@ import type { AnalysisArticle } from '@/lib/analysis/types'
 
 export const article = {
     "slug": "usps-foreign-duty-billing-2026",
-    "seoTitle": "USPS Can Bill You for Unpaid Foreign Duties: What Changed",
+    "seoTitle": "USPS Can Bill for Unpaid Foreign Duties",
     "metaDescription": "Since Oct 19, 2026 USPS can bill senders for unpaid foreign duties, even on lost or returned parcels, plus 6% interest. Who's exposed and what DDP covers.",
     "headline": "USPS can now bill you for the duties your overseas buyer did not pay, even if the package was lost or sent back",
     "dek": "A USPS rule in effect since October 19, 2026 lets the Postal Service invoice the sender for unpaid foreign duties, taxes and import fees, with 6% a year interest on late payment and no way to contest the foreign amount through USPS. It was written because of the EU's new low-value parcel charges, but its text names no country. Here is who is exposed, what prepaying through USPS Delivered Duty Paid does and does not cover, and what to change this week.",

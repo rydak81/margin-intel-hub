@@ -10,7 +10,7 @@ import { JsonLd } from '@/components/json-ld'
 import { ORGANIZATION_REF, SITE_URL } from '@/lib/site-jsonld'
 
 export const metadata: Metadata = {
-  title: 'Marketplace Fee Change Log: Dated Amazon, Walmart, eBay & Etsy Fee History | MarketplaceBeta',
+  title: 'Marketplace Fee Change Log: Amazon, Walmart, eBay & Etsy',
   description: 'A dated history of every change to our marketplace fee tables, with the exact old and new rates and the official source each was checked against.',
   alternates: { canonical: 'https://marketplacebeta.com/fees/changelog' },
 }

@@ -2,7 +2,7 @@ import type { AnalysisArticle } from '@/lib/analysis/types'
 
 export const article = {
     "slug": "eu-3-euro-duty-2-euro-handling-fee-us-sellers",
-    "seoTitle": "EU €3 Duty and €2 Handling Fee: What US Sellers Pay",
+    "seoTitle": "EU €3 Duty, €2 Handling Fee: US Sellers",
     "metaDescription": "From Nov 1, 2026 the EU adds a €2 handling fee to the €3 duty, per distinct item. Worked examples for US sellers shipping to EU buyers.",
     "headline": "From November 1, each distinct item you ship to an EU buyer carries €5 in fixed charges. Small mixed orders take the hit",
     "dek": "Since July 1, every distinct item in a low-value parcel entering the EU has paid a flat €3 customs duty. From November 1, 2026, the EU adds a €2 Union handling fee per item, at any order value, and it is not temporary. Both are charged per declaration line, not per parcel. For a US maker sending a €39 order with three different products to France, that is €15 before VAT. Here is the math, what your channels do with it, and what to change before Sunday.",

@@ -2,7 +2,7 @@ import type { AnalysisArticle } from '@/lib/analysis/types'
 
 export const article = {
   "slug": "amazon-selling-partner-plugin-approval-record",
-  "seoTitle": "Amazon AI Plugin: Build a Useful Approval Record",
+  "seoTitle": "Amazon AI Plugin: Keep an Approval Record",
   "metaDescription": "A practical approval record for Amazon seller AI workflows: exact SKU, before-and-after values, evidence age, execution status and read-back.",
   "headline": "An approval button needs a change record behind it",
   "dek": "Amazon’s plugin separates questions from account changes. Build the operator handoff around the exact change, not the agent’s summary.",

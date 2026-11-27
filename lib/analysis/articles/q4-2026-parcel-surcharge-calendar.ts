@@ -2,7 +2,7 @@ import type { AnalysisArticle } from '@/lib/analysis/types'
 
 export const article = {
     slug: 'q4-2026-parcel-surcharge-calendar',
-    seoTitle: 'Q4 2026 Parcel Surcharges: A Seller Calendar',
+    seoTitle: 'Q4 2026 Parcel Surcharges: Seller Calendar',
     metaDescription: 'UPS and FedEx residential peak surcharges start Oct 25–26, about 25% above 2025. The dates, the amounts, and what sellers should reprice this week.',
     headline: 'The Q4 parcel surcharge calendar: what starts this weekend, and what to reprice before it does',
     dek: 'Base rates rose 5.9%. The holiday surcharges layered on top rose roughly 25%. Here is the calendar, the arithmetic for small orders, and the four changes worth making this week.',

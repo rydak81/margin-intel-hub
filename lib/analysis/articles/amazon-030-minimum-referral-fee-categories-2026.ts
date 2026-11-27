@@ -2,7 +2,7 @@ import type { AnalysisArticle } from '@/lib/analysis/types'
 
 export const article = {
   "slug": "amazon-030-minimum-referral-fee-categories-2026",
-  "seoTitle": "Amazon $0.30 Minimum Referral Fee: When It Kicks In",
+  "seoTitle": "Amazon $0.30 Minimum Referral Fee 2026",
   "metaDescription": "Amazon's $0.30 minimum referral fee covers most categories. It only bites below $2 at 15%, $3.75 at 8% and $6 on clothing. Worked examples.",
   "headline": "Amazon's $0.30 minimum referral fee: it covers almost every category, but it only bites on a handful of SKUs",
   "dek": "Amazon charges the category percentage or $0.30 per item, whichever is greater. We re-read Amazon's referral fee table on November 12, 2026, mapped which categories carry the minimum, worked out the sale price where it starts to matter, and found the one fix that beats a price change: pack size.",

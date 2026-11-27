@@ -2,7 +2,7 @@ import type { AnalysisArticle } from '@/lib/analysis/types'
 
 export const article = {
   "slug": "shopify-ai-knowledge-base-published-facts-audit",
-  "seoTitle": "Shopify AI Knowledge Base: Audit Published Facts",
+  "seoTitle": "Shopify AI Knowledge Base: Fact Audit",
   "metaDescription": "A practical Shopify knowledge-base audit: distinguish unpublished scans, published admin facts and manual references before testing AI answers.",
   "headline": "Audit what Shopify’s AI knowledge base publishes—not just what it knows",
   "dek": "Fact origin changes the review queue. Check published policy answers and their references before adding more store content.",

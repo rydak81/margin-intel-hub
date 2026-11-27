@@ -16,7 +16,7 @@ import { AiRelatedLinks } from '@/components/related-links'
 import { AI_BRIEF_BODY, AI_BRIEF_HEADING, AI_HUB_SOURCE, aiHubBriefHref, aiHubRelatedLinks } from '@/lib/ai-related'
 
 export const metadata: Metadata = {
-  title: 'AI for Ecommerce Operators: Practical Playbooks | MarketplaceBeta',
+  title: 'AI for Ecommerce Operators: Practical Playbooks',
   description: 'Practical AI workflows for ecommerce listings, reporting, customer support, advertising and inventory. Sourced guides, prompts and a pilot worksheet.',
   alternates: { canonical: '/ai' },
   openGraph: { title: 'AI for Ecommerce Operators', description: 'Put AI to work on the work that matters.', url: '/ai', type: 'website' },

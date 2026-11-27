@@ -28,7 +28,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const resolved = resolvePair(slug)
   if (!resolved) return { title: 'Fee comparison not found | MarketplaceBeta' }
   const { a, b } = resolved.pair
-  const title = `${a.shortName} vs ${b.shortName} Fees: Side-by-Side Seller Fee Comparison`
+  const lead = `${a.shortName} vs ${b.shortName} Fees`
+  const verbose = `${lead}: Side-by-Side Seller Fee Comparison`
+  const title = verbose.length <= 60 ? verbose : lead
   const description = comparisonDescription(a, b)
   const canonical = `${SITE_URL}/fees/compare/${resolved.pair.slug}`
   const ra = rateRange(a), rb = rateRange(b)

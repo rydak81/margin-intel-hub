@@ -2,7 +2,7 @@ import type { AnalysisArticle } from '@/lib/analysis/types'
 
 export const article = {
   "slug": "ecommerce-ai-forecast-backtest-cutoff-ledger",
-  "seoTitle": "Test an AI Sales Forecast Before It Orders Stock",
+  "seoTitle": "AI Sales Forecast: Test Before It Orders",
   "metaDescription": "An ecommerce forecasting worksheet: freeze historical inputs, compare a seasonal baseline, and test replenishment decisions separately.",
   "headline": "Before an AI forecast orders stock, make it pass a cutoff audit",
   "dek": "A model can look accurate after seeing information the merchant did not have. This proposed seller pilot records what was knowable at each forecast date, then tests predictions and inventory decisions separately.",

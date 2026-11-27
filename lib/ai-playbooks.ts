@@ -1,6 +1,8 @@
 export type AiPlaybook = {
   slug: string
   title: string
+  /** Document title when `title` itself runs past 60 characters. The page heading stays `title`. */
+  seoTitle?: string
   summary: string
   category: string
   readTime: string
@@ -129,6 +131,7 @@ export const AI_PLAYBOOKS: AiPlaybook[] = [
   {
     slug: "ai-inventory-exception-brief",
     title: "Build an inventory exception brief before automating purchasing",
+    seoTitle: "Build inventory exception brief before automating purchasing",
     summary: "Combine explicit inventory rules with AI explanations to give the team a short list of exceptions, evidence and follow-up actions.",
     category: "Inventory",
     readTime: "5 min",
@@ -157,6 +160,7 @@ export const AI_PLAYBOOKS: AiPlaybook[] = [
   {
     slug: "ai-product-feed-publication-checklist",
     title: "Check AI product content before sending it to Google Shopping",
+    seoTitle: "Check AI product content before sending to Google Shopping",
     summary: "Review product facts, feed fields and AI-content provenance together so an attractive draft does not become an inaccurate or incomplete product submission.",
     category: "Product feeds",
     readTime: "5 min",
@@ -185,6 +189,7 @@ export const AI_PLAYBOOKS: AiPlaybook[] = [
   {
     slug: "build-internal-ecommerce-tool-with-ai",
     title: "Build a small ecommerce tool with AI, from brief to tested prototype",
+    seoTitle: "Build a small ecommerce tool with AI: brief to prototype",
     summary: "Turn one repetitive operating task into a useful internal tool by defining the inputs, expected outputs and failure cases before asking AI to write code.",
     category: "Building tools",
     readTime: "5 min",

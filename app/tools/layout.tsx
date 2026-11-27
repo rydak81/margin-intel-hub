@@ -26,7 +26,7 @@ const toolsJsonLd = {
   })),
 }
 export const metadata: Metadata = {
-  title: 'Ecommerce Seller Tools & Profit Calculator | MarketplaceBeta',
+  title: 'Ecommerce Seller Tools & Profit Calculator',
   description: 'Use ecommerce scenario tools to examine product profitability, marketplace fees, listings, and keyword research.',
   alternates: { canonical: 'https://marketplacebeta.com/tools' },
 }

@@ -1,15 +1,22 @@
 import { AI_PLAYBOOKS } from '@/lib/ai-playbooks'
+import { getAllPairs } from '@/lib/fee-compare'
+import { OPERATOR_GUIDES } from '@/lib/operator-guides'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import sitemap from '@/app/sitemap'
 import { NewsArticleFollowOn } from '@/components/news-article-follow-on'
 import nextConfig from '@/next.config.mjs'
+import { generateMetadata as aiMetadata } from '@/app/ai/[slug]/page'
 import { generateMetadata as categoryMetadata } from '@/app/fees/[marketplace]/[category]/page'
+import { generateMetadata as marketMetadata } from '@/app/fees/[marketplace]/page'
 import { generateMetadata as saleMetadata } from '@/app/fees/[marketplace]/sale/[price]/page'
+import { generateMetadata as compareMetadata } from '@/app/fees/compare/[pair]/page'
+import { generateMetadata as guideMetadata } from '@/app/guides/[slug]/page'
 import { metadata as forecastsMetadata } from '@/app/intelligence/forecasts/page'
 import { MARKETPLACES, getAllFeeRoutes } from '@/lib/marketplace-fees'
 import { SALE_PRICES, getAllSaleRoutes } from '@/lib/sale-fee-pages'
+import { DESCRIPTION_LIMIT, TITLE_LIMIT, documentTitle } from '@/lib/document-title'
 import { INDEXABLE_SALE_PAGES, feeCategoryCanonicalPath, isIndexableSalePage, isSelfCanonicalFeeCategory } from '@/lib/seo-indexing'
 import { newsArticleCopy, newsArticleJsonLd, newsArticleMetadataFields, relatedAnalysisForNews } from '@/lib/news-article-seo'
 import { analysisMarketplaces, relatedAnalysisForMarketplace } from '@/lib/related-links'
@@ -123,6 +130,95 @@ describe('permanent redirects', () => {
     const redirects = await nextConfig.redirects!()
     expect(redirects).toContainEqual({ source: '/fees/walmart/cell-phones', destination: '/fees/walmart', permanent: true })
     expect(getAllFeeRoutes()).not.toContainEqual({ marketplace: 'walmart', category: 'cell-phones' })
+  })
+})
+
+describe('template title and description length', () => {
+  it('drops the site suffix only when that suffix would pass 60 characters', () => {
+    expect(documentTitle('News')).toBe('News | MarketplaceBeta')
+    expect(documentTitle('Ecommerce Marketplace Intelligence & Forecasts')).toBe('Ecommerce Marketplace Intelligence & Forecasts')
+    expect(documentTitle('Ecommerce Marketplace Intelligence & Forecasts').length).toBeLessThanOrEqual(TITLE_LIMIT)
+  })
+
+  it('keeps fee price-point and category titles, and caps their descriptions at 160', async () => {
+    const sale = await saleMetadata(params({ marketplace: 'walmart', price: '100' }))
+    expect(sale.title).toBe('How much does Walmart take from a $100 sale? $6.00–$20.00 in fees')
+    expect(sale.description).toContain('$6.00–$20.00')
+    expect(sale.description).toContain('6%–20%')
+    expect(sale.description).not.toMatch(/Category-by-category breakdown/)
+    expect(String(sale.description).length).toBeLessThanOrEqual(DESCRIPTION_LIMIT)
+
+    const ebay20 = await saleMetadata(params({ marketplace: 'ebay', price: '20' }))
+    expect(ebay20.title).toBe('How much does eBay take from a $20 sale? $1.74–$3.46 in fees')
+    expect(ebay20.description).toContain('$1.74–$3.46')
+    expect(ebay20.description).toContain('8.7%–17.3%')
+    expect(String(ebay20.description).length).toBeLessThanOrEqual(DESCRIPTION_LIMIT)
+
+    const games = await categoryMetadata(params({ marketplace: 'ebay', category: 'video-games-consoles' }))
+    expect(games.title).toBe('eBay Final Value Fee for Video Games & Consoles: 2.35%–13.6% (November 20, 2026)')
+    expect(games.description).toContain('2.35%–13.6%')
+    expect(games.description).not.toMatch(/See the full fee breakdown/)
+    expect(String(games.description).length).toBeLessThanOrEqual(DESCRIPTION_LIMIT)
+
+    const cards = await categoryMetadata(params({ marketplace: 'ebay', category: 'trading-cards' }))
+    expect(cards.title).toBe('eBay Final Value Fee for Trading Cards (excluding NFTs): 2.35%–13.25% (November 20, 2026)')
+    const storeCards = await categoryMetadata(params({ marketplace: 'ebay', category: 'trading-cards-store' }))
+    expect(storeCards.title).toBe('eBay Final Value Fee for Trading Cards & Comics (Basic Store or higher, excluding NFTs): 2.35%–12.35% (November 20, 2026)')
+
+    for (const r of getAllSaleRoutes()) {
+      const meta = await saleMetadata(params(r))
+      expect(String(meta.description).length, `${r.marketplace} ${r.price}`).toBeLessThanOrEqual(DESCRIPTION_LIMIT)
+      expect(meta.description).not.toMatch(/Category-by-category breakdown/)
+    }
+    for (const r of getAllFeeRoutes()) {
+      const meta = await categoryMetadata(params(r))
+      expect(String(meta.description).length, `${r.marketplace}/${r.category}`).toBeLessThanOrEqual(DESCRIPTION_LIMIT)
+      expect(meta.description).not.toMatch(/See the full fee breakdown/)
+    }
+  })
+
+  it('caps a long news summary at 160 characters without cutting a figure', () => {
+    const copy = newsArticleCopy({
+      id: 'art_long',
+      title: 'Fee change',
+      aiSummary: 'Amazon fee is $12.50 on this order. ' + 'detail '.repeat(40),
+      sourceName: 'Example',
+      publishedAt: '2026-11-09T00:00:00Z',
+    })
+    expect(copy.description.length).toBeLessThanOrEqual(DESCRIPTION_LIMIT)
+    expect(copy.description.endsWith('...')).toBe(true)
+    expect(copy.description).toContain('$12.50')
+    const fallback = newsArticleCopy({
+      id: 'art_fallback',
+      title: 'A'.repeat(140),
+      sourceName: 'Example',
+      publishedAt: '2026-11-09T00:00:00Z',
+    })
+    expect(fallback.description.length).toBeLessThanOrEqual(DESCRIPTION_LIMIT)
+    expect(fallback.description).not.toContain('Operator impact')
+  })
+
+  it('keeps other generated titles and descriptions within the limits', async () => {
+    for (const m of MARKETPLACES) {
+      const meta = await marketMetadata(params({ marketplace: m.slug }))
+      expect(String(meta.title).length, m.slug).toBeLessThanOrEqual(TITLE_LIMIT)
+      expect(String(meta.description).length, m.slug).toBeLessThanOrEqual(DESCRIPTION_LIMIT)
+    }
+    for (const pair of getAllPairs()) {
+      const meta = await compareMetadata(params({ pair: pair.slug }))
+      expect(String(meta.title).length, pair.slug).toBeLessThanOrEqual(TITLE_LIMIT)
+      expect(String(meta.description).length, pair.slug).toBeLessThanOrEqual(DESCRIPTION_LIMIT)
+    }
+    for (const guide of OPERATOR_GUIDES) {
+      const meta = await guideMetadata(params({ slug: guide.slug }))
+      expect(String(meta.title).length, guide.slug).toBeLessThanOrEqual(TITLE_LIMIT)
+      expect(String(meta.description).length, guide.slug).toBeLessThanOrEqual(DESCRIPTION_LIMIT)
+    }
+    for (const playbook of AI_PLAYBOOKS) {
+      const meta = await aiMetadata(params({ slug: playbook.slug }))
+      expect(String(meta.title).length, playbook.slug).toBeLessThanOrEqual(TITLE_LIMIT)
+      expect(String(meta.description).length, playbook.slug).toBeLessThanOrEqual(DESCRIPTION_LIMIT)
+    }
   })
 })
 

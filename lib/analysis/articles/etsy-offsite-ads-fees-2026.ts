@@ -2,7 +2,7 @@ import type { AnalysisArticle } from '@/lib/analysis/types'
 
 export const article = {
     "slug": "etsy-offsite-ads-fees-2026",
-    "seoTitle": "Etsy Offsite Ads Fees 2026: 15%, 12%, $100 Cap, Opt-Out",
+    "seoTitle": "Etsy Offsite Ads: 15%, 12%, $100, Opt-Out",
     "metaDescription": "Etsy takes 15% of the order, shipping included; opt-out only if always under $10,000 in any consecutive 365-day period, then 12% and no opt-out. $100 cap.",
     "headline": "Etsy's Offsite Ads fee takes 12% to 15% of the whole order, shipping included, and you can only opt out below $10,000",
     "dek": "On any order placed within 30 days of a click on one of Etsy's Offsite Ads, Etsy charges 15% of item price plus shipping if your shop has always made less than $10,000 in any consecutive 365-day period, or 12% once it reaches $10,000, with participation then required for the life of the shop, capped at $100 an order. Here is the math on a $20, $50 and $100 sale, how to price for it, and what to check in your dashboard this week.",

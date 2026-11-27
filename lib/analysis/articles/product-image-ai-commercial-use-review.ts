@@ -2,7 +2,7 @@ import type { AnalysisArticle } from '@/lib/analysis/types'
 
 export const article = {
   "slug": "product-image-ai-commercial-use-review",
-  "seoTitle": "How to Review AI Product Images Before Commercial Use",
+  "seoTitle": "AI Product Images: Review Before Listing",
   "metaDescription": "A product-image review worksheet for sellers. Check model terms, verify what comes in the box and catch regressions after image repairs.",
   "headline": "Two decisions before an AI product image reaches a listing",
   "dek": "A polished product shot can come from a research-only model or show an accessory the buyer will never receive. Each problem needs a different check.",

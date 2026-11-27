@@ -15,7 +15,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://marketplacebeta.co
 // build would freeze it at deploy time — regenerate daily so it rolls over.
 export const revalidate = 86400
 
-const title = `Marketplace Seller Fees ${new Date().getFullYear()}: Amazon, Walmart, TikTok Shop, eBay & Etsy`
+const title = `Seller Fees ${new Date().getFullYear()}: Amazon, Walmart, TikTok Shop, eBay & Etsy`
 const description =
   "Compare seller fees across every major marketplace. Category-by-category referral rates, a free margin calculator, and supported category comparisons with explicit assumptions."
 

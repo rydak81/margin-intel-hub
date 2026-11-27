@@ -1,3 +1,5 @@
+import { capMetaDescription } from '@/lib/document-title'
+
 // Indexing rules for news briefings. Kept in one place so the sitemap, the
 // robots directive and the page metadata can never disagree with each other.
 
@@ -67,7 +69,9 @@ export function withheldSummaryDescription(title: string, sourceName: string | n
   const date = publishedAt && Number.isFinite(Date.parse(publishedAt)) ? new Date(publishedAt).toISOString().slice(0, 10) : null
   const named = sourceName && !/^google news\b/i.test(sourceName) ? sourceName : null
   const source = named ? `${named} report` : 'Report'
-  return `${source}${date ? ` from ${date}` : ''}: ${title}. Operator impact, why it matters and what to check next.`
+  const core = `${source}${date ? ` from ${date}` : ''}: ${title}.`
+  const withNote = `${core} Operator impact, why it matters and what to check next.`
+  return withNote.length <= 160 ? withNote : capMetaDescription(core)
 }
 
 /**

@@ -2,7 +2,7 @@ import type { AnalysisArticle } from '@/lib/analysis/types'
 
 export const article = {
     "slug": "tiktok-shop-vs-etsy-fees-2026-20-50-100",
-    "seoTitle": "TikTok Shop vs Etsy Fees 2026: Cost at $20, $50 and $100",
+    "seoTitle": "TikTok Shop vs Etsy Fees: $20, $50, $100",
     "metaDescription": "TikTok Shop takes $6.00 of a plain $100 sale at its published 6%, Etsy $9.95. Creator commission can flip it. Fee pages re-read Nov 25, 2026.",
     "headline": "TikTok Shop vs Etsy fees in 2026: TikTok keeps less of a plain sale at every price we tested, even at the reported 8%. Creator commission is where it turns",
     "dek": "On a plain sale, TikTok Shop's referral fee costs less than Etsy's transaction fee, processing fee and listing fee combined, at $20, $50 and $100, whether your shop pays the published 6% or the 8% that trade reports describe. The comparison changes once creators sell for you, because affiliate commission is a rate you set on top. We re-read both marketplaces' fee pages on November 25, 2026 and worked out where the line sits for a US seller listing the same item on both.",

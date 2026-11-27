@@ -2,7 +2,7 @@ import type { AnalysisArticle } from '@/lib/analysis/types'
 
 export const article = {
     "slug": "etsy-vs-ebay-fees-2026-20-50-100",
-    "seoTitle": "Etsy vs eBay Fees 2026: Which Is Cheaper at $20, $50, $100",
+    "seoTitle": "Etsy vs eBay Fees 2026: $20, $50, $100",
     "metaDescription": "Etsy takes $9.95 of a plain $100 sale, eBay $14.00. A 15% Offsite Ads order flips it to $24.95. Both fee pages re-read Nov 17, 2026, with the math.",
     "headline": "Etsy vs eBay fees in 2026: Etsy is cheaper on a plain sale at every price we tested, until Offsite Ads drive more than about a quarter of your orders",
     "dek": "On a plain sale, Etsy keeps less than eBay at $20, $50 and $100. The gap is a few dollars and it widens with price, because eBay charges 13.6% plus $0.40 on the whole order, sales tax included, while Etsy's percentage fees add up to 9.5%. One Offsite Ads order reverses it. We re-read both marketplaces' fee pages on November 17, 2026 and worked out where the line sits for a US seller listing the same item on both.",

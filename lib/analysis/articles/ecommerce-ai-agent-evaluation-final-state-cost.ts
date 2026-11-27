@@ -2,7 +2,7 @@ import type { AnalysisArticle } from '@/lib/analysis/types'
 
 export const article = {
   "slug": "ecommerce-ai-agent-evaluation-final-state-cost",
-  "seoTitle": "Test an Ecommerce AI Agent Beyond Its Final Answer",
+  "seoTitle": "Ecommerce AI Agent: Test Beyond the Answer",
   "metaDescription": "An original evaluation worksheet for ecommerce AI agents: test final state, stale data, retries and cost per accepted task before expanding automation.",
   "headline": "Your AI agent’s final answer is only half the acceptance test",
   "dek": "A correct-looking summary can coexist with an incorrect inventory or catalog state. A practical evaluation worksheet separates output quality, business-state accuracy and the full cost of accepted work.",

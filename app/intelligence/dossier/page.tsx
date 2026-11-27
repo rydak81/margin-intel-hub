@@ -9,12 +9,12 @@ import { DossierSponsorCredit } from '@/components/dossier-sponsor-credit'
 import { getDossierSponsor } from '@/lib/sponsorship'
 
 export const metadata: Metadata = {
-  title: 'Intelligence Dossier: The 2026 Margin Squeeze | MarketplaceBeta',
+  title: 'Intelligence Dossier: The 2026 Margin Squeeze',
   description:
     'Edition 1 of the MarketplaceBeta Intelligence Dossier: proprietary pattern analysis across 8,500+ classified articles, sourced market evidence, a scored opportunity ranking, and a logged 12-forecast ledger.',
   alternates: { canonical: 'https://marketplacebeta.com/intelligence/dossier' },
   openGraph: {
-    title: 'The 2026 Margin Squeeze — MarketplaceBeta Intelligence Dossier',
+    title: 'Intelligence Dossier: The 2026 Margin Squeeze',
     description: 'What the data says is happening in e-commerce, what is likely next, and what operators should do before it becomes obvious.',
     url: 'https://marketplacebeta.com/intelligence/dossier',
     type: 'article',

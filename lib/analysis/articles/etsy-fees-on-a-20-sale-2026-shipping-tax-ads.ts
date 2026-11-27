@@ -2,7 +2,7 @@ import type { AnalysisArticle } from '@/lib/analysis/types'
 
 export const article = {
     "slug": "etsy-fees-on-a-20-sale-2026-shipping-tax-ads",
-    "seoTitle": "Etsy Fees on a $20 Sale: $2.35, Then Shipping and Ads",
+    "seoTitle": "Etsy Fees on a $20 Sale: Ship, Tax, Ads",
     "metaDescription": "Etsy takes $2.35 from a bare $20 sale. Add $4 shipping and it's $2.73; at the 15% Offsite Ads rate it's $6.33. The math from Etsy's fee pages.",
     "headline": "How much Etsy takes from a $20 sale: $2.35 on paper, more once shipping, tax and Offsite Ads are in the order",
     "dek": "The quick answer to \"what does Etsy take on $20\" assumes no shipping, no tax and no ad. Real orders have at least one of those. We re-read Etsy's fee, payment processing and Offsite Ads help pages on November 16, 2026 and worked five hypothetical $20 orders, from the bare $2.35 to $6.33 at the 15% Offsite Ads rate.",

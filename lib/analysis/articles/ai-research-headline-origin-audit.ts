@@ -2,7 +2,7 @@ import type { AnalysisArticle } from '@/lib/analysis/types'
 
 export const article = {
   "slug": "ai-research-headline-origin-audit",
-  "seoTitle": "Audit AI Market Signals Beyond the Headline Count",
+  "seoTitle": "AI Market Signals: Audit Beyond Headlines",
   "metaDescription": "Our advertising trend check passed, yet 24 of 26 matches came through one aggregator. A reproducible source audit for ecommerce AI research.",
   "headline": "Why our AI research desk held a passing trend check",
   "dek": "Advertising matches rose in our news archive, even after equal weighting by domain. Inspecting the source breakdown changed the decision: most matches arrived through one aggregator. Here is the audit and a reusable review worksheet.",

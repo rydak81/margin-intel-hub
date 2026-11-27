@@ -2,7 +2,7 @@ import type { AnalysisArticle } from '@/lib/analysis/types'
 
 export const article = {
   "slug": "amazon-vs-walmart-referral-fees-2026-where-walmart-is-lower",
-  "seoTitle": "Amazon vs Walmart Referral Fees: Where Walmart Is Lower",
+  "seoTitle": "Amazon vs Walmart Referral: Walmart Lower",
   "metaDescription": "Walmart's referral fee matches Amazon's in most categories. It's lower in five: clothing over $20, computers, instruments, compact appliances, watches.",
   "headline": "Amazon vs Walmart referral fees: the same rate in most categories, lower on Walmart in five",
   "dek": "We re-read Amazon's and Walmart's public referral fee tables on November 19, 2026 and lined them up category by category. Five matched categories have a lower standard percentage at Walmart. Item-specific exceptions and Amazon’s minimum fee can create other savings. If you are adding Walmart to an Amazon catalog, those five, plus the price cliffs both marketplaces share, decide which SKUs go first.",
