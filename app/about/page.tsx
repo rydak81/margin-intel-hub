@@ -17,7 +17,7 @@ const SECTIONS = [
   { href: '/fees/compare-by-item-price', label: 'Compare by item price', detail: 'Hypothetical fee totals at set prices, computed from the fee tables.' },
   { href: '/guides', label: 'Operator guides', detail: 'Hypothetical worked examples for profitability, advertising limits, and adding a channel, plus printable worksheets.' },
   { href: '/tools', label: 'Scenario tools', detail: 'Calculators for trying assumptions. Modeled signals are labeled as modeled.' },
-  { href: '/tools/repricer', label: 'ProfitTygr', detail: 'A dry-run repricer. It does not submit price changes. Costs and settings stay in your browser.' },
+  { href: '/tools/repricer', label: 'Repricer (price-floor tool)', detail: 'A dry-run repricer. It does not submit price changes. Costs and settings stay in your browser.' },
   { href: '/news', label: 'News desk', detail: 'The daily operator briefing, with dates and links to the underlying reports.' },
   { href: '/articles', label: 'Article archive', detail: 'Search the reporting behind the headlines and follow it back to the original source.' },
   { href: '/intelligence', label: 'Intelligence', detail: 'Original analysis, the Marketplace Pressure Index, the public forecast scorecard, and the Intelligence Dossier.' },

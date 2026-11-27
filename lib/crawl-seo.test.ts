@@ -226,6 +226,8 @@ describe('about and guides expansion', () => {
       expect(page).not.toMatch(FORBIDDEN)
       expect(page).not.toMatch(/mailto:/i)
     }
+    expect(about).toContain('Repricer (price-floor tool)')
+    expect(about).not.toMatch(/ProfitTygr/)
     expect(about).toContain('Marketplace Pressure Index')
     expect(about).toContain('href="/intelligence/pressure-index"')
     expect(about).toContain('coverage intensity, not market size')
