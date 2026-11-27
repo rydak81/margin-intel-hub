@@ -17,6 +17,7 @@
 import { latestAnalysis, type AnalysisArticle } from '@/lib/analysis'
 import { AMAZON_PEAK_DESCRIPTION, AMAZON_PEAK_PATH, AMAZON_PEAK_TITLE, CHECKED_ON as AMAZON_PEAK_CHECKED } from '@/lib/amazon-holiday-peak-2026'
 import { briefSignupHref } from '@/lib/brief-cta'
+import { easternDateIso } from '@/lib/sponsor-window'
 
 export const HOLIDAY_HUB_PATH = '/holiday-2026'
 export const HOLIDAY_HUB_TITLE = 'Marketplace Sellers: Black Friday & Cyber Monday 2026'
@@ -96,4 +97,15 @@ export function isOnHolidayHub(path: string, articles?: AnalysisArticle[]): bool
 export function holidayHubUpdatedOn(articles?: AnalysisArticle[]): string {
   const newestEntry = holidayHubEntries(articles).reduce<string>((d, e) => (e.date > d ? e.date : d), HOLIDAY_2026_WINDOW.from)
   return newestEntry > HOLIDAY_HUB_REVISED_ON ? newestEntry : HOLIDAY_HUB_REVISED_ON
+}
+
+/**
+ * Inclusive last America/New_York day a page should link the holiday hub.
+ * After this day the link is omitted on the next render, with no content edit.
+ */
+export const HOLIDAY_HUB_LINK_THROUGH = '2026-12-31'
+
+/** True while the Eastern calendar day is on or before HOLIDAY_HUB_LINK_THROUGH. */
+export function holidayHubLinkVisible(now: Date = new Date()): boolean {
+  return easternDateIso(now) <= HOLIDAY_HUB_LINK_THROUGH
 }
