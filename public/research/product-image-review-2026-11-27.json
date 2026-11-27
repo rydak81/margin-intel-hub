@@ -1,0 +1,45 @@
+{
+  "title": "Product image model and asset review",
+  "version": "2026-11-27",
+  "usage": "Copy one record per model revision, intended use, child SKU and asset revision. Record a source for each decision. Empty fields mean unknown.",
+  "fields": {
+    "model_id": null,
+    "revision": null,
+    "intended_use": null,
+    "terms_url": null,
+    "terms_read_on": null,
+    "permission_basis": null,
+    "model_use_decision": "pending",
+    "child_sku": null,
+    "reference_asset": null,
+    "required_visible_details": [],
+    "forbidden_visual_changes": [],
+    "candidate_asset_revision": null,
+    "inspection_results": [],
+    "unresolved_questions": [],
+    "asset_decision": "pending"
+  },
+  "decision_rules": [
+    "Hold the proposed deployment while its permission basis is missing. Record research-only use separately.",
+    "Freeze visible requirements before generating candidates. Record each as pass, fail or unobservable and retain the supporting reference.",
+    "Reject a contradicted required detail. Route unobservable details for review. Recheck all hard requirements on every repaired revision.",
+    "Release requires documented use permission and a passing asset review for the intended channel."
+  ],
+  "example": {
+    "basis": "Hypothetical review of a fictional drill kit. No generated image, model run or merchant observation.",
+    "reference": "One cordless drill, one supplied battery and a belt clip. Charger sold separately.",
+    "candidates": [
+      {
+        "revision": "A",
+        "observation": "Charger shown beside the drill as an included accessory.",
+        "decision": "Reject depiction; conflicts with the included contents."
+      },
+      {
+        "revision": "B",
+        "observation": "Charger removed; crop now hides the required belt clip.",
+        "decision": "Hold for a view that shows the clip."
+      }
+    ],
+    "reuse": "Reuse this original form with attribution to MarketplaceBeta Research and retain its date and hypothetical labels."
+  }
+}
