@@ -8,6 +8,7 @@ import { BRIEF_CTA_KEYS } from "@/lib/brief-cta"
 import { MARKETPLACES } from "@/lib/marketplace-fees"
 import { TIKTOK_FEE_CHANGE_PATH } from "@/lib/tiktok-fee-change-2026"
 import { FEE_BY_PRICE_PATH } from "@/lib/fee-by-price"
+import { HOLIDAY_HUB_PATH } from "@/lib/holiday-hub"
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://marketplacebeta.com"
 
@@ -37,6 +38,7 @@ export default function FeesIndexPage() {
         <EditorialIntro eyebrow="Fee intelligence" title="Know what you keep." description={`Compare referral rates across ${totalCategories} categories and ${MARKETPLACES.length} marketplaces. Model unit economics, inspect the source dates, and test your assumptions before choosing a channel.`} />
         <p className="mt-4 text-sm text-muted-foreground">Rates change. See the <Link href="/fees/changelog" className="font-medium text-primary underline underline-offset-4">dated fee change log</Link> for every update, with old and new figures.</p>
         <p className="mt-2 text-sm text-muted-foreground">Heard TikTok Shop went to 8%? <Link href={TIKTOK_FEE_CHANGE_PATH} className="font-medium text-primary underline underline-offset-4">What&apos;s confirmed about the 2026 TikTok Shop fee change, and how to check your settlement statement</Link>.</p>
+        <p className="mt-2 text-sm text-muted-foreground"><Link href={HOLIDAY_HUB_PATH} className="font-medium text-primary underline underline-offset-4">Holiday 2026 seller hub: peak fees, deadlines and returns</Link>.</p>
 
         <Link
           href={FEE_BY_PRICE_PATH}

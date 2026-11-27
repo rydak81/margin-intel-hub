@@ -27,6 +27,7 @@ import { ShareButtons } from "@/components/share-buttons"
 import { SALE_PRICES, ogImageUrl, salePath } from "@/lib/sale-fee-pages"
 import { TIKTOK_FEE_CHANGE_PATH } from "@/lib/tiktok-fee-change-2026"
 import { feeCategoryCanonicalPath } from "@/lib/seo-indexing"
+import { feeCategoryAnswerLink } from "@/lib/related-links"
 import { FeeRelatedLinks } from "@/components/related-links"
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://marketplacebeta.com"
@@ -88,6 +89,7 @@ export default async function FeeCategoryPage({ params }: PageProps) {
   // listing, per-order, and processing fees — so the FAQ (and its JSON-LD)
   // can never contradict the interactive result.
   const example = computeFeeBreakdown({ salePrice: 29.99, unitCost: 0, marketplace, category })
+  const cardAnswer = feeCategoryAnswerLink(marketplace.slug, category.slug)
   const exampleDetail = example.lines
     .map((line) => `${line.label} $${line.amount.toFixed(2)}`)
     .join(" + ")
@@ -217,6 +219,14 @@ export default async function FeeCategoryPage({ params }: PageProps) {
             </Link>
           </p>
         )}
+
+        {cardAnswer ? (
+          <p className="mt-3 text-sm">
+            <Link href={cardAnswer.href} className="font-medium text-sky-600 underline underline-offset-4 hover:text-sky-700 dark:text-sky-400">
+              {cardAnswer.label}
+            </Link>
+          </p>
+        ) : null}
 
         <div className="mt-8">
           <FeeCalculator marketplace={marketplace} category={category} />

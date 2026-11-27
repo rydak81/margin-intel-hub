@@ -6,7 +6,7 @@ import { MARKETPLACES } from '@/lib/marketplace-fees'
 import { FeeRelatedLinks, AnalysisEbayReading, AnalysisEtsyReading, AnalysisFeeLinks, AnalysisHolidayReading } from '@/components/related-links'
 import { newsletterSource } from '@/lib/newsletter-source'
 import {
-  RELATED_ANALYSIS_LIMIT, RELATED_FEE_COMPARE, analysisMarketplaces, countMentions, ebayAnalysisBriefSource, ebayAnalysisRelated, etsyAnalysisBriefSource, etsyAnalysisRelated, holidayAnalysisReading, holidayHubReadingLink, isEbayAnalysis, isEtsyAnalysis, isEtsyEbayFeeComparison, relatedAnalysisForMarketplace,
+  RELATED_ANALYSIS_LIMIT, RELATED_FEE_COMPARE, EBAY_TRADING_CARD_ANSWER, analysisMarketplaces, countMentions, ebayAnalysisBriefSource, ebayAnalysisRelated, etsyAnalysisBriefSource, etsyAnalysisRelated, feeCategoryAnswerLink, holidayAnalysisReading, holidayHubReadingLink, isEbayAnalysis, isEtsyAnalysis, isEtsyEbayFeeComparison, relatedAnalysisForMarketplace,
 } from '@/lib/related-links'
 import { HOLIDAY_HUB_LINK_LABEL, HOLIDAY_HUB_PATH, isHolidayAnalysis } from '@/lib/holiday-hub'
 
@@ -415,6 +415,23 @@ describe('fee category pages show the same Related block', () => {
     for (const m of MARKETPLACES.filter(x => x.slug !== 'walmart')) {
       expect(relatedAnalysisForMarketplace(m.slug, RELATED_ANALYSIS_LIMIT, articles).map(a => a.slug)).not.toContain('fixture-walmart')
     }
+  })
+
+  it('links the trading card answer from the two card calculators only', async () => {
+    expect(feeCategoryAnswerLink('ebay', 'trading-cards')).toEqual(EBAY_TRADING_CARD_ANSWER)
+    expect(feeCategoryAnswerLink('ebay', 'trading-cards-store')).toEqual(EBAY_TRADING_CARD_ANSWER)
+    expect(feeCategoryAnswerLink('ebay', 'most-categories')).toBeNull()
+    expect(feeCategoryAnswerLink('etsy', 'trading-cards')).toBeNull()
+    const { default: Page } = await import('@/app/fees/[marketplace]/[category]/page')
+    for (const category of ['trading-cards', 'trading-cards-store']) {
+      const html = renderToStaticMarkup(await Page({ params: Promise.resolve({ marketplace: 'ebay', category }) } as never))
+      expect(html, category).toContain(`href="${EBAY_TRADING_CARD_ANSWER.href}"`)
+      expect(html, category).toContain('What are eBay')
+    }
+    const other = renderToStaticMarkup(await Page({ params: Promise.resolve({ marketplace: 'ebay', category: 'most-categories' }) } as never))
+    expect(other).not.toContain(`href="${EBAY_TRADING_CARD_ANSWER.href}"`)
+    const related = /<section id="related"[\s\S]*?<\/section>/.exec(other)?.[0] ?? ''
+    expect(related).toBe(renderToStaticMarkup(createElement(FeeRelatedLinks, { marketplace: mp('ebay') })))
   })
 
   it('Walmart category pages link the Walmart analyses selected for the Related block', async () => {

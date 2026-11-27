@@ -15,6 +15,8 @@ export const ANSWERS_PATH = '/answers'
 export const CHECKED_ON = '2026-11-19'
 /** Walmart, TikTok Shop, and the Etsy sale answer were read on this date. The first six answers stay on CHECKED_ON. */
 export const CHECKED_ON_2026_11_20 = '2026-11-20'
+/** Sitemap date for the trading-card answer. The rates are the fee table and the November 20, 2026 analysis. */
+export const CHECKED_ON_2026_11_25 = '2026-11-25'
 /** Seller Central rate card transcription date. The logged-out help page did not return the table on CHECKED_ON. */
 export const FBA_TIER_READ_ON = '2026-10-21'
 
@@ -23,6 +25,7 @@ export const ETSY_FEES_HELP = 'https://help.etsy.com/hc/en-us/articles/115014483
 export const ETSY_FEES_POLICY = 'https://www.etsy.com/legal/fees/'
 export const ETSY_PROCESSING_HELP = 'https://help.etsy.com/hc/en-us/articles/115015628847-What-are-Payment-Processing-Fees-for-Selling-on-Etsy'
 export const EBAY_FEES_HELP = 'https://www.ebay.com/help/selling/fees-credits-invoices/selling-fees?id=4822'
+export const EBAY_STORE_FEES_HELP = 'https://www.ebay.com/help/selling/fees-credits-invoices/store-selling-fees?id=4809'
 export const AMAZON_PRICING = 'https://sell.amazon.com/pricing'
 export const AMAZON_2027_UPDATE = 'https://sellingpartners.aboutamazon.com/update-to-us-referral-and-fulfillment-by-amazon-fees-for-2027'
 export const AMAZON_FBA_RATE_CARD = 'https://sellercentral.amazon.com/help/hub/reference/external/GABBX6GZPA8MSZGW?locale=en-US'
@@ -36,6 +39,7 @@ export const TIKTOK_SELLER_HOME_URL = 'https://seller.tiktok.com/'
  * The first six were checked on CHECKED_ON and again on CHECKED_ON_2026_11_20.
  * The Walmart and TikTok Shop slugs were checked on CHECKED_ON_2026_11_20.
  * The Amazon 2027 FBA slug returned 200 on marketplacebeta.com on 2026-11-20 at 9:40 PM ET.
+ * The trading-card slug returned 200 on marketplacebeta.com on 2026-11-25.
  */
 export const LIVE_ANALYSIS_SLUGS = [
   'etsy-offsite-ads-fees-2026',
@@ -47,6 +51,7 @@ export const LIVE_ANALYSIS_SLUGS = [
   'walmart-new-seller-savings-2026-worth-it',
   'tiktok-shop-referral-fee-6-or-8-percent',
   'amazon-2027-fba-fee-changes-storage-low-inventory',
+  'ebay-trading-card-fees-2026-store-break-even',
 ] as const
 
 export type AnswerMarketplace = 'etsy' | 'amazon' | 'ebay' | 'walmart' | 'tiktok-shop'
@@ -274,6 +279,23 @@ export function etsyTake(item: number, shipping: number) {
 }
 
 const etsySale = etsyTake(36, 8)
+
+const tradingCards = getCategory('ebay', 'trading-cards')!
+const tradingCardsStore = getCategory('ebay', 'trading-cards-store')!
+
+function tradingCardOrder(total: number) {
+  const noStorePct = referralFee(total, tradingCards).amount
+  const storePct = referralFee(total, tradingCardsStore).amount
+  const perOrder = orderFee(ebay, total)
+  const noStore = cents(noStorePct + perOrder)
+  const store = cents(storePct + perOrder)
+  return { noStorePct, storePct, perOrder, noStore, store, saves: cents(noStore - store) }
+}
+
+const cardAt20 = tradingCardOrder(20)
+const cardAt100 = tradingCardOrder(100)
+const cardAt10000 = tradingCardOrder(10000)
+const cardAt10070 = tradingCardOrder(10070)
 
 export const ANSWER_PAGES: AnswerPage[] = [
   {
@@ -757,6 +779,56 @@ export const ANSWER_PAGES: AnswerPage[] = [
     ],
     analysisSlugs: ['etsy-offsite-ads-fees-2026', 'etsy-vs-ebay-fees-2026-20-50-100'],
   },
+  {
+    slug: 'ebay_trading_cards',
+    question: "What are eBay's trading card fees?",
+    description: 'With no Store or a Starter Store, trading cards are 13.25% up to $7,500, then 2.35%. A Basic Store or higher is 12.35% up to $2,500, then 2.35%.',
+    directAnswer: 'With no Store or a Starter Store, eBay charges 13.25% of the total up to $7,500 per item on trading cards, then 2.35%. A Basic Store or higher charges 12.35% up to $2,500 per item, then 2.35%. Orders of $10.00 or less add $0.30, and orders over $10.00 add $0.40. The total includes shipping and sales tax.',
+    marketplace: 'ebay',
+    jobs: ['fees'],
+    sources: [
+      { name: "eBay's selling fees page", url: EBAY_FEES_HELP, checkedOn: CHECKED_ON_2026_11_25 },
+      { name: "eBay's Store selling fees page", url: EBAY_STORE_FEES_HELP, checkedOn: CHECKED_ON_2026_11_25 },
+    ],
+    examples: [
+      {
+        heading: 'A $20 card and a $100 card',
+        caption: 'Hypothetical one-card orders. No shipping and no sales tax, so the total amount of the sale is the item price. No Store and a Starter Store use 13.25%. A Basic Store or higher uses 12.35%. Comic books use the same rates. The per-order fee is included.',
+        lines: [
+          line('$20, no Store or Starter Store', usd(cardAt20.noStore), '13.25% of $20.00, plus $0.40. The order is over $10.00.'),
+          line('$20, Basic Store or higher', usd(cardAt20.store), '12.35% of $20.00, plus $0.40.'),
+          line('Store saves on the $20 card', usd(cardAt20.saves), 'The difference between those two totals.'),
+          line('$100, no Store or Starter Store', usd(cardAt100.noStore), '13.25% of $100.00, plus $0.40.'),
+          line('$100, Basic Store or higher', usd(cardAt100.store), '12.35% of $100.00, plus $0.40.'),
+          line('Store saves on the $100 card', usd(cardAt100.saves), 'The difference between those two totals.'),
+        ],
+      },
+      {
+        heading: "A $10,000 card and eBay's $10,070 example",
+        caption: "Hypothetical totals, still with the per-order fee included. Above $2,500 the Basic Store rate is already 2.35%, while no Store stays at 13.25% until $7,500. The $10,070 row is the trading-card example on eBay's selling fees page: 13.25% of $7,500, plus 2.35% of $2,570, plus $0.40.",
+        lines: [
+          line('$10,000, no Store or Starter Store', usd(cardAt10000.noStore), '13.25% on the first $7,500, then 2.35% on the rest, plus $0.40.'),
+          line('$10,000, Basic Store or higher', usd(cardAt10000.store), '12.35% on the first $2,500, then 2.35% on the rest, plus $0.40.'),
+          line('Store saves on the $10,000 card', usd(cardAt10000.saves), 'The Basic Store rate drops to 2.35% at $2,500. No Store stays at 13.25% until $7,500.'),
+          line('$10,070, no Store or Starter Store', usd(cardAt10070.noStore), '13.25% of $7,500, plus 2.35% of $2,570, plus $0.40.'),
+        ],
+      },
+    ],
+    checks: [
+      'On one recent card order, add the item price, handling, shipping collected, and sales tax. That sum is the total amount of the sale the final value fee uses.',
+      'No Store or a Starter Store: divide the final value fee by that sum. Up to $7,500 per item, the rate is 13.25%, then 2.35% on the rest.',
+      'Basic Store or higher: 12.35% up to $2,500 per item, then 2.35%. Comic books use the same card rate. A Starter Store stays on 13.25%.',
+      'Read the per-order fee as its own line. It is $0.30 at $10.00 or less and $0.40 over $10.00, once per order.',
+      'For the standard envelope, price a raw card at $19.99 or less. The envelope cap is the item price, before shipping and tax. Authenticity Guarantee starts at $200.',
+    ],
+    feeLinks: [
+      { href: '/fees/ebay/trading-cards', label: 'eBay trading card final value fee', note: '13.25% on the first $7,500 per item, then 2.35%, with no Store or a Starter Store. Comic books use this rate.' },
+      { href: '/fees/ebay/trading-cards-store', label: 'eBay trading cards with a Basic Store or higher', note: '12.35% on the first $2,500 per item, then 2.35%.' },
+      { href: '/fees/ebay', label: 'eBay fees by category', note: 'The per-order fee sits on top of the category percentage. $0.30 through $10 and $0.40 above.' },
+      { href: '/holiday-2026', label: 'Holiday 2026 seller hub: peak fees, deadlines and returns', note: 'Shipping cutoffs, returns and peak fees, collected on one page.' },
+    ],
+    analysisSlugs: ['ebay-trading-card-fees-2026-store-break-even'],
+  },
 ]
 
 export function wordCount(text: string): number {
@@ -877,3 +949,4 @@ export const TIKTOK_EXAMPLES = {
   preownedOnCollectiblesBase: tiktokReferralAmount(tiktokCollectiblesBase, TIKTOK_PREOWNED_PCT, true),
 }
 export const ETSY_SALE_EXAMPLES = { plain: etsySale }
+export const TRADING_CARD_EXAMPLES = { at20: cardAt20, at100: cardAt100, at10000: cardAt10000, at10070: cardAt10070 }

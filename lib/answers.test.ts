@@ -25,6 +25,7 @@ import {
   ETSY_SALE_EXAMPLES,
   ETSY_TRANSACTION_PCT,
   LIVE_ANALYSIS_SLUGS,
+  TRADING_CARD_EXAMPLES,
   TIKTOK_EXAMPLES,
   TIKTOK_JEWELRY_FIVE_PCT,
   TIKTOK_MOST_PCT,
@@ -56,7 +57,7 @@ const html = (el: unknown) => renderToStaticMarkup(el as ReactElement)
 const params = (slug: string) => ({ params: Promise.resolve({ slug }) }) as never
 
 describe('answer pages', () => {
-  it('publishes the hub and ten question URLs', () => {
+  it('publishes the hub and eleven question URLs', () => {
     expect(ANSWER_PAGES.map(p => p.slug)).toEqual([
       'etsy-offsite-ads-fee',
       'can-i-turn-off-etsy-offsite-ads',
@@ -68,6 +69,7 @@ describe('answer pages', () => {
       'walmart-wfs-fees',
       'tiktok-shop-seller-fees',
       'how-much-does-etsy-take-from-a-sale',
+      'ebay_trading_cards',
     ])
     expect(ANSWER_PATHS).toEqual(['/answers', ...ANSWER_PAGES.map(p => answerPath(p.slug))])
   })
@@ -160,12 +162,27 @@ describe('answer pages', () => {
     expect(tiktokCopy).not.toMatch(/\b8%/)
 
     expect(ETSY_SALE_EXAMPLES.plain).toEqual({ transactionBase: 44, processingBase: 44, transaction: 2.86, processing: 1.57, listing: 0.2, total: 4.63 })
+
+    expect(getCategory('ebay', 'trading-cards')).toMatchObject({
+      referralPct: 13.25,
+      tierMode: 'marginal',
+      tiers: [{ upTo: 7500, pct: 13.25 }, { upTo: null, pct: 2.35 }],
+    })
+    expect(getCategory('ebay', 'trading-cards-store')).toMatchObject({
+      referralPct: 12.35,
+      tierMode: 'marginal',
+      tiers: [{ upTo: 2500, pct: 12.35 }, { upTo: null, pct: 2.35 }],
+    })
+    expect(TRADING_CARD_EXAMPLES.at20).toMatchObject({ perOrder: 0.4, noStore: 3.05, store: 2.87, saves: 0.18 })
+    expect(TRADING_CARD_EXAMPLES.at100).toMatchObject({ perOrder: 0.4, noStore: 13.65, store: 12.75, saves: 0.9 })
+    expect(TRADING_CARD_EXAMPLES.at10000).toMatchObject({ perOrder: 0.4, noStore: 1052.9, store: 485.4, saves: 567.5 })
+    expect(TRADING_CARD_EXAMPLES.at10070).toMatchObject({ perOrder: 0.4, noStore: 1054.55 })
   })
 
   it('groups by marketplace and by job, and links 3 to 5 other answers', () => {
     expect(answersIn({ marketplace: 'etsy' }).map(p => p.slug)).toEqual(['etsy-offsite-ads-fee', 'can-i-turn-off-etsy-offsite-ads', 'how-much-does-etsy-take-from-a-sale'])
     expect(answersIn({ marketplace: 'amazon' }).map(p => p.slug)).toEqual(['amazon-fba-fees-2027', 'how-much-does-amazon-take-from-a-sale'])
-    expect(answersIn({ marketplace: 'ebay' }).map(p => p.slug)).toEqual(['ebay-fees-include-shipping-and-tax', 'ebay-per-order-fee'])
+    expect(answersIn({ marketplace: 'ebay' }).map(p => p.slug)).toEqual(['ebay-fees-include-shipping-and-tax', 'ebay-per-order-fee', 'ebay_trading_cards'])
     expect(answersIn({ marketplace: 'walmart' }).map(p => p.slug)).toEqual(['how-much-does-walmart-take-from-a-sale', 'walmart-wfs-fees'])
     expect(answersIn({ marketplace: 'tiktok-shop' }).map(p => p.slug)).toEqual(['tiktok-shop-seller-fees'])
     expect(answersIn({ job: 'ads' }).length).toBe(2)
@@ -179,6 +196,7 @@ describe('answer pages', () => {
       'walmart-wfs-fees',
       'tiktok-shop-seller-fees',
       'how-much-does-etsy-take-from-a-sale',
+      'ebay_trading_cards',
     ])
     for (const page of ANSWER_PAGES) {
       const related = relatedAnswers(page.slug)
@@ -218,7 +236,7 @@ describe('answer pages', () => {
     const { generateMetadata } = await import('@/app/answers/[slug]/page')
     for (const page of ANSWER_PAGES) {
       const out = html(await Page(params(page.slug)))
-      expect(out, page.slug).toContain(`>${page.question}<`)
+      expect(out.replace(/&#x27;/g, "'"), page.slug).toContain(`>${page.question}<`)
       expect(out, page.slug).toContain(page.directAnswer)
       expect(out, page.slug).toContain('Hypothetical worked example')
       expect(out, page.slug).toContain('What to check this week')
@@ -279,5 +297,34 @@ describe('answer pages', () => {
     }
     expect(lastmod('/answers/etsy-offsite-ads-fee')).toBe('2026-11-19')
     expect(lastmod('/answers/how-much-does-amazon-take-from-a-sale')).toBe('2026-11-19')
+    expect(answerUpdatedOn(ANSWER_PAGES.find(page => page.slug === 'ebay_trading_cards')!)).toBe('2026-11-25')
+    expect(lastmod('/answers/ebay_trading_cards')).toBe('2026-11-25')
+    expect(answersIndexUpdatedOn()).toBe('2026-11-25')
+    expect(lastmod('/answers')).toBe('2026-11-25')
+  })
+
+  it('links the trading card fee pages, the eBay fee table, and the published analysis', async () => {
+    const { default: Page } = await import('@/app/answers/[slug]/page')
+    const out = html(await Page(params('ebay_trading_cards')))
+    for (const href of [
+      '/fees/ebay/trading-cards',
+      '/fees/ebay/trading-cards-store',
+      '/fees/ebay',
+      '/holiday-2026',
+      '/intelligence/analysis/ebay-trading-card-fees-2026-store-break-even',
+      '/newsletter?source=answers_ebay_trading_cards#subscribe',
+    ]) {
+      expect(out).toContain(`href="${href}"`)
+    }
+    expect(out).toContain('$3.05')
+    expect(out).toContain('$2.87')
+    expect(out).toContain('$13.65')
+    expect(out).toContain('$12.75')
+    expect(out).toContain('$1,052.90')
+    expect(out).toContain('$485.40')
+    expect(out).toContain('$567.50')
+    expect(out).toContain('$1,054.55')
+    expect(out).not.toContain('$487.05')
+    expect(out).not.toContain('$1,054.15')
   })
 })

@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs'
+import { createElement, type ReactElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import type { ReactElement } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import { ANALYSIS_ARTICLES, getAnalysis, latestAnalysis, type AnalysisArticle } from '@/lib/analysis'
 import { AMAZON_PEAK_DESCRIPTION, AMAZON_PEAK_PATH, AMAZON_PEAK_TITLE } from '@/lib/amazon-holiday-peak-2026'
@@ -185,6 +185,13 @@ describe('back-links to /holiday-2026', () => {
       if (isHolidayAnalysis(a)) expect(reading, a.slug).toContain(`href="${HOLIDAY_HUB_PATH}"`)
       else expect(reading, a.slug).not.toContain(HOLIDAY_HUB_PATH)
     }
+  })
+
+  it('the fees index links the hub', async () => {
+    const { default: Page } = await import('@/app/fees/page')
+    const html = renderToStaticMarkup(createElement(Page))
+    expect(html).toContain(`href="${HOLIDAY_HUB_PATH}"`)
+    expect(html).toContain('Holiday 2026 seller hub: peak fees, deadlines and returns')
   })
 
   it('the Amazon holiday peak fee page links the hub', async () => {

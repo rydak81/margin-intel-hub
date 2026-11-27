@@ -24,6 +24,19 @@ import { newsletterSource } from '@/lib/newsletter-source'
 import { SALE_PRICES } from '@/lib/sale-fee-pages'
 
 export const RELATED_FEE_COMPARE = { href: FEE_BY_PRICE_PATH, label: FEE_BY_PRICE_TITLE }
+
+/** Short answer linked from the two eBay trading-card calculators. The shared Related block stays marketplace-wide. */
+export const EBAY_TRADING_CARD_ANSWER = {
+  href: '/answers/ebay_trading_cards',
+  label: "What are eBay's trading card fees?",
+} as const
+
+const EBAY_TRADING_CARD_CATEGORIES = new Set(['trading-cards', 'trading-cards-store'])
+
+export function feeCategoryAnswerLink(marketplaceSlug: string, categorySlug: string): typeof EBAY_TRADING_CARD_ANSWER | null {
+  if (marketplaceSlug === 'ebay' && EBAY_TRADING_CARD_CATEGORIES.has(categorySlug)) return EBAY_TRADING_CARD_ANSWER
+  return null
+}
 export const RELATED_ANALYSIS_LIMIT = 3
 /** A body-only mention must appear at least this many times to count. */
 export const BODY_MENTION_THRESHOLD = 2
