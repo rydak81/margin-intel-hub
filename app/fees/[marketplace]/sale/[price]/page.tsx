@@ -13,12 +13,17 @@ import { SALE_PRICES, feeRangeLabel, getAllSaleRoutes, money, ogImageUrl, parseS
 import { getPairsFor } from '@/lib/fee-compare'
 import { TIKTOK_FEE_CHANGE_PATH } from '@/lib/tiktok-fee-change-2026'
 import { salePageRobots } from '@/lib/seo-indexing'
+import { SaleFeeRelatedAnalysis } from '@/components/sale-fee-related'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://marketplacebeta.com'
 
 interface PageProps { params: Promise<{ marketplace: string; price: string }> }
 
 export const dynamicParams = false
+
+// The holiday hub link inside Related analysis is included only through
+// 2026-12-31 America/New_York. Regenerate daily so that link drops on its own.
+export const revalidate = 86400
 
 export function generateStaticParams() {
   return getAllSaleRoutes()
@@ -151,6 +156,8 @@ export default async function SaleFeePage({ params }: PageProps) {
             {faqs.map(f => <div key={f.question}><dt className="font-medium">{f.question}</dt><dd className="mt-1.5 text-muted-foreground">{f.answer}</dd></div>)}
           </dl>
         </section>
+
+        <SaleFeeRelatedAnalysis marketplace={m.slug} />
 
         <BriefCta
           source={BRIEF_CTA_KEYS.feeSale(m.slug)}
