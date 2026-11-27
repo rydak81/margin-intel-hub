@@ -2,7 +2,7 @@ import type { AnalysisArticle } from '@/lib/analysis/types'
 
 export const article = {
     slug: 'ieepa-tariff-refunds-marketplace-sellers',
-    seoTitle: 'IEEPA Tariff Refunds for Amazon and Marketplace Sellers',
+    seoTitle: 'IEEPA Tariff Refunds: Amazon & Marketplace Sellers',
     metaDescription: 'Only the importer of record gets IEEPA refunds, and the easy filing window closes entry by entry. Who qualifies, the dates, and what to file this week.',
     headline: 'The IEEPA refund clock is running on your holiday 2025 inventory. Check who your importer of record was',
     dek: 'CBP is paying back the tariffs the Supreme Court struck down, but only to the importer of record, and only through the simple filing path for entries that are unliquidated or less than 80 days past liquidation. For goods entered last October through December, that window is closing now. Here is who can claim, what the class action does and does not do, and what to check this week.',

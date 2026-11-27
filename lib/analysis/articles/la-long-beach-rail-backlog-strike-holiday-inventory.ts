@@ -2,7 +2,7 @@ import type { AnalysisArticle } from '@/lib/analysis/types'
 
 export const article = {
     slug: "la-long-beach-rail-backlog-strike-holiday-inventory",
-    seoTitle: "LA–Long Beach Backlog and Strike Risk: Q4 Stock Plan",
+    seoTitle: "LA–Long Beach Backlog & Strike: Q4 Stock",
     metaDescription: "Contract extended to Nov 20; PMA's Nov. 6 statement does not announce a settlement. LA–Long Beach rail backlog elevated. Cyber Week checklist.",
     headline: "Your Cyber Week stock may be stuck at LA–Long Beach. Plan as if it misses.",
     dek: "A rail backlog is still holding thousands of import containers for nine days or more at Los Angeles and Long Beach, and PMA and ILWU Local 26 have extended the watchmen's contract a third time, now through November 20, and PMA's November 6 statement does not announce a settlement. Here is how to triage inventory, promotions and ad spend before Black Friday.",

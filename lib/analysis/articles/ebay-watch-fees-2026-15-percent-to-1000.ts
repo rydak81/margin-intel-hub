@@ -2,7 +2,7 @@ import type { AnalysisArticle } from '@/lib/analysis/types'
 
 export const article = {
     "slug": "ebay-watch-fees-2026-15-percent-to-1000",
-    "seoTitle": "eBay Watch Fees 2026: 15% to $1,000, Then Less",
+    "seoTitle": "eBay Watch Fees: 15% to $1,000, Then Less",
     "metaDescription": "eBay watch fees in 2026: 15% to $1,000, 6.5% to $7,500, 3% above. Worked at $500, $2,500 and $10,000, plus where Walmart is cheaper.",
     "headline": "eBay watch fees in 2026: 15% to $1,000, 6.5% to $7,500, 3% above, and where Walmart costs less",
     "dek": "Watches, Parts & Accessories has its own marginal fee schedule on eBay, separate from Jewelry. We re-read eBay's and Walmart's fee pages on November 9, 2026, worked three sale prices, and found the price where Walmart becomes the cheaper watch fee.",

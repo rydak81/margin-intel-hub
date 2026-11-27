@@ -2,7 +2,7 @@ import type { AnalysisArticle } from '@/lib/analysis/types'
 
 export const article = {
   "slug": "amazon-holiday-peak-fees-2026-fba-surcharge",
-  "seoTitle": "Amazon Peak Fees: Audit Three Different Cost Clocks",
+  "seoTitle": "Amazon Peak Fees: Audit Three Cost Clocks",
   "metaDescription": "Audit Amazon holiday fulfillment, fuel surcharge and storage separately. A reusable worksheet prevents double counting and January budgeting errors.",
   "headline": "Amazon holiday fees run on different clocks. Your audit should too.",
   "dek": "Peak fulfillment, fuel surcharges and monthly storage need separate dates and bases. A reusable operator worksheet helps expose double counting before it reaches a promotion budget.",

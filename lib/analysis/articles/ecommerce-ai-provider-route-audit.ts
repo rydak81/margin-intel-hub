@@ -2,7 +2,7 @@ import type { AnalysisArticle } from '@/lib/analysis/types'
 
 export const article: AnalysisArticle = {
   "slug": "ecommerce-ai-provider-route-audit",
-  "seoTitle": "AI Provider Routes: An Ecommerce Audit Worksheet",
+  "seoTitle": "AI Provider Routes: Ecommerce Audit Sheet",
   "metaDescription": "Trace the provider behind an AI model before using private ecommerce data. A practical routing audit grounded in November 2026 incident reports.",
   "headline": "The model name is not your AI data-processing map",
   "dek": "Recent provider disclosures expose a gap in ecommerce AI evaluation: an accepted answer does not tell you where a request went or what was retained.",

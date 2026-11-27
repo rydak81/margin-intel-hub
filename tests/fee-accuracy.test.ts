@@ -84,10 +84,14 @@ test('reverse mappings retain category identity through calculator updates', () 
 test('search descriptions promise modeled sale totals only for mapped pairs', () => {
   for (const { a, b } of getAllPairs()) {
     const description = comparisonDescription(a, b)
-    if (matchedCategories(a, b).length) assert.match(description, /total fees on a \$29.99 sale/)
+    if (matchedCategories(a, b).length) {
+      assert.match(description, /total fees on a \$29.99 sale/)
+      assert.ok(description.length <= 160, description)
+    }
     else {
       assert.doesNotMatch(description, /total fees|\$29.99/)
-      assert.match(description, /no verified same-product category comparison/)
+      assert.match(description, /no verified same-product category comparison/i)
+      assert.ok(description.length <= 160, description)
     }
   }
 })

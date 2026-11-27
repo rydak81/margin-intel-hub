@@ -15,7 +15,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://marketplacebeta.com
 const fmtDate = (iso: string) => new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' })
 
 export const metadata: Metadata = {
-  title: `${HOLIDAY_HUB_TITLE} | MarketplaceBeta`,
+  title: HOLIDAY_HUB_TITLE,
   description: HOLIDAY_HUB_DESCRIPTION,
   alternates: { canonical: HOLIDAY_HUB_PATH },
   openGraph: { title: HOLIDAY_HUB_TITLE, description: HOLIDAY_HUB_DESCRIPTION, url: HOLIDAY_HUB_PATH, type: 'website' },

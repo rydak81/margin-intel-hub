@@ -2,7 +2,7 @@ import type { AnalysisArticle } from '@/lib/analysis/types'
 
 export const article = {
     "slug": "usps-january-2027-price-change-fuel-surcharge",
-    "seoTitle": "USPS January 2027 Price Change: The Fuel Surcharge Arrives",
+    "seoTitle": "USPS Jan 2027 Price Change: Fuel Surcharge",
     "metaDescription": "USPS's temporary 8% and holiday prices end Jan 17, 2027, and a weekly fuel surcharge starts in January. What it means for your shipping costs.",
     "headline": "January 17 may not be a USPS price cut. A weekly fuel surcharge starts the same month.",
     "dek": "Two temporary USPS increases end on January 17, 2027, and USPS says a weekly fuel surcharge starts in January. It has not published a start date, a first percentage or a formula. UPS and FedEx general rate increases land before then, on December 21 and January 4. Here is the calendar, the one number to watch, and what to fix before peak ends.",

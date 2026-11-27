@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ORGANIZATION_REF } from '@/lib/site-jsonld'
+import { documentTitle } from '@/lib/document-title'
 import { OPERATOR_GUIDES, GUIDE_UPDATED, GUIDE_PUBLISHED } from '@/lib/operator-guides'
 import { PremiumSiteHeader } from '@/components/premium-site-header'
 import { PremiumSiteFooter } from '@/components/premium-site-footer'
@@ -27,7 +28,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const guide = OPERATOR_GUIDES.find(g => g.slug === slug)
   if (!guide) return { title: 'Guide not found | MarketplaceBeta' }
-  return { title: `${guide.title} | MarketplaceBeta`, description: guide.description, alternates: { canonical: `/guides/${slug}` }, openGraph: { title: guide.title, description: guide.description, url: `/guides/${slug}`, type: 'article', publishedTime: GUIDE_PUBLISHED, modifiedTime: GUIDE_UPDATED } }
+  const title = documentTitle(guide.seoTitle ?? guide.title)
+  return { title, description: guide.description, alternates: { canonical: `/guides/${slug}` }, openGraph: { title, description: guide.description, url: `/guides/${slug}`, type: 'article', publishedTime: GUIDE_PUBLISHED, modifiedTime: GUIDE_UPDATED } }
 }
 export default async function GuidePage({ params }: Props) {
   const { slug } = await params

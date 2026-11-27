@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const m = s.marketplace
   const range = feeRangeLabel(s)
   const title = `How much does ${m.shortName} take from a $${s.price} sale? ${range} in fees`
-  const description = `On a $${s.price} sale, ${m.name} fees total ${range} depending on category (${s.min.takeRatePct}%–${s.max.takeRatePct}% of the sale), before product cost and fulfillment. Category-by-category breakdown, verified ${formatVerifiedDate(m.lastVerified)}.`
+  const description = `On a $${s.price} sale, ${m.name} fees total ${range} depending on category (${s.min.takeRatePct}%–${s.max.takeRatePct}% of the sale), before product cost and fulfillment.`
   const canonical = `${SITE_URL}${salePath(m.slug, s.price)}`
   const image = ogImageUrl(`${m.shortName} fees on a $${s.price} sale`, range)
   // Price-only template pages: usable and crawlable, but not indexed, except

@@ -2,7 +2,7 @@ import type { AnalysisArticle } from '@/lib/analysis/types'
 
 export const article = {
   "slug": "chatgpt-discovery-metrics-order-ledger",
-  "seoTitle": "ChatGPT Discovery Metrics: An Ecommerce Measurement Plan",
+  "seoTitle": "ChatGPT Discovery Metrics: An Order Ledger",
   "metaDescription": "Keep ChatGPT mentions, referrals and paid orders distinct. A practical worksheet for compatible denominators, missing metrics and contribution costs.",
   "headline": "ChatGPT discovery metrics need a separate order ledger",
   "dek": "New business insights create a useful observation point. They do not, by themselves, connect an AI mention to a profitable order. Here is a measurement plan for that gap.",

@@ -2,7 +2,7 @@ import type { AnalysisArticle } from '@/lib/analysis/types'
 
 export const article = {
     "slug": "holiday-shipping-cutoffs-2026-small-sellers",
-    "seoTitle": "2026 Holiday Shipping Cutoffs for Small Sellers",
+    "seoTitle": "Holiday Shipping Cutoffs 2026: Small Sellers",
     "metaDescription": "USPS, UPS and FedEx 2026 ship-by dates for Christmas, what Amazon, Etsy, eBay, Walmart and TikTok Shop publish, and what late upgrades cost.",
     "headline": "The 2026 holiday shipping cutoffs, and why the last week costs three times as much in surcharges",
     "dek": "All three carriers have published their 2026 Christmas dates. For ground, the last safe day is Thursday, December 17. After that, every order that still has to arrive by Christmas moves to an air or express service, and the peak surcharge on that label is roughly three times the ground one. Here are the dates from the carriers' own pages, what the marketplaces do and don't publish, and the order-by dates to set this week.",

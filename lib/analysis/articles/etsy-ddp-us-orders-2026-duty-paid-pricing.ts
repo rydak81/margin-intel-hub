@@ -2,7 +2,7 @@ import type { AnalysisArticle } from '@/lib/analysis/types'
 
 export const article = {
     "slug": "etsy-ddp-us-orders-2026-duty-paid-pricing",
-    "seoTitle": "Etsy DDP Rule for US Orders: Who Pays and How to Price",
+    "seoTitle": "Etsy DDP US Orders: Who Pays, How to Price",
     "metaDescription": "Since July 9, 2026, Etsy sellers outside the US must ship US orders duty paid. Who it hits, what a duty costs after Etsy fees, and how to price it.",
     "headline": "Etsy's duty-paid rule for US orders: price the duty in, then price in Etsy's cut of the duty",
     "dek": "Since July 9, 2026, Etsy expects sellers outside the US to ship US orders Delivered Duty Paid, with duties and import fees built into the checkout price. A parcel that arrives with a bill for the buyer loses Etsy Purchase Protection, and Etsy can refund the buyer and deduct the charge from the seller. Here is who the rule hits, why adding the duty to your price leaves you short, and the US price that actually covers it.",

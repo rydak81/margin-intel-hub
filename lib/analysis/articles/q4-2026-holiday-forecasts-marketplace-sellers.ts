@@ -2,7 +2,7 @@ import type { AnalysisArticle } from '@/lib/analysis/types'
 
 export const article = {
     slug: 'q4-2026-holiday-forecasts-marketplace-sellers',
-    seoTitle: 'Q4 2026 Holiday Forecasts for Marketplace Sellers',
+    seoTitle: 'Q4 2026 Holiday Forecasts for Sellers',
     metaDescription: 'Adobe, Deloitte and Bain expect a record online holiday. What it means for discounts, inventory and ad budgets, and the two calls we will grade in public.',
     headline: 'The holiday forecasts say record dollars. Plan for thin units and price discounts accordingly',
     dek: 'Adobe expects $275.1 billion online in November and December, up 6.7%. Bain says more than half of holiday sales growth is inflation. Our forecast F1 sits at 6%, and the first test of the season came in under Adobe\'s call. Here is what that means for a marketplace seller\'s discount depth, inventory and ad spend before Black Friday.',

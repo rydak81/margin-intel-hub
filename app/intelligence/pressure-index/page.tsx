@@ -24,8 +24,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const ogTitle = top ? `Pressure Index top mover: ${top.label}'s share of marketplace coverage at ${top.index.toFixed(1)}x its usual level` : 'Weekly Marketplace Pressure Index'
   const ogImage = '/api/og?title=' + encodeURIComponent(ogTitle) + '&category=' + encodeURIComponent('Pressure Index · coverage share') + (top ? '&headline=' + encodeURIComponent(`${top.index.toFixed(1)}x share`) : '')
   return {
-    title: 'Marketplace Pressure Index: Weekly Ecommerce Coverage Intensity | MarketplaceBeta',
-    description: 'Which marketplaces and topics are drawing unusual attention this week? The Pressure Index compares the share each marketplace and topic takes of the last 7 days of classified coverage with its usual weekly share over the trailing 12 weeks.',
+    title: 'Marketplace Pressure Index: Weekly Coverage Intensity',
+    description: 'Which marketplaces and topics draw unusual attention this week? The Pressure Index compares share of the last 7 days with its usual share over 12 weeks.',
     alternates: { canonical: URL_ },
     openGraph: { title: 'Marketplace Pressure Index', description: ogTitle, url: URL_, type: 'website', images: [{ url: ogImage, width: 1200, height: 630 }] },
     twitter: { card: 'summary_large_image', title: 'Marketplace Pressure Index', description: ogTitle, images: [ogImage] },

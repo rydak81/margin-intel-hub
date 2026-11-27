@@ -2,7 +2,7 @@ import type { AnalysisArticle } from '@/lib/analysis/types'
 
 export const article = {
   "slug": "self-hosted-agent-migration-input-completion-check",
-  "seoTitle": "Self-Hosted Agents: Test Inputs and Completion",
+  "seoTitle": "Self-Hosted Agents: Test Input Completion",
   "metaDescription": "A practical migration worksheet for ecommerce AI agents: verify image inputs, worker execution and scheduled outputs before trusting a successful request.",
   "headline": "Your agent accepted the request. Did it receive the product image?",
   "dek": "Self-hosted agent compatibility needs checks for inputs, execution and completed work. A successful request can leave those questions unanswered.",

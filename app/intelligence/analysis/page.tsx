@@ -11,7 +11,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://marketplacebeta.co
 // Existing key for the analysis hub; kept so attribution history stays continuous.
 const ANALYSIS_HUB_SOURCE = 'campaign_analysis'
 const INDEX_PATH = '/intelligence/analysis'
-const INDEX_TITLE = 'Operator Analysis: Original Marketplace Intelligence | MarketplaceBeta'
+const INDEX_TITLE = 'Operator Analysis: Original Marketplace Intelligence'
 const INDEX_DESCRIPTION = 'Original, source-linked analysis for e-commerce operators: what changed, why it matters, what to do this week, and which public forecasts it tracks.'
 const INDEX_IMAGE = '/api/og?title=' + encodeURIComponent('Original analysis for operators') + '&category=' + encodeURIComponent('Analysis')
 

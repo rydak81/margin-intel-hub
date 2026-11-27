@@ -16,8 +16,8 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://marketplacebeta.co
 const fmtDate = (iso: string) => new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' })
 export const revalidate = 300
 export const metadata: Metadata = {
-  title: 'Marketplace Intelligence for Ecommerce Operators | MarketplaceBeta',
-  description: 'Original analysis, the Marketplace Pressure Index, a public forecast scorecard and a source-linked news dashboard for Amazon, Walmart, TikTok Shop, eBay and Etsy sellers.',
+  title: 'Marketplace Intelligence for Ecommerce Operators',
+  description: 'Original analysis, the Marketplace Pressure Index, a public forecast scorecard and a source-linked news dashboard.',
   alternates: { canonical: '/intelligence' },
 }
 export default async function IntelligencePage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {

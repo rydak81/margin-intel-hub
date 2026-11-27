@@ -35,7 +35,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!marketplace) return { title: "Marketplace not found | MarketplaceBeta" }
 
   const verified = formatVerifiedDate(marketplace.lastVerified)
-  const title = `${marketplace.name} Fees ${new Date().getFullYear()}: Every Category (${verified})`
+  const year = new Date().getFullYear()
+  const withScope = `${marketplace.name} Fees ${year}: Every Category (${verified})`
+  // "Every Category" is dropped only when it pushes the title past 60.
+  // The year and the verified date stay.
+  const title = withScope.length <= 60 ? withScope : `${marketplace.name} Fees ${year} (${verified})`
   const description = `Complete ${marketplace.name} ${marketplace.feeName} table for all ${marketplace.categories.length} categories, plus a margin calculator. Updated ${verified}.`
   const canonical = `${SITE_URL}/fees/${marketplace.slug}`
 

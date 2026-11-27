@@ -8,6 +8,8 @@ export interface GuideSection {
 export interface OperatorGuide {
   slug: string
   title: string
+  /** Document title when `title` itself runs past 60 characters. The page heading stays `title`. */
+  seoTitle?: string
   description: string
   category: string
   readTime: string
@@ -22,6 +24,7 @@ export const GUIDE_UPDATED = '2026-10-10'
 export const OPERATOR_GUIDES: OperatorGuide[] = [
   {
     slug: 'product-profitability', title: 'Ecommerce Profit Margin Calculator & Product Profitability Guide',
+    seoTitle: 'Ecommerce Profit Margin Calculator & Profitability Guide',
     description: 'A worked unit-economics example that includes fulfillment, advertising, returns, and overhead—plus a free profitability worksheet.',
     category: 'Profitability', readTime: '6 min',
     takeaway: 'Calculate contribution per order before deciding how many units to buy. Revenue and gross markup can hide a weak operating margin.',

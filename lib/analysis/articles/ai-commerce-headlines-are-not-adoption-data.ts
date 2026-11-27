@@ -5,7 +5,7 @@ const source = `[dated evidence summary](${evidence})`
 
 export const article = {
   slug: 'ai-commerce-headlines-are-not-adoption-data',
-  seoTitle: 'AI Commerce Headlines Are Not Adoption Data',
+  seoTitle: 'AI Commerce Headlines Aren\'t Adoption Data',
   metaDescription: 'Original analysis of a matched news sample: what AI-agent headline counts measure, where comparisons fail, and how to build a useful research workflow.',
   headline: 'Why more AI headlines do not prove more AI adoption',
   dek: 'A comparison of MarketplaceBeta’s news archive shows how source mix, denominators and small samples can change a story. Here is the evidence, the method, and a practical framework for evaluating an AI research agent.',

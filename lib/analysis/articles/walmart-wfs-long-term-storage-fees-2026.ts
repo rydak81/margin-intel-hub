@@ -2,7 +2,7 @@ import type { AnalysisArticle } from '@/lib/analysis/types'
 
 export const article = {
     "slug": "walmart-wfs-long-term-storage-fees-2026",
-    "seoTitle": "Walmart WFS Long-Term Storage Fees 2026: $2.25 to $7.50",
+    "seoTitle": "Walmart WFS Long-Term Storage: $2.25–$7.50",
     "metaDescription": "Since June 30, 2026, WFS charges $2.25/cu ft a month after 365 days and $7.50 after 450. Holiday 2025 leftovers are crossing now. The math.",
     "headline": "Walmart WFS long-term storage: last holiday's leftover stock is turning a year old, and the real cliff is day 451",
     "dek": "Since June 30, 2026, Walmart Fulfillment Services charges $2.25 per cubic foot per month for units stored 366 to 450 days and $7.50 after 450 days. Units Walmart received for holiday 2025 are crossing day 366 now. We read Walmart's WFS fees guide, its aged-inventory guide and its pricing page on November 10, 2026, worked one hypothetical SKU through the calendar, and set out when removing stock beats paying to store it.",

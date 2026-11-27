@@ -27,8 +27,8 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: 'Ecommerce Marketplace Intelligence & Forecasts | MarketplaceBeta',
-  description: 'Marketplace intelligence that keeps score: an AI-classified archive of marketplace news, public forecasts graded as they resolve, and evidence-labeled research for ecommerce operators.',
+  title: 'Ecommerce Marketplace Intelligence & Forecasts',
+  description: 'Marketplace intelligence that keeps score: an AI-classified archive of marketplace news, public forecasts graded as they resolve, and evidence-labeled research.',
   keywords: ['ecommerce marketplace intelligence', 'ecommerce forecasts', 'marketplace forecasts', 'marketplace research', 'marketplace seller fees', 'Amazon referral fees', 'Walmart seller fees', 'TikTok Shop fees', 'eBay fees', 'Etsy fees', 'e-commerce', 'Amazon FBA', 'marketplace sellers', 'e-commerce news', 'seller tools', 'Amazon news'],
   authors: [{ name: 'MarketplaceBeta' }],
   verification: googleSiteVerification ? {

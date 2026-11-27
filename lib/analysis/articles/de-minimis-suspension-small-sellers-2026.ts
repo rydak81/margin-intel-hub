@@ -2,7 +2,7 @@ import type { AnalysisArticle } from '@/lib/analysis/types'
 
 export const article = {
     slug: 'de-minimis-suspension-small-sellers-2026',
-    seoTitle: 'De Minimis Suspension: What It Means for Small Sellers',
+    seoTitle: 'De Minimis Suspension for Small Sellers',
     metaDescription: 'From Jan 20, 2027, mail parcels carrying Chapter 98 or 99 duties lose postal informal entry. China-made goods are a common case. What to do now.',
     headline: 'International mail with Chapter 98 or 99 duties loses its easy customs lane on January 20. Find out how your supplies arrive',
     dek: 'The $800 duty-free exemption is suspended indefinitely and repealed by statute from July 2027. The last soft spot was international mail. In a rule published October 22, CBP moved to January 20, 2027 the date after which mail shipments carrying Chapter 98 or 99 duties, claiming Chapter 98 or free-trade-agreement duty-free treatment, or subject to other agencies\' requirements can no longer use postal informal entry. The rule says filers then choose formal entry or the voluntary Entry Type 13 test. It is not China-specific, but products of China are a common case: since July 24 they carry a 12.5% Section 301 duty, a Chapter 99 duty, unless exempt. Here is what changed, who it hits, and what to check before you place Q1 orders.',

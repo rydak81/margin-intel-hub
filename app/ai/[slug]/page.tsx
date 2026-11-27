@@ -7,6 +7,7 @@ import { PremiumSiteFooter } from '@/components/premium-site-footer'
 import { AiPrompt } from '@/components/ai-prompt'
 import { JsonLd } from '@/components/json-ld'
 import { ORGANIZATION_REF } from '@/lib/site-jsonld'
+import { documentTitle } from '@/lib/document-title'
 import { AI_PLAYBOOKS, getAiPlaybook } from '@/lib/ai-playbooks'
 import { BriefCta, SponsorBriefLink } from '@/components/brief-cta'
 import { BriefSignupLink } from '@/components/brief-signup-link'
@@ -19,7 +20,8 @@ export function generateStaticParams() { return AI_PLAYBOOKS.map(p=>({slug:p.slu
 export async function generateMetadata({params}:Props):Promise<Metadata> {
   const p = getAiPlaybook((await params).slug)
   if(!p) return {title:'Playbook not found | MarketplaceBeta',robots:{index:false}}
-  return {title:`${p.title} | MarketplaceBeta`,description:p.summary,alternates:{canonical:`/ai/${p.slug}`},openGraph:{title:p.title,description:p.summary,url:`/ai/${p.slug}`,type:'article',publishedTime:p.updatedOn,modifiedTime:p.updatedOn}}
+  const title = documentTitle(p.seoTitle ?? p.title)
+  return {title,description:p.summary,alternates:{canonical:`/ai/${p.slug}`},openGraph:{title,description:p.summary,url:`/ai/${p.slug}`,type:'article',publishedTime:p.updatedOn,modifiedTime:p.updatedOn}}
 }
 const blocks = [{id:'inputs',title:'What to bring'},{id:'workflow',title:'The workflow'},{id:'prompt',title:'A prompt to adapt'},{id:'review',title:'The human review'},{id:'measurement',title:'Measure the pilot'},{id:'pitfalls',title:'Where this can go wrong'},{id:'sources',title:'Sources & method'}]
 export default async function AiPlaybookPage({params}:Props) {

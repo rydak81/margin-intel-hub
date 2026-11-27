@@ -2,7 +2,7 @@ import type { AnalysisArticle } from '@/lib/analysis/types'
 
 export const article = {
     "slug": "walmart-new-seller-savings-2026-worth-it",
-    "seoTitle": "Walmart New-Seller Savings 2026: Is It Worth It?",
+    "seoTitle": "Walmart New-Seller Savings 2026: Worth It?",
     "metaDescription": "Walmart's 20-40% referral fee discount ends Jan 31, 2027. What it is worth at $5K, $20K and $50K a month, and why the launch date matters more.",
     "headline": "Walmart's New-Seller Savings ends January 31. At $5,000 a month, the referral-fee discount is about $400",
     "dek": "Walmart cuts a new seller's referral fees by 20% to 40% depending on sales, with a $72,000 cap. The program has a fixed end date, so a store that goes live in mid-November gets about 80 days of it. We worked out what that is worth at three sales levels, and why your operations should decide the launch date, not the discount.",

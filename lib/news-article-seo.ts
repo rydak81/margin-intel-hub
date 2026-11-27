@@ -10,6 +10,7 @@ import type { AnalysisArticle } from '@/lib/analysis'
 import { datedSummary } from '@/lib/news-freshness'
 import { relatedAnalysisForMarketplace } from '@/lib/related-links'
 import type { MarketplaceSlug } from '@/lib/marketplace-fees'
+import { capMetaDescription } from '@/lib/document-title'
 import { splitSourceSuffix, withheldSummaryDescription } from '@/lib/seo-indexing'
 import { ORGANIZATION_ID } from '@/lib/site-jsonld'
 
@@ -45,7 +46,7 @@ export function validIsoTimestamp(value: string | null | undefined): string | un
 }
 
 function truncateDescription(description: string): string {
-  return description.length > 200 ? `${description.substring(0, 197)}...` : description
+  return capMetaDescription(description)
 }
 
 /** Document title (without the site suffix) and the meta description. */

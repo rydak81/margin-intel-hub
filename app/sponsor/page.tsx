@@ -10,7 +10,7 @@ export const revalidate = 86400
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://marketplacebeta.com'
 const title = 'Sponsor the Daily Marketplace Brief | MarketplaceBeta'
-const description = 'Reach marketplace sellers, operators, agencies and ecommerce SaaS teams through the Daily Marketplace Brief, sponsored tool listings and the MarketplaceBeta dossier.'
+const description = 'Reach marketplace sellers, operators, agencies and ecommerce SaaS teams through the Daily Marketplace Brief and sponsored tool listings.'
 
 export const metadata: Metadata = {
   title, description,

@@ -29,6 +29,18 @@ describe('analysis articles', () => {
     }
   })
 
+  it('keeps the trading-card and per-order titles, and allows the approved suffix band', () => {
+    const bySlug = Object.fromEntries(ANALYSIS_ARTICLES.map(a => [a.slug, a.seoTitle]))
+    expect(bySlug['ebay-trading-card-fees-2026-store-break-even']).toBe('eBay Trading Card Fees 2026: 13.25%, or 12.35% With a Store')
+    expect(bySlug['ebay-per-order-fee-2026-under-10']).toBe('eBay Per-Order Fee 2026: $0.30 Under $10')
+    expect(bySlug['ebay-guitar-fees-2026-6-7-percent']).toBe('eBay Guitar Fees: 6.7% vs 13.6% for Other Gear')
+    expect(bySlug['ieepa-tariff-refunds-marketplace-sellers']).toBe('IEEPA Tariff Refunds: Amazon & Marketplace Sellers')
+    const suffix = ' | MarketplaceBeta'
+    expect((bySlug['ebay-guitar-fees-2026-6-7-percent'] + suffix).length).toBe(64)
+    expect((bySlug['ieepa-tariff-refunds-marketplace-sellers'] + suffix).length).toBe(68)
+    expect((bySlug['holiday-shipping-cutoffs-2026-small-sellers'] + suffix).length).toBe(62)
+  })
+
   it('use an allowlisted newsletter source', () => {
     for (const a of ANALYSIS_ARTICLES) expect(newsletterSource(`?source=${a.newsletterSource}`)).toBe(`newsletter_${a.newsletterSource}`)
   })

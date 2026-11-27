@@ -48,7 +48,7 @@ describe('/holiday-2026 route', () => {
     expect(existsSync('app/holiday-2026/page.tsx')).toBe(true)
     const { metadata } = await import('@/app/holiday-2026/page')
     expect(metadata.alternates?.canonical).toBe(HOLIDAY_HUB_PATH)
-    expect(metadata.title).toBe(`${HOLIDAY_HUB_TITLE} | MarketplaceBeta`)
+    expect(metadata.title).toBe(HOLIDAY_HUB_TITLE)
     expect(metadata.description).toBe(HOLIDAY_HUB_DESCRIPTION)
     expect(HOLIDAY_HUB_TITLE.length).toBeLessThanOrEqual(60)
     expect(HOLIDAY_HUB_DESCRIPTION.length).toBeLessThanOrEqual(155)
@@ -102,6 +102,8 @@ describe('hub links', () => {
     const { metadata } = await import('@/app/fees/amazon/holiday-peak-2026/page')
     expect(metadata.title).toBe(AMAZON_PEAK_TITLE)
     expect(metadata.description).toBe(AMAZON_PEAK_DESCRIPTION)
+    expect(AMAZON_PEAK_TITLE.length).toBeLessThanOrEqual(60)
+    expect(AMAZON_PEAK_DESCRIPTION.length).toBeLessThanOrEqual(160)
     for (const e of holidayHubEntries()) {
       if (e.kind === 'Analysis') {
         const a = ANALYSIS_ARTICLES.find(x => `/intelligence/analysis/${x.slug}` === e.href)!

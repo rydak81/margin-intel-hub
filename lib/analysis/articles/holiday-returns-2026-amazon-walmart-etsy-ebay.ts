@@ -2,7 +2,7 @@ import type { AnalysisArticle } from '@/lib/analysis/types'
 
 export const article = {
     "slug": "holiday-returns-2026-amazon-walmart-etsy-ebay",
-    "seoTitle": "2026 Holiday Returns: Amazon, Walmart, eBay, Etsy Fees",
+    "seoTitle": "Holiday Returns 2026: Amazon, Walmart, eBay, Etsy",
     "metaDescription": "Amazon and Walmart take holiday returns to Jan 31, 2027; eBay and Etsy leave it to you. Who pays return shipping and which fees come back.",
     "headline": "Holiday returns 2026: your December sales stay open until January 31, and the fees don't all come back",
     "dek": "Amazon and Walmart have both published 2026 holiday return windows that run to January 31, 2027. eBay and Etsy have not, so your own policy is the window. The window is only half the cost. Who pays return shipping, what a refund leaves you paying in fees and what you are allowed to deduct differ on every marketplace. Here is each one from its own pages, read November 3, 2026, and what to set this week.",

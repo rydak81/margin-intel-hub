@@ -2,7 +2,7 @@ import type { AnalysisArticle } from '@/lib/analysis/types'
 
 export const article = {
   "slug": "shopify-ai-channel-fees-chatgpt-checkout-2026",
-  "seoTitle": "Shopify AI Checkout: A Practical Compatibility Audit",
+  "seoTitle": "Shopify AI Checkout: Compatibility Audit",
   "metaDescription": "Compare Shopify AI purchase paths and use a repeatable worksheet to test product eligibility, required checkout fields and order attribution.",
   "headline": "The Shopify AI-channel decision is a checkout audit, not just a fee comparison",
   "dek": "Shopify’s current documentation separates ChatGPT referrals from direct checkout on Google, Copilot and Meta. A practical worksheet helps merchants test the differences that matter to their store.",

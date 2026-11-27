@@ -108,10 +108,14 @@ export function overviewRows(a: Marketplace, b: Marketplace): { label: string; a
 
 export { getMarketplace }
 
-/** Search copy must describe only the comparisons actually available. */
+/**
+ * Search copy must describe only the comparisons actually available.
+ * Keyword and the fee lines come first. The $29.99 figure stays on pairs that
+ * model a sale; other pairs keep the no-match limit and drop the longer tail.
+ */
 export function comparisonDescription(a: Marketplace, b: Marketplace): string {
   const scope = matchedCategories(a, b).length
-    ? `supported category comparisons and modeled total fees on a $${EXAMPLE_PRICE} sale`
-    : 'schedule information only; no verified same-product category comparison is available'
-  return `Compare ${a.name} and ${b.name} seller fees: account, listing and processing fees, plus ${scope}.`
+    ? `Modeled total fees on a $${EXAMPLE_PRICE} sale.`
+    : 'No verified same-product category comparison.'
+  return `Compare ${a.name} and ${b.name} seller fees (account, listing and processing). ${scope}`
 }

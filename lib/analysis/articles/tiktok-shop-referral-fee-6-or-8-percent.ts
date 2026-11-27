@@ -2,7 +2,7 @@ import type { AnalysisArticle } from '@/lib/analysis/types'
 
 export const article = {
     slug: "tiktok-shop-referral-fee-6-or-8-percent",
-    seoTitle: "TikTok Shop Fee: 6% or 8%? Check What You Pay",
+    seoTitle: "TikTok Shop Referral Fee: 6% or 8%?",
     metaDescription: "TikTok's US fee table still says 6%; trade blogs say 8% since Aug 4, 2026. What each means on a $20 sale and how to read your own rate.",
     headline: "TikTok Shop's referral fee: the table says 6%, the blogs say 8%. Your settlement report decides",
     dek: "Three months after trade blogs reported a move to 8%, TikTok's own US fee table, re-checked this morning, still lists 6%. On a $20 sale the gap is 40 cents an order. Here is what each rate costs, the settlement check that tells you which one you are on, and what would settle it for everyone.",

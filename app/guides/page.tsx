@@ -8,7 +8,7 @@ import { EditorialIntro } from '@/components/editorial-intro'
 import { GuideCards } from '@/components/guide-cards'
 import { ResourceLink } from '@/components/resource-link'
 export const metadata: Metadata = {
-  title: 'Ecommerce operator guides and free worksheets | MarketplaceBeta',
+  title: 'Ecommerce operator guides and free worksheets',
   description: 'Practical guides to product profitability, advertising break-even, and marketplace expansion, with worked examples and free printable worksheets.',
   alternates: { canonical: '/guides' },
   openGraph: { title: 'The operator library | MarketplaceBeta', description: 'Practical ecommerce decisions, worked through.', url: '/guides' },

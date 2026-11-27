@@ -56,7 +56,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // The date in the title is a real CTR lever on data queries — searchers scan
   // for recency before they click.
   const title = `${marketplace.shortName} ${feeLabel} for ${category.label}: ${rate} (${verified})`
-  const description = `${marketplace.name} charges ${category.tiers ? `a ${rate} ${marketplace.feeName} (tiered by price)` : `a ${rate} ${marketplace.feeName}`} on ${category.label}. See the full fee breakdown, calculate your margin, and inspect supported category comparisons.`
+  // Keyword and the rate come first. The trailing "see the full breakdown" line
+  // is boilerplate and is what pushed these descriptions past 160 characters.
+  const feePhrase = category.tiers ? `a ${rate} ${marketplace.feeName} (tiered by price)` : `a ${rate} ${marketplace.feeName}`
+  const description = `${marketplace.name} charges ${feePhrase} on ${category.label}.`
   // Flat-rate marketplaces (TikTok Shop, Etsy) canonicalise to the marketplace
   // page; the rest are self-canonical. See lib/seo-indexing.ts.
   const canonical = `${SITE_URL}${feeCategoryCanonicalPath(marketplace.slug, category.slug)}`

@@ -2,7 +2,7 @@ import type { AnalysisArticle } from '@/lib/analysis/types'
 
 export const article = {
     "slug": "amazon-2027-fba-fee-changes-storage-low-inventory",
-    "seoTitle": "Amazon 2027 FBA Fee Changes: What to Do Before Jan 15",
+    "seoTitle": "Amazon 2027 FBA Fee Changes: By Jan 15",
     "metaDescription": "Amazon FBA fees rise $0.19 a unit on average Jan 15, 2027; storage and the low-inventory fee reset Feb 1. What to clear, promote and reprice now.",
     "headline": "Amazon's 2027 FBA fees: peak pricing ends January 14, but for many small items the fee doesn't come back down",
     "dek": "Amazon told sellers on November 5, 2026 that FBA fulfillment fees rise by $0.19 a unit on average from January 15, 2027, and that storage fees and the low-inventory-level fee change on February 1. The changes land in the middle of holiday sell-through, so the decisions are about this season's stock: what to clear before it ages, which promotions to run before a new fee starts, and which small items need a new price on January 15.",

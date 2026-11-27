@@ -2,7 +2,7 @@ import type { AnalysisArticle } from '@/lib/analysis/types'
 
 export const article = {
     "slug": "ebay-international-fee-165-eis-2026",
-    "seoTitle": "eBay International Fee 2026: 1.65%, and When eIS Waives It",
+    "seoTitle": "eBay International Fee: 1.65%, When eIS Waives It",
     "metaDescription": "eBay's 1.65% international fee for US sellers: when it applies, why eBay International Shipping waives it, and what it adds at $50 to $3,000.",
     "headline": "eBay's 1.65% international fee: eIS waives it under a $2,500 cap, and above that it's a pricing line you can't ship around",
     "dek": "US sellers who ship overseas themselves pay eBay an extra 1.65% of the total sale on international orders. eBay International Shipping removes the fee on eligible orders up to $2,500, though eBay's Seller Center page measures that cap as item value excluding taxes, duties and delivery fees, while its help page includes shipping. We re-read both eIS pages and eBay's selling fees page on November 13, 2026, worked the fee at five prices, and found where it hurts most: high-ticket items in low-rate categories.",

@@ -35,8 +35,8 @@ const canonical = `${SITE_URL}${TIKTOK_FEE_CHANGE_PATH}`
 
 // The answer sits in the title: searchers asking "did it go up to 8%?" want
 // the status before they click.
-const title = "TikTok Shop 8% Fee Increase (2026): What's Confirmed, What Isn't"
-const description = `TikTok's own US fee table (dated Oct 8, 2026) still says ${PUBLISHED_RATE_PCT}%. Trade blogs report ${REPORTED_RATE_PCT}% from Aug 4, 2026. See the dollar difference on real orders and how to check your rate on your settlement statement.`
+const title = "TikTok Shop 8% Fee Increase (2026): What's Confirmed"
+const description = `TikTok's own US fee table (dated Oct 8, 2026) still says ${PUBLISHED_RATE_PCT}%. Trade blogs report ${REPORTED_RATE_PCT}% from Aug 4, 2026.`
 
 export const metadata: Metadata = {
   title,
