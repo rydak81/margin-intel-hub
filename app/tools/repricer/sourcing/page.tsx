@@ -3,6 +3,7 @@ import Link from "next/link"
 import { PremiumSiteFooter } from "@/components/premium-site-footer"
 import { PremiumSiteHeader } from "@/components/premium-site-header"
 import { SourcingView } from "@/components/repricer/sourcing-view"
+import { RepricerReference } from "@/components/repricer/repricer-reference"
 import { PackageSearch } from "lucide-react"
 
 export const metadata: Metadata = {
@@ -56,6 +57,7 @@ export default function RepricerSourcingPage() {
 
       <main className="mx-auto site-width px-4 py-6">
         <SourcingView />
+        <RepricerReference page="sourcing" />
       </main>
 
       <PremiumSiteFooter />

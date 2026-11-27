@@ -15,6 +15,70 @@ export const ORGANIZATION_ID = `${SITE_URL}/#organization`
 /** Reference to the Organization node; use as `publisher` / `creator`. */
 export const ORGANIZATION_REF = { '@id': ORGANIZATION_ID } as const
 
+export interface SectionListItem {
+  name: string
+  /** Site path (optional hash) or an absolute URL. */
+  path: string
+}
+
+export interface SectionCrumb {
+  name: string
+  path: string
+}
+
+/** Absolute URL for a site path, preserving a hash. Absolute URLs pass through. */
+export function absoluteSiteUrl(path: string): string {
+  if (/^https?:\/\//i.test(path)) return path
+  const hashAt = path.indexOf('#')
+  const hash = hashAt >= 0 ? path.slice(hashAt) : ''
+  const pathname = hashAt >= 0 ? path.slice(0, hashAt) : path
+  const normalized = pathname === '/' || pathname === '' ? '' : (pathname.startsWith('/') ? pathname : `/${pathname}`)
+  return `${SITE_URL}${normalized}${hash}`
+}
+
+/**
+ * Section hub graph: a CollectionPage whose ItemList is the items the page
+ * actually lists, plus a BreadcrumbList. Same shape as the analysis index.
+ */
+export function sectionPageJsonLd(input: {
+  name: string
+  description?: string
+  path: string
+  items: SectionListItem[]
+  breadcrumbs: SectionCrumb[]
+}) {
+  return [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: input.name,
+      ...(input.description ? { description: input.description } : {}),
+      url: absoluteSiteUrl(input.path),
+      isPartOf: { '@type': 'WebSite', name: 'MarketplaceBeta', url: SITE_URL },
+      mainEntity: {
+        '@type': 'ItemList',
+        numberOfItems: input.items.length,
+        itemListElement: input.items.map((item, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          name: item.name,
+          url: absoluteSiteUrl(item.path),
+        })),
+      },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: input.breadcrumbs.map((crumb, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: crumb.name,
+        item: absoluteSiteUrl(crumb.path),
+      })),
+    },
+  ]
+}
+
 export function organizationJsonLd() {
   return {
     '@context': 'https://schema.org',

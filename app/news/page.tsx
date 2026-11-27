@@ -10,6 +10,8 @@ import { Badge } from "@/components/ui/badge"
 import { getArticleImageUrl } from "@/lib/article-images"
 import { datedSummary } from '@/lib/news-freshness'
 import { getDailyOperatorBriefing } from "@/lib/news-briefing"
+import { JsonLd } from "@/components/json-ld"
+import { sectionPageJsonLd } from "@/lib/site-jsonld"
 
 export const metadata: Metadata = {
   title: "News | MarketplaceBeta",
@@ -43,9 +45,23 @@ export default async function NewsPage() {
   const { briefing, articles } = await getDailyOperatorBriefing()
   const signalIds = new Set(briefing.signals.map(s => s.articleId))
   const topCoverage = articles.filter(a => !signalIds.has(a.id)).slice(0, 8)
+  const jsonLd = sectionPageJsonLd({
+    name: briefing.headline,
+    description: briefing.dek,
+    path: "/news",
+    items: [
+      ...briefing.signals.map((signal) => ({ name: signal.title, path: `/news/${signal.articleId}` })),
+      ...topCoverage.map((article) => ({ name: article.title, path: `/news/${article.id}` })),
+    ],
+    breadcrumbs: [
+      { name: "Home", path: "/" },
+      { name: "News", path: "/news" },
+    ],
+  })
 
   return (
     <div className="min-h-screen bg-background">
+      <JsonLd data={jsonLd} />
       <PremiumSiteHeader active="news" deskLabel="News Desk" backHref="/" backLabel="Home" />
 
       <main className="mx-auto site-width px-4 py-10">

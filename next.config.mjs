@@ -23,6 +23,16 @@ const nextConfig = {
         source: '/embed/:path*',
         headers: [{ key: 'Content-Security-Policy', value: 'frame-ancestors *' }],
       },
+      // Research worksheets and the markdown pilot download are artifacts, not
+      // pages. The Intelligence Dossier PDF and the HTML worksheets stay indexable.
+      {
+        source: '/research/:file.json',
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex' }],
+      },
+      {
+        source: '/downloads/:file.md',
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex' }],
+      },
     ]
   },
   async redirects() {
