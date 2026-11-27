@@ -156,7 +156,7 @@ export function HistoryExplorer({
           </DialogTitle>
           <DialogDescription>
             {item.asin} · {item.category} ·{" "}
-            {source === "sample" ? "sample data — not observed history" : "Keepa market data · New condition"}
+            {source === "sample" ? "sample data — not observed history" : "Market data · New condition"}
           </DialogDescription>
         </DialogHeader>
 

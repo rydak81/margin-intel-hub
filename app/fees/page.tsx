@@ -8,6 +8,8 @@ import { BRIEF_CTA_KEYS } from "@/lib/brief-cta"
 import { MARKETPLACES } from "@/lib/marketplace-fees"
 import { TIKTOK_FEE_CHANGE_PATH } from "@/lib/tiktok-fee-change-2026"
 import { FEE_BY_PRICE_PATH } from "@/lib/fee-by-price"
+import { JsonLd } from "@/components/json-ld"
+import { sectionPageJsonLd } from "@/lib/site-jsonld"
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://marketplacebeta.com"
 
@@ -28,9 +30,23 @@ export const metadata: Metadata = {
 
 export default function FeesIndexPage() {
   const totalCategories = MARKETPLACES.reduce((sum, m) => sum + m.categories.length, 0)
+  const jsonLd = sectionPageJsonLd({
+    name: "Know what you keep.",
+    description,
+    path: "/fees",
+    items: [
+      { name: "What each marketplace takes at $10, $25, $50 and $100", path: FEE_BY_PRICE_PATH },
+      ...MARKETPLACES.map((marketplace) => ({ name: marketplace.name, path: `/fees/${marketplace.slug}` })),
+    ],
+    breadcrumbs: [
+      { name: "Home", path: "/" },
+      { name: "Fees", path: "/fees" },
+    ],
+  })
 
   return (
     <div className="min-h-screen bg-background">
+      <JsonLd data={jsonLd} />
       <PremiumSiteHeader active="fees" />
 
       <main className="mx-auto site-width px-4 py-10 sm:px-6 lg:px-8">

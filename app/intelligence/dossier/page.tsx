@@ -7,6 +7,8 @@ import { SponsorBriefLink } from '@/components/brief-cta'
 import { UpgradeCta } from '@/components/upgrade-cta'
 import { DossierSponsorCredit } from '@/components/dossier-sponsor-credit'
 import { getDossierSponsor } from '@/lib/sponsorship'
+import { JsonLd } from '@/components/json-ld'
+import { sectionPageJsonLd } from '@/lib/site-jsonld'
 
 export const metadata: Metadata = {
   title: 'Intelligence Dossier: The 2026 Margin Squeeze | MarketplaceBeta',
@@ -32,8 +34,24 @@ const FINDINGS = [
 
 export default function DossierPage() {
   const sponsor = getDossierSponsor()
+  const jsonLd = sectionPageJsonLd({
+    name: 'The 2026 margin squeeze, and where the next edge is',
+    description: 'Edition 1 of the MarketplaceBeta Intelligence Dossier: proprietary pattern analysis across 8,500+ classified articles, sourced market evidence, a scored opportunity ranking, and a logged 12-forecast ledger.',
+    path: '/intelligence/dossier',
+    items: [
+      { name: 'Read the full dossier', path: '/intelligence/dossier-2026-10.html' },
+      { name: 'Download the PDF (25 pages)', path: '/intelligence/MarketplaceBeta-Intelligence-Dossier-2026-10.pdf' },
+      ...FINDINGS.map((finding, index) => ({ name: finding.title, path: `/intelligence/dossier#finding-${index + 1}` })),
+    ],
+    breadcrumbs: [
+      { name: 'Home', path: '/' },
+      { name: 'Intelligence', path: '/intelligence' },
+      { name: 'Dossier', path: '/intelligence/dossier' },
+    ],
+  })
   return (
     <div className="min-h-screen bg-background">
+      <JsonLd data={jsonLd} />
       <PremiumSiteHeader active="intelligence" deskLabel="Intelligence Dossier" backHref="/intelligence" backLabel="Intelligence" />
       <main className="mx-auto site-width px-4 py-10 sm:px-6">
         <section className="editorial-elevated relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-950 p-7 text-white sm:p-10 lg:p-14">
@@ -72,7 +90,7 @@ export default function DossierPage() {
           <h2 id="findings-title" className="mt-2 text-3xl font-bold">Six findings that organize the report.</h2>
           <div className="mt-7 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {FINDINGS.map((finding, index) => (
-              <article key={finding.title} className="editorial-elevated rounded-2xl border border-border bg-card p-6">
+              <article id={`finding-${index + 1}`} key={finding.title} className="editorial-elevated rounded-2xl border border-border bg-card p-6">
                 <p className="text-xs font-bold uppercase tracking-wider text-primary">Finding {index + 1}</p>
                 <h3 className="mt-3 text-xl font-bold leading-snug">{finding.title}</h3>
                 <p className="mt-3 text-sm leading-7 text-muted-foreground">{finding.text}</p>

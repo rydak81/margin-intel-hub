@@ -142,7 +142,7 @@ export function HistoryView({ basePath = "/history" }: { basePath?: string } = {
             variant="outline"
             className="border-emerald-500/40 text-emerald-700 dark:text-emerald-300"
           >
-            Keepa market data · New condition
+            Market data · New condition
           </Badge>
         )}
         {loading && <span className="text-sm text-muted-foreground">Loading…</span>}

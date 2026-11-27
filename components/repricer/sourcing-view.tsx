@@ -272,7 +272,7 @@ export function SourcingView() {
           </div>
         )}
 
-        <p className="mt-3 text-sm text-muted-foreground">Use a price for the same product condition and fulfillment method. Keepa charts show New-condition offers; the example catalog is Renewed. Fee rates are editable assumptions, not verified quotes.</p>
+        <p className="mt-3 text-sm text-muted-foreground">Use a price for the same product condition and fulfillment method. A live lookup shows New-condition offers; the example catalog is Renewed. Fee rates are editable assumptions, not verified quotes.</p>
         {/* Picked product summary */}
         {picked && (
           <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-1 rounded-xl border p-3 text-sm">

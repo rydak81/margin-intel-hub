@@ -79,7 +79,7 @@ export default function SponsorPage() {
           <SponsorInquiryForm sourcePage="sponsor" />
         </section>
 
-        <p className="mt-8 text-sm text-muted-foreground">Looking for a partner introduction instead? Visit the <Link href="/partners" className="underline">partner marketplace</Link>.</p>
+        <p className="mt-8 text-sm text-muted-foreground">Looking for a partner introduction instead? Use the <Link href="#inquiry" className="underline">sponsorship inquiry</Link>.</p>
       </main>
       <PremiumSiteFooter />
     </div>

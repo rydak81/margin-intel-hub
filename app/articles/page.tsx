@@ -1,5 +1,7 @@
 import { Suspense } from "react"
+import { JsonLd } from "@/components/json-ld"
 import { loadInitialArticles } from "@/lib/articles-initial"
+import { sectionPageJsonLd } from "@/lib/site-jsonld"
 import { ArticlesBrowser } from "./articles-browser"
 import { ArticlesStaticList } from "./articles-static-list"
 
@@ -9,9 +11,22 @@ export const revalidate = 300
 
 export default async function ArticlesRoute() {
   const initial = await loadInitialArticles()
+  const jsonLd = sectionPageJsonLd({
+    name: "Marketplace news archive",
+    description: "Search marketplace news by platform, topic, and date.",
+    path: "/articles",
+    items: (initial?.articles ?? []).map((article) => ({ name: article.title, path: `/news/${article.id}` })),
+    breadcrumbs: [
+      { name: "Home", path: "/" },
+      { name: "Articles", path: "/articles" },
+    ],
+  })
   return (
-    <Suspense fallback={<ArticlesStaticList initial={initial} />}>
-      <ArticlesBrowser initial={initial} />
-    </Suspense>
+    <>
+      <JsonLd data={jsonLd} />
+      <Suspense fallback={<ArticlesStaticList initial={initial} />}>
+        <ArticlesBrowser initial={initial} />
+      </Suspense>
+    </>
   )
 }

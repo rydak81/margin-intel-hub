@@ -3,6 +3,7 @@ import Link from "next/link"
 import { PremiumSiteFooter } from "@/components/premium-site-footer"
 import { PremiumSiteHeader } from "@/components/premium-site-header"
 import { HistoryView } from "@/components/repricer/history-view"
+import { RepricerReference } from "@/components/repricer/repricer-reference"
 import { LineChart } from "lucide-react"
 
 export const metadata: Metadata = {
@@ -56,6 +57,7 @@ export default function RepricerHistoryPage() {
 
       <main className="mx-auto site-width px-4 py-6">
         <HistoryView basePath="/tools/repricer/history" />
+        <RepricerReference page="history" />
       </main>
 
       <PremiumSiteFooter />
