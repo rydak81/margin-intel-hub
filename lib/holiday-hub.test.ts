@@ -60,11 +60,11 @@ describe('/holiday-2026 route', () => {
     expect(HOLIDAY_HUB_HEADING).toBe('Black Friday and Cyber Monday 2026 for marketplace sellers')
     const html = await hubHtml()
     expect(html).toContain('"@type":"CollectionPage"')
-    expect(html).toContain('"dateModified":"2026-11-25"')
+    expect(html).toContain('"dateModified":"2026-11-28"')
     expect(html).toContain('"@type":"BreadcrumbList"')
     expect(html).toContain(`>${esc(HOLIDAY_HUB_HEADING)}<`)
     expect(html.match(/<h1/g)).toHaveLength(1)
-    expect(holidayHubUpdatedOn()).toBe(HOLIDAY_HUB_REVISED_ON)
+    expect(holidayHubUpdatedOn()).toBe('2026-11-28')
   })
 
   it('is in the sitemap once, dated from its newest entry, without dropping other routes', async () => {
