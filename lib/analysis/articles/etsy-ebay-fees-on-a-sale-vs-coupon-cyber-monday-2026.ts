@@ -21,7 +21,7 @@ export const article = {
   ],
   "takeaway": "Before you discount this weekend, sort each offer by who funds it. An Etsy-funded coupon is the best case: Etsy's help page says you get the full order amount and pay the same fees as without the coupon, so our hypothetical $50 item keeps $44.80 at full price or with the coupon. A coupon event you fund on eBay is the worst case: eBay's terms put fees on the non-discounted price, so the same item at 20% off keeps $32.80 after eBay invoices your share. Your own Etsy sale or eBay Discounts Manager offer sits in between, and the pages we read don't settle which price the fee follows. On this item the gap is $0.95 on Etsy and $1.36 on eBay per order. If that matters at your volume, edit the list price instead, or check the fee lines on your first discounted orders.",
   "forecastIds": [],
-  "newsletterSource": "campaign_kw_cmp_ebay_etsy",
+  "newsletterSource": "campaign_kw_bfcm_discount_fees",
   "sections": [
     {
       "id": "answer",
